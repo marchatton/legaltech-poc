@@ -1,166 +1,260 @@
 ---
 name: wf-ralph
-description: This skill should only be used when the user uses the word workflow and asks to run the Ralph workflow loop (dev/review/research/e2e) with verification and periodic handoff/pickup checkpoints to avoid context rot.
+description: This skill should be used when running a Ralph-style, one-task-per-iteration loop using Ralphy under the hood, with simple modes (dev, research, e2e, review), Codex-by-default, and dossier-local prd.json discovery.
+license: MIT
 ---
 
 # wf-ralph
 
 ## Purpose
 
-Run iterative Ralph loops without letting context rot. Use checkpoints (handoff → new thread → pickup) to keep each block crisp.
+Run a “Ralph-style loop runner” using Ralphy.
 
-## Inputs (free text)
+- Keep the mental model: **one task per iteration**, frequent verification, small changes.
+- Default engine: **Codex** (`ralphy --codex`).
+- Default task source: dossier-local **Ralphy JSON** (`--json <path>`).
+- Default browser behaviour: **off** (`--no-browser`) and rely on `test-browser` skill for UI checks.
 
-Parse from user text; ask if missing.
+## When to use
 
-Required:
-- PRD path (prd.md + prd.json). Ask if unsure.
-- Mode: `dev | code-review | research | e2e`
-- Iteration count (default 5)
+Use this skill when any of the following is true:
 
-Defaults:
-- Quick checks: verify skill (skip in research mode)
-- Review after loop: `wf-review` in **light-plus** mode
-- Checkpointing: every **3** iterations (recommended)
+- A “run Ralph loop” workflow is needed, but the underlying runner should be **Ralphy**.
+- A repeatable, copy-paste command template is needed for `dev | research | e2e | review`.
+- A dossier-local `prd.json` must be found from an `@slug` or a relative dossier path.
 
-Optional args:
-- `checkpoint_every: <n>` (0 disables)
-- `review_mode: light | light-plus | heavy`
-- `handoff_dir: <path>` (default `.ralph/handoffs/` or dossier `/handoffs/` if provided)
-- `AGENT_CMD` override
+## Minimum questions
 
-## Outputs
+If any of these are missing, ask only these questions first (reply format at the end).
 
-- `.ralph/` state + logs
-- Updated prd.json (passes true per story)
-- Handoff notes at each checkpoint (file path printed)
-- Optional dossier log (if repo conventions require)
+1) **Mode**?
+- a) **dev** (default)
+- b) research
+- c) e2e
+- d) review
 
-## The key rule (context management)
+2) **PRD location**?
+- a) **Use `./prd.json` if present** (default)
+- b) `@slug` (search under `docs/04-projects/**`)
+- c) relative path to dossier folder or `prd.json`
 
-For long loops:
-- After every checkpoint: **handoff → start new thread → pickup → continue**
-- Do not drag a 50-turn debug thread through 10 iterations.
+3) **Branch workflow**?
+- a) **Run on current branch** (default, closest to Ralph)
+- b) `--branch-per-task` (one branch per task)
 
-## Steps
+4) If 3b, PR behaviour?
+- a) **No PRs** (default)
+- b) `--create-pr`
+- c) `--draft-pr`
 
-0) Confirm params
-- Ask for: PRD path, mode, iteration count if missing.
-- Ask for checkpointing only if user pushes back. Otherwise default:
-  - `checkpoint_every = 3` (non-research)
-  - `checkpoint_every = 5` (research)
+Reply shorthand:
 
-1) Pickup (recommended, esp in new thread)
-- Invoke `pickup` at the start of the loop block.
-- If a previous checkpoint handoff note exists, read it first.
+- `defaults` (accept all defaults)
+- or `1b 2c docs/04-projects/... 3a` etc
 
-2) Baseline verification
-- If mode != research: run verify skill once before iteration 1.
-- Record whether baseline is clean.
+## Discovery
 
-3) Loop
-For i in 1..N:
+### Determine repo root
 
-A) Run one Ralph iteration
-- Run `ralph build 1`
+- Prefer: `git rev-parse --show-toplevel`
+- Fallback: current working directory
 
-B) Run quick checks
-- If mode == research: skip checks (ship an artefact, not code)
-- Else:
-  - run verify skill (or your configured quick checks)
-  - fix failures before next iteration
+### Locate dossier `prd.json` without brittle paths
 
-C) Mark story pass rules
-- Mark story pass only when checks are green + acceptance criteria met.
+Locate the PRD JSON using this order:
 
-D) Optional e2e diagnostics
-- If mode == e2e or UI story: run `test-browser` diagnostics and capture evidence.
+1) If current working directory contains `prd.json`, use it.
+2) Else, accept either:
+   - an `@slug` (dossier folder name contains the slug), or
+   - a relative dossier path, or
+   - a relative path to a `prd.json`
+   Then search under `docs/04-projects/**`.
 
-E) Checkpoint decision (Option 3 behaviour)
-Trigger a checkpoint when:
-- `checkpoint_every > 0` and `i % checkpoint_every == 0`, OR
-- two consecutive iterations failed verification, OR
-- a major direction change happened (new approach, refactor spike, etc)
+Optional helper (bundled): `scripts/find_prd_json.sh`
 
-When checkpoint triggers:
-1. Write a handoff note (see “Checkpoint routine”)
-2. Stop and ask user to start a new thread:
-   - user runs `/new`
-   - then invoke `pickup` in the new thread and point it at the handoff note path
-3. Continue the loop in the new thread (starting at next iteration)
-
-4) After the loop: review once (no review inside loop)
-- Create a handoff note for the review boundary.
-- Recommend a new thread for review:
-  - `/new` then `pickup` then run `wf-review` with `review_mode` (default light-plus)
-
-5) If review finds issues
-- Only run a follow-up Ralph loop if user requests.
-- If requested: start from a clean thread using pickup.
-
-## Checkpoint routine (handoff + bash)
-
-Goal: create a durable “resume point” file.
-
-1) Decide where to store handoff notes
-- If dossier path provided: `<dossier>/handoffs/`
-- Else: `.ralph/handoffs/`
-
-2) Capture machine state quickly (bash)
-Run a quick snapshot (adjust paths as needed):
+- `scripts/find_prd_json.sh` prints the resolved `prd.json` path.
+- Prefer invoking it from repo root:
 
 ```bash
-set -euo pipefail
-
-ITER="${ITER:-<iter>}"
-TS="$(date +%Y-%m-%d-%H%M)"
-HANDOFF_DIR="${HANDOFF_DIR:-.ralph/handoffs}"
-mkdir -p "$HANDOFF_DIR"
-OUT="$HANDOFF_DIR/ralph-handoff-iter${ITER}-${TS}.md"
-
-{
-  echo "# Ralph handoff (iter ${ITER}) - ${TS}"
-  echo
-  echo "## Repo"
-  git status -sb || true
-  echo
-  echo "## Recent commits"
-  git log -5 --oneline || true
-  echo
-  echo "## Diff stat"
-  git diff --stat || true
-  echo
-  echo "## PR (optional)"
-  gh pr status 2>/dev/null || true
-  echo
-  echo "## tmux (optional)"
-  tmux list-sessions 2>/dev/null || true
-  echo
-  echo "## .ralph (optional)"
-  ls -la .ralph 2>/dev/null || true
-} > "$OUT"
-
-echo "Wrote: $OUT"
+./scripts/find_prd_json.sh @bulk-invite-members
+./scripts/find_prd_json.sh docs/04-projects/02-features/0007_bulk-invite-members
 ```
 
-3) Write the human handoff checklist
-- Invoke `handoff` skill and append its bullet list into the same `$OUT` file.
-- Include:
-  - what’s done vs pending
-  - what failed and how to reproduce
-  - what to run first next thread (verify, specific test, etc)
+## Ralphy commands
 
-4) Start new thread + pickup
-- user runs `/new`
-- first message should include the handoff note path, e.g.:
-  - “pickup and continue wf-ralph from handoff: .ralph/handoffs/ralph-handoff-iter3-YYYY-MM-DD-HHMM.md”
+### Defaults that match the Ralph vibe
 
-## Verification
+- Run **one task per invocation** via `--max-iterations 1`.
+- Repeat the command N times manually (or via a wrapper script) to avoid context rot.
+- Keep `--parallel` off by default.
+- Keep auto browser automation off (`--no-browser`) and use `test-browser` skill instead.
 
-- verify skill run in non-research modes (baseline + per iteration or at least per checkpoint block)
-- wf-review run once after loop (unless user explicitly skips)
+### Dev mode
 
-## Go/No-Go
+Command template:
 
-- GO if checks green, acceptance criteria met, and review (if run) is GO.
-- NO-GO if any required verification fails.
+```bash
+ralphy --codex --json "<PRD_JSON>" --max-iterations 1 --no-browser
+```
+
+Behavioural requirements:
+
+- Keep changes small and focused (one concern per iteration).
+- Respect repo conventions (pnpm workspaces, TypeScript preference).
+- For code changes: always use the `verify` skill and report commands + results.
+- For UI/user-flow changes: use `test-browser` skill for smoke verification and basic a11y spot-check.
+
+Optional debug/safety flags (add only when needed):
+
+```bash
+ralphy --codex --json "<PRD_JSON>" --max-iterations 1 --no-browser --max-retries 3 --retry-delay 10 --verbose
+ralphy --codex --json "<PRD_JSON>" --dry-run
+ralphy --codex --json "<PRD_JSON>" --no-commit
+```
+
+### Research mode
+
+Command template:
+
+```bash
+ralphy --codex --json "<PRD_JSON>" --max-iterations 1 --fast --no-browser
+```
+
+Behavioural requirements:
+
+- Treat “done” as a concrete artefact (memo, plan, decision record) written into the dossier.
+- Prefer writing under the dossier folder (for example: `docs/04-projects/.../<dossier>/research/…`).
+- Avoid modifying product code unless a task explicitly asks.
+
+### E2E mode
+
+Command template:
+
+```bash
+ralphy --codex --json "<PRD_JSON>" --max-iterations 1 --no-browser
+```
+
+Behavioural requirements:
+
+- Do not use Ralphy’s `--browser` / agent-browser flow in this mode.
+- Require tasks to call the `test-browser` skill and capture evidence.
+- Write evidence artefacts to a dossier-local artefacts folder (recommendation):
+  - `<dossier>/artifacts/e2e/` (screenshots, notes, logs)
+
+Test suite status:
+
+- If an automated E2E runner does not exist yet, treat it as a placeholder task.
+- Still produce proof via `test-browser` screenshots and a short run log.
+
+### Review mode
+
+Default behaviour:
+
+- Do not run Ralphy unless explicitly asked.
+- Summarise changes (diff-level), key risks, and verification status.
+- Write review notes into the dossier (for example: `<dossier>/reviews/<date>-review.md`).
+
+## Ralphy config guardrails
+
+### Initialise project config
+
+Create `.ralphy/config.yaml` if missing:
+
+```bash
+ralphy --init
+```
+
+### Recommend rules
+
+Add rules that reduce agent freelancing:
+
+- “Prefer TypeScript for new code unless the repo already uses something else.”
+- “Follow repo conventions and patterns in AGENTS.md.”
+- “Keep changes small; avoid drive-by refactors.”
+- “Do not edit PRD files (`prd.json`, PRD markdown) unless explicitly asked.”
+
+Add via CLI when helpful:
+
+```bash
+ralphy --add-rule "Prefer TypeScript for new code"
+ralphy --add-rule "Do not edit PRD files unless asked"
+```
+
+### Recommend boundaries.never_touch
+
+Avoid brittle paths. Use globs and repo-relative patterns.
+
+Recommended starting point:
+
+```yaml
+boundaries:
+  never_touch:
+    - ".ralphy/**"
+    - ".ralphy-worktrees/**"
+    - ".ralphy-sandboxes/**"
+    - "**/*.lock"
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/coverage/**"
+```
+
+If the workflow needs dependency changes, remove or narrow the lockfile patterns intentionally.
+
+## PRD JSON format and acceptance criteria
+
+### What Ralphy expects
+
+Use the Ralphy JSON task shape as the source of truth:
+
+```json
+{
+  "tasks": [
+    {
+      "title": "US-001: short task title",
+      "completed": false,
+      "parallel_group": 1,
+      "description": "Optional details"
+    }
+  ]
+}
+```
+
+- Titles must be unique.
+- Only rely on `tasks[].title`, `tasks[].completed`, `tasks[].parallel_group`, `tasks[].description`.
+- Extra metadata keys may be present, but do not depend on them being preserved.
+
+### Add acceptance criteria safely
+
+Store acceptance criteria inside `tasks[].description` so the file remains Ralphy-compatible.
+
+Recommended description structure:
+
+- Context (what and why)
+- Acceptance criteria (bullets)
+- Verification (commands to run, plus `test-browser` instructions when relevant)
+- Evidence paths (where screenshots/logs/docs will land)
+
+Example (valid JSON, uses `\n` newlines):
+
+```json
+{
+  "tasks": [
+    {
+      "title": "US-002: Display priority indicator on task cards",
+      "completed": false,
+      "parallel_group": 1,
+      "description": "Context:\nShow priority on each task card so users can scan urgency quickly.\n\nAcceptance criteria:\n- Each task card shows a priority badge: high, medium, low\n- Badge is visible without hover\n- Typecheck passes\n\nVerification:\n- Run verify skill (lint/test/build as appropriate)\n- Use test-browser skill to confirm the badge renders and is readable\n\nEvidence:\n- Save screenshot to <dossier>/artifacts/e2e/priority-badge.png\n"
+    }
+  ]
+}
+```
+
+## Output format when running this skill
+
+When this skill is invoked in a chat/thread:
+
+1) Ask the minimum questions if anything is missing (mode, PRD path/slug, branch workflow).
+2) Print copy-paste-ready command lines for the chosen mode.
+3) List expected evidence artefacts and where they will be written.
+4) End with a suggestion to run `pickup` at the start (new thread) and `handoff` at the end (before switching threads).
