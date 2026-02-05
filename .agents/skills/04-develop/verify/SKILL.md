@@ -24,6 +24,9 @@ If you cannot verify, return **NO-GO** with a concrete reason and the smallest u
   - single package/app if changes are local
   - repo-wide only if shared libraries, configs, or multiple packages changed
 - If unsure, start scoped, then widen if failures suggest shared impact.
+- Repo defaults (when scripts exist and the repo uses pnpm workspaces):
+  - Monorepo/shared: `pnpm -r lint`, `pnpm -r test`, `pnpm -r build`
+  - Single package/app: `pnpm -F <pkg> lint`, `pnpm -F <pkg> test`, `pnpm -F <pkg> build`
 
 ### 1) Discover the available verification scripts (don’t guess)
 1) Identify the relevant `package.json`:
@@ -72,6 +75,7 @@ Notes:
 
 ### 3) UI smoke testing (required for UI/user-flow changes)
 If changes affect UI, routing, auth flows, forms, state, client behaviour, styling that could break layout, or anything user-visible, do a smoke test.
+Minimum expectation: browser smoke test + basic a11y spot-check (keyboard, focus, labels).
 
 #### 3.1 Start the app
 - Use the repo’s normal dev/start script for the relevant app (e.g. `dev`, `start`, `preview`).
