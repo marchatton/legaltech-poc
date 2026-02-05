@@ -102,7 +102,7 @@ Synthetic packs are first-class fixtures. Expect scripts like:
   /prompts (drafter/verifier prompts)
   /evals (fixture-based checks)
 
-/docs/architecture
+/docs/03-architecture
 /docs/04-projects (shaping dossiers)
 ```
 

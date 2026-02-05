@@ -1,0 +1,73 @@
+{
+  "project": "trust-substrate",
+  "branchName": "codex/trust-substrate",
+  "description": "Umbrella PRD for the trust substrate: matters + viewer baseline, citation UI/model, verification gate, failure UX, and minimal provenance.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Matter + document viewer baseline",
+      "description": "Create matters, upload PDFs, and view them with page navigation.",
+      "acceptanceCriteria": [
+        "User can create a matter and upload the PDFs from pack_01_clean/docs/.",
+        "Document list shows processing state (even if it is \"uploaded\" only).",
+        "PDF viewer renders any uploaded PDF and supports page navigation."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Citation chips -> click-to-highlight",
+      "description": "Clicking a citation chip opens the correct doc/page and highlights the cited region using anchor scaffolding.",
+      "acceptanceCriteria": [
+        "In pack_01_clean, selecting a seeded row with citations shows citation chips.",
+        "Clicking a chip opens the target PDF and highlights the cited region (using anchors).",
+        "Viewer shows snippet text and snippet hash next to the highlight."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-003",
+      "title": "Canonical citation model + citations API",
+      "description": "Store citations as canonical objects and expose them via an API used by the viewer and report table.",
+      "acceptanceCriteria": [
+        "Report rows store citations as IDs (not free text).",
+        "GET /citations/:id returns {document_id, page_number, polygons, snippet, snippet_hash}.",
+        "Viewer uses only this API for evidence display."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-004",
+      "title": "Verification gate + row status transitions",
+      "description": "Fail-closed verification that blocks export by default when citations fail.",
+      "acceptanceCriteria": [
+        "For a known-good seeded row in pack_01_clean, verifier passes and row becomes needs_review.",
+        "For a known-bad row (inject a mismatching snippet hash), verifier fails and row becomes citation_failed.",
+        "UI surfaces citation check failed and blocks export by default (override toggle optional)."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-005",
+      "title": "Failure journeys as first-class UX",
+      "description": "Missing docs, OCR quality warnings, and citation mismatch are explicit and actionable.",
+      "acceptanceCriteria": [
+        "pack_02_missing_rea produces rows tagged missing_input with a clear missing referenced docs list.",
+        "pack_06_noisy_scans_rotated_page surfaces extraction/OCR quality warnings at doc level (even if simulated early).",
+        "Citation mismatch shows a visible error and a user action: flag citation wrong."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-006",
+      "title": "Provenance and traceability",
+      "description": "Capture minimal provenance that answers what produced a row and allow trace export.",
+      "acceptanceCriteria": [
+        "Every run and row stores agent_bundle_version (prompt versions, retrieval pipeline version).",
+        "Store model + prompt version + retrieved chunk IDs for each row generation.",
+        "Ability to export a run trace JSON for a single run."
+      ],
+      "priority": 2
+    }
+  ]
+}

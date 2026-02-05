@@ -52,5 +52,5 @@ Evals are first-class because trust is the product:
 
 ## Tech stack and framework choices
 See:
-- `docs/architecture/05_tech_stack_and_dev_workflow.md` for stack, dev workflow, and fixtures
-- `docs/architecture/06_frameworks_agents_rag_evals.md` for framework options and why we chose Workflow DevKit
+- `docs/03-architecture/05_tech_stack_and_dev_workflow.md` for stack, dev workflow, and fixtures
+- `docs/03-architecture/06_frameworks_agents_rag_evals.md` for framework options and why we chose Workflow DevKit

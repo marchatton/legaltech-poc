@@ -52,7 +52,7 @@ flowchart LR
   STEP --> LLM
   STEP --> EMB
   STEP --> OBJ
-``
+```
 
 Notes:
 - WDK owns durability, retries, and resumability.

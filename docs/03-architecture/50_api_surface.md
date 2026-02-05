@@ -1,5 +1,10 @@
 # API surface (PoC)
 
+## Security posture (PoC)
+- All endpoints require workspace auth unless explicitly noted.
+- Public endpoints must be rate limited and strictly validated at the boundary (Zod).
+- Webhooks (if added) must verify signatures before parsing or acting.
+
 ## Folder + docs
 - POST /folders
 - POST /folders/:id/documents (init upload)
