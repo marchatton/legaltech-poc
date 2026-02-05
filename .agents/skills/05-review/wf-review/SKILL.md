@@ -1,6 +1,6 @@
 ---
 name: wf-review
-description: This skill should only be used when the user uses the word workflow and asks to review changes (select mode: light, light-plus, heavy) with verification and context handoff/pickup to avoid context rot.
+description: "This skill should only be used when the user uses the word workflow and asks to review changes (select mode: light, light-plus, heavy) with verification and context handoff/pickup to avoid context rot."
 ---
 
 # wf-review
