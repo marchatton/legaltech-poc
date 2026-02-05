@@ -1,5 +1,4 @@
-issue_type,detail,impact,source_doc,source_page_hint
-encroachment,Chain-link fence encroaches ~0.7' over west line near NW corner,Potential title/survey objection; endorsement or cure may be required,08_ALTA_NSPS_Survey_Draft.pdf,See drawing callout
-easement_depiction,Utility easement Inst. 2012-001234 depicted along north boundary,Confirm matches recorded instrument; confirm no buildable area impact for planned improvements,08_ALTA_NSPS_Survey_Draft.pdf,See dashed line callout
-access,Ingress/egress easement per REA 2019-098765 depicted along east boundary,Confirm access rights are sufficient and not conditional; review maintenance/approval clauses,08_ALTA_NSPS_Survey_Draft.pdf,See callout
-legal_description_mismatch,Survey shows AREA (FIELD) note that conflicts with record description acreage.,Escalate to senior associate; confirm legal description and survey basis.,08_ALTA_NSPS_Survey_Draft.pdf,See header area note
+issue_type,description,impact,suggested_fix,citation_doc,citation_anchor
+encroachment,Concrete sidewalk encroaches approx. 0.8' over the east boundary line.,"May require cure, endorsement, or risk acceptance.","Confirm materiality; consider survey revision, boundary agreement, or endorsement evidence package.",ALTA_Survey.pdf,SURVEY_ENC_01
+legal_description_mismatch,Survey notes inconsistency between record description and measured dimensions/area.,Potential title/survey mismatch; may block deed drafting and policy issuance until resolved.,Request surveyor/ title to reconcile record description; obtain corrected legal description or survey revision.,ALTA_Survey.pdf,SURVEY_RECORD_MISMATCH
+survey_certification_gap,Survey certification does not include lender as a certified party.,May not satisfy lender/title underwriting requirements; could require re-issue of survey certification.,Request updated certification including lender and title insurer as required.,ALTA_Survey.pdf,SURVEY_CERT_PARTIES

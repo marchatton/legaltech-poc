@@ -1,0 +1,180 @@
+{
+  "title": "ALTA/NSPS Land Title Survey (Synthetic) - 401 S Alameda Street, Los Angeles, CA 90013",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "ALTA/NSPS LAND TITLE SURVEY (SYNTHETIC)",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.6093235294117647,
+            0.9303030303030303
+          ],
+          "anchor": "SURVEY_HEADER"
+        },
+        {
+          "text": "Property: 401 S Alameda Street, Los Angeles, CA 90013",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.4996732026143791,
+            0.896969696969697
+          ],
+          "anchor": "SURVEY_PROPERTY"
+        },
+        {
+          "text": "County/State: Los Angeles County, CA",
+          "bbox": [
+            0.08823529411764706,
+            0.8636363636363636,
+            0.3697875816993464,
+            0.8787878787878788
+          ],
+          "anchor": "SURVEY_COUNTY_STATE"
+        },
+        {
+          "text": "Date of Survey: February 02, 2026",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.33890522875817,
+            0.8606060606060606
+          ],
+          "anchor": "SURVEY_DATE"
+        },
+        {
+          "text": "Table A Items Requested (synthetic)",
+          "bbox": [
+            0.08823529411764706,
+            0.8181818181818182,
+            0.3978529411764706,
+            0.834848484848485
+          ],
+          "anchor": "SURVEY_TABLEA_HEADER"
+        },
+        {
+          "text": "Table A: 1, 2, 3, 4, 6(a), 7(a), 8",
+          "bbox": [
+            0.08823529411764706,
+            0.7981818181818181,
+            0.3116666666666667,
+            0.8133333333333332
+          ],
+          "anchor": "SURVEY_TABLEA_LIST"
+        },
+        {
+          "text": "Notes",
+          "bbox": [
+            0.08823529411764706,
+            0.7663636363636362,
+            0.13816666666666666,
+            0.783030303030303
+          ],
+          "anchor": "SURVEY_NOTES_HEADER"
+        },
+        {
+          "text": "1. Partial release appears to release a described 'Portion A' only (see Partial_Release). Confirm scope.",
+          "bbox": [
+            0.08823529411764706,
+            0.7463636363636362,
+            0.7955661764705882,
+            0.7607575757575756
+          ],
+          "anchor": "SURVEY_NOTE_01"
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "lines": [
+        {
+          "text": "SURVEY SKETCH (NOT TO SCALE)",
+          "bbox": [
+            0.08823529411764706,
+            0.9272727272727272,
+            0.4194117647058824,
+            0.9454545454545454
+          ],
+          "anchor": "SURVEY_SKETCH_HDR"
+        },
+        {
+          "text": "Callout: 20' Utility Easement along north line (Schedule B-II Item 12).",
+          "bbox": [
+            0.08823529411764706,
+            0.2109090909090909,
+            0.5605343137254902,
+            0.2253030303030303
+          ],
+          "anchor": "SURVEY_CALLOUT_UTILITY"
+        },
+        {
+          "text": "Callout: Ingress/Egress easement via west curb cut (Schedule B-II Item 13).",
+          "bbox": [
+            0.08823529411764706,
+            0.19323232323232323,
+            0.6093227124183007,
+            0.20762626262626263
+          ],
+          "anchor": "SURVEY_CALLOUT_ACCESS"
+        },
+        {
+          "text": "Callout: Encroachment noted (see certification/notes).",
+          "bbox": [
+            0.08823529411764706,
+            0.17555555555555555,
+            0.4574934640522876,
+            0.18994949494949495
+          ],
+          "anchor": "SURVEY_CALLOUT_ENCROACH"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "lines": [
+        {
+          "text": "CERTIFICATION",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.23964705882352938,
+            0.9272727272727272
+          ],
+          "anchor": "SURVEY_CERT_HDR"
+        },
+        {
+          "text": "This survey is made for the benefit of: Alameda Buyer LLC; Pacific Title Co..",
+          "bbox": [
+            0.08823529411764706,
+            0.8863636363636364,
+            0.6110457516339869,
+            0.9007575757575758
+          ],
+          "anchor": "SURVEY_CERT_PARTIES"
+        },
+        {
+          "text": "Encroachments / Observations",
+          "bbox": [
+            0.08823529411764706,
+            0.8636363636363636,
+            0.35293627450980397,
+            0.8803030303030304
+          ],
+          "anchor": "SURVEY_ENC_HDR"
+        },
+        {
+          "text": "1. Portion of loading dock canopy extends approx. 1.2' into a recorded utility easement area along the east line.",
+          "bbox": [
+            0.08823529411764706,
+            0.8436363636363636,
+            0.8513709150326797,
+            0.8580303030303029
+          ],
+          "anchor": "SURVEY_ENC_01"
+        }
+      ]
+    }
+  ]
+}

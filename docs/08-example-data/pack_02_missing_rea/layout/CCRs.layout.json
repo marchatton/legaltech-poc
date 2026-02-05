@@ -1,0 +1,100 @@
+{
+  "title": "CCRs",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "CCRs",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.15050326797385621,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2017-979009 | Recorded: October 22, 2021 | County/State: Harris County, TX",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7330555555555556,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Use Restrictions",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.23006699346405227,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_USE_RESTRICTIONS"
+        },
+        {
+          "text": "No industrial or hazardous use shall be conducted on the Land.",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.5231086601307189,
+            0.7853030303030302
+          ],
+          "anchor": "USE_PROHIBITED"
+        },
+        {
+          "text": "Signage and exterior changes require prior written consent of the Architectural Committee.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.7085449346405229,
+            0.7689393939393938
+          ],
+          "anchor": "ARCH_APPROVAL"
+        },
+        {
+          "text": "Parking",
+          "bbox": [
+            0.08823529411764706,
+            0.7199999999999999,
+            0.15416339869281045,
+            0.7366666666666666
+          ],
+          "anchor": "SECTION_PARKING"
+        },
+        {
+          "text": "Parking areas shall be used only for customer and employee parking and related access.",
+          "bbox": [
+            0.08823529411764706,
+            0.6999999999999998,
+            0.6990759803921569,
+            0.7143939393939392
+          ],
+          "anchor": "PARKING_USE"
+        }
+      ]
+    }
+  ]
+}

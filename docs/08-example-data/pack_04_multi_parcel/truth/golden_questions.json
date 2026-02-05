@@ -1,0 +1,68 @@
+[
+  {
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "expected_answer_contains": [
+      "Lake Street Acquisitions LLC"
+    ],
+    "expected_citations": [
+      {
+        "doc": "TitleCommitment.pdf",
+        "anchor": "SCHED_A_PROPOSED_INSURED"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-02",
+    "question": "What is the Insured Estate?",
+    "expected_answer_contains": [
+      "Fee Simple"
+    ],
+    "expected_citations": [
+      {
+        "doc": "TitleCommitment.pdf",
+        "anchor": "SCHED_A_INSURED_ESTATE"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-03",
+    "question": "List Schedule B-I requirements.",
+    "expected_answer_contains": [
+      "1"
+    ],
+    "expected_citations": [
+      {
+        "doc": "TitleCommitment.pdf",
+        "anchor": "SCHEDULE_BI_HEADER"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-04",
+    "question": "List the recorded exceptions in Schedule B-II.",
+    "expected_answer_contains": [
+      "7",
+      "Utility Easement (Parcel 1)"
+    ],
+    "expected_citations": [
+      {
+        "doc": "TitleCommitment.pdf",
+        "anchor": "SCHEDULE_BII_HEADER"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-05",
+    "question": "Who is the survey certified to?",
+    "expected_answer_contains": [
+      "Lake Street Acquisitions LLC"
+    ],
+    "expected_citations": [
+      {
+        "doc": "ALTA_Survey.pdf",
+        "anchor": "SURVEY_CERT_PARTIES"
+      }
+    ]
+  }
+]

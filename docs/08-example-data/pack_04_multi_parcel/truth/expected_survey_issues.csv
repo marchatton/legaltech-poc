@@ -1,0 +1,2 @@
+issue_type,description,impact,suggested_fix,citation_doc,citation_anchor
+multi_parcel_check,Property consists of multiple parcels; verify exceptions and survey features are correctly parcel-scoped.,Risk of applying the wrong exception to the wrong parcel or missing a parcel-specific easement.,Tag each exception by parcel; confirm deed/legal description covers both parcels.,ALTA_Survey.pdf,SURVEY_CALLOUT_ACCESS_P2

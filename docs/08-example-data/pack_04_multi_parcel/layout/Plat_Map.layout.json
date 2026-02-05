@@ -1,0 +1,88 @@
+{
+  "title": "Plat Map",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Plat Map",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.18230065359477124,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2025-638871 | Recorded: April 08, 2019 | County/State: Cook County, IL",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.6968406862745098,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Plat Note",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.16613398692810458,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_PLAT_NOTE"
+        },
+        {
+          "text": "This is a synthetic plat map extract showing lot lines and parcel identifiers (Parcel 1 and Parcel",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.736998366013072,
+            0.7853030303030302
+          ],
+          "anchor": "PLAT_NOTE"
+        },
+        {
+          "text": "2).",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.10635049019607844,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "Lot line dimensions are for illustration only.",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.38155555555555554,
+            0.7525757575757573
+          ]
+        }
+      ]
+    }
+  ]
+}

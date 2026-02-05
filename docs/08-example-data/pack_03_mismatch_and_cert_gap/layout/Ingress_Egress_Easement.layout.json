@@ -1,0 +1,146 @@
+{
+  "title": "Ingress Egress Easement",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Ingress Egress Easement",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.3666797385620915,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2017-950099 | Recorded: April 08, 2023 | County/State: Miami-Dade County, FL",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7494321895424836,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Grant",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.13617156862745097,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_GRANT"
+        },
+        {
+          "text": "Grantor grants to Grantee a perpetual easement for ingress and egress over the Access Drive as",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7542908496732027,
+            0.7853030303030302
+          ],
+          "anchor": "ACCESS_GRANT"
+        },
+        {
+          "text": "shown on Exhibit A.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.22455718954248366,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "The easement includes the right to use the Access Drive for pedestrian and vehicular access to a",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.7551601307189543,
+            0.7525757575757573
+          ]
+        },
+        {
+          "text": "public road.",
+          "bbox": [
+            0.08823529411764706,
+            0.7218181818181816,
+            0.1684730392156863,
+            0.736212121212121
+          ]
+        },
+        {
+          "text": "Maintenance",
+          "bbox": [
+            0.08823529411764706,
+            0.687272727272727,
+            0.1971029411764706,
+            0.7039393939393938
+          ],
+          "anchor": "SECTION_MAINTENANCE"
+        },
+        {
+          "text": "The parties shall share maintenance costs in proportion to use, unless otherwise agreed in writing.",
+          "bbox": [
+            0.08823529411764706,
+            0.667272727272727,
+            0.762906045751634,
+            0.6816666666666664
+          ],
+          "anchor": "MAINT_COSTS"
+        },
+        {
+          "text": "Termination",
+          "bbox": [
+            0.08823529411764706,
+            0.6327272727272725,
+            0.1910996732026144,
+            0.6493939393939392
+          ],
+          "anchor": "SECTION_TERMINATION"
+        },
+        {
+          "text": "This easement shall run with the land and shall not be terminable so long as the benefited parcel",
+          "bbox": [
+            0.08823529411764706,
+            0.6127272727272725,
+            0.7508758169934641,
+            0.6271212121212119
+          ],
+          "anchor": "RUNS_WITH_LAND"
+        },
+        {
+          "text": "requires access.",
+          "bbox": [
+            0.08823529411764706,
+            0.5963636363636361,
+            0.20124183006535948,
+            0.6107575757575755
+          ]
+        }
+      ]
+    }
+  ]
+}

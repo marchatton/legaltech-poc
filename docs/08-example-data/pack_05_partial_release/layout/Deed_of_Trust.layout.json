@@ -1,0 +1,109 @@
+{
+  "title": "Deed of Trust",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Deed of Trust",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.2356699346405229,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2019-123987 | Recorded: March 18, 2019 | County/State: Los Angeles County, CA",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7667246732026144,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Secured Obligation",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.2530375816993464,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_SECURED_OBLIGATION"
+        },
+        {
+          "text": "This Deed of Trust secures repayment of a promissory note in the original principal amount of",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7292369281045753,
+            0.7853030303030302
+          ],
+          "anchor": "SECURED_AMOUNT"
+        },
+        {
+          "text": "$25,000,000.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.1788578431372549,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "Beneficiary: BigBank, N.A.",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.2702720588235294,
+            0.7525757575757573
+          ],
+          "anchor": "BENEFICIARY"
+        },
+        {
+          "text": "Lien",
+          "bbox": [
+            0.08823529411764706,
+            0.7036363636363635,
+            0.12518954248366013,
+            0.7203030303030302
+          ],
+          "anchor": "SECTION_LIEN"
+        },
+        {
+          "text": "This instrument creates a first priority lien against the Land and improvements.",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.6265686274509804,
+            0.6980303030303028
+          ],
+          "anchor": "LIEN_CLAUSE"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "title": "Memorandum of Lease",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Memorandum of Lease",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.33737581699346403,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2022-226704 | Recorded: January 01, 2022 | County/State: New York County, NY",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.760670751633987,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Parties and Premises",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.2700588235294118,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_PARTIES_AND_PREMISES"
+        },
+        {
+          "text": "Landlord: 18W18 Owner LLC. Tenant: Anchor Retail LLC.",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.48510866013071896,
+            0.7853030303030302
+          ],
+          "anchor": "LEASE_PARTIES"
+        },
+        {
+          "text": "Premises: Ground floor retail space consisting of approximately 12,500 RSF.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.6144918300653595,
+            0.7689393939393938
+          ],
+          "anchor": "LEASE_PREMISES"
+        },
+        {
+          "text": "Term",
+          "bbox": [
+            0.08823529411764706,
+            0.7199999999999999,
+            0.1321813725490196,
+            0.7366666666666666
+          ],
+          "anchor": "SECTION_TERM"
+        },
+        {
+          "text": "Initial Term: 10 years commencing June 1, 2023 and expiring May 31, 2033.",
+          "bbox": [
+            0.08823529411764706,
+            0.6999999999999998,
+            0.6110767973856209,
+            0.7143939393939392
+          ],
+          "anchor": "LEASE_TERM"
+        },
+        {
+          "text": "Renewal Options: Two (2) consecutive five (5) year renewal options.",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.5575383986928105,
+            0.6980303030303028
+          ],
+          "anchor": "RENEWAL_OPTIONS"
+        },
+        {
+          "text": "Purchase Rights",
+          "bbox": [
+            0.08823529411764706,
+            0.6490909090909088,
+            0.23006699346405227,
+            0.6657575757575755
+          ],
+          "anchor": "SECTION_PURCHASE_RIGHTS"
+        },
+        {
+          "text": "Tenant shall have a Right of First Refusal (ROFR) on any sale of the Land, subject to customary",
+          "bbox": [
+            0.08823529411764706,
+            0.6290909090909089,
+            0.7482369281045752,
+            0.6434848484848482
+          ],
+          "anchor": "LEASE_ROFR"
+        },
+        {
+          "text": "exclusions.",
+          "bbox": [
+            0.08823529411764706,
+            0.6127272727272726,
+            0.16501143790849673,
+            0.627121212121212
+          ]
+        }
+      ]
+    }
+  ]
+}

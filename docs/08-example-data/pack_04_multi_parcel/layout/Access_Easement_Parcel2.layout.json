@@ -1,0 +1,108 @@
+{
+  "title": "Access Easement Parcel2",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Access Easement Parcel2",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.37052287581699345,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2024-630952 | Recorded: January 01, 2018 | County/State: Cook County, IL",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7210098039215687,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Parcel Limitation",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.2330686274509804,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_PARCEL_LIMITATION"
+        },
+        {
+          "text": "This Access Easement burdens Parcel 2 only and does not encumber Parcel 1.",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.6335073529411764,
+            0.7853030303030302
+          ],
+          "anchor": "PARCEL_LIMIT"
+        },
+        {
+          "text": "Benefited Parcel: Adjacent Lot 3 as shown on the Plat.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.4627246732026144,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "Grant",
+          "bbox": [
+            0.08823529411764706,
+            0.7199999999999999,
+            0.13617156862745097,
+            0.7366666666666666
+          ],
+          "anchor": "SECTION_GRANT"
+        },
+        {
+          "text": "Grantor grants a perpetual easement for ingress and egress over the 24' wide access strip along the",
+          "bbox": [
+            0.08823529411764706,
+            0.6999999999999998,
+            0.7762557189542484,
+            0.7143939393939392
+          ],
+          "anchor": "ACCESS_STRIP"
+        },
+        {
+          "text": "south line of Parcel 2.",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.2375032679738562,
+            0.6980303030303028
+          ]
+        }
+      ]
+    }
+  ]
+}

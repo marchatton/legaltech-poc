@@ -1,0 +1,109 @@
+{
+  "title": "Partial Release",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Partial Release",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.2509967320261438,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2022-507014 | Recorded: July 15, 2020 | County/State: Los Angeles County, CA",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7512017973856209,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Release",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.1561764705882353,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_RELEASE"
+        },
+        {
+          "text": "Beneficiary hereby releases from the lien of the Deed of Trust recorded as Instrument No.",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7033758169934641,
+            0.7853030303030302
+          ],
+          "anchor": "RELEASE_PORTION_A"
+        },
+        {
+          "text": "2019-123987 the property described as 'Portion A' in Exhibit A attached hereto.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.6317222222222223,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "This Partial Release does not release any other portion of the Land not expressly described.",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.7206683006535948,
+            0.7525757575757573
+          ],
+          "anchor": "NO_OTHER_RELEASE"
+        },
+        {
+          "text": "Exhibit A - Portion A",
+          "bbox": [
+            0.08823529411764706,
+            0.7036363636363635,
+            0.26299509803921567,
+            0.7203030303030302
+          ],
+          "anchor": "SECTION_EXHIBIT_A_PORTION_A"
+        },
+        {
+          "text": "Portion A: the southerly 50.00 feet of the Land as measured along the south boundary line.",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.7112459150326796,
+            0.6980303030303028
+          ],
+          "anchor": "PORTION_A_DESC"
+        }
+      ]
+    }
+  ]
+}

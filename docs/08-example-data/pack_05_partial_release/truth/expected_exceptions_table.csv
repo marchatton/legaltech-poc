@@ -1,0 +1,4 @@
+bii_item,type,instrument_no,recorded,doc,risk_tags,status,citation_doc,citation_anchor
+5,Deed of Trust,2019-123987,"March 18, 2019",Deed_of_Trust.pdf,monetary_lien,needs_review,TitleCommitment.pdf,BII_EX_05
+6,Partial Release of Deed of Trust,2022-507014,"July 15, 2020",Partial_Release.pdf,monetary_lien,needs_review,TitleCommitment.pdf,BII_EX_06
+7,Utility Easement,2023-514933,"October 22, 2021",Utility_Easement.pdf,utilities,needs_review,TitleCommitment.pdf,BII_EX_07

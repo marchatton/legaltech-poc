@@ -1,0 +1,2 @@
+issue_type,description,impact,suggested_fix,citation_doc,citation_anchor
+missing_input,Referenced document is missing from the diligence pack: Utility_Easement_10ft_ExhibitB.pdf,Cannot summarise / reconcile this exception without the underlying instrument/exhibit.,"Request the missing PDF/exhibit from the title company/seller, then re-run the row.",TitleCommitment.pdf,SCHEDULE_BII_HEADER

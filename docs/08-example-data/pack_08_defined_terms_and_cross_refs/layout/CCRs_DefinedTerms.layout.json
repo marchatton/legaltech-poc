@@ -1,0 +1,178 @@
+{
+  "title": "CCRs DefinedTerms",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "CCRs DefinedTerms",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.3093986928104575,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2024-277742 | Recorded: July 15, 2020 | County/State: King County, WA",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7002867647058824,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Article I - Definitions",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.26301307189542483,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_ARTICLE_I_DEFINITIONS"
+        },
+        {
+          "text": "\"Easement Area\" means the areas designated as easements on the Site Plan attached as Exhibit C.",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7765816993464053,
+            0.7853030303030302
+          ],
+          "anchor": "DEF_EASEMENT_AREA"
+        },
+        {
+          "text": "\"Approved Plans\" means the plans approved by the Architectural Committee pursuant to Section 4.3.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.7808660130718954,
+            0.7689393939393938
+          ],
+          "anchor": "DEF_APPROVED_PLANS"
+        },
+        {
+          "text": "\"Declarant\" means Pine Street Retail Owner LLC and its successors and assigns.",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.6479436274509804,
+            0.7525757575757573
+          ],
+          "anchor": "DEF_DECLARANT"
+        },
+        {
+          "text": "Article IV - Use Restrictions",
+          "bbox": [
+            0.08823529411764706,
+            0.7036363636363635,
+            0.32396241830065364,
+            0.7203030303030302
+          ],
+          "anchor": "SECTION_ARTICLE_IV_USE_RESTRICTIONS"
+        },
+        {
+          "text": "No Building shall be constructed within the Easement Area, except as expressly permitted under",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.7491062091503268,
+            0.6980303030303028
+          ],
+          "anchor": "USE_RESTRICTION"
+        },
+        {
+          "text": "Section 5.2.",
+          "bbox": [
+            0.08823529411764706,
+            0.667272727272727,
+            0.17021160130718954,
+            0.6816666666666664
+          ]
+        },
+        {
+          "text": "Retail use is permitted; industrial use is prohibited.",
+          "bbox": [
+            0.08823529411764706,
+            0.6509090909090905,
+            0.43417810457516337,
+            0.66530303030303
+          ],
+          "anchor": "USE_PROHIBITED"
+        },
+        {
+          "text": "Any exterior signage is subject to approval under the Approved Plans process.",
+          "bbox": [
+            0.08823529411764706,
+            0.6345454545454543,
+            0.6266151960784313,
+            0.6489393939393937
+          ]
+        },
+        {
+          "text": "Section 4.3 - Architectural Control",
+          "bbox": [
+            0.08823529411764706,
+            0.5999999999999998,
+            0.3788725490196079,
+            0.6166666666666665
+          ],
+          "anchor": "SECTION_SECTION_4_3_ARCHITECTURAL_CONT"
+        },
+        {
+          "text": "All exterior alterations require prior written approval of the Architectural Committee.",
+          "bbox": [
+            0.08823529411764706,
+            0.5799999999999998,
+            0.6567295751633987,
+            0.5943939393939391
+          ],
+          "anchor": "ARCH_APPROVAL"
+        },
+        {
+          "text": "Exhibit C Reference",
+          "bbox": [
+            0.08823529411764706,
+            0.5454545454545453,
+            0.25803431372549024,
+            0.5621212121212119
+          ],
+          "anchor": "SECTION_EXHIBIT_C_REFERENCE"
+        },
+        {
+          "text": "See Exhibit C for the Site Plan depicting the Easement Area and Common Access Drive.",
+          "bbox": [
+            0.08823529411764706,
+            0.5254545454545454,
+            0.6973374183006537,
+            0.5398484848484847
+          ],
+          "anchor": "EXHIBIT_C_REF"
+        }
+      ]
+    }
+  ]
+}

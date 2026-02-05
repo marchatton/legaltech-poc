@@ -1,0 +1,399 @@
+{
+  "title": "Title Commitment - 1500 W Lake Street, Chicago, IL 60607 (Parcels 1 & 2)",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "COMMITMENT FOR TITLE INSURANCE",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.5733333333333334,
+            0.9333333333333333
+          ],
+          "anchor": "COMMITMENT_HEADER"
+        },
+        {
+          "text": "Commitment Date: January 30, 2026",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.35522875816993466,
+            0.896969696969697
+          ],
+          "anchor": "COMMITMENT_DATE"
+        },
+        {
+          "text": "Order No.: OW-el-5128",
+          "bbox": [
+            0.5,
+            0.8818181818181818,
+            0.6688888888888889,
+            0.896969696969697
+          ],
+          "anchor": "ORDER_NO"
+        },
+        {
+          "text": "Company: ABC Title Insurance Company (SYNTHETIC)",
+          "bbox": [
+            0.08823529411764706,
+            0.8636363636363636,
+            0.495016339869281,
+            0.8787878787878788
+          ],
+          "anchor": "COMPANY_LINE"
+        },
+        {
+          "text": "Property: 1500 W Lake Street, Chicago, IL 60607 (Parcels 1 & 2)",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.5577777777777778,
+            0.8606060606060606
+          ],
+          "anchor": "PROPERTY_LINE"
+        },
+        {
+          "text": "County/State: Cook County, IL",
+          "bbox": [
+            0.08823529411764706,
+            0.8318181818181819,
+            0.308937908496732,
+            0.846969696969697
+          ],
+          "anchor": "COUNTY_STATE"
+        },
+        {
+          "text": "This is a synthetic demo document for testing an AI diligence workflow. Not real.",
+          "bbox": [
+            0.08823529411764706,
+            0.8,
+            0.6088676470588236,
+            0.8136363636363636
+          ],
+          "anchor": "SYNTHETIC_NOTE"
+        },
+        {
+          "text": "SCHEDULE A",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454545,
+            0.21568627450980393,
+            0.7727272727272727
+          ],
+          "anchor": "SCHEDULE_A_HEADER"
+        },
+        {
+          "text": "1. Proposed Insured: Lake Street Acquisitions LLC",
+          "bbox": [
+            0.08823529411764706,
+            0.7318181818181818,
+            0.4542483660130719,
+            0.746969696969697
+          ],
+          "anchor": "SCHED_A_PROPOSED_INSURED"
+        },
+        {
+          "text": "2. Policy Amount: $28,000,000",
+          "bbox": [
+            0.08823529411764706,
+            0.7136363636363637,
+            0.31076797385620913,
+            0.7287878787878789
+          ],
+          "anchor": "SCHED_A_POLICY_AMOUNT"
+        },
+        {
+          "text": "3. Insured Estate: Fee Simple",
+          "bbox": [
+            0.08823529411764706,
+            0.6954545454545455,
+            0.30348039215686273,
+            0.7106060606060607
+          ],
+          "anchor": "SCHED_A_INSURED_ESTATE"
+        },
+        {
+          "text": "4. Vested Owner: Lake Street Holdings LLC",
+          "bbox": [
+            0.08823529411764706,
+            0.6772727272727274,
+            0.4051960784313725,
+            0.6924242424242425
+          ],
+          "anchor": "SCHED_A_VESTED_OWNER"
+        },
+        {
+          "text": "5. Land: 1500 W Lake Street, Chicago, IL 60607 (Parcels 1 & 2) (see Exhibit A)",
+          "bbox": [
+            0.08823529411764706,
+            0.6590909090909093,
+            0.6613235294117648,
+            0.6742424242424244
+          ],
+          "anchor": "SCHED_A_LAND_DESC"
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "lines": [
+        {
+          "text": "SCHEDULE B - PART I (REQUIREMENTS)",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.4738627450980393,
+            0.9272727272727272
+          ],
+          "anchor": "SCHEDULE_BI_HEADER"
+        },
+        {
+          "text": "1. Payment of premium and charges.",
+          "bbox": [
+            0.08823529411764706,
+            0.8863636363636364,
+            0.35614379084967324,
+            0.9015151515151515
+          ],
+          "anchor": "BI_REQ_01"
+        },
+        {
+          "text": "2. Execution and delivery of Warranty Deed covering Parcels 1 and 2 in recordable form.",
+          "bbox": [
+            0.08823529411764706,
+            0.8663636363636363,
+            0.7284803921568627,
+            0.8815151515151515
+          ],
+          "anchor": "BI_REQ_02"
+        },
+        {
+          "text": "3. Satisfactory evidence that all taxes due and payable have been paid.",
+          "bbox": [
+            0.08823529411764706,
+            0.8463636363636363,
+            0.6041503267973857,
+            0.8615151515151515
+          ],
+          "anchor": "BI_REQ_03"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "lines": [
+        {
+          "text": "SCHEDULE B - PART II (EXCEPTIONS)",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.44774509803921564,
+            0.9272727272727272
+          ],
+          "anchor": "SCHEDULE_BII_HEADER"
+        },
+        {
+          "text": "7. Utility Easement (Parcel 1). Instrument No. 2023-623033. Recorded October 22, 2023.",
+          "bbox": [
+            0.08823529411764706,
+            0.8863636363636364,
+            0.7321405228758171,
+            0.9015151515151515
+          ],
+          "anchor": "BII_EX_07"
+        },
+        {
+          "text": "8. Access Easement (Parcel 2 only). Instrument No. 2024-630952. Recorded January 01, 2018.",
+          "bbox": [
+            0.08823529411764706,
+            0.8663636363636363,
+            0.7793790849673203,
+            0.8815151515151515
+          ],
+          "anchor": "BII_EX_08"
+        },
+        {
+          "text": "9. Plat Map. Instrument No. 2025-638871. Recorded April 08, 2019.",
+          "bbox": [
+            0.08823529411764706,
+            0.8463636363636363,
+            0.5777777777777778,
+            0.8615151515151515
+          ],
+          "anchor": "BII_EX_09"
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "lines": [
+        {
+          "text": "EXHIBIT A - LEGAL DESCRIPTION",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.4085294117647059,
+            0.9272727272727272
+          ],
+          "anchor": "EXHIBIT_A_HEADER"
+        },
+        {
+          "text": "PARCEL 1:",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.16342647058823528,
+            0.8954545454545454
+          ],
+          "anchor": "EXHIBIT_A_LINE_01"
+        },
+        {
+          "text": "BEGINNING at a point on the southerly line of the adjoining right-of-way;",
+          "bbox": [
+            0.08823529411764706,
+            0.8654545454545454,
+            0.5598529411764706,
+            0.8790909090909089
+          ]
+        },
+        {
+          "text": "thence N 89\u00b045'12\" E, a distance of 162.00 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.849090909090909,
+            0.40136764705882355,
+            0.8627272727272726
+          ]
+        },
+        {
+          "text": "thence S 0\u00b014'48\" E, a distance of 104.50 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.8327272727272725,
+            0.3923823529411765,
+            0.8463636363636361
+          ]
+        },
+        {
+          "text": "thence S 89\u00b045'12\" W, a distance of 162.00 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.8163636363636362,
+            0.40463235294117644,
+            0.8299999999999997
+          ]
+        },
+        {
+          "text": "thence N 0\u00b014'48\" W, a distance of 104.50 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.7999999999999997,
+            0.39726470588235296,
+            0.8136363636363633
+          ]
+        },
+        {
+          "text": "to the POINT OF BEGINNING.",
+          "bbox": [
+            0.08823529411764706,
+            0.7836363636363634,
+            0.2892794117647059,
+            0.7972727272727269
+          ]
+        },
+        {
+          "text": "Together with any and all appurtenant rights, if any.",
+          "bbox": [
+            0.08823529411764706,
+            0.7672727272727269,
+            0.42255882352941176,
+            0.7809090909090906
+          ]
+        },
+        {
+          "text": "",
+          "bbox": [
+            0.08823529411764706,
+            0.7509090909090905,
+            0.08823529411764706,
+            0.7645454545454541
+          ]
+        },
+        {
+          "text": "PARCEL 2:",
+          "bbox": [
+            0.08823529411764706,
+            0.7345454545454541,
+            0.16342647058823528,
+            0.7481818181818177
+          ]
+        },
+        {
+          "text": "BEGINNING at a point on the southerly line of the adjoining right-of-way;",
+          "bbox": [
+            0.08823529411764706,
+            0.7181818181818177,
+            0.5598529411764706,
+            0.7318181818181813
+          ]
+        },
+        {
+          "text": "thence N 89\u00b045'12\" E, a distance of 150.00 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.7018181818181812,
+            0.40136764705882355,
+            0.7154545454545449
+          ]
+        },
+        {
+          "text": "thence S 0\u00b014'48\" E, a distance of 98.50 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.6854545454545449,
+            0.3842058823529412,
+            0.6990909090909084
+          ]
+        },
+        {
+          "text": "thence S 89\u00b045'12\" W, a distance of 150.00 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.6690909090909085,
+            0.40463235294117644,
+            0.6827272727272721
+          ]
+        },
+        {
+          "text": "thence N 0\u00b014'48\" W, a distance of 98.50 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.652727272727272,
+            0.3890882352941177,
+            0.6663636363636356
+          ]
+        },
+        {
+          "text": "to the POINT OF BEGINNING.",
+          "bbox": [
+            0.08823529411764706,
+            0.6363636363636357,
+            0.2892794117647059,
+            0.6499999999999994
+          ]
+        },
+        {
+          "text": "Together with any and all appurtenant rights, if any.",
+          "bbox": [
+            0.08823529411764706,
+            0.6199999999999993,
+            0.42255882352941176,
+            0.633636363636363
+          ]
+        }
+      ]
+    }
+  ]
+}

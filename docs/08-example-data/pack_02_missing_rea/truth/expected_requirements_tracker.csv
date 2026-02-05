@@ -1,6 +1,5 @@
-b1_item_no,requirement,owner,due,status,source_doc,source_page_hint
-1,Payment of the full consideration and recording of the deed to the Proposed Insured.,Buyer/Seller,Closing,open,01_Title_Commitment.pdf,See Schedule B Part I
-2,Release of Deed of Trust recorded as Instrument No. 2021-123456 (payoff and recordable release).,Seller,Pre-close,open,01_Title_Commitment.pdf,See Schedule B Part I
-3,Release of Mechanic’s Lien recorded as Instrument No. 2024-222222.,Seller,Pre-close,open,01_Title_Commitment.pdf,See Schedule B Part I
-4,Owner’s Affidavit and Indemnity (Company form).,Seller,Closing,open,01_Title_Commitment.pdf,See Schedule B Part I
-5,"ALTA/NSPS Survey and Surveyor’s Certification in favour of Buyer, Lender, and the Company.",Surveyor,Pre-close,open,01_Title_Commitment.pdf,See Schedule B Part I
+bi_item,requirement,owner,status,citation_doc,citation_anchor
+1,Payment of premium and charges.,Buyer,open,TitleCommitment.pdf,BI_REQ_01
+2,Execution and delivery of Special Warranty Deed in recordable form.,Seller,open,TitleCommitment.pdf,BI_REQ_02
+3,Payoff and release of Mechanic's Lien recorded as Instrument No. 2021-778899.,Seller/Title,open,TitleCommitment.pdf,BI_REQ_03
+4,Owner's Affidavit and Indemnity (gap) acceptable to the Company.,Seller,open,TitleCommitment.pdf,BI_REQ_04

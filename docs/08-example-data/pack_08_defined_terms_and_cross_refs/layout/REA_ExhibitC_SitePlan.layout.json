@@ -1,0 +1,60 @@
+{
+  "title": "REA ExhibitC SitePlan",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "REA ExhibitC SitePlan",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.33229738562091504,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Exhibit C - Site Plan (Synthetic)",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.3559019607843137,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_EXHIBIT_C_SITE_PLAN_SYNTHETIC_"
+        },
+        {
+          "text": "This page depicts the Common Access Drive and the Easement Area referenced in the REA/CC&Rs.",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7827287581699347,
+            0.8398484848484848
+          ],
+          "anchor": "SITEPLAN_NOTE"
+        },
+        {
+          "text": "Common Access Drive runs east-west through the centre of the site.",
+          "bbox": [
+            0.08823529411764706,
+            0.8090909090909091,
+            0.5575539215686275,
+            0.8234848484848484
+          ],
+          "anchor": "DRIVE_NOTE"
+        }
+      ]
+    }
+  ]
+}

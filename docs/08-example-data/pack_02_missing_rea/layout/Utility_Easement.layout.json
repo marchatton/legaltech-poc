@@ -1,0 +1,220 @@
+{
+  "title": "Utility Easement",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Utility Easement",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.26620915032679743,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2016-971090 | Recorded: July 15, 2020 | County/State: Harris County, TX",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7054403594771242,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Grant of Easement",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.24804084967320258,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_GRANT_OF_EASEMENT"
+        },
+        {
+          "text": "Grantor hereby grants to Grantee a 20' wide non-exclusive utility easement (the 'Utility Easement')",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7614313725490197,
+            0.7853030303030302
+          ],
+          "anchor": "GRANT_CLAUSE"
+        },
+        {
+          "text": "over the Easement Area described in Exhibit B.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.41350163398692813,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "The Utility Easement permits installation, operation, maintenance, repair, replacement and removal",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.7671903594771242,
+            0.7525757575757573
+          ]
+        },
+        {
+          "text": "of utility lines and related appurtenances.",
+          "bbox": [
+            0.08823529411764706,
+            0.7218181818181816,
+            0.3703790849673203,
+            0.736212121212121
+          ]
+        },
+        {
+          "text": "Restrictions",
+          "bbox": [
+            0.08823529411764706,
+            0.687272727272727,
+            0.1921062091503268,
+            0.7039393939393938
+          ],
+          "anchor": "SECTION_RESTRICTIONS"
+        },
+        {
+          "text": "No permanent structures shall be constructed within the Utility Easement Area without the prior",
+          "bbox": [
+            0.08823529411764706,
+            0.667272727272727,
+            0.7395906862745099,
+            0.6816666666666664
+          ],
+          "anchor": "NO_STRUCTURES"
+        },
+        {
+          "text": "written consent of Grantee.",
+          "bbox": [
+            0.08823529411764706,
+            0.6509090909090905,
+            0.2746029411764706,
+            0.66530303030303
+          ]
+        },
+        {
+          "text": "Temporary paving and striping may be permitted provided it does not materially interfere with",
+          "bbox": [
+            0.08823529411764706,
+            0.6345454545454543,
+            0.7257753267973855,
+            0.6489393939393937
+          ]
+        },
+        {
+          "text": "utility operations.",
+          "bbox": [
+            0.08823529411764706,
+            0.6181818181818179,
+            0.20470343137254904,
+            0.6325757575757572
+          ]
+        },
+        {
+          "text": "Relocation",
+          "bbox": [
+            0.08823529411764706,
+            0.5836363636363634,
+            0.18011764705882352,
+            0.6003030303030301
+          ],
+          "anchor": "SECTION_RELOCATION"
+        },
+        {
+          "text": "Grantor reserves a right to request relocation of the utility facilities, subject to Grantee's",
+          "bbox": [
+            0.08823529411764706,
+            0.5636363636363635,
+            0.6856331699346405,
+            0.5780303030303028
+          ],
+          "anchor": "RELOCATION_RIGHT"
+        },
+        {
+          "text": "reasonable approval and at Grantor's sole cost and expense.",
+          "bbox": [
+            0.08823529411764706,
+            0.5472727272727271,
+            0.5070890522875817,
+            0.5616666666666665
+          ]
+        },
+        {
+          "text": "Relocation shall not unreasonably interrupt service.",
+          "bbox": [
+            0.08823529411764706,
+            0.5309090909090908,
+            0.44023202614379087,
+            0.5453030303030302
+          ]
+        },
+        {
+          "text": "Exhibit B",
+          "bbox": [
+            0.08823529411764706,
+            0.4963636363636363,
+            0.16613398692810458,
+            0.513030303030303
+          ],
+          "anchor": "SECTION_EXHIBIT_B"
+        },
+        {
+          "text": "EXHIBIT B is attached and depicts the easement area (synthetic).",
+          "bbox": [
+            0.08823529411764706,
+            0.4763636363636363,
+            0.5403390522875817,
+            0.49075757575757567
+          ],
+          "anchor": "EXHIBIT_B_NOTE"
+        },
+        {
+          "text": "Easement Area: a strip of land along the north (or east) boundary line as depicted on the Site",
+          "bbox": [
+            0.08823529411764706,
+            0.45999999999999996,
+            0.7267377450980392,
+            0.47439393939393937
+          ]
+        },
+        {
+          "text": "Plan.",
+          "bbox": [
+            0.08823529411764706,
+            0.44363636363636366,
+            0.12361192810457515,
+            0.458030303030303
+          ]
+        }
+      ]
+    }
+  ]
+}

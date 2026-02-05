@@ -1,4 +1,2 @@
-issue_type,detail,impact,source_doc,source_page_hint
-encroachment,Chain-link fence encroaches ~0.7' over west line near NW corner,Potential title/survey objection; endorsement or cure may be required,08_ALTA_NSPS_Survey_Draft.pdf,See drawing callout
-easement_depiction,Utility easement Inst. 2012-001234 depicted along north boundary,Confirm matches recorded instrument; confirm no buildable area impact for planned improvements,08_ALTA_NSPS_Survey_Draft.pdf,See dashed line callout
-access,Ingress/egress easement per REA 2019-098765 depicted along east boundary,Confirm access rights are sufficient and not conditional; review maintenance/approval clauses,08_ALTA_NSPS_Survey_Draft.pdf,See callout
+issue_type,description,impact,suggested_fix,citation_doc,citation_anchor
+encroachment,Chain-link fence encroaches approx. 0.4' over the north boundary line near the NW corner.,"May require cure, endorsement, or risk acceptance.","Confirm materiality; consider survey revision, boundary agreement, or endorsement evidence package.",ALTA_Survey.pdf,SURVEY_ENC_01

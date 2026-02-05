@@ -1,0 +1,4 @@
+bii_item,type,instrument_no,recorded,doc,risk_tags,status,citation_doc,citation_anchor
+12,Utility Easement (20'),2018-446428,"January 01, 2018",Utility_Easement_20ft.pdf,utilities,needs_review,TitleCommitment.pdf,BII_EX_12
+13,Utility Easement (10'),2019-454347,"April 08, 2019",Utility_Easement_10ft.pdf,utilities,needs_review,TitleCommitment.pdf,BII_EX_13
+14,Easement Exhibit B (missing attachment),,,Utility_Easement_10ft_ExhibitB.pdf,missing_attachment,missing_input,TitleCommitment.pdf,BII_EX_14

@@ -1,0 +1,109 @@
+{
+  "title": "Mechanics Lien",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "Mechanics Lien",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.2585915032679738,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2021-778899 | Recorded: September 14, 2021 | County/State: Harris County, TX",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.7537630718954248,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Claim of Lien",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.20109313725490197,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_CLAIM_OF_LIEN"
+        },
+        {
+          "text": "Claimant asserts a mechanic's lien in the amount of $185,740.22 for labour and materials furnished",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7684787581699347,
+            0.7853030303030302
+          ],
+          "anchor": "LIEN_AMOUNT"
+        },
+        {
+          "text": "to the Land.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.17022712418300653,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "The lien claimant is BuildCo Contractors, Inc.",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.39793218954248366,
+            0.7525757575757573
+          ],
+          "anchor": "LIEN_CLAIMANT"
+        },
+        {
+          "text": "Property",
+          "bbox": [
+            0.08823529411764706,
+            0.7036363636363635,
+            0.1621437908496732,
+            0.7203030303030302
+          ],
+          "anchor": "SECTION_PROPERTY"
+        },
+        {
+          "text": "The lien attaches to the property commonly known as 2200 Commerce Street, Houston, TX 77002.",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.7672369281045752,
+            0.6980303030303028
+          ],
+          "anchor": "LIEN_PROPERTY"
+        }
+      ]
+    }
+  ]
+}

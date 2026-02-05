@@ -1,0 +1,147 @@
+{
+  "title": "REA",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "REA",
+          "bbox": [
+            0.08823529411764706,
+            0.9090909090909091,
+            0.13652614379084968,
+            0.9303030303030303
+          ],
+          "anchor": "DOC_TITLE"
+        },
+        {
+          "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
+          "bbox": [
+            0.08823529411764706,
+            0.8818181818181818,
+            0.5013071895424837,
+            0.896969696969697
+          ],
+          "anchor": "DOC_SYNTHETIC"
+        },
+        {
+          "text": "Recording Information",
+          "bbox": [
+            0.08823529411764706,
+            0.8454545454545455,
+            0.28096895424836604,
+            0.8621212121212122
+          ],
+          "anchor": "SECTION_RECORDING_INFORMATION"
+        },
+        {
+          "text": "Instrument No.: 2021-218785 | Recorded: October 22, 2021 | County/State: New York County, NY",
+          "bbox": [
+            0.08823529411764706,
+            0.8254545454545454,
+            0.760670751633987,
+            0.8398484848484848
+          ],
+          "anchor": "REC_INFO"
+        },
+        {
+          "text": "Shared Access and Parking",
+          "bbox": [
+            0.08823529411764706,
+            0.7909090909090909,
+            0.32498692810457513,
+            0.8075757575757576
+          ],
+          "anchor": "SECTION_SHARED_ACCESS_AND_PARKING"
+        },
+        {
+          "text": "The parties grant to each other non-exclusive easements for access and parking over the Common",
+          "bbox": [
+            0.08823529411764706,
+            0.7709090909090909,
+            0.7680906862745098,
+            0.7853030303030302
+          ],
+          "anchor": "COMMON_AREA_EASE"
+        },
+        {
+          "text": "Areas.",
+          "bbox": [
+            0.08823529411764706,
+            0.7545454545454544,
+            0.13309640522875818,
+            0.7689393939393938
+          ]
+        },
+        {
+          "text": "Parking spaces shall be shared and shall not be assigned except as stated herein.",
+          "bbox": [
+            0.08823529411764706,
+            0.738181818181818,
+            0.6533921568627451,
+            0.7525757575757573
+          ],
+          "anchor": "PARKING_SHARED"
+        },
+        {
+          "text": "Cost Sharing",
+          "bbox": [
+            0.08823529411764706,
+            0.7036363636363635,
+            0.20008660130718955,
+            0.7203030303030302
+          ],
+          "anchor": "SECTION_COST_SHARING"
+        },
+        {
+          "text": "Common Area Maintenance (CAM) costs shall be allocated 60% to Parcel A and 40% to Parcel B, based",
+          "bbox": [
+            0.08823529411764706,
+            0.6836363636363634,
+            0.8077671568627451,
+            0.6980303030303028
+          ],
+          "anchor": "CAM_SPLIT"
+        },
+        {
+          "text": "on gross leasable area.",
+          "bbox": [
+            0.08823529411764706,
+            0.667272727272727,
+            0.2495800653594771,
+            0.6816666666666664
+          ]
+        },
+        {
+          "text": "Approvals",
+          "bbox": [
+            0.08823529411764706,
+            0.6327272727272725,
+            0.17612745098039215,
+            0.6493939393939392
+          ],
+          "anchor": "SECTION_APPROVALS"
+        },
+        {
+          "text": "No party may materially modify the Common Areas without the prior written consent of the other",
+          "bbox": [
+            0.08823529411764706,
+            0.6127272727272725,
+            0.7456135620915033,
+            0.6271212121212119
+          ],
+          "anchor": "MODIFY_CONSENT"
+        },
+        {
+          "text": "party.",
+          "bbox": [
+            0.08823529411764706,
+            0.5963636363636361,
+            0.1270580065359477,
+            0.6107575757575755
+          ]
+        }
+      ]
+    }
+  ]
+}
