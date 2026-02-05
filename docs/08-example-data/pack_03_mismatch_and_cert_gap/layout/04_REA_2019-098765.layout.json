@@ -1,0 +1,234 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "RECIPROCAL EASEMENT AGREEMENT",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 283.34400000000005,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Instrument No.: 2019-098765   Recorded: August 19, 2019",
+        "x0": 54.0,
+        "y0": 721.44,
+        "x1": 288.135,
+        "y1": 732.24,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Harris County, Texas",
+        "x0": 54.0,
+        "y0": 709.2,
+        "x1": 138.519,
+        "y1": 720.0,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC RECORDED INSTRUMENT.",
+        "x0": 54.0,
+        "y0": 696.96,
+        "x1": 330.896,
+        "y1": 706.5600000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "PARTIES",
+        "x0": 54.0,
+        "y0": 662.4,
+        "x1": 101.674,
+        "y1": 675.6,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Party A:",
+        "x0": 61.199999999999996,
+        "y0": 644.4,
+        "x1": 95.70599999999999,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Harbourview Holdings LLC",
+        "x0": 144.0,
+        "y0": 644.4,
+        "x1": 251.028,
+        "y1": 655.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Party B:",
+        "x0": 61.199999999999996,
+        "y0": 628.56,
+        "x1": 95.70599999999999,
+        "y1": 639.3599999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Adjacent Parcel Owner LLC",
+        "x0": 144.0,
+        "y0": 628.56,
+        "x1": 255.042,
+        "y1": 639.3599999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "GRANT OF ACCESS EASEMENTS",
+        "x0": 54.0,
+        "y0": 601.92,
+        "x1": 231.84799999999998,
+        "y1": 615.12,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Each party grants to the other a non-exclusive easement for ingress and egress over the Access Drives shown on Exhibit B.",
+        "x0": 61.199999999999996,
+        "y0": 583.92,
+        "x1": 553.6,
+        "y1": 595.92,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "The easements are appurtenant and shall run with the land.",
+        "x0": 61.199999999999996,
+        "y0": 559.62,
+        "x1": 296.15000000000003,
+        "y1": 571.62,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "SHARED PARKING",
+        "x0": 54.0,
+        "y0": 535.32,
+        "x1": 154.221,
+        "y1": 548.5200000000001,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Parking areas shown on the Site Plan shall be shared. No party shall materially impair access to or use of shared parking.",
+        "x0": 61.199999999999996,
+        "y0": 517.32,
+        "x1": 544.73,
+        "y1": 529.32,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "The parties shall comply with any allocation and operating rules adopted under this Agreement.",
+        "x0": 61.199999999999996,
+        "y0": 493.02000000000004,
+        "x1": 443.91999999999996,
+        "y1": 505.02000000000004,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "MAINTENANCE AND COSTS",
+        "x0": 54.0,
+        "y0": 468.72,
+        "x1": 203.105,
+        "y1": 481.92,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "The parties shall share in the costs of maintaining the Access Drives and shared parking areas in proportion to their respective",
+        "x0": 61.199999999999996,
+        "y0": 450.72,
+        "x1": 564.99,
+        "y1": 462.72,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "parcel areas.",
+        "x0": 61.199999999999996,
+        "y0": 437.22,
+        "x1": 111.16999999999999,
+        "y1": 449.22,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Failure to pay assessed costs within 30 days after notice constitutes a default.",
+        "x0": 61.199999999999996,
+        "y0": 412.92,
+        "x1": 369.77,
+        "y1": 424.92,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "CHANGES AND APPROVALS",
+        "x0": 54.0,
+        "y0": 388.62,
+        "x1": 207.395,
+        "y1": 401.82,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "No material changes to the Access Drives or shared parking layout shall be made without the written approval of both parties,",
+        "x0": 61.199999999999996,
+        "y0": 370.62,
+        "x1": 564.72,
+        "y1": 382.62,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "which approval shall not be unreasonably withheld.",
+        "x0": 61.199999999999996,
+        "y0": 357.12,
+        "x1": 267.56,
+        "y1": 369.12,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Relocation of easements requires recording of an amendment.",
+        "x0": 61.199999999999996,
+        "y0": 332.82,
+        "x1": 308.92,
+        "y1": 344.82,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "EXHIBIT B",
+        "x0": 54.0,
+        "y0": 308.52,
+        "x1": 108.39500000000001,
+        "y1": 321.71999999999997,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Exhibit B (Site Plan) is attached for reference and depicts the Access Drives and shared parking areas.",
+        "x0": 61.199999999999996,
+        "y0": 290.52,
+        "x1": 470.26,
+        "y1": 302.52,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  }
+]

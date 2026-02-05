@@ -1,0 +1,487 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54,
+        "y0": 738,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54,
+        "y0": 720,
+        "x1": 302.712,
+        "y1": 734.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Commitment No.: TX-PACK04-CMT-004",
+        "x0": 54,
+        "y0": 700,
+        "x1": 225.95,
+        "y1": 712.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Commitment Date: January 20, 2026",
+        "x0": 54,
+        "y0": 686,
+        "x1": 202.05,
+        "y1": 698.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Property: Riverside Logistics Park \u2014 Parcels A & B",
+        "x0": 54,
+        "y0": 672,
+        "x1": 265.1,
+        "y1": 684.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Address: 5000 Riverport Drive, Dallas, Texas",
+        "x0": 54,
+        "y0": 658,
+        "x1": 237.58,
+        "y1": 670.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 This commitment is issued subject to the Conditions and Stipulations of the Policy.",
+        "x0": 64.8,
+        "y0": 620,
+        "x1": 403.88000000000005,
+        "y1": 632.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 Coverage is subject to satisfaction of Schedule B-I Requirements.",
+        "x0": 64.8,
+        "y0": 604,
+        "x1": 333.82,
+        "y1": 616.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 Schedule B-II Exceptions will remain unless cured, insured over, or removed.",
+        "x0": 64.8,
+        "y0": 588,
+        "x1": 382.13,
+        "y1": 600.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 290.536,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 2,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SCHEDULE A",
+        "x0": 54,
+        "y0": 738,
+        "x1": 145.0,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "1. Commitment No:",
+        "x0": 54,
+        "y0": 710,
+        "x1": 145.67000000000002,
+        "y1": 722.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "TX-PACK04-CMT-004",
+        "x0": 160,
+        "y0": 710,
+        "x1": 256.65999999999997,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "2. Commitment Date:",
+        "x0": 54,
+        "y0": 692,
+        "x1": 154.01,
+        "y1": 704.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "January 20, 2026",
+        "x0": 160,
+        "y0": 692,
+        "x1": 228.60000000000002,
+        "y1": 704.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Proposed Insured:",
+        "x0": 54,
+        "y0": 674,
+        "x1": 153.47000000000003,
+        "y1": 686.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Riverside Acquisitions LLC",
+        "x0": 160,
+        "y0": 674,
+        "x1": 272.78,
+        "y1": 686.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "4. Policy Amount:",
+        "x0": 54,
+        "y0": 656,
+        "x1": 138.45999999999998,
+        "y1": 668.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "$75,000,000.00",
+        "x0": 160,
+        "y0": 656,
+        "x1": 222.5,
+        "y1": 668.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. Estate or Interest:",
+        "x0": 54,
+        "y0": 638,
+        "x1": 150.14000000000001,
+        "y1": 650.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Fee Simple",
+        "x0": 160,
+        "y0": 638,
+        "x1": 205.28,
+        "y1": 650.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "6. Vesting:",
+        "x0": 54,
+        "y0": 620,
+        "x1": 104.57000000000001,
+        "y1": 632.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Harbourview Logistics LLC (a Texas limited liability company)",
+        "x0": 160,
+        "y0": 620,
+        "x1": 416.92,
+        "y1": 632.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "7. The Land is described in Exhibit A attached.",
+        "x0": 54,
+        "y0": 602,
+        "x1": 242.85999999999999,
+        "y1": 614.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 3,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SCHEDULE B-I \u2014 REQUIREMENTS",
+        "x0": 54,
+        "y0": 738,
+        "x1": 288.12199999999996,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "The following requirements must be met prior to issuance of the Policy:",
+        "x0": 54,
+        "y0": 710,
+        "x1": 342.03000000000003,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "1. Payment of the full consideration and recordation of the Insured Mortgage, if any.",
+        "x0": 54,
+        "y0": 688,
+        "x1": 392.27,
+        "y1": 700.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "2. Release of Deed of Trust recorded as Instrument No. 2021-123456.",
+        "x0": 54,
+        "y0": 667,
+        "x1": 333.66,
+        "y1": 679.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Release of Mechanic\u2019s Lien recorded as Instrument No. 2024-222222.",
+        "x0": 54,
+        "y0": 646,
+        "x1": 345.6,
+        "y1": 658.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "4. Owner\u2019s Affidavit and Indemnity (Company form).",
+        "x0": 54,
+        "y0": 625,
+        "x1": 270.63,
+        "y1": 637.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. ALTA/NSPS Survey and Surveyor\u2019s Certification acceptable to the Company.",
+        "x0": 54,
+        "y0": 604,
+        "x1": 378.13000000000005,
+        "y1": 616.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 4,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SCHEDULE B-II \u2014 EXCEPTIONS",
+        "x0": 54,
+        "y0": 738,
+        "x1": 269.474,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "The Policy will not insure against loss or damage resulting from:",
+        "x0": 54,
+        "y0": 710,
+        "x1": 313.43,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "1. Taxes for the year 2026, not yet due and payable.",
+        "x0": 54,
+        "y0": 688,
+        "x1": 261.45000000000005,
+        "y1": 700.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Rights of parties in possession, including tenants and occupants.",
+        "x0": 54,
+        "y0": 667,
+        "x1": 321.21,
+        "y1": 679.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. Easements, building lines, and other matters as shown on the plat recorded under Film Code No. 1234567.",
+        "x0": 54,
+        "y0": 646,
+        "x1": 490.07,
+        "y1": 658.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "8. Declaration of Covenants, Conditions and Restrictions recorded as Instrument No. 2008-045678.",
+        "x0": 54,
+        "y0": 625,
+        "x1": 452.01,
+        "y1": 637.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "9. Reciprocal Easement Agreement (ingress/egress and shared parking) recorded as Instrument No. 2019-098765.",
+        "x0": 54,
+        "y0": 604,
+        "x1": 509.17,
+        "y1": 616.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "12. 20' Utility Easement recorded as Instrument No. 2012-001234 (north 20 feet of the Tract).",
+        "x0": 54,
+        "y0": 583,
+        "x1": 429.90000000000003,
+        "y1": 595.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "13. Deed of Trust recorded as Instrument No. 2021-123456.",
+        "x0": 54,
+        "y0": 562,
+        "x1": 294.23,
+        "y1": 574.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "15. Mechanic\u2019s and Materialman\u2019s Lien recorded as Instrument No. 2024-222222.",
+        "x0": 54,
+        "y0": 541,
+        "x1": 383.93,
+        "y1": 553.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "16. Access Easement recorded as Instrument No. 2015-003333 (30' ingress/egress along south boundary of Parcel A).",
+        "x0": 54,
+        "y0": 520,
+        "x1": 525.1500000000001,
+        "y1": 532.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "18. Partial Release of Deed of Trust recorded as Instrument No. 2022-010101 (releasing Parcel B).",
+        "x0": 54,
+        "y0": 499,
+        "x1": 449.19,
+        "y1": 511.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 5,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "EXHIBIT A \u2014 LEGAL DESCRIPTION",
+        "x0": 54,
+        "y0": 738,
+        "x1": 292.028,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "PARCEL A: Lot 1, Block 2, RIVERSIDE LOGISTICS PARK, according to the plat recorded under Film Code No. 1234567,",
+        "x0": 54,
+        "y0": 710,
+        "x1": 557.03,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Dallas County, Texas.",
+        "x0": 54,
+        "y0": 697,
+        "x1": 142.88,
+        "y1": 709.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "PARCEL B: Lot 2, Block 2, RIVERSIDE LOGISTICS PARK, according to the plat recorded under Film Code No. 1234567,",
+        "x0": 54,
+        "y0": 681,
+        "x1": 556.48,
+        "y1": 693.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Dallas County, Texas.",
+        "x0": 54,
+        "y0": 668,
+        "x1": 142.88,
+        "y1": 680.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Together with all rights, easements, and appurtenances belonging thereto.",
+        "x0": 54,
+        "y0": 652,
+        "x1": 348.67,
+        "y1": 664.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "SYNTHETIC SPECIMEN \u2014 for software testing only.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 242.496,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  }
+]

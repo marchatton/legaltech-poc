@@ -1,0 +1,200 @@
+{
+  "commitment.conditions.header": {
+    "page": 1,
+    "bbox": [
+      54,
+      720,
+      302.712,
+      734.4
+    ]
+  },
+  "schedule_a.header": {
+    "page": 2,
+    "bbox": [
+      54,
+      738,
+      145.0,
+      754.8
+    ]
+  },
+  "schedule_a.proposed_insured": {
+    "page": 2,
+    "bbox": [
+      160,
+      674,
+      267.5,
+      686.0
+    ]
+  },
+  "schedule_a.policy_amount": {
+    "page": 2,
+    "bbox": [
+      160,
+      656,
+      222.5,
+      668.0
+    ]
+  },
+  "schedule_a.estate": {
+    "page": 2,
+    "bbox": [
+      160,
+      638,
+      205.28,
+      650.0
+    ]
+  },
+  "schedule_a.vesting": {
+    "page": 2,
+    "bbox": [
+      160,
+      620,
+      259.71000000000004,
+      632.0
+    ]
+  },
+  "schedule_b1.header": {
+    "page": 3,
+    "bbox": [
+      54,
+      738,
+      288.12199999999996,
+      754.8
+    ]
+  },
+  "schedule_b1.item_1": {
+    "page": 3,
+    "bbox": [
+      54,
+      688,
+      471.16,
+      700.0
+    ]
+  },
+  "schedule_b1.item_2": {
+    "page": 3,
+    "bbox": [
+      54,
+      667,
+      333.66,
+      679.0
+    ]
+  },
+  "schedule_b1.item_3": {
+    "page": 3,
+    "bbox": [
+      54,
+      646,
+      270.63,
+      658.0
+    ]
+  },
+  "schedule_b1.item_4": {
+    "page": 3,
+    "bbox": [
+      54,
+      625,
+      378.13000000000005,
+      637.0
+    ]
+  },
+  "schedule_b1.item_6": {
+    "page": 3,
+    "bbox": [
+      54,
+      604,
+      474.49,
+      616.0
+    ]
+  },
+  "schedule_b2.header": {
+    "page": 4,
+    "bbox": [
+      54,
+      738,
+      269.474,
+      754.8
+    ]
+  },
+  "schedule_b2.item_1": {
+    "page": 4,
+    "bbox": [
+      54,
+      688,
+      261.45000000000005,
+      700.0
+    ]
+  },
+  "schedule_b2.item_3": {
+    "page": 4,
+    "bbox": [
+      54,
+      667,
+      321.21,
+      679.0
+    ]
+  },
+  "schedule_b2.item_5": {
+    "page": 4,
+    "bbox": [
+      54,
+      646,
+      490.07,
+      658.0
+    ]
+  },
+  "schedule_b2.item_8": {
+    "page": 4,
+    "bbox": [
+      54,
+      625,
+      452.01,
+      637.0
+    ]
+  },
+  "schedule_b2.item_9": {
+    "page": 4,
+    "bbox": [
+      54,
+      604,
+      452.25,
+      616.0
+    ]
+  },
+  "schedule_b2.item_12": {
+    "page": 4,
+    "bbox": [
+      54,
+      583,
+      429.90000000000003,
+      595.0
+    ]
+  },
+  "schedule_b2.item_14": {
+    "page": 4,
+    "bbox": [
+      54,
+      562,
+      416.97,
+      574.0
+    ]
+  },
+  "schedule_b2.item_16": {
+    "page": 4,
+    "bbox": [
+      54,
+      541,
+      294.23,
+      553.0
+    ]
+  },
+  "exhibit_a.header": {
+    "page": 5,
+    "bbox": [
+      54,
+      738,
+      292.028,
+      754.8
+    ]
+  }
+}

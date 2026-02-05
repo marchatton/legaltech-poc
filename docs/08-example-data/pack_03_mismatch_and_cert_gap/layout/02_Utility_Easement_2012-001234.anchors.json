@@ -1,0 +1,47 @@
+{
+  "parties.header": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      662.4,
+      101.674,
+      675.6
+    ]
+  },
+  "section.grant_of_easement": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      601.92,
+      175.616,
+      615.12
+    ]
+  },
+  "section.easement_area": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      521.82,
+      149.337,
+      535.0200000000001
+    ]
+  },
+  "section.rights_and_restrictions": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      428.22,
+      207.395,
+      441.42
+    ]
+  },
+  "section.miscellaneous": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      348.12,
+      149.337,
+      361.32
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+b2_item_no,type,instrument_no,record_date,summary,risk_tags,source_doc,source_page_hint
+1,taxes,,,"Taxes for the year 2026, not yet due and payable.",monetary,01_Title_Commitment.pdf,See Schedule B-II
+3,rights_of_parties,,,"Rights of parties in possession, including tenants, if any.",possession,01_Title_Commitment.pdf,See Schedule B-II
+5,plat,Film Code No. 1234567,2006-05-02,"Easements, building lines, and other matters as shown on the Plat of Harbourview Commerce Park recorded under Film Code No. 1234567.",boundary,07_Plat_Map_FilmCode_1234567.pdf,See Schedule B-II
+8,ccrs,2008-045678,2008-11-03,"Declaration of Covenants, Conditions and Restrictions recorded as Instrument No. 2008-045678.",use_restriction,03_CCRs_2008-045678.pdf,See Schedule B-II
+9,rea,2019-098765,2019-08-19,Reciprocal Easement Agreement recorded as Instrument No. 2019-098765 (ingress/egress and shared parking).,access;parking,04_REA_2019-098765.pdf,See Schedule B-II
+12,utility,2012-001234,2012-01-10,20' Utility Easement recorded as Instrument No. 2012-001234 burdening the north 20 feet of the land.,utilities;buildable_area,02_Utility_Easement_2012-001234.pdf,See Schedule B-II
+13,mortgage,2021-123456,2021-06-30,Deed of Trust recorded as Instrument No. 2021-123456 (to be released per Schedule B-I Item 2).,lien,05_Deed_of_Trust_2021-123456.pdf,See Schedule B-II
+15,lien,2024-222222,2024-10-02,Mechanic’s Lien recorded as Instrument No. 2024-222222 (to be released per Schedule B-I Item 3).,lien;closing_blocker,06_Mechanics_Lien_2024-222222.pdf,See Schedule B-II

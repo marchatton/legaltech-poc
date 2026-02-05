@@ -1,0 +1,47 @@
+{
+  "parties.header": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      662.4,
+      101.674,
+      675.6
+    ]
+  },
+  "section.use_restrictions": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      601.92,
+      161.56900000000002,
+      615.12
+    ]
+  },
+  "section.architectural_control": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      521.82,
+      205.536,
+      535.0200000000001
+    ]
+  },
+  "section.parking_and_access": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      441.72,
+      180.5,
+      454.92
+    ]
+  },
+  "section.prohibited_uses": {
+    "page": 1,
+    "bbox": [
+      54.0,
+      361.62,
+      154.848,
+      374.82
+    ]
+  }
+}

@@ -1,0 +1,451 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54,
+        "y0": 738,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54,
+        "y0": 720,
+        "x1": 302.712,
+        "y1": 734.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Commitment No.: FL-PACK06-CMT-006",
+        "x0": 54,
+        "y0": 700,
+        "x1": 224.29,
+        "y1": 712.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Commitment Date: January 25, 2026",
+        "x0": 54,
+        "y0": 686,
+        "x1": 202.05,
+        "y1": 698.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Property: Cedar Point Industrial \u2014 Building 3",
+        "x0": 54,
+        "y0": 672,
+        "x1": 239.56,
+        "y1": 684.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Address: 9100 Cedar Point Blvd, Tampa, Florida",
+        "x0": 54,
+        "y0": 658,
+        "x1": 250.66,
+        "y1": 670.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 This commitment is issued subject to the Conditions and Stipulations of the Policy.",
+        "x0": 64.8,
+        "y0": 620,
+        "x1": 403.88000000000005,
+        "y1": 632.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 Coverage is subject to satisfaction of Schedule B-I Requirements.",
+        "x0": 64.8,
+        "y0": 604,
+        "x1": 333.82,
+        "y1": 616.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 Schedule B-II Exceptions will remain unless cured, insured over, or removed.",
+        "x0": 64.8,
+        "y0": 588,
+        "x1": 382.13,
+        "y1": 600.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 290.536,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 2,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SCHEDULE A",
+        "x0": 54,
+        "y0": 738,
+        "x1": 145.0,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "1. Commitment No:",
+        "x0": 54,
+        "y0": 710,
+        "x1": 145.67000000000002,
+        "y1": 722.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "FL-PACK06-CMT-006",
+        "x0": 160,
+        "y0": 710,
+        "x1": 255.0,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "2. Commitment Date:",
+        "x0": 54,
+        "y0": 692,
+        "x1": 154.01,
+        "y1": 704.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "January 25, 2026",
+        "x0": 160,
+        "y0": 692,
+        "x1": 228.60000000000002,
+        "y1": 704.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Proposed Insured:",
+        "x0": 54,
+        "y0": 674,
+        "x1": 153.47000000000003,
+        "y1": 686.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Cedar Point Acquisitions LLC",
+        "x0": 160,
+        "y0": 674,
+        "x1": 281.95,
+        "y1": 686.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "4. Policy Amount:",
+        "x0": 54,
+        "y0": 656,
+        "x1": 138.45999999999998,
+        "y1": 668.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "$42,000,000.00",
+        "x0": 160,
+        "y0": 656,
+        "x1": 222.5,
+        "y1": 668.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. Estate or Interest:",
+        "x0": 54,
+        "y0": 638,
+        "x1": 150.14000000000001,
+        "y1": 650.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Fee Simple",
+        "x0": 160,
+        "y0": 638,
+        "x1": 205.28,
+        "y1": 650.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "6. Vesting:",
+        "x0": 54,
+        "y0": 620,
+        "x1": 104.57000000000001,
+        "y1": 632.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Cedar Point Industrial Owner, LLC",
+        "x0": 160,
+        "y0": 620,
+        "x1": 301.93,
+        "y1": 632.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "7. The Land is described in Exhibit A attached.",
+        "x0": 54,
+        "y0": 602,
+        "x1": 242.85999999999999,
+        "y1": 614.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 3,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SCHEDULE B-I \u2014 REQUIREMENTS",
+        "x0": 54,
+        "y0": 738,
+        "x1": 288.12199999999996,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "The following requirements must be met prior to issuance of the Policy:",
+        "x0": 54,
+        "y0": 710,
+        "x1": 342.03000000000003,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "1. Payment of consideration and recordation of the deed conveying title to Proposed Insured.",
+        "x0": 54,
+        "y0": 688,
+        "x1": 425.33000000000004,
+        "y1": 700.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "2. Release of Deed of Trust / Mortgage recorded as Instrument No. 2021-123456.",
+        "x0": 54,
+        "y0": 667,
+        "x1": 380.32,
+        "y1": 679.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Owner\u2019s Affidavit and Indemnity (Company form).",
+        "x0": 54,
+        "y0": 646,
+        "x1": 270.63,
+        "y1": 658.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "4. Surveyor's certification to include Buyer, Lender, and Title Company.",
+        "x0": 54,
+        "y0": 625,
+        "x1": 344.37,
+        "y1": 637.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. Satisfaction or bonding over of Mechanic\u2019s Lien recorded as Instrument No. 2024-222222.",
+        "x0": 54,
+        "y0": 604,
+        "x1": 428.1,
+        "y1": 616.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 4,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SCHEDULE B-II \u2014 EXCEPTIONS",
+        "x0": 54,
+        "y0": 738,
+        "x1": 269.474,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "The Policy will not insure against loss or damage resulting from:",
+        "x0": 54,
+        "y0": 710,
+        "x1": 313.43,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "1. Taxes for the year 2026, not yet due and payable.",
+        "x0": 54,
+        "y0": 688,
+        "x1": 261.45000000000005,
+        "y1": 700.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Rights of parties in possession, including tenants and occupants.",
+        "x0": 54,
+        "y0": 667,
+        "x1": 321.21,
+        "y1": 679.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. Easements, building lines, and other matters as shown on the plat recorded under Film Code No. 1234567.",
+        "x0": 54,
+        "y0": 646,
+        "x1": 490.07,
+        "y1": 658.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "8. Declaration of Covenants, Conditions and Restrictions recorded as Instrument No. 2008-045678.",
+        "x0": 54,
+        "y0": 625,
+        "x1": 452.01,
+        "y1": 637.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "9. Reciprocal Easement Agreement (ingress/egress and shared parking) recorded as Instrument No. 2019-098765.",
+        "x0": 54,
+        "y0": 604,
+        "x1": 509.17,
+        "y1": 616.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "12. 20' Utility Easement recorded as Instrument No. 2012-001234 (north 20 feet of the Tract).",
+        "x0": 54,
+        "y0": 583,
+        "x1": 429.90000000000003,
+        "y1": 595.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "13. Mortgage recorded as Instrument No. 2021-123456.",
+        "x0": 54,
+        "y0": 562,
+        "x1": 277.57,
+        "y1": 574.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "15. Mechanic\u2019s and Materialman\u2019s Lien recorded as Instrument No. 2024-222222.",
+        "x0": 54,
+        "y0": 541,
+        "x1": 383.93,
+        "y1": 553.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 5,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "EXHIBIT A \u2014 LEGAL DESCRIPTION",
+        "x0": 54,
+        "y0": 738,
+        "x1": 292.028,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Lot 3, CEDAR POINT INDUSTRIAL, according to the plat recorded under Film Code No. 1234567, Hillsborough County,",
+        "x0": 54,
+        "y0": 710,
+        "x1": 550.3499999999999,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Florida.",
+        "x0": 54,
+        "y0": 697,
+        "x1": 85.39,
+        "y1": 709.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Together with all rights, easements, and appurtenances belonging thereto.",
+        "x0": 54,
+        "y0": 681,
+        "x1": 348.67,
+        "y1": 693.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "SYNTHETIC SPECIMEN \u2014 for software testing only.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 242.496,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+b2_item_no,type,instrument_no,record_date,summary,risk_tags,source_doc,source_page_hint
+1,taxes,,,"Taxes for the year 2026, not yet due and payable.",monetary,01_Title_Pro_Forma_Policy.pdf,See Schedule B
+5,plat,Film Code No. 9001112,2014-02-12,"Easements, building lines, and other matters as shown on the plat recorded under Film Code No. 9001112.",boundary,05_Plat_Map_FilmCode_9001112.pdf,See Schedule B
+8,ground_lease_memo,2016-777777,2016-10-05,Memorandum of Ground Lease recorded as Instrument No. 2016-777777 (leasehold estate).,estate;leasehold,03_Memo_of_Ground_Lease_2016-777777.pdf,See Schedule B
+12,utility_easement,2012-001234,2012-02-14,20' Utility Easement recorded as Instrument No. 2012-001234 (north 20 feet of the Tract).,utilities,02_Utility_Easement_2012-001234.pdf,See Schedule B
+16,mortgage,2021-123456,2021-06-30,Deed of Trust recorded as Instrument No. 2021-123456.,monetary,04_Deed_of_Trust_2021-123456.pdf,See Schedule B

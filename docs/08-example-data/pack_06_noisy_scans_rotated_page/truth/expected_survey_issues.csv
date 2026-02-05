@@ -1,0 +1,3 @@
+issue_type,detail,impact,source_doc,source_page_hint
+scan_quality,Scanned survey includes rotated page and handwritten note; OCR may be required for field note.,"Validate OCR pipeline, rotation handling, and evidence highlighting UX.",08_ALTA_NSPS_Survey_Draft_SCANNED.pdf,See rotated page 2
+encroachment,Handwritten note indicates encroachment approx. 0.8' at NW corner.,Potential objection/endorsement; confirm on final survey.,08_ALTA_NSPS_Survey_Draft.pdf,See recon notes

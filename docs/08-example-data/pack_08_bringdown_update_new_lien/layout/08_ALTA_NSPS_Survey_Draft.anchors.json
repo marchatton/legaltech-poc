@@ -1,0 +1,56 @@
+{
+  "easement.utility.callout": {
+    "page": 1,
+    "bbox": [
+      100,
+      620,
+      201.16,
+      630.8
+    ]
+  },
+  "easement.ingress.callout": {
+    "page": 1,
+    "bbox": [
+      100,
+      195,
+      247.68099999999998,
+      205.8
+    ]
+  },
+  "encroachment.fence.callout": {
+    "page": 1,
+    "bbox": [
+      160,
+      595,
+      264.994,
+      605.8
+    ]
+  },
+  "table_a.header": {
+    "page": 2,
+    "bbox": [
+      54,
+      738,
+      214.02,
+      752.4
+    ]
+  },
+  "recon.notes": {
+    "page": 2,
+    "bbox": [
+      54,
+      666,
+      556.74,
+      678.0
+    ]
+  },
+  "certification.parties": {
+    "page": 3,
+    "bbox": [
+      54,
+      710,
+      559.49,
+      722.0
+    ]
+  }
+}

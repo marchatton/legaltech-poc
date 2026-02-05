@@ -1,0 +1,30 @@
+{
+  "pack_id": "PACK07",
+  "disclaimer": "All documents in this pack are synthetic and generated for software testing and demos.",
+  "deal_facts": {
+    "property_name": "Lakeview Office Plaza \u2014 Suite Block",
+    "address": "1400 Lakeview Pkwy, Denver, Colorado",
+    "county_state": "Denver County, Colorado",
+    "proposed_insured": "Lakeview Buyer LLC",
+    "lender": "Mountain West Bank",
+    "policy_amount": "$26,000,000.00",
+    "commitment_no": "CO-PACK07-PF-007",
+    "commitment_date": "January 18, 2026"
+  },
+  "documents": [
+    "01_Title_Pro_Forma_Policy.pdf",
+    "01_Title_Pro_Forma_Policy_SCANNED.pdf",
+    "02_Utility_Easement_2012-001234.pdf",
+    "03_Memo_of_Ground_Lease_2016-777777.pdf",
+    "04_Deed_of_Trust_2021-123456.pdf",
+    "05_Plat_Map_FilmCode_9001112.pdf",
+    "06_ALTA_NSPS_Survey_Draft.pdf",
+    "06_ALTA_NSPS_Survey_Draft_SCANNED.pdf",
+    "07_Legal_Description_ExhibitA.docx"
+  ],
+  "known_issues": {
+    "no_formal_commitment": true,
+    "missing_requirements_section": true,
+    "leasehold_estate": true
+  }
+}

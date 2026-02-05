@@ -1,0 +1,134 @@
+[
+  {
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "expected_answer_contains": [
+      "ABC Acquisitions LLC"
+    ],
+    "expected_citations": [
+      {
+        "doc": "01B_Title_Commitment_Bringdown_Update.pdf",
+        "anchor": "schedule_a.proposed_insured"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-02",
+    "question": "What estate or interest is insured?",
+    "expected_answer_contains": [
+      "Fee Simple"
+    ],
+    "expected_citations": [
+      {
+        "doc": "01B_Title_Commitment_Bringdown_Update.pdf",
+        "anchor": "schedule_a.estate"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-03",
+    "question": "List the Schedule B-I Requirements (with item numbers).",
+    "expected_answer_contains": [
+      "Release of Deed of Trust",
+      "Release of Judgment Lien"
+    ],
+    "expected_citations": [
+      {
+        "doc": "01B_Title_Commitment_Bringdown_Update.pdf",
+        "anchor": "schedule_b1.header"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-04",
+    "question": "Identify the 20' utility easement and where it burdens the property.",
+    "expected_answer_contains": [
+      "20' Utility Easement",
+      "north 20 feet"
+    ],
+    "expected_citations": [
+      {
+        "doc": "01B_Title_Commitment_Bringdown_Update.pdf",
+        "anchor": "schedule_b2.item_12"
+      },
+      {
+        "doc": "02_Utility_Easement_2012-001234.pdf",
+        "anchor": "section.easement_area"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-05",
+    "question": "Does the survey depict the 20' utility easement?",
+    "expected_answer_contains": [
+      "20' UTILITY EASEMENT"
+    ],
+    "expected_citations": [
+      {
+        "doc": "08_ALTA_NSPS_Survey_Draft.pdf",
+        "anchor": "easement.utility.callout"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-06",
+    "question": "Are there any encroachments noted on the survey?",
+    "expected_answer_contains": [
+      "encroaches",
+      "0.7"
+    ],
+    "expected_citations": [
+      {
+        "doc": "08_ALTA_NSPS_Survey_Draft.pdf",
+        "anchor": "encroachment.fence.callout"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-07",
+    "question": "What recorded CC&Rs affect use of the property?",
+    "expected_answer_contains": [
+      "commercial",
+      "Prohibited"
+    ],
+    "expected_citations": [
+      {
+        "doc": "03_CCRs_2008-045678.pdf",
+        "anchor": "section.use_restrictions"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-08",
+    "question": "Is there an REA and what does it cover at a high level?",
+    "expected_answer_contains": [
+      "Reciprocal",
+      "ingress",
+      "parking"
+    ],
+    "expected_citations": [
+      {
+        "doc": "04_REA_2019-098765.pdf",
+        "anchor": "section.grant_of_access_easements"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-09",
+    "question": "Are there any liens that must be released prior to closing?",
+    "expected_answer_contains": [
+      "Deed of Trust",
+      "Judgment Lien"
+    ],
+    "expected_citations": [
+      {
+        "doc": "01B_Title_Commitment_Bringdown_Update.pdf",
+        "anchor": "schedule_b1.item_2"
+      },
+      {
+        "doc": "01B_Title_Commitment_Bringdown_Update.pdf",
+        "anchor": "schedule_b1.item_6"
+      }
+    ]
+  }
+]

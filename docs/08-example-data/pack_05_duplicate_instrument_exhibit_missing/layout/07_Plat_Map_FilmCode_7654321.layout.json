@@ -1,0 +1,162 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Recorded Plat (Specimen)",
+        "x0": 54,
+        "y0": 738,
+        "x1": 202.704,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Plat Map \u2014 JUNIPER RETAIL CENTRE (Film Code No. 7654321)",
+        "x0": 54,
+        "y0": 720,
+        "x1": 415.404,
+        "y1": 734.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "County/State: Maricopa County, Arizona",
+        "x0": 54,
+        "y0": 702,
+        "x1": 218.98999999999998,
+        "y1": 714.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Lot 1",
+        "x0": 64.0,
+        "y0": 540.0,
+        "x1": 86.24000000000001,
+        "y1": 552.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 2",
+        "x0": 232.0,
+        "y0": 540.0,
+        "x1": 254.24,
+        "y1": 552.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 3",
+        "x0": 400.0,
+        "y0": 540.0,
+        "x1": 422.24,
+        "y1": 552.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 4",
+        "x0": 64.0,
+        "y0": 410.0,
+        "x1": 86.24000000000001,
+        "y1": 422.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 5",
+        "x0": 232.0,
+        "y0": 410.0,
+        "x1": 254.24,
+        "y1": 422.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 6",
+        "x0": 400.0,
+        "y0": 410.0,
+        "x1": 422.24,
+        "y1": 422.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 7",
+        "x0": 64.0,
+        "y0": 280.0,
+        "x1": 86.24000000000001,
+        "y1": 292.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 8",
+        "x0": 232.0,
+        "y0": 280.0,
+        "x1": 254.24,
+        "y1": 292.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 9",
+        "x0": 400.0,
+        "y0": 280.0,
+        "x1": 422.24,
+        "y1": 292.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 10",
+        "x0": 64.0,
+        "y0": 150.0,
+        "x1": 91.80000000000001,
+        "y1": 162.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 11",
+        "x0": 232.0,
+        "y0": 150.0,
+        "x1": 259.8,
+        "y1": 162.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Lot 12",
+        "x0": 400.0,
+        "y0": 150.0,
+        "x1": 427.8,
+        "y1": 162.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "Notes: Building lines and utility easements per plat. Verify against title commitment.",
+        "x0": 54,
+        "y0": 110,
+        "x1": 394.27,
+        "y1": 122.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Synthetic specimen \u2014 recorded plat for test use only.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 243.416,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  }
+]

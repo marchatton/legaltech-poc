@@ -1,0 +1,189 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "DEED OF TRUST",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 150.67200000000003,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Instrument No.: 2021-123456   Recorded: June 30, 2021",
+        "x0": 54.0,
+        "y0": 721.44,
+        "x1": 279.63,
+        "y1": 732.24,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Harris County, Texas",
+        "x0": 54.0,
+        "y0": 709.2,
+        "x1": 138.519,
+        "y1": 720.0,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC RECORDED INSTRUMENT.",
+        "x0": 54.0,
+        "y0": 696.96,
+        "x1": 330.896,
+        "y1": 706.5600000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "PARTIES",
+        "x0": 54.0,
+        "y0": 662.4,
+        "x1": 101.674,
+        "y1": 675.6,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Borrower:",
+        "x0": 61.199999999999996,
+        "y0": 644.4,
+        "x1": 104.202,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Harbourview Holdings LLC",
+        "x0": 144.0,
+        "y0": 644.4,
+        "x1": 251.028,
+        "y1": 655.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Lender:",
+        "x0": 61.199999999999996,
+        "y0": 628.56,
+        "x1": 94.203,
+        "y1": 639.3599999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Example National Bank, N.A.",
+        "x0": 144.0,
+        "y0": 628.56,
+        "x1": 260.046,
+        "y1": 639.3599999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Trustee:",
+        "x0": 61.199999999999996,
+        "y0": 612.7199999999999,
+        "x1": 96.705,
+        "y1": 623.5199999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Texas Title Trustee Services LLC",
+        "x0": 144.0,
+        "y0": 612.7199999999999,
+        "x1": 277.038,
+        "y1": 623.5199999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "GRANTING CLAUSE",
+        "x0": 54.0,
+        "y0": 586.0799999999999,
+        "x1": 160.942,
+        "y1": 599.28,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Borrower grants to Trustee, in trust, with power of sale, the Property described on Exhibit A to secure repayment of the Note.",
+        "x0": 61.199999999999996,
+        "y0": 568.0799999999999,
+        "x1": 563.61,
+        "y1": 580.0799999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This Deed of Trust creates a lien on the Property until released.",
+        "x0": 61.199999999999996,
+        "y0": 543.78,
+        "x1": 314.48,
+        "y1": 555.78,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "SECURED OBLIGATIONS",
+        "x0": 54.0,
+        "y0": 519.48,
+        "x1": 187.232,
+        "y1": 532.6800000000001,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Principal Amount: $12,500,000.00 plus interest, costs, and fees as provided in the Note.",
+        "x0": 61.199999999999996,
+        "y0": 501.48,
+        "x1": 412.84,
+        "y1": 513.48,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Upon full repayment, Lender shall deliver a recordable release for recording.",
+        "x0": 61.199999999999996,
+        "y0": 477.18,
+        "x1": 368.88,
+        "y1": 489.18,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "INSURANCE AND CONDEMNATION",
+        "x0": 54.0,
+        "y0": 452.88,
+        "x1": 240.37300000000002,
+        "y1": 466.08,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "Borrower shall maintain property insurance and apply proceeds as required by the Loan Documents.",
+        "x0": 61.199999999999996,
+        "y0": 434.88,
+        "x1": 462.78000000000003,
+        "y1": 446.88,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Condemnation awards shall be applied to restoration or repayment as provided in the Note.",
+        "x0": 61.199999999999996,
+        "y0": 410.58,
+        "x1": 425.59,
+        "y1": 422.58,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  }
+]

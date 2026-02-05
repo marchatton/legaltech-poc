@@ -1,0 +1,108 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Recorded Instrument (Specimen)",
+        "x0": 54,
+        "y0": 738,
+        "x1": 242.7,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Memorandum of Ground Lease",
+        "x0": 54,
+        "y0": 720,
+        "x1": 260.92,
+        "y1": 736.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "County/State: Denver County, Colorado",
+        "x0": 54,
+        "y0": 700,
+        "x1": 215.11,
+        "y1": 712.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Instrument No.: 2016-777777   Record Date: 2016-10-05",
+        "x0": 54,
+        "y0": 686,
+        "x1": 282.86,
+        "y1": 698.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Grantor: Lakeview Landlord LLC",
+        "x0": 54,
+        "y0": 664,
+        "x1": 190.36,
+        "y1": 676.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Grantee: Lakeview Office Owner, LLC",
+        "x0": 54,
+        "y0": 650,
+        "x1": 212.0,
+        "y1": 662.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This document is synthetic and generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54,
+        "y0": 636,
+        "x1": 340.79200000000003,
+        "y1": 645.6,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      },
+      {
+        "text": "1. Notice of Lease",
+        "x0": 54,
+        "y0": 610,
+        "x1": 147.53300000000002,
+        "y1": 623.2,
+        "font": "Helvetica-Bold",
+        "size": 11
+      },
+      {
+        "text": "This memorandum evidences a ground lease for a term of 99 years. The tenant holds a leasehold estate only, subject to the",
+        "x0": 54,
+        "y0": 594,
+        "x1": 543.63,
+        "y1": 606.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "terms of the lease.",
+        "x0": 54,
+        "y0": 581,
+        "x1": 126.75999999999999,
+        "y1": 593.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Synthetic specimen \u2014 Memorandum of Ground Lease",
+        "x0": 54,
+        "y0": 40,
+        "x1": 246.96800000000002,
+        "y1": 49.6,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  }
+]

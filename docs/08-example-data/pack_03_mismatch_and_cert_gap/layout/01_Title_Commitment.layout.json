@@ -1,0 +1,908 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54.0,
+        "y0": 716.4,
+        "x1": 266.718,
+        "y1": 729.6,
+        "font": "Helvetica",
+        "size": 11
+      },
+      {
+        "text": "Commitment No.: TX-PACK03-CMT-001   File No.: HV-PACK03-F-77821",
+        "x0": 54.0,
+        "y0": 698.4,
+        "x1": 346.068,
+        "y1": 709.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Commitment Date: January 12, 2026",
+        "x0": 54.0,
+        "y0": 687.6,
+        "x1": 201.06,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Page 1 of 6",
+        "x0": 496.8,
+        "y0": 687.6,
+        "x1": 542.835,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC DATA. NOT A REAL TITLE COMMITMENT.",
+        "x0": 54.0,
+        "y0": 673.2,
+        "x1": 387.784,
+        "y1": 682.8000000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "COMMITMENT CONDITIONS",
+        "x0": 54.0,
+        "y0": 640.8,
+        "x1": 215.328,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "This Commitment is preliminary to the issuance of a policy or policies of title insurance and is issued subject to the terms,",
+        "x0": 54.0,
+        "y0": 615.5999999999999,
+        "x1": 542.86,
+        "y1": 627.5999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "exclusions, and conditions of the policy form and any applicable endorsements.",
+        "x0": 54.0,
+        "y0": 602.0999999999999,
+        "x1": 372.29,
+        "y1": 614.0999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 The proposed Insured must notify the Company of any matter affecting title not known by the Company.",
+        "x0": 64.8,
+        "y0": 574.1999999999999,
+        "x1": 490.47999999999996,
+        "y1": 586.1999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 The Company commits to issue a Policy subject to Schedule B Requirements and Schedule B Exceptions.",
+        "x0": 64.8,
+        "y0": 557.0999999999999,
+        "x1": 494.67,
+        "y1": 569.0999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "\u2022 The Policy Amount is shown in Schedule A and may be adjusted by agreement prior to issuance.",
+        "x0": 64.8,
+        "y0": 539.9999999999999,
+        "x1": 458.81000000000006,
+        "y1": 551.9999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54.0,
+        "y0": 43.199999999999996,
+        "x1": 290.536,
+        "y1": 52.8,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 2,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54.0,
+        "y0": 716.4,
+        "x1": 266.718,
+        "y1": 729.6,
+        "font": "Helvetica",
+        "size": 11
+      },
+      {
+        "text": "Commitment No.: TX-PACK03-CMT-001   File No.: HV-PACK03-F-77821",
+        "x0": 54.0,
+        "y0": 698.4,
+        "x1": 346.068,
+        "y1": 709.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Commitment Date: January 12, 2026",
+        "x0": 54.0,
+        "y0": 687.6,
+        "x1": 201.06,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Page 2 of 6",
+        "x0": 496.8,
+        "y0": 687.6,
+        "x1": 542.835,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC DATA. NOT A REAL TITLE COMMITMENT.",
+        "x0": 54.0,
+        "y0": 673.2,
+        "x1": 387.784,
+        "y1": 682.8000000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "SCHEDULE A",
+        "x0": 54.0,
+        "y0": 640.8,
+        "x1": 132.0,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Proposed Insured:",
+        "x0": 61.199999999999996,
+        "y0": 615.5999999999999,
+        "x1": 140.715,
+        "y1": 626.3999999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "ABC Acquisitions LLC",
+        "x0": 165.6,
+        "y0": 615.5999999999999,
+        "x1": 253.62900000000002,
+        "y1": 626.3999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Lender:",
+        "x0": 61.199999999999996,
+        "y0": 595.4399999999999,
+        "x1": 94.203,
+        "y1": 606.2399999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "",
+        "x0": 165.6,
+        "y0": 595.4399999999999,
+        "x1": 165.6,
+        "y1": 606.2399999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Estate or Interest:",
+        "x0": 61.199999999999996,
+        "y0": 575.28,
+        "x1": 137.718,
+        "y1": 586.0799999999999,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Fee Simple",
+        "x0": 165.6,
+        "y0": 575.28,
+        "x1": 211.113,
+        "y1": 586.0799999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Policy Amount:",
+        "x0": 61.199999999999996,
+        "y0": 555.12,
+        "x1": 127.20599999999999,
+        "y1": 565.92,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "$50,000,000.00",
+        "x0": 165.6,
+        "y0": 555.12,
+        "x1": 228.15,
+        "y1": 565.92,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Property Address:",
+        "x0": 61.199999999999996,
+        "y0": 534.96,
+        "x1": 139.716,
+        "y1": 545.76,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "1800 West 18th Street, Houston, Texas",
+        "x0": 165.6,
+        "y0": 534.96,
+        "x1": 323.18100000000004,
+        "y1": 545.76,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "County/State:",
+        "x0": 61.199999999999996,
+        "y0": 514.8000000000001,
+        "x1": 119.69999999999999,
+        "y1": 525.6,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Harris County, Texas",
+        "x0": 165.6,
+        "y0": 514.8000000000001,
+        "x1": 250.119,
+        "y1": 525.6,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "The land referred to in this Commitment is described as follows:",
+        "x0": 61.199999999999996,
+        "y0": 494.64000000000004,
+        "x1": 336.267,
+        "y1": 505.44000000000005,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "See Exhibit A attached hereto.",
+        "x0": 165.6,
+        "y0": 494.64000000000004,
+        "x1": 287.172,
+        "y1": 505.44000000000005,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Vesting:",
+        "x0": 61.199999999999996,
+        "y0": 467.28000000000003,
+        "x1": 96.705,
+        "y1": 478.08000000000004,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Harbourview Holdings LLC, a Delaware limited liability company",
+        "x0": 165.6,
+        "y0": 467.28000000000003,
+        "x1": 420.16499999999996,
+        "y1": 478.08000000000004,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "NOTE: Exhibit A contains the full legal description.",
+        "x0": 61.199999999999996,
+        "y0": 442.08000000000004,
+        "x1": 239.49599999999998,
+        "y1": 451.68000000000006,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54.0,
+        "y0": 43.199999999999996,
+        "x1": 290.536,
+        "y1": 52.8,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 3,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54.0,
+        "y0": 716.4,
+        "x1": 266.718,
+        "y1": 729.6,
+        "font": "Helvetica",
+        "size": 11
+      },
+      {
+        "text": "Commitment No.: TX-PACK03-CMT-001   File No.: HV-PACK03-F-77821",
+        "x0": 54.0,
+        "y0": 698.4,
+        "x1": 346.068,
+        "y1": 709.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Commitment Date: January 12, 2026",
+        "x0": 54.0,
+        "y0": 687.6,
+        "x1": 201.06,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Page 3 of 6",
+        "x0": 496.8,
+        "y0": 687.6,
+        "x1": 542.835,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC DATA. NOT A REAL TITLE COMMITMENT.",
+        "x0": 54.0,
+        "y0": 673.2,
+        "x1": 387.784,
+        "y1": 682.8000000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "SCHEDULE B \u2014 PART I (REQUIREMENTS)",
+        "x0": 54.0,
+        "y0": 640.8,
+        "x1": 298.008,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "1. Payment of the full consideration and recording of the deed to the Proposed Insured.",
+        "x0": 61.199999999999996,
+        "y0": 615.5999999999999,
+        "x1": 408.91999999999996,
+        "y1": 627.5999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "2. Release of Deed of Trust recorded as Instrument No. 2021-123456 (payoff and recordable release).",
+        "x0": 61.199999999999996,
+        "y0": 594.8999999999999,
+        "x1": 468.02000000000004,
+        "y1": 606.8999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Release of Mechanic\u2019s Lien recorded as Instrument No. 2024-222222.",
+        "x0": 61.199999999999996,
+        "y0": 574.1999999999998,
+        "x1": 352.8,
+        "y1": 586.1999999999998,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "4. Owner\u2019s Affidavit and Indemnity (Company form).",
+        "x0": 61.199999999999996,
+        "y0": 553.4999999999998,
+        "x1": 277.83,
+        "y1": 565.4999999999998,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. ALTA/NSPS Survey and Surveyor\u2019s Certification in favour of Buyer, Lender, and the Company.",
+        "x0": 61.199999999999996,
+        "y0": 532.7999999999997,
+        "x1": 459.76,
+        "y1": 544.7999999999997,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54.0,
+        "y0": 43.199999999999996,
+        "x1": 290.536,
+        "y1": 52.8,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 4,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54.0,
+        "y0": 716.4,
+        "x1": 266.718,
+        "y1": 729.6,
+        "font": "Helvetica",
+        "size": 11
+      },
+      {
+        "text": "Commitment No.: TX-PACK03-CMT-001   File No.: HV-PACK03-F-77821",
+        "x0": 54.0,
+        "y0": 698.4,
+        "x1": 346.068,
+        "y1": 709.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Commitment Date: January 12, 2026",
+        "x0": 54.0,
+        "y0": 687.6,
+        "x1": 201.06,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Page 4 of 6",
+        "x0": 496.8,
+        "y0": 687.6,
+        "x1": 542.835,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC DATA. NOT A REAL TITLE COMMITMENT.",
+        "x0": 54.0,
+        "y0": 673.2,
+        "x1": 387.784,
+        "y1": 682.8000000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "SCHEDULE B \u2014 PART II (EXCEPTIONS)",
+        "x0": 54.0,
+        "y0": 640.8,
+        "x1": 282.024,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Exceptions 1\u201311",
+        "x0": 54.0,
+        "y0": 615.5999999999999,
+        "x1": 120.53699999999999,
+        "y1": 626.3999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "1. Taxes for the year 2026, not yet due and payable.",
+        "x0": 61.199999999999996,
+        "y0": 597.5999999999999,
+        "x1": 268.65000000000003,
+        "y1": 609.5999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "3. Rights of parties in possession, including tenants, if any.",
+        "x0": 61.199999999999996,
+        "y0": 575.4599999999999,
+        "x1": 297.03000000000003,
+        "y1": 587.4599999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "5. Easements, building lines, and other matters as shown on the Plat of Harbourview Commerce Park recorded under Film",
+        "x0": 61.199999999999996,
+        "y0": 553.3199999999999,
+        "x1": 550.3000000000001,
+        "y1": 565.3199999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Code No. 1234567.",
+        "x0": 61.199999999999996,
+        "y0": 539.8199999999999,
+        "x1": 139.53,
+        "y1": 551.8199999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "8. Declaration of Covenants, Conditions and Restrictions recorded as Instrument No. 2008-045678.",
+        "x0": 61.199999999999996,
+        "y0": 517.68,
+        "x1": 459.21,
+        "y1": 529.68,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "9. Reciprocal Easement Agreement recorded as Instrument No. 2019-098765 (ingress/egress and shared parking).",
+        "x0": 61.199999999999996,
+        "y0": 495.53999999999996,
+        "x1": 516.37,
+        "y1": 507.53999999999996,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54.0,
+        "y0": 43.199999999999996,
+        "x1": 290.536,
+        "y1": 52.8,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 5,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54.0,
+        "y0": 716.4,
+        "x1": 266.718,
+        "y1": 729.6,
+        "font": "Helvetica",
+        "size": 11
+      },
+      {
+        "text": "Commitment No.: TX-PACK03-CMT-001   File No.: HV-PACK03-F-77821",
+        "x0": 54.0,
+        "y0": 698.4,
+        "x1": 346.068,
+        "y1": 709.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Commitment Date: January 12, 2026",
+        "x0": 54.0,
+        "y0": 687.6,
+        "x1": 201.06,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Page 5 of 6",
+        "x0": 496.8,
+        "y0": 687.6,
+        "x1": 542.835,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC DATA. NOT A REAL TITLE COMMITMENT.",
+        "x0": 54.0,
+        "y0": 673.2,
+        "x1": 387.784,
+        "y1": 682.8000000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "SCHEDULE B \u2014 PART II (EXCEPTIONS)",
+        "x0": 54.0,
+        "y0": 640.8,
+        "x1": 282.024,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Exceptions 12\u201315",
+        "x0": 54.0,
+        "y0": 615.5999999999999,
+        "x1": 125.541,
+        "y1": 626.3999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "12. 20' Utility Easement recorded as Instrument No. 2012-001234 burdening the north 20 feet of the land.",
+        "x0": 61.199999999999996,
+        "y0": 597.5999999999999,
+        "x1": 484.33,
+        "y1": 609.5999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "13. Deed of Trust recorded as Instrument No. 2021-123456 (to be released per Schedule B-I Item 2).",
+        "x0": 61.199999999999996,
+        "y0": 575.4599999999999,
+        "x1": 464.15999999999997,
+        "y1": 587.4599999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "15. Mechanic\u2019s Lien recorded as Instrument No. 2024-222222 (to be released per Schedule B-I Item 3).",
+        "x0": 61.199999999999996,
+        "y0": 553.3199999999999,
+        "x1": 476.1,
+        "y1": 565.3199999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54.0,
+        "y0": 43.199999999999996,
+        "x1": 290.536,
+        "y1": 52.8,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 6,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "Example Title Insurance Company",
+        "x0": 54.0,
+        "y0": 738.0,
+        "x1": 281.962,
+        "y1": 754.8,
+        "font": "Helvetica-Bold",
+        "size": 14
+      },
+      {
+        "text": "Commitment for Title Insurance (Specimen)",
+        "x0": 54.0,
+        "y0": 716.4,
+        "x1": 266.718,
+        "y1": 729.6,
+        "font": "Helvetica",
+        "size": 11
+      },
+      {
+        "text": "Commitment No.: TX-PACK03-CMT-001   File No.: HV-PACK03-F-77821",
+        "x0": 54.0,
+        "y0": 698.4,
+        "x1": 346.068,
+        "y1": 709.1999999999999,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Commitment Date: January 12, 2026",
+        "x0": 54.0,
+        "y0": 687.6,
+        "x1": 201.06,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "Page 6 of 6",
+        "x0": 496.8,
+        "y0": 687.6,
+        "x1": 542.835,
+        "y1": 698.4,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "FOR DEMONSTRATION ONLY \u2014 SYNTHETIC DATA. NOT A REAL TITLE COMMITMENT.",
+        "x0": 54.0,
+        "y0": 673.2,
+        "x1": 387.784,
+        "y1": 682.8000000000001,
+        "font": "Helvetica-Bold",
+        "size": 8
+      },
+      {
+        "text": "EXHIBIT A \u2014 LEGAL DESCRIPTION",
+        "x0": 54.0,
+        "y0": 640.8,
+        "x1": 258.024,
+        "y1": 655.1999999999999,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Being Lot 3, Block 3, Harbourview Commerce Park, an addition in Harris County, Texas,",
+        "x0": 61.199999999999996,
+        "y0": 615.5999999999999,
+        "x1": 421.16,
+        "y1": 627.5999999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "according to the map or plat thereof recorded under Film Code No. 1234567 of the Map Records",
+        "x0": 61.199999999999996,
+        "y0": 599.7599999999999,
+        "x1": 448.63,
+        "y1": 611.7599999999999,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "of Harris County, Texas, and being more particularly described by metes and bounds as follows:",
+        "x0": 61.199999999999996,
+        "y0": 583.9199999999998,
+        "x1": 447.25000000000006,
+        "y1": 595.9199999999998,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "BEGINNING at a 1/2\" iron rod found at the northwest corner of said Lot 3;",
+        "x0": 61.199999999999996,
+        "y0": 568.0799999999998,
+        "x1": 363.56,
+        "y1": 580.0799999999998,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "THENCE N 89\u00b015'00\" E, a distance of 200.00 feet to a 1/2\" iron rod found;",
+        "x0": 61.199999999999996,
+        "y0": 552.2399999999998,
+        "x1": 364.01,
+        "y1": 564.2399999999998,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "THENCE S 00\u00b045'00\" E, a distance of 300.00 feet to a 1/2\" iron rod found on the north right-of-way line of West 18th Street;",
+        "x0": 61.199999999999996,
+        "y0": 536.3999999999997,
+        "x1": 563.71,
+        "y1": 548.3999999999997,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "THENCE S 89\u00b015'00\" W, along said right-of-way line, a distance of 200.00 feet to a 1/2\" iron rod found;",
+        "x0": 61.199999999999996,
+        "y0": 520.5599999999997,
+        "x1": 482.05,
+        "y1": 532.5599999999997,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "THENCE N 00\u00b045'00\" W, a distance of 300.00 feet to the POINT OF BEGINNING;",
+        "x0": 61.199999999999996,
+        "y0": 504.71999999999974,
+        "x1": 400.74999999999994,
+        "y1": 516.7199999999998,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "CONTAINING 60,000 square feet (1.377 acres), more or less.",
+        "x0": 61.199999999999996,
+        "y0": 488.87999999999977,
+        "x1": 311.13,
+        "y1": 500.87999999999977,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Being commonly known as: 1800 West 18th Street, Houston, Texas",
+        "x0": 61.199999999999996,
+        "y0": 462.2399999999998,
+        "x1": 302.427,
+        "y1": 473.0399999999998,
+        "font": "Times-Italic",
+        "size": 9
+      },
+      {
+        "text": "This specimen is generated for an Orbital Copilot PoC. Do not rely.",
+        "x0": 54.0,
+        "y0": 43.199999999999996,
+        "x1": 290.536,
+        "y1": 52.8,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  }
+]

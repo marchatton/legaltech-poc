@@ -1,0 +1,9 @@
+b2_item_no,type,instrument_no,record_date,summary,risk_tags,source_doc,source_page_hint
+1,taxes,,,"Taxes for the year 2026, not yet due and payable.",monetary,01_Title_Commitment.pdf,See Schedule B-II
+3,rights_of_parties,,,"Rights of parties in possession, including tenants and occupants.",possession,01_Title_Commitment.pdf,See Schedule B-II
+5,plat,Film Code No. 7654321,2010-06-14,Plat matters per Film Code 7654321.,boundary,07_Plat_Map_FilmCode_7654321.pdf,See Schedule B-II
+8,ccrs,2019-000123,2019-03-02,CC&Rs recorded as Inst. 2019-000123.,use_restriction,03_CCRs_2019-000123.pdf,See Schedule B-II
+9,notice_restrictions,2019-000123,2019-03-02,Notice of Restrictions recorded as Inst. 2019-000123 (duplicate reference).,use_restriction,04_Notice_of_Restrictions_2019-000123_DUP.pdf,See Schedule B-II
+12,utility_easement,2012-001234,2012-02-14,20' Utility Easement (north 20 feet).,utilities,02_Utility_Easement_2012-001234.pdf,See Schedule B-II
+14,easement_missing_exhibit,2017-000555,2017-07-18,"Easement Agreement references Exhibit B, not attached.",access,05_Easement_Agreement_2017-000555_MISSING_EXHIBIT.pdf,See Schedule B-II
+16,mortgage,2021-123456,2021-06-30,Deed of Trust recorded as Inst. 2021-123456.,monetary,06_Deed_of_Trust_2021-123456.pdf,See Schedule B-II

@@ -1,0 +1,9 @@
+pack_folder,pack_id,scenario,key_edge_cases,docs_count,has_scanned_commitment,has_scanned_survey,missing_docs_referenced_in_truth
+pack_01_clean,PACK01,pack 01 clean,,11,True,True,
+pack_02_missing_rea,PACK02,pack 02 missing rea,missing_docs,10,True,True,04_REA_2019-098765.pdf
+pack_03_mismatch_and_cert_gap,PACK03,pack 03 mismatch and cert gap,legal_desc_mismatch; survey_missing_cert_party,11,True,True,
+pack_04_multi_parcel_complex,PACK04,pack 04 multi parcel complex,multi_parcel; additional_access_easement; partial_release,13,True,True,
+pack_05_duplicate_instrument_exhibit_missing,PACK05,pack 05 duplicate instrument exhibit missing,duplicate_instrument_number; missing_exhibit_in_instrument; survey_notes_incomplete_plotting,11,True,True,
+pack_06_noisy_scans_rotated_page,PACK06,pack 06 noisy scans rotated page,noisy_scans; rotated_scanned_page; handwritten_note,11,True,True,
+pack_07_proforma_only_missing_requirements,PACK07,pack 07 proforma only missing requirements,no_formal_commitment; missing_requirements_section; leasehold_estate,9,True,True,
+pack_08_bringdown_update_new_lien,PACK08,pack 08 bringdown update new lien,two_commitments; prefer_latest_by_date; new_lien_on_bringdown,13,True,True,

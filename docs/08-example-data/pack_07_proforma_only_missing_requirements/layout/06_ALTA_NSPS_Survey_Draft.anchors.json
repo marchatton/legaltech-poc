@@ -1,0 +1,38 @@
+{
+  "easement.utility.callout": {
+    "page": 1,
+    "bbox": [
+      100,
+      620,
+      201.16,
+      630.8
+    ]
+  },
+  "table_a.header": {
+    "page": 2,
+    "bbox": [
+      54,
+      738,
+      214.02,
+      752.4
+    ]
+  },
+  "recon.notes": {
+    "page": 2,
+    "bbox": [
+      54,
+      666,
+      514.78,
+      678.0
+    ]
+  },
+  "certification.parties": {
+    "page": 3,
+    "bbox": [
+      54,
+      710,
+      559.49,
+      722.0
+    ]
+  }
+}

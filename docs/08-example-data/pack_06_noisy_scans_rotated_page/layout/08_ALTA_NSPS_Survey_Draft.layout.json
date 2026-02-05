@@ -1,0 +1,230 @@
+[
+  {
+    "page": 1,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "ALTA/NSPS LAND TITLE SURVEY (Specimen)",
+        "x0": 54,
+        "y0": 738,
+        "x1": 316.03200000000004,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Cedar Point Industrial \u2014 Building 3",
+        "x0": 54,
+        "y0": 720,
+        "x1": 255.37199999999999,
+        "y1": 734.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "County/State: Hillsborough County, Florida",
+        "x0": 54,
+        "y0": 704,
+        "x1": 230.13,
+        "y1": 716.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "PUBLIC ROAD (R/W)",
+        "x0": 240,
+        "y0": 120,
+        "x1": 336.67,
+        "y1": 132.0,
+        "font": "Helvetica",
+        "size": 10
+      },
+      {
+        "text": "20' UTILITY EASEMENT",
+        "x0": 100,
+        "y0": 620,
+        "x1": 201.16,
+        "y1": 630.8,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "30' INGRESS/EGRESS EASEMENT",
+        "x0": 100,
+        "y0": 195,
+        "x1": 247.68099999999998,
+        "y1": 205.8,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "FENCE",
+        "x0": 160,
+        "y0": 615,
+        "x1": 190.501,
+        "y1": 625.8,
+        "font": "Helvetica",
+        "size": 9
+      },
+      {
+        "text": "ENCROACHMENT NOTE",
+        "x0": 160,
+        "y0": 595,
+        "x1": 264.994,
+        "y1": 605.8,
+        "font": "Helvetica-Bold",
+        "size": 9
+      },
+      {
+        "text": "Legend:",
+        "x0": 62,
+        "y0": 142,
+        "x1": 100.89,
+        "y1": 154.0,
+        "font": "Helvetica-Bold",
+        "size": 10
+      },
+      {
+        "text": "Red = Utility Easement",
+        "x0": 62,
+        "y0": 126,
+        "x1": 146.825,
+        "y1": 136.8,
+        "font": "Times-Roman",
+        "size": 9
+      },
+      {
+        "text": "Blue = Ingress/Egress Easement",
+        "x0": 62,
+        "y0": 112,
+        "x1": 178.30700000000002,
+        "y1": 122.8,
+        "font": "Times-Roman",
+        "size": 9
+      },
+      {
+        "text": "Fence shown where observed",
+        "x0": 62,
+        "y0": 98,
+        "x1": 168.218,
+        "y1": 108.8,
+        "font": "Times-Roman",
+        "size": 9
+      },
+      {
+        "text": "Synthetic specimen survey \u2014 for software testing only.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 248.296,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "page": 2,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "TABLE A ITEMS (Specimen)",
+        "x0": 54,
+        "y0": 738,
+        "x1": 214.02,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "Requested Table A items:",
+        "x0": 54,
+        "y0": 712,
+        "x1": 157.6,
+        "y1": 724.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "1, 2, 3, 4, 6(a), 6(b), 7(a), 8",
+        "x0": 54,
+        "y0": 694,
+        "x1": 162.86,
+        "y1": 706.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Reconciliation Notes: See scanned page for handwritten field notes; some callouts may be rotated.",
+        "x0": 54,
+        "y0": 666,
+        "x1": 447.27,
+        "y1": 678.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Encroachment: Handwritten note (field): encroachment approx. 0.8' at NW corner (see scanned).",
+        "x0": 54,
+        "y0": 634,
+        "x1": 441.24,
+        "y1": 646.0,
+        "font": "Times-Roman",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "page": 3,
+    "width": 612.0,
+    "height": 792.0,
+    "lines": [
+      {
+        "text": "SURVEYOR'S CERTIFICATION (Specimen)",
+        "x0": 54,
+        "y0": 738,
+        "x1": 296.21999999999997,
+        "y1": 752.4,
+        "font": "Helvetica-Bold",
+        "size": 12
+      },
+      {
+        "text": "This is to certify that this survey was made on the ground and is correct to the best of my knowledge and belief. This survey is",
+        "x0": 54,
+        "y0": 710,
+        "x1": 559.49,
+        "y1": 722.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "made for the benefit of: Cedar Point Acquisitions LLC, Atlantic Commercial Lending, Inc., Example Title Insurance Company.",
+        "x0": 54,
+        "y0": 697,
+        "x1": 565.33,
+        "y1": 709.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Signed: ______________________    Date: ______________",
+        "x0": 54,
+        "y0": 664,
+        "x1": 301.22,
+        "y1": 676.0,
+        "font": "Times-Roman",
+        "size": 10
+      },
+      {
+        "text": "Synthetic specimen survey \u2014 for software testing only.",
+        "x0": 54,
+        "y0": 43.2,
+        "x1": 248.296,
+        "y1": 52.800000000000004,
+        "font": "Helvetica-Oblique",
+        "size": 8
+      }
+    ]
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "pack_id": "PACK08",
+  "disclaimer": "All documents in this pack are synthetic and generated for software testing and demos.",
+  "deal_facts": {
+    "property_name": "Harbourview Commerce Park \u2014 Building A",
+    "address": "1800 West 18th Street, Houston, Texas",
+    "county_state": "Harris County, Texas",
+    "proposed_insured": "ABC Acquisitions LLC",
+    "lender": "Example National Bank, N.A.",
+    "policy_amount": "$50,000,000.00",
+    "commitment_no": "TX-PACK08-CMT-008-BD1",
+    "commitment_date": "February 1, 2026"
+  },
+  "documents": [
+    "01B_Title_Commitment_Bringdown_Update.pdf",
+    "01B_Title_Commitment_Bringdown_Update_SCANNED.pdf",
+    "01_Title_Commitment_Original.pdf",
+    "01_Title_Commitment_Original_SCANNED.pdf",
+    "02_Utility_Easement_2012-001234.pdf",
+    "03_CCRs_2008-045678.pdf",
+    "04_REA_2019-098765.pdf",
+    "05_Deed_of_Trust_2021-123456.pdf",
+    "06_Judgment_Lien_2026-333333.pdf",
+    "07_Plat_Map_FilmCode_1234567.pdf",
+    "08_ALTA_NSPS_Survey_Draft.pdf",
+    "08_ALTA_NSPS_Survey_Draft_SCANNED.pdf",
+    "09_Legal_Description_ExhibitA.docx"
+  ],
+  "known_issues": {
+    "two_commitments": true,
+    "prefer_latest_by_date": true,
+    "new_lien_on_bringdown": true
+  }
+}

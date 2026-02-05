@@ -1,0 +1,32 @@
+{
+  "pack_id": "PACK06",
+  "disclaimer": "All documents in this pack are synthetic and generated for software testing and demos.",
+  "deal_facts": {
+    "property_name": "Cedar Point Industrial \u2014 Building 3",
+    "address": "9100 Cedar Point Blvd, Tampa, Florida",
+    "county_state": "Hillsborough County, Florida",
+    "proposed_insured": "Cedar Point Acquisitions LLC",
+    "lender": "Atlantic Commercial Lending, Inc.",
+    "policy_amount": "$42,000,000.00",
+    "commitment_no": "FL-PACK06-CMT-006",
+    "commitment_date": "January 25, 2026"
+  },
+  "documents": [
+    "01_Title_Commitment.pdf",
+    "01_Title_Commitment_SCANNED.pdf",
+    "02_Utility_Easement_2012-001234.pdf",
+    "03_CCRs_2008-045678.pdf",
+    "04_REA_2019-098765.pdf",
+    "05_Deed_of_Trust_2021-123456.pdf",
+    "06_Mechanics_Lien_2024-222222.pdf",
+    "07_Plat_Map_FilmCode_1234567.pdf",
+    "08_ALTA_NSPS_Survey_Draft.pdf",
+    "08_ALTA_NSPS_Survey_Draft_SCANNED.pdf",
+    "09_Legal_Description_ExhibitA.docx"
+  ],
+  "known_issues": {
+    "noisy_scans": true,
+    "rotated_scanned_page": true,
+    "handwritten_note": true
+  }
+}
