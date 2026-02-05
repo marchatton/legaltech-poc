@@ -1,0 +1,458 @@
+{
+  "run_metadata": {
+    "run_id": "brand-dna-20260205-landing-brand",
+    "timestamp": "2026-02-05T00:00:00Z",
+    "urls": [
+      "https://monzo.com/",
+      "https://www.coinshift.xyz/",
+      "https://every.to/",
+      "https://linear.app/",
+      "https://vercel.com/",
+      "https://www.framer.com/",
+      "https://stripe.com/gb",
+      "https://www.raycast.com/"
+    ],
+    "blend_mode": "harmonise",
+    "output_style": "standard",
+    "tool_settings": {
+      "urls": [
+        "https://monzo.com/",
+        "https://www.coinshift.xyz/",
+        "https://every.to/",
+        "https://linear.app/",
+        "https://vercel.com/",
+        "https://www.framer.com/",
+        "https://stripe.com/gb",
+        "https://www.raycast.com/"
+      ],
+      "include_paths": [],
+      "exclude_paths": [
+        "*/privacy*",
+        "*/terms*",
+        "*/cookie*",
+        "*/legal*"
+      ],
+      "max_depth": 1,
+      "max_pages": 5,
+      "render_js": true,
+      "locale": "en",
+      "focus_pages": [
+        "home",
+        "brand",
+        "press"
+      ],
+      "weights": {},
+      "blend_mode": "harmonise",
+      "output_style": "standard",
+      "quote_limit_words": 20,
+      "min_meaningful_pages_per_site": 2,
+      "download_images": false,
+      "take_screenshots": false
+    },
+    "pages_visited_count": 16
+  },
+  "per_site_prompt_packs": [
+    {
+      "site_id": "monzo",
+      "root_url": "https://monzo.com/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Design a friendly, human-first fintech brand that emphasizes clear money management and 24/7 support. Reference a signature hot coral card color by name only and keep the tone reassuring. Evidence: [monzo:home:voice] [monzo:home:colours.primary].",
+        "visual_direction_prompt": "Use colorful lifestyle photography and playful illustrations with bright props on light backgrounds, plus badge motifs. Evidence: [monzo:home:imagery] [monzo:home:iconography].",
+        "ui_direction_prompt": "Structure the page into clear feature blocks with short headings, plan cards, and prominent Join CTAs. Evidence: [monzo:home:components].",
+        "copywriting_prompt": "Write short, supportive sentences that make finance feel safe and simple. Use direct CTAs and emphasize human support. Evidence: [monzo:home:voice].",
+        "negative_prompt": "Avoid heavy jargon, cold corporate tone, or dense walls of text.",
+        "token_set": {
+          "colour": [
+            "Hot coral accent (name only)",
+            "Blue and white hero backdrops"
+          ],
+          "type": [
+            "Clean, legible headings",
+            "Short subheads"
+          ],
+          "layout": [
+            "Feature blocks",
+            "Plan cards"
+          ],
+          "imagery": [
+            "Colorful lifestyle scenes",
+            "Playful illustrations"
+          ],
+          "voice": [
+            "Friendly and reassuring",
+            "Human support emphasized"
+          ]
+        }
+      },
+      "limitations": [
+        "No CSS or computed style data available.",
+        "Color values are name-only without hex codes."
+      ]
+    },
+    {
+      "site_id": "coinshift",
+      "root_url": "https://www.coinshift.xyz/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Build a bold, operations-first fintech brand for onchain businesses. Use confident claims about speed, control, and accuracy with a technical tone. Evidence: [coinshift:home:voice] [coinshift:home:personality].",
+        "visual_direction_prompt": "Favor sharp, high-contrast product visuals and clear dashboards. Use the Ivory, Charcoal, and Clay palette from the media kit. Evidence: [coinshift:brand:colours.primary] [coinshift:brand:colours.accent].",
+        "ui_direction_prompt": "Layout around feature tiles, metrics, and customer quotes. Use strong CTA buttons like Speak to an Expert. Evidence: [coinshift:home:components].",
+        "copywriting_prompt": "Keep copy concise and declarative. Stress operational clarity and trust. Evidence: [coinshift:home:voice].",
+        "negative_prompt": "Avoid playful slang or vague, aspirational fluff.",
+        "token_set": {
+          "colour": [
+            "#FEFDFC Ivory base",
+            "#181818 Charcoal text",
+            "#FA3812 Clay accent"
+          ],
+          "type": [
+            "Straightforward headings",
+            "Minimal embellishment"
+          ],
+          "layout": [
+            "Feature tiles + metrics",
+            "Testimonials"
+          ],
+          "imagery": [
+            "Data-heavy dashboards",
+            "Brand badges"
+          ],
+          "voice": [
+            "Confident, technical",
+            "Operational focus"
+          ]
+        }
+      },
+      "limitations": [
+        "Typography not specified in landing or brand pages.",
+        "No CSS tokens available."
+      ]
+    },
+    {
+      "site_id": "every",
+      "root_url": "https://every.to/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Create a media-and-software brand with an editorial, future-focused voice. Mix bold headlines with reflective long-form passages. Evidence: [every:home:voice] [every:about:personality].",
+        "visual_direction_prompt": "Use illustration-led imagery with symbolic visuals about AI and human collaboration. Evidence: [every:home:imagery].",
+        "ui_direction_prompt": "Design for reading: clear typography, strong article lists, and prominent Subscribe CTAs. Evidence: [every:home:components].",
+        "copywriting_prompt": "Adopt a thoughtful, questioning tone that invites curiosity about what comes next. Evidence: [every:about:personality].",
+        "negative_prompt": "Avoid overly corporate language or purely transactional copy.",
+        "token_set": {
+          "colour": [
+            "Palette not specified; keep calm and editorial"
+          ],
+          "type": [
+            "Signifier as editorial accent",
+            "Readable long-form"
+          ],
+          "layout": [
+            "Article lists",
+            "Newsletter CTA blocks"
+          ],
+          "imagery": [
+            "AI-human symbolic illustration"
+          ],
+          "voice": [
+            "Curious, reflective",
+            "Future-oriented"
+          ]
+        }
+      },
+      "limitations": [
+        "Color palette not listed on landing/about pages.",
+        "No CSS tokens available."
+      ]
+    },
+    {
+      "site_id": "linear",
+      "root_url": "https://linear.app/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Design a precise, craft-driven product brand for modern software teams. Use a restrained palette with light neutrals and deep grays; blue as subtle accent. Evidence: [linear:brand:colours.secondary] [linear:home:voice].",
+        "visual_direction_prompt": "Focus on crisp product UI screenshots, clean typography, and generous spacing. Evidence: [linear:brand:tokens.spacing] [linear:home:imagery].",
+        "ui_direction_prompt": "Use clear feature sections and direct CTAs. Keep layouts minimal and spacious. Evidence: [linear:home:components].",
+        "copywriting_prompt": "Write concise, matter-of-fact copy that emphasizes speed, focus, and quality. Evidence: [linear:home:voice].",
+        "negative_prompt": "Avoid playful language or cluttered layouts.",
+        "token_set": {
+          "colour": [
+            "#F4F5F8 background",
+            "#222326 text",
+            "subtle blue accent"
+          ],
+          "type": [
+            "Crisp, utilitarian headings"
+          ],
+          "layout": [
+            "Generous whitespace",
+            "Focused sections"
+          ],
+          "imagery": [
+            "Product UI screenshots"
+          ],
+          "voice": [
+            "Precise, product-first"
+          ]
+        }
+      },
+      "limitations": [
+        "Primary brand blue hex value not listed.",
+        "Typography not listed in extracted text."
+      ]
+    },
+    {
+      "site_id": "vercel",
+      "root_url": "https://vercel.com/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Create a confident, developer-first cloud platform brand. Emphasize speed, scale, and reliability with clear benefit-led claims. Evidence: [vercel:home:voice] [vercel:home:personality].",
+        "visual_direction_prompt": "Use product UI and browser mockups with clean, modern surfaces and minimal decoration. Evidence: [vercel:home:imagery].",
+        "ui_direction_prompt": "Structure the page around feature blocks and a strong primary CTA. Evidence: [vercel:home:components].",
+        "copywriting_prompt": "Use short, confident sentences. Make outcomes obvious and avoid hype. Evidence: [vercel:home:voice].",
+        "negative_prompt": "Avoid vague buzzwords or overly casual tone.",
+        "token_set": {
+          "colour": [
+            "Palette not specified; keep neutral and high contrast"
+          ],
+          "type": [
+            "Compact headings",
+            "Readable subheads"
+          ],
+          "layout": [
+            "Feature sections",
+            "Primary CTA above the fold"
+          ],
+          "imagery": [
+            "Browser mockups",
+            "Product UI"
+          ],
+          "voice": [
+            "Confident, technical"
+          ]
+        }
+      },
+      "limitations": [
+        "Brand assets page lacks explicit color or typography tokens.",
+        "No CSS tokens available."
+      ]
+    },
+    {
+      "site_id": "framer",
+      "root_url": "https://www.framer.com/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Build a fast, design-forward site builder brand with bold blue accents on clean neutrals. Use #0055FF and #0099FF as signature blues. Evidence: [framer:brand:colours.primary] [framer:home:voice].",
+        "visual_direction_prompt": "Mix product UI, site showcases, and selective 3D renders for depth. Evidence: [framer:home:imagery].",
+        "ui_direction_prompt": "Use a clear hero with Start for free and Start with AI CTAs, followed by feature grids. Evidence: [framer:home:components].",
+        "copywriting_prompt": "Use short, action-oriented statements focused on speed and creation. Evidence: [framer:home:voice].",
+        "negative_prompt": "Avoid overly technical or enterprise-heavy language.",
+        "token_set": {
+          "colour": [
+            "#0055FF primary",
+            "#0099FF accent",
+            "white background"
+          ],
+          "type": [
+            "Bold headings",
+            "Short subheads"
+          ],
+          "layout": [
+            "Feature grids",
+            "Showcase gallery"
+          ],
+          "imagery": [
+            "Product UI",
+            "3D renders",
+            "Site showcases"
+          ],
+          "voice": [
+            "Fast, creative"
+          ]
+        }
+      },
+      "limitations": [
+        "Typography not specified in brand page text.",
+        "No CSS tokens available."
+      ]
+    },
+    {
+      "site_id": "stripe",
+      "root_url": "https://stripe.com/gb",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Create a reliable, enterprise-grade financial infrastructure brand. Focus on scale, trust, and extensibility across global markets. Evidence: [stripe:home:voice] [stripe:brand:personality].",
+        "visual_direction_prompt": "Use editorial photography with geometric brand motifs and clean product visuals. Evidence: [stripe:home:imagery].",
+        "ui_direction_prompt": "Prioritize case studies, metrics, and clear enterprise CTAs like Start now and Contact sales. Evidence: [stripe:home:components].",
+        "copywriting_prompt": "Use confident, authoritative language and emphasize reliability. Evidence: [stripe:home:voice].",
+        "negative_prompt": "Avoid casual slang or ambiguous promises.",
+        "token_set": {
+          "colour": [
+            "Slate and blurple wordmark on light",
+            "White wordmark on dark"
+          ],
+          "type": [
+            "Clear headings",
+            "Structured sections"
+          ],
+          "layout": [
+            "Case studies and metrics"
+          ],
+          "imagery": [
+            "Editorial photography with logo motifs"
+          ],
+          "voice": [
+            "Authoritative, reliable"
+          ]
+        }
+      },
+      "limitations": [
+        "No explicit hex values for wordmark colors on resources page.",
+        "No CSS tokens available."
+      ]
+    },
+    {
+      "site_id": "raycast",
+      "root_url": "https://www.raycast.com/",
+      "weight": 0.125,
+      "prompt_pack": {
+        "brand_style_prompt": "Design a minimal, productivity-first brand that feels fast and focused. Emphasize shortcuts, flow, and direct utility. Evidence: [raycast:home:voice] [raycast:home:personality].",
+        "visual_direction_prompt": "Use crisp product UI screenshots with a subtle glassy blue backdrop. Use Raycast Red (#FF6363) sparingly on dark surfaces. Evidence: [raycast:home:imagery] [raycast:press:colours.primary].",
+        "ui_direction_prompt": "Use feature blocks for Snippets, Quicklinks, and Notes, with direct Download CTAs. Evidence: [raycast:home:components].",
+        "copywriting_prompt": "Keep sentences short and imperative. Focus on removing friction. Evidence: [raycast:home:voice].",
+        "negative_prompt": "Avoid verbose explanations or overly decorative layouts.",
+        "token_set": {
+          "colour": [
+            "#FF6363 accent",
+            "Dark background (#151515)"
+          ],
+          "type": [
+            "Minimal headings",
+            "Short labels"
+          ],
+          "layout": [
+            "Feature blocks",
+            "Community quotes"
+          ],
+          "imagery": [
+            "Product UI screenshots"
+          ],
+          "voice": [
+            "Direct, productivity focused"
+          ]
+        }
+      },
+      "limitations": [
+        "Press kit page could not be fetched directly; used cached snippet from search results.",
+        "No CSS tokens available."
+      ]
+    }
+  ],
+  "composite_prompt_pack": {
+    "brand_style_prompt": "Create a modern, builder-focused brand that feels fast, reliable, and outcome driven. Use a cool blue primary with neutral backgrounds and dark text. Keep the tone concise and benefit led, with a light editorial accent when needed. Evidence: [framer:brand:colours.primary] [linear:brand:colours.secondary] [every:about:typography] [vercel:home:voice].",
+    "visual_direction_prompt": "Use clean product UI screenshots and browser mockups on light neutral surfaces. Add subtle 3D or glass accents sparingly, and occasional editorial photography with geometric motifs. Evidence: [framer:home:imagery] [vercel:home:imagery] [stripe:home:imagery] [raycast:home:imagery].",
+    "ui_direction_prompt": "Structure pages with a clear hero, primary CTA, feature grid, pricing comparison, metrics, and testimonials. Keep spacing generous and sections focused. Evidence: [linear:home:components] [vercel:home:components] [framer:home:components].",
+    "copywriting_prompt": "Use short, declarative sentences and action verbs like Start, Build, Deploy, and Subscribe. Keep claims specific and grounded in outcomes. Evidence: [linear:home:voice] [vercel:home:voice] [raycast:home:voice].",
+    "negative_prompt": "Avoid noisy multi-color palettes, overly playful slang, heavy ornament, or long unstructured text blocks.",
+    "token_set": {
+      "colour": [
+        "Primary #0055FF, accent #0099FF",
+        "Background #F4F5F8, text #222326",
+        "Reserve warm accents for small highlights only"
+      ],
+      "type": [
+        "Clean sans for UI",
+        "Optional editorial serif for long-form sections"
+      ],
+      "layout": [
+        "Generous whitespace",
+        "Feature grids and pricing tables"
+      ],
+      "imagery": [
+        "Product UI screenshots",
+        "Minimal 3D or glass accents",
+        "Selective editorial photography"
+      ],
+      "voice": [
+        "Builder focused and confident",
+        "Concise, outcome driven copy"
+      ]
+    }
+  },
+  "provenance_map": [
+    {
+      "token": "colours.primary",
+      "sources": [
+        "framer"
+      ],
+      "evidence_anchors": [
+        "framer:brand:colours.primary"
+      ]
+    },
+    {
+      "token": "colours.background",
+      "sources": [
+        "linear"
+      ],
+      "evidence_anchors": [
+        "linear:brand:colours.secondary"
+      ]
+    },
+    {
+      "token": "colours.text",
+      "sources": [
+        "linear"
+      ],
+      "evidence_anchors": [
+        "linear:brand:colours.secondary"
+      ]
+    },
+    {
+      "token": "typography.headings",
+      "sources": [
+        "every"
+      ],
+      "evidence_anchors": [
+        "every:about:typography"
+      ]
+    },
+    {
+      "token": "imagery.style",
+      "sources": [
+        "linear",
+        "framer",
+        "vercel",
+        "stripe",
+        "raycast",
+        "monzo"
+      ],
+      "evidence_anchors": [
+        "linear:home:imagery",
+        "framer:home:imagery",
+        "vercel:home:imagery",
+        "stripe:home:imagery",
+        "raycast:home:imagery",
+        "monzo:home:imagery"
+      ]
+    },
+    {
+      "token": "voice.traits",
+      "sources": [
+        "linear",
+        "vercel",
+        "framer",
+        "stripe",
+        "raycast",
+        "every"
+      ],
+      "evidence_anchors": [
+        "linear:home:voice",
+        "vercel:home:voice",
+        "framer:home:voice",
+        "stripe:home:voice",
+        "raycast:home:voice",
+        "every:home:voice"
+      ]
+    }
+  ]
+}

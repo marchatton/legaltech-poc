@@ -1,0 +1,253 @@
+{
+  "run_metadata": {
+    "run_id": "brand-dna-20260205-parallel-coinshift-every",
+    "timestamp": "2026-02-05T00:00:00Z",
+    "urls": [
+      "https://parallel.ai/",
+      "https://www.coinshift.xyz/",
+      "https://every.to/"
+    ],
+    "blend_mode": "harmonise",
+    "output_style": "standard",
+    "tool_settings": {
+      "urls": [
+        "https://parallel.ai/",
+        "https://www.coinshift.xyz/",
+        "https://every.to/"
+      ],
+      "include_paths": [],
+      "exclude_paths": [
+        "*/privacy*",
+        "*/terms*",
+        "*/cookie*",
+        "*/legal*"
+      ],
+      "max_depth": 1,
+      "max_pages": 4,
+      "render_js": true,
+      "locale": "en",
+      "focus_pages": [
+        "home",
+        "brand",
+        "press"
+      ],
+      "weights": {
+        "parallel": 0.5,
+        "coinshift": 0.25,
+        "every": 0.25
+      },
+      "blend_mode": "harmonise",
+      "output_style": "standard",
+      "quote_limit_words": 20,
+      "min_meaningful_pages_per_site": 1,
+      "download_images": false,
+      "take_screenshots": false
+    },
+    "pages_visited_count": 5
+  },
+  "per_site_prompt_packs": [
+    {
+      "site_id": "parallel",
+      "root_url": "https://parallel.ai/",
+      "weight": 0.5,
+      "prompt_pack": {
+        "brand_style_prompt": "Design a precise, research-grade AI search brand with a purple-led palette and cool neutrals. Use PP Editorial New for standout headlines and Inter Tight for UI. Evidence: [parallel:brand:colours.primary] [parallel:brand:typography.headings].",
+        "visual_direction_prompt": "Use surreal, dreamlike illustrations (cloud landscapes, gateways, planets) paired with clean product UI imagery. Evidence: [parallel:brand:imagery].",
+        "ui_direction_prompt": "Structure pages with a clear hero, benchmark callouts, and focused CTAs like Start building. Evidence: [parallel:home:components].",
+        "copywriting_prompt": "Write concise, technical copy emphasizing accuracy and minimal hallucination. Evidence: [parallel:home:voice].",
+        "negative_prompt": "Avoid vague hype or decorative clutter.",
+        "token_set": {
+          "colour": [
+            "#7B70E4 primary",
+            "#101F2D text",
+            "#F7F2E9 background"
+          ],
+          "type": [
+            "PP Editorial New headlines",
+            "Inter Tight UI"
+          ],
+          "layout": [
+            "Hero + benchmarks",
+            "Focused CTAs"
+          ],
+          "imagery": [
+            "Dreamlike illustrations",
+            "Product UI"
+          ],
+          "voice": [
+            "Precise, technical"
+          ]
+        }
+      },
+      "limitations": [
+        "No explicit spacing, radius, or shadow tokens in brand text.",
+        "Motion details not available in text extraction."
+      ]
+    },
+    {
+      "site_id": "coinshift",
+      "root_url": "https://www.coinshift.xyz/",
+      "weight": 0.25,
+      "prompt_pack": {
+        "brand_style_prompt": "Build a confident, operations-first fintech brand with Ivory and Charcoal foundations and a Clay accent. Evidence: [coinshift:brand:colours.primary] [coinshift:brand:colours.accent].",
+        "visual_direction_prompt": "Favor clean, data-forward product visuals and minimal decoration. Evidence: [coinshift:home:components].",
+        "ui_direction_prompt": "Layout around concise feature blocks, metrics, and a strong Speak to an Expert CTA. Evidence: [coinshift:home:components].",
+        "copywriting_prompt": "Use direct, operational language emphasizing consolidation and control. Evidence: [coinshift:home:voice].",
+        "negative_prompt": "Avoid playful slang or fluffy claims.",
+        "token_set": {
+          "colour": [
+            "#FEFDFC base",
+            "#181818 text",
+            "#FA3812 accent"
+          ],
+          "type": [
+            "Straightforward headings"
+          ],
+          "layout": [
+            "Feature blocks",
+            "Metrics"
+          ],
+          "imagery": [
+            "Product-first visuals"
+          ],
+          "voice": [
+            "Confident, operational"
+          ]
+        }
+      },
+      "limitations": [
+        "Typography not specified in landing or brand pages.",
+        "Imagery details not available in text extraction."
+      ]
+    },
+    {
+      "site_id": "every",
+      "root_url": "https://every.to/",
+      "weight": 0.25,
+      "prompt_pack": {
+        "brand_style_prompt": "Create an editorial, future-focused media and software brand using Signifier for narrative sections. Evidence: [every:about:typography] [every:about:voice].",
+        "visual_direction_prompt": "Use restrained editorial visuals and calm, long-form layouts. Evidence: [every:about:components].",
+        "ui_direction_prompt": "Design for reading with clear narrative blocks and newsletter callouts. Evidence: [every:about:components].",
+        "copywriting_prompt": "Adopt a reflective voice that asks big questions and frames what comes next. Evidence: [every:about:voice].",
+        "negative_prompt": "Avoid purely transactional or sales-heavy copy.",
+        "token_set": {
+          "colour": [
+            "Palette not specified; keep calm and editorial"
+          ],
+          "type": [
+            "Signifier for editorial headings"
+          ],
+          "layout": [
+            "Narrative blocks",
+            "Newsletter callouts"
+          ],
+          "imagery": [
+            "Minimal, editorial"
+          ],
+          "voice": [
+            "Curious, reflective"
+          ]
+        }
+      },
+      "limitations": [
+        "Landing page content not reliably accessible; used about page only.",
+        "Color palette not listed in accessible text."
+      ]
+    }
+  ],
+  "composite_prompt_pack": {
+    "brand_style_prompt": "Create a modern, research-grade product brand with a purple-led palette, ivory background, and charcoal text. Use Inter Tight for UI and PP Editorial New for headings, with Signifier only for editorial blocks. Evidence: [parallel:brand:colours.primary] [coinshift:brand:colours.primary] [every:about:typography].",
+    "visual_direction_prompt": "Blend surreal editorial illustrations with clean product UI imagery. Use minimal decoration and crisp, high-contrast layouts. Evidence: [parallel:brand:imagery] [coinshift:home:components].",
+    "ui_direction_prompt": "Structure pages with a focused hero, benchmark callouts, feature grids, and clear CTAs. Evidence: [parallel:home:components] [coinshift:home:components].",
+    "copywriting_prompt": "Write concise, technical copy about accuracy and control, with occasional reflective framing. Evidence: [parallel:home:voice] [coinshift:home:voice] [every:about:voice].",
+    "negative_prompt": "Avoid vague hype, playful slang, or decorative clutter.",
+    "token_set": {
+      "colour": [
+        "#7B70E4 primary",
+        "#FEFDFC background",
+        "#101F2D text",
+        "#FA3812 accent"
+      ],
+      "type": [
+        "Inter Tight UI",
+        "PP Editorial New headings",
+        "Signifier for long-form"
+      ],
+      "layout": [
+        "Hero + benchmarks",
+        "Feature grids",
+        "Editorial blocks"
+      ],
+      "imagery": [
+        "Dreamlike illustrations",
+        "Product UI"
+      ],
+      "voice": [
+        "Precise, benefit-led",
+        "Reflective framing when needed"
+      ]
+    }
+  },
+  "provenance_map": [
+    {
+      "token": "colours.primary",
+      "sources": [
+        "parallel"
+      ],
+      "evidence_anchors": [
+        "parallel:brand:colours.primary"
+      ]
+    },
+    {
+      "token": "colours.background",
+      "sources": [
+        "coinshift"
+      ],
+      "evidence_anchors": [
+        "coinshift:brand:colours.primary"
+      ]
+    },
+    {
+      "token": "colours.accent",
+      "sources": [
+        "coinshift"
+      ],
+      "evidence_anchors": [
+        "coinshift:brand:colours.accent"
+      ]
+    },
+    {
+      "token": "typography.headings",
+      "sources": [
+        "parallel",
+        "every"
+      ],
+      "evidence_anchors": [
+        "parallel:brand:typography.headings",
+        "every:about:typography"
+      ]
+    },
+    {
+      "token": "voice.traits",
+      "sources": [
+        "parallel",
+        "coinshift",
+        "every"
+      ],
+      "evidence_anchors": [
+        "parallel:home:voice",
+        "coinshift:home:voice",
+        "every:about:voice"
+      ]
+    },
+    {
+      "token": "imagery.style",
+      "sources": [
+        "parallel"
+      ],
+      "evidence_anchors": [
+        "parallel:brand:imagery"
+      ]
+    }
+  ]
+}
