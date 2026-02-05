@@ -19,6 +19,8 @@ Single place for workflow artefacts + docs outputs.
   - Archive: 
     - `99-archive/` - mirrors (00..10) for closed work + old context
 
+`08-example-data/` contains worked examples with synthetic yet realistic data.
+
 ## Guidelines
 - Keep docs append-only where that’s the existing convention (e.g. `CHANGELOG.md`, `learnings.md`).
 - Knowledge management for projects (`04-projects/`): 
