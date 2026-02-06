@@ -1,0 +1,52 @@
+{
+  "project": "demo-grade-outputs",
+  "branchName": "codex/demo-grade-outputs",
+  "description": "Umbrella PRD for initiative 3: CSV exports, Word export, eval harness, and demo repeatability controls.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "CSV exports for 3 artefacts",
+      "description": "Export requirements, exceptions, and survey issues to stable CSVs with citations and statuses.",
+      "acceptanceCriteria": [
+        "One-click exports produce requirements_tracker.csv, exceptions_table.csv, and survey_issues.csv.",
+        "Each row includes citation references (doc name + page) and row status.",
+        "Column ordering is stable across runs and packs.",
+        "If any rows are excluded due to citation_failed, show a warning banner with counts."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Word export (single template)",
+      "description": "Generate a single .docx artefact from report rows using a fixed memo template.",
+      "acceptanceCriteria": [
+        "Export produces a .docx with deal snapshot, requirements, exceptions (with citations), and survey issues.",
+        "Rows with citation_failed are excluded and a warning banner explains what was removed.",
+        "Template is fixed and stored in the repo (memo)."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-003",
+      "title": "Golden-set eval harness",
+      "description": "Run a lightweight eval against /truth to detect regressions in output quality.",
+      "acceptanceCriteria": [
+        "Eval runner outputs coverage, citation validity rate, and missing_input correctness per pack.",
+        "Harness compares outputs against /truth and emits JSON + markdown summary.",
+        "CI runs the harness in report-only mode and stores the artifact."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-004",
+      "title": "Demo reliability controls",
+      "description": "Provide demo mode, pack selector, and safe reset so demos can be repeated.",
+      "acceptanceCriteria": [
+        "Demo mode can load pack_01_clean and pack_02_missing_rea and run Quick Start or pre-seeded rows.",
+        "Reset tool removes only demo matters and requires explicit confirmation.",
+        "A demo checklist exists in the repo."
+      ],
+      "priority": 2
+    }
+  ]
+}
