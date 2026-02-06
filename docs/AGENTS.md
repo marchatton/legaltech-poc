@@ -6,24 +6,23 @@ Single place for workflow artefacts + docs outputs.
 ## Folder structure
 - We follow a PARA-inspired technique for knowledge management. Under /docs we have:
   - Projects:
-    - `04-projects/`: lanes include experiments, features, fixes, refactors and migrations 
+    - `04-projects/`: lanes include experiments-prototypes, features, fixes, refactors and migrations
   - Areas: 
     - `00-strategy/`:  up-to-date product-strategy, roadmap and large initiatives
     - `03-architecture/`: up-to-date system and data architecture 
     - `05-reviews-audits/`: periodic reviews, audits, and systems compliance 
     - `06-release/`: global `CHANGELOG.md` and postmortems etc
-    - `10-tmp/`: scratch space (should be moved or deleted). Synced to Github
+    - `97-throwaway/`: shareable one-off artefacts (oracle bundles, exports). Synced to GitHub
+    - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
   - Resources:
     - `01-insights/`: reports, summaries and raw transcripts covering customers, competitors, capabilities (internal) and tech-market trends.
     - `08-example-data/` contains worked examples with synthetic yet realistic data.
     - `02-guidelines/`: brand-tone (storytelling and visual) incl inspiration.
   - Archive: 
-    - `99-archive/` - mirrors (00..10) for closed work + old context
-
-`08-example-data/` contains worked examples with synthetic yet realistic data.
+    - `99-archive/` mirrors the live structure for closed work + old context
 
 ## Guidelines
-- Keep docs append-only where that’s the existing convention (e.g. `CHANGELOG.md`, `learnings.md`).
+- Keep docs append-only where that’s the existing convention (e.g. `CHANGELOG.md`, `LEARNINGS.md`).
 - Knowledge management for projects (`04-projects/`): 
   - Inside a lane (e.g. `docs/04-projects/02-features/`), create a dossier folder. e.g. `docs/04-projects/02-features/0007_bulk-invite-members/`
   - Folder name is: 0001_<slug>/

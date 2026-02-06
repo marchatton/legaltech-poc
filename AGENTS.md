@@ -40,8 +40,10 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 - `docs/06-release/AGENTS.md`: Release process and changelog/postmortem expectations
 
 ## File management
-- Store once off files like `oracle` bundles (to be uploaded) in `throwaway` folder (not synced to Github)
-- Store tmp files in `tmp` folder (synced to Github)
+- Store shareable one-off artefacts (e.g. oracle bundles, exports) in `docs/97-throwaway/` (synced to GitHub)
+- Store local-only one-off files in root `throwaway/` (not synced to GitHub)
+- Store random tmp files in root `tmp/` folder (synced to GitHub)
+- When working on a project, follow the conventions outlined in `docs/04-projects/AGENTS.md`
 
 ## Core skills to use
 - `ask-questions-if-underspecified` skill when unclear
@@ -49,6 +51,6 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 - `verify` skill for checking code changes
 
 ## Canonical instructions + local agent setup
-- Canonical skills/commands/hooks live in `marchatton/agent-skills` — fix missing/wrong skills there NOT in this repo
+- Canonical skills/commands/hooks live in `marchatton/agent-skills` — fix/add missing/wrong skills there NOT in this repo
 - `.agents/` contains all skills etc in this repo (e.g. `codex`). For other tools, use `iannuttall/dotagents` to symlink `.agents` into tool-specific locations
 - `AGENTS.md` is the source of truth; other agent files should be symlinks (don’t fork instructions per tool)

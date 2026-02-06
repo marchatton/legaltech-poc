@@ -1,4 +1,5 @@
 # Onboarding defaults
+.DS_Store
 /node_modules/
 /throwaway/
 /.agents/skills/00-product-sense/
