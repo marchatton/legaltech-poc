@@ -59,6 +59,9 @@ Notes:
 - The API is thin and mostly triggers workflows and reads state.
 - Domain logic lives in shared packages called by steps.
 
+Conventions:
+- The meaning of `(use workflow)` / `(use step)` in the diagram is defined in `docs/03-architecture/06_frameworks_agents_rag_evals.md`.
+
 ---
 
 ## Key sequences

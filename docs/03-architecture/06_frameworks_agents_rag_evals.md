@@ -22,6 +22,25 @@ Risk:
   - keep domain logic in `packages/core`
   - treat WDK as orchestration and durability, not as the place where business rules live
 
+### WDK conventions in this repo
+WDK is the durable orchestration runtime we refer to as `workflow` in code. It provides:
+- a **workflow** function (deterministic controller) that can be resumed/replayed
+- **step** functions that perform side effects (OCR, embeddings, LLM calls, DB writes)
+- a Postgres-backed “world” for state, retries, and progress events
+
+Conventions we follow (to keep the integration thin and predictable):
+- Workflow entrypoints must start with the directive string literal **`"use workflow"`** as the first statement in the async function body.
+- Step implementations must start with **`"use step"`** as the first statement in the async function body.
+- Workflows do **not** perform side effects directly (no network/LLM/OCR/DB writes). They only call steps and assemble results.
+- Steps are responsible for idempotency (safe re-run). Where the provider call cannot be naturally idempotent, store a deterministic idempotency key in `run_steps` and short-circuit on repeats.
+- Step inputs/outputs must be JSON-serialisable and validated with Zod schemas from `packages/core/schemas`.
+
+Why the directives matter:
+- they make it obvious (in code review) whether a function is allowed to do side effects
+- they reduce drift into “free-running agents” by forcing work to be split into explicit steps
+
+See also: `docs/03-architecture/20_state_model.md` (state invariants) and `docs/03-architecture/30_data_model.md` (provenance + replay).
+
 ### Alternatives (when you might choose them)
 - Mastra: integrated TS framework for agents, workflows, RAG, evals. Strong if you want one unified AI platform.
   - For this PoC, it risks overreach unless you keep Quick Start as a workflow graph rather than agent loops.
@@ -65,7 +84,7 @@ RAG is the engine inside Quick Start. It spans ingestion and runtime.
 
 ### Ingestion (creates retrieval substrate)
 - OCR/layout extraction → canonical per-page text + geometry
-- Chunking → citeable chunks with metadata
+- Chunking → citable chunks with metadata
 - Indexing:
   - lexical search via tsvector
   - semantic search via pgvector embeddings

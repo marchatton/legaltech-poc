@@ -8,8 +8,8 @@ RAG is the mechanism that makes “evidence-first” possible:
 
 ## Ingestion (RAG substrate)
 PoC default: OCR everything for consistent geometry
-- store per-page text + polygons (layout_json)
-- chunk into citeable units
+- store per-page text + polygons (`document_pages.layout_json`)
+- chunk into citable units
 - index:
   - lexical (tsvector)
   - semantic (pgvector)
@@ -21,15 +21,16 @@ PoC default: OCR everything for consistent geometry
 
 ## Drafting (from evidence only)
 - drafting step receives evidence snippets and chunk IDs
-- outputs structured row JSON with candidate citations as chunk IDs
+- outputs structured row JSON with candidate citations as chunk IDs (not free text)
 
-## Citation locking
-- resolve chunk IDs to authoritative citation objects:
-  `{doc_id, page, polygons, snippet, snippet_hash}`
+## Citation locking (creates immutable citations)
+- resolve chunk IDs to authoritative citation objects and persist them:
+  `{citation_id, chunk_id?, document_id, page_number, polygons, snippet, snippet_hash, index_version}`
+- replace “candidate citations” in the drafted row with `citation_id`s (IDs only)
 
 ## Verification (fail-closed)
-- hash checks and entailment judgement
-- assign row status:
+- hash checks + entailment judgement
+- assign row status (terminal for the workflow):
   - `needs_review`
   - `missing_input`
   - `citation_failed`
