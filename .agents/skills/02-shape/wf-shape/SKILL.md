@@ -55,27 +55,26 @@ Files:
   - open questions
   - GO/NO-GO placeholder
 
-3) Breadboard
-- Invoke breadboarding skill.
-- Save as `breadboard-pack.md` (places/affordances/connections + parts list + rabbit holes + fit check).
-
-4) Risk register
-- Write `risk-register.md`.
-- For every top risk choose: Cut / Patch / Spike / Out-of-bounds.
-
-5) Spike investigation (only for Spike items)
-- Invoke spike-investigation skill for each Spike.
-- Record results in `spike-investigation.md`.
-
-6) Oracle pass (mandatory per spike, hard stop before PRDs)
-- After each spike section, invoke `oracle` skill.
-- Append oracle notes and apply cuts/patches if needed.
-- **Hard stop:** do not create PRDs until oracle pass is complete for all spikes (or spikes are explicitly removed).
-
-7) PRD (source of truth for “done”)
+3) PRD (source of truth for “done”)
 - Create/update `prd.md` in the dossier.
 - Capture user stories and measurable acceptance criteria.
 - If acceptance criteria are missing, write explicit TODOs rather than vibes.
+
+4) Breadboard
+- Invoke breadboarding skill.
+- Save as `breadboard-pack.md` (places/affordances/connections + parts list + rabbit holes + fit check).
+
+5) Risk register
+- Write `risk-register.md`.
+- For every top risk choose: Cut / Patch / Spike / Out-of-bounds.
+
+6) Spike investigation (only for Spike items)
+- Invoke spike-investigation skill for each Spike.
+- Record results in `spike-investigation.md`.
+
+7) Oracle pass (mandatory per spike)
+- After each spike section, invoke `oracle` skill.
+- Append oracle notes and apply cuts/patches if needed.
 
 8) JSON PRD (recommended)
 - Run `create-json-prd` so agents/tools can execute acceptance criteria.

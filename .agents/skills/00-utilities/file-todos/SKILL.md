@@ -18,7 +18,7 @@ This skill should be used when:
 - Updating work logs during todo execution
 
 ## Location
-- Set `REVIEW_TODOS_DIR` to the active dossier’s `todos` sub folder (see `docs/AGENTS.md`).
+- Set `REVIEW_TODOS_DIR` to the active dossier’s `todos` folder (see `docs/AGENTS.md`).
 
 ## File Naming Convention
 
