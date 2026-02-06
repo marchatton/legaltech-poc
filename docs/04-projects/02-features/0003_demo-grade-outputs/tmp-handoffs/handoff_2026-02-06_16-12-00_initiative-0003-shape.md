@@ -1,4 +1,4 @@
-Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp/handoffs/2026_02_06/2026_02_06_1612_initiative-0003-shape.md
+Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs/handoff_2026-02-06_16-12-00_initiative-0003-shape.md
 
 - Scope/status:
   - Re-shaped Initiative 0003 dossier to follow the required order: brief -> breadboard -> risk register -> spikes (PRDs intentionally removed).
@@ -8,7 +8,7 @@ Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp/handoffs
 - Dossier:
   - `docs/04-projects/02-features/0003_demo-grade-outputs/`
 - Oracle manual bundle:
-  - `docs/04-projects/02-features/0003_demo-grade-outputs/tmp/oracle-bundles/initiative-0003-shape_bundle.md`
+  - `docs/04-projects/02-features/0003_demo-grade-outputs/tmp-oracle/oracle-bundle_0003_demo-grade-outputs_initiative-0003-shape.md`
 - Working tree:
   - `git status -sb`: `main...origin/main [ahead 5]` with multiple doc changes (initiative 0003 changes included).
 - Branch/PR:
@@ -18,7 +18,7 @@ Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp/handoffs
 - Tests/checks:
   - None (docs-only shaping; Oracle CLI blocked by lack of npm registry access).
 - Next steps:
-  1) Paste `docs/04-projects/02-features/0003_demo-grade-outputs/tmp/oracle-bundles/initiative-0003-shape_bundle.md` into ChatGPT Pro and apply any doc fixes it suggests (especially around export gating + demo reset safety).
+  1) Paste `docs/04-projects/02-features/0003_demo-grade-outputs/tmp-oracle/oracle-bundle_0003_demo-grade-outputs_initiative-0003-shape.md` into ChatGPT Pro and apply any doc fixes it suggests (especially around export gating + demo reset safety).
   2) Execute the planned spikes (some require a human stakeholder/practitioner):
      - CSV usability paste test
      - export gating decision (block-only vs demo-only override)

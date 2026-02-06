@@ -47,7 +47,7 @@ Constraints
 - `docs/03-architecture/30_data_model.md`
 - `docs/03-architecture/50_api_surface.md`
 - `docs/03-architecture/60_observability_and_evals.md`
-- `docs/03-architecture/decisions.md`
+- `docs/03-architecture/DECISIONS.md`
 
 ## File: `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`
 ```md
@@ -445,7 +445,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -512,7 +512,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -577,7 +577,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -645,7 +645,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -713,7 +713,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 ```
 
 ## File: `docs/00-strategy/initiatives/initiative-overview-001-002-003.md`
@@ -1051,7 +1051,7 @@ Recommended practice:
 
 ## Docs + decisions
 - Artefacts live under `docs/03-architecture/`.
-- ADRs: Append to `docs/03-architecture/decisions.md` when you introduce a new cross-cutting pattern (dependency class, boundary rule, auth/security posture). Keep it short and link the PR.
+- ADRs: Append to `docs/03-architecture/DECISIONS.md` when you introduce a new cross-cutting pattern (dependency class, boundary rule, auth/security posture). Keep it short and link the PR.
 ```
 
 ## File: `docs/03-architecture/10_system_architecture.md`
@@ -1667,7 +1667,7 @@ Outputs:
 - optional CI gate when stable
 ```
 
-## File: `docs/03-architecture/decisions.md`
+## File: `docs/03-architecture/DECISIONS.md`
 ```md
 # Architecture decisions (ADRs)
 

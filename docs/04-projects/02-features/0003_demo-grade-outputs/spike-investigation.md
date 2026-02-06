@@ -64,7 +64,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -131,7 +131,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -196,7 +196,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -264,7 +264,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
 
 ---
 
@@ -332,4 +332,4 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp/oracle-bundles/`).
+Pending (bundle created after shaping; see `tmp-oracle/`).
