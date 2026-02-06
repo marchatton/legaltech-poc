@@ -1,150 +1,112 @@
 # Project Brief (1-2 pager)
 
-**Quick Start Engine (Initiative 002)**
+**Initiative 002: Quick Start Engine (Title + Survey -> 3 artefacts)**
 
-- One-line description: Deterministic pipeline that turns a Title commitment + Survey into Requirements, Exceptions, and Reconciliation artefacts with citations.
-- Team:
-- Contributors:
-- Resources:
+- Dossier: `docs/04-projects/02-features/0002_quick-start-engine/`
 - Status: Draft
-- Last updated: 2026-02-05
+- Last updated: 2026-02-06
+- Owner:
+
+Source docs (canonical):
+- `docs/00-strategy/initiatives/initiative-overview-001-002-003.md`
+- `docs/00-strategy/initiatives/002-quick-start-engine.md`
+- `docs/03-architecture/00_overview.md`
+- `docs/03-architecture/20_state_model.md`
+- `docs/03-architecture/30_data_model.md`
+- `docs/03-architecture/decisions.md`
+
+Dependencies:
+- Initiative 001 ("trust substrate") must exist for citation locking, fail-closed verification, and viewer jump-to-evidence.
 
 ---
 
-## Problem alignment
+## Problem
 
-**Problem (1-2 sentences):**
-We do not have a deterministic, testable path from Title + Survey documents to a first-pass report. Manual analysis is slow, inconsistent, and hard to validate against truth data.
+We do not have a deterministic, testable path from a diligence pack (title commitment + exception instruments + survey) to a first-pass report that practitioners can trust. Manual analysis is slow, inconsistent, and difficult to validate against fixture "truth" data.
 
-**Why it matters (customers + business):**
-A fast, reliable first pass reduces time-to-value for practitioners and creates a repeatable pipeline for the product to build on.
+## Why it matters
 
-**Evidence:**
-- Initiative 002 defines target packs and truth tables.
-- Specific packs and CSVs provide concrete acceptance anchors.
+This is the product wedge: a fast first pass that is evidence-backed and repeatable. Without a deterministic pipeline and eval anchors, we will drift into demo-only outputs that cannot be hardened.
 
-**Success looks like:**
-- A Quick Start run produces stable, citation-backed rows for the target packs.
-- Users can see run progress and know when a row needs review vs is stable.
+## What we are building (PoC scope)
 
----
+A "Quick Start: Title + Survey" run that produces three artefacts (as report-table outputs first, export later):
+1) Schedule B-I requirements tracker
+2) Schedule B-II exceptions table linked to underlying instrument PDFs
+3) Survey reconciliation issues list (title <-> survey)
 
-## High level approach
+Key trust posture (from `docs/03-architecture/*`):
+- Evidence-first: every material claim needs locked citations
+- Verification is fail-closed: any mismatch -> `citation_failed`
+- `missing_input` is a valid output and must use the exact string: `Not found in provided documents.`
+- Deterministic-ish orchestration via Workflow DevKit (workflow + steps)
 
-Shape each sub-initiative (2.1–2.6) into a breadboard, identify rabbit holes, plan spikes, then derive thin PRD slices from each breadboard. Build a deterministic step machine that routes docs, extracts facts, and upserts rows with citations and statuses.
+## Acceptance packs (fixtures)
 
----
-
-## Narrative (optional)
-
-- Common case: Clean commitment + survey yields requirements/exceptions and reconciliation issues with citations.
-- Edge case: Duplicate instrument numbers or missing exhibits surface as "needs_review" without crashing.
-- Failure case: Noisy scans still yield partial extraction and "unknown" states instead of wrong assertions.
-
----
+Use fixture packs under `docs/08-example-data/` as the acceptance anchor (see `docs/08-example-data/packs_summary.md`):
+- `pack_01_clean` (baseline happy path)
+- `pack_02_missing_rea` (missing exception doc -> missing-input journey)
+- `pack_03_mismatch_and_cert_gap` (survey cert gap + mismatch flags)
+- `pack_04_multi_parcel` (multi-parcel scoping)
+- `pack_05_partial_release` (lien/release complexity; needs-review flags)
+- `pack_06_overlapping_easements` (disambiguation + missing attachment)
+- `pack_07_scans_rotated_low_quality` (OCR torture; extraction-quality metering)
+- `pack_08_defined_terms_and_cross_refs` (defined terms + exhibit chase)
 
 ## Goals
 
-1. Deterministic, testable outputs for the target packs.
-2. Evidence-backed rows with status, confidence, and citations.
-3. Incremental run experience with visible step progress.
+1. Deterministic, testable outputs for the fixture packs (start with `pack_01_clean` + one failure pack).
+2. Evidence-backed rows: citations are locked and verifiable; no "plausible but unprovable" answers.
+3. A run UX that shows progress and produces incremental row updates with correct terminal statuses.
 
-## Non-goals
+## Non-goals (explicit cuts)
 
-- Freeform chat or open-ended research.
-- Legal strategy recommendations.
-- Universal coverage of all title formats.
-- Geometric/visual overlay of easement corridors.
+- Freeform chat or open-ended research (no external web research inside runs).
+- Legal advice, negotiation posture, or "materiality" decisions.
+- Universal coverage of all title company formats or survey styles.
+- Geometry overlays for easements (we link to evidence; we do not render corridors).
 
----
+## Perimeter (in/out)
 
-## Solution alignment
+In scope:
+- Question set v1 (<=25) with stable IDs and a stable row schema.
+- Commitment parsing for Schedule A / B-I / B-II for fixture packs.
+- Exception -> instrument matching with ambiguity surfaced as `needs_review` (never silent).
+- Survey extraction focused on certification + text callouts first.
+- Reconciliation that prefers "unknown/needs_review" over incorrect "not depicted".
+- WDK workflow orchestration: `retrieve -> draft -> lock citations -> verify -> write row`.
 
-### Draw the perimeter (required)
-
-**In scope:**
-- Fixed question set (v1) with stable row schema.
-- Commitment parsing for Schedule A / B-I / B-II on target packs.
-- Exception-to-instrument matching with ambiguity flags.
-- Survey extraction focused on text callouts and certifications.
-- Title ↔ survey reconciliation with "unknown" state.
-- Deterministic run orchestration with incremental row upserts.
-
-**Out of scope (de-scope / cuts):**
-- Web research agents or external browsing.
-- Materiality or strategy decisions (cure/endorse/accept).
-- Full support for all title company formats.
-- Visual/geometry interpretation of surveys.
-
-### Key features (plan of record)
-
-- 2.1 Question set v1 + schema freeze
-- 2.2 Commitment parsing (Schedule A / B-I / B-II)
-- 2.3 Exception → instrument matching + summary extraction
-- 2.4 Survey parsing with citations
-- 2.5 Title ↔ survey reconciliation
-- 2.6 Run orchestration + incremental UI updates
-
-### Future considerations (later)
-
-- Broader format support and more packs
-- Deeper semantic interpretation and legal guidance
-- Enhanced survey visual parsing
-
----
+Out of scope:
+- "Research agent" browsing.
+- Auto strategy decisions (cure vs endorse vs accept).
+- Deep semantic interpretation of easement scope.
 
 ## Key flows
 
-- Link: `breadboard-pack.md`
-- Quick Start run initiation -> step progress -> row table -> row drawer with citations
+See `breadboard-pack.md` for places/affordances/connections.
+- Start run -> view run progress -> table populates -> open row drawer -> click citation -> jump to highlighted evidence
 
----
+## Risks and unknowns (top)
 
-## Key logic
+See `risk-register.md` and `spike-investigation.md`.
+Biggest items to resolve before PRDs:
+- How we represent table-shaped artefacts (B-I/B-II/issues) within the report-row model without breaking status + citation invariants
+- Parsing robustness on `pack_07_scans_rotated_low_quality`
+- Exception matching + missing-attachment handling on `pack_06_overlapping_easements`
+- Reconciliation honesty: bias to `needs_review` rather than wrong "not depicted"
+- Run idempotency: stable `snippet_hash` + no duplicate rows on restart
 
-- Every row has status and confidence; uncertainty surfaces as "needs_review" or "unknown".
-- Citations are required for extracted assertions.
-- Idempotent writes keyed by `question_id` to support safe retries.
+## Open questions
 
----
-
-## Risks + unknowns (top 10)
-
-Link: `risk-register.md`
-
-- Question set alignment with practitioner expectations
-- Parser robustness on noisy scans
-- Exception → instrument matching ambiguity
-- Survey extraction signal quality
-- Reconciliation false positives vs "unknown"
-- Idempotent run restarts
-- UI performance with incremental updates
-- Schema stability vs future PRD seams
-
----
-
-## Open questions (top 10)
-
-- Appetite/timebox for initiative 002 and for each PRD slice
-- Any acceptance packs beyond those named
-- Definition of "key fields" for truth matching
-- UI placement and ownership for Quick Start flows
-- Confidence computation method for v1
-- Snippet hash strategy for idempotency
-
----
-
-## Review alignment
-
-| Reviewer | Team/Role | Status |
-|---|---|---|
-|  |  |  |
-|  |  |  |
-
----
+- Appetite/timebox for Initiative 002 shaping vs implementation.
+- Who is the "practitioner" for the question-set spike (and how quickly can we get feedback)?
+- Do we treat B-I/B-II/issues as three "big rows", or do we introduce a first-class "artefact table row" model?
+- What is the initial question set v1 derived from (start with `golden_questions.json` per pack, then merge)?
 
 ## Shaping decision
 
-- Decision: NO-GO (pending spikes + Oracle passes)
-- Why: Multiple rabbit holes remain unproven across parsing, matching, survey extraction, and idempotency.
-- Next step (if GO): wf-plan on this dossier after spikes and Oracle notes are complete.
+- Decision: NO-GO (pending spikes; do not generate PRDs yet)
+- GO when:
+  - We have a credible question set v1
+  - We have a clear artefact representation decision (rows vs tables)
+  - We can pass the fixture-driven spikes on parsing/matching/survey extraction/idempotency

@@ -1,380 +1,321 @@
-# Breadboard Pack — Quick Start Engine (Initiative 002)
+# Breadboard Pack - Quick Start Engine (Initiative 002)
+
+This pack is the wiring diagram and parts list for Initiative 002. It is intentionally "how it works" rather than "what to build first" (PRDs come after spikes).
 
 ## Context
 
-- Appetite: TBD
-- Problem: No deterministic, testable pipeline from Title + Survey to a first-pass report.
-- Success: Target packs produce stable, citation-backed rows with visible run progress.
-- Constraints: Fixed question set, no web research, no strategy decisions, OCR everything.
-- Acceptance packs: `pack_01_clean`, `pack_04_multi_parcel_complex`, `pack_05_duplicate_instrument_exhibit_missing`, `pack_06_noisy_scans_rotated_page`, `pack_03_mismatch_and_cert_gap`, `pack_02_missing_rea`.
+- Canonical strategy: `docs/00-strategy/initiatives/002-quick-start-engine.md`
+- Canonical architecture:
+  - `docs/03-architecture/00_overview.md`
+  - `docs/03-architecture/06_frameworks_agents_rag_evals.md` (WDK conventions)
+  - `docs/03-architecture/20_state_model.md` (status invariants)
+  - `docs/03-architecture/30_data_model.md` (citation locking + hashing)
+  - `docs/03-architecture/decisions.md` (ADRs)
 
-## Current state
+Dependencies:
+- Initiative 001 ("trust substrate") provides viewer, citation locking, and fail-closed verification primitives. Initiative 002 consumes them.
 
-- Manual reading of commitment + survey.
-- No deterministic run or incremental row output.
+Constraints (non-negotiable):
+- No external web research inside runs.
+- OCR/layout extraction is the default for all PDFs.
+- Draft -> lock citations -> verify is the required trust spine.
+
+Acceptance packs (fixtures):
+- `pack_01_clean`
+- `pack_02_missing_rea`
+- `pack_03_mismatch_and_cert_gap`
+- `pack_04_multi_parcel`
+- `pack_05_partial_release`
+- `pack_06_overlapping_easements`
+- `pack_07_scans_rotated_low_quality`
+- `pack_08_defined_terms_and_cross_refs`
 
 ## Global wiring diagram (reference)
 
-- Legend:
-  - **Solid** = calls / triggers / writes
-  - **Dashed** = returns / store reads
+Legend:
+- Solid = triggers/writes
+- Dashed = reads/observes
 
 ```mermaid
 flowchart LR
-  U[User] -->|Quick Start| UI[Quick Start UI]
-  UI --> API[Runs API]
-  API --> W[Step Machine Worker]
-  W --> C[Doc Classifier]
-  C --> OCR[OCR/Text Extraction]
-  OCR --> CP[Commitment Parser]
-  OCR --> SP[Survey Parser]
-  CP --> IM[Instrument Matcher]
-  IM --> ES[Exception Summarizer]
-  SP --> RE[Reconciliation Engine]
-  CP --> CE[Citation Extractor]
-  ES --> CE
-  SP --> CE
-  CE --> DB[(Rows Store)]
-  CP --> DB
-  ES --> DB
-  SP --> DB
-  RE --> DB
-  UI -. poll/sse .-> DB
+  U[User] -->|Start Quick Start| UI[Quick Start UI\n(Matter workspace)]
+  UI -->|POST /folders/:id/runs| API[Runs API\n(Next.js route handler)]
+
+  API -->|start| WF[WDK workflow\nQuickStartTitleSurveyWorkflow]
+  WF -->|loop question_id| RET[Step: retrieve_evidence]
+  RET --> DRAFT[Step: draft_row_json]
+  DRAFT --> LOCK[Step: lock_citations\n(chunk_id -> citation_id)]
+  LOCK --> VERIFY[Step: verify_row\n(fail-closed)]
+  VERIFY --> WRITE[Step: write_report_row]
+
+  WRITE --> PG[(Postgres\nruns, run_steps,\nreport_rows, citations)]
+  UI -. poll/SSE .-> PG
+
+  UI -->|open row drawer| CITS_API[Citations API]
+  CITS_API -->|GET /citations/:id| PG
+  UI --> PDFV[PDF Viewer\n(pdf.js + highlight overlay)]
 ```
 
+Notes:
+- Ingestion (OCR/layout, chunking, indexing) is a prerequisite substrate and is not redefined here.
+- For list-shaped outputs (requirements/exceptions/issues), we should keep a stable "row shell" but allow the row's payload to include a list of items, each with its own citations.
+
 ---
 
-# Breadboard 2.1 — Question set v1 + schema freeze
+# Breadboard 2.1 - Question set v1 + report schema freeze
 
 ## Goal
 
-Freeze v1 question set (<=25) and stable row schema; expose fixed columns and row drawer UI.
+Freeze question set v1 (<=25) and a stable row shell schema so we can build deterministic steps and evals without scope creep.
 
 ## Places and affordances
 
-- Place: Quick Start setup modal
-- Affordance: View fixed question set and schema version
-- Place: Row table
-- Affordance: View columns + status + confidence
+- Place: Quick Start setup
+  - Affordance: see the question set version and what this run will produce
+- Place: Report table
+  - Affordance: stable columns (question, status, updated_at) with row drawer for details
 - Place: Row drawer
-- Affordance: View answer + citations + notes
+  - Affordance: answer, citations, and a single "Mark as reviewed" action (user-driven transition)
 
 ## UI affordances
 
-| # | Component / place | Affordance | Control | Wires out | Reads |
+| # | Place | Affordance | Control | Writes | Reads |
 |---|---|---|---|---|---|
-| U1 | Setup modal | Question set preview | render | none | question_set_v1 |
-| U2 | Setup modal | Schema version label | render | none | schema_version |
-| U3 | Row table | Fixed columns + status | render | none | row data |
-| U4 | Row drawer | Answer + citations | render | open viewer | citations |
-| U5 | Row drawer | Needs review toggle | click | update row | row status |
+| U1 | Setup | Question set version label | render | - | question set registry |
+| U2 | Setup | "Start run" CTA | click | create run | folder state |
+| U3 | Table | Row status badge | render | - | report rows |
+| U4 | Drawer | Citation list + click-to-jump | click | - | citations |
+| U5 | Drawer | Mark as reviewed | click | row status -> reviewed | row |
 
 ## Code affordances
 
-| # | Component / service | Affordance | Control | Wires out / returns |
+| # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Question set registry | getQuestionSetV1 | read | question list |
-| N2 | Schema versioning | getSchemaVersion | read | schema_version |
-| N3 | Row schema validator | validateRow | call | validation errors |
-| N4 | Row rendering | mapRowToColumns | call | UI-ready row |
+| N1 | Question set registry | `getQuestionSetV1()` | read | Start with `golden_questions.json` per pack, then unify. |
+| N2 | Row schema validator | `validateRow(row)` | call | Hard gate: invalid schema is a run failure (not silent). |
+| N3 | Row renderer | `renderRow(row)` | call | For list-shaped answers, render a table view from structured payload. |
+| N4 | Status invariants | `assertRowStatus(row)` | call | Must match `docs/03-architecture/20_state_model.md`. |
 
 ## Parts list (BOM)
 
 | Part | Name | Mechanism |
 |---|---|---|
-| F2.1.1 | Question set JSON + versioning | Store v1 questions with IDs and version tag. |
-| F2.1.2 | Row schema + migrations | Define row fields and migration hooks. |
-| F2.1.3 | Table + row drawer layout | Fixed columns and drawer view for citations. |
+| F2.1.1 | Question set v1 | JSON list with stable `question_id`s and a version tag. |
+| F2.1.2 | Stable row shell schema | `{question_id, question, answer, citation_ids[], status, notes?}` plus a home for structured payload. |
+| F2.1.3 | UI table + row drawer | Fixed columns, drawer detail, mark reviewed action. |
 
 ## Fit check
 
-| Req | Requirement | Status | Fit |
-|---|---|---|---|
-| R2.1.1 | <=25 questions with IDs | core goal | ✅ |
-| R2.1.2 | Stable row schema | core goal | ✅ |
-| R2.1.3 | UI shows fixed columns + drawer | must-have | ✅ |
+| Requirement | Fixture anchor | Fit |
+|---|---|---|
+| <=25 stable questions | `golden_questions.json` across packs | ⚠️ spike (practitioner alignment) |
+| Stable status machine | `docs/03-architecture/20_state_model.md` | ✅ |
+| List-shaped outputs renderable | `expected_*` CSVs in `/truth` | ⚠️ design spike (payload representation) |
 
-## Rabbit holes, cuts, no-gos
-
-- Rabbit hole: Practitioner alignment on question set (spike).
-- Cut: No dynamic question editing in v1.
-- Out of bounds: Strategy decisions.
+Cuts / out of bounds:
+- No editable question sets in v1.
+- No "confidence" used as a correctness signal (only UX hint).
 
 ---
 
-# Breadboard 2.2 — Commitment parsing (Schedule A / B-I / B-II)
+# Breadboard 2.2 - Commitment parsing (Schedule A / B-I / B-II extraction)
 
 ## Goal
 
-Extract requirements and exceptions lists with item numbers from commitment PDFs for target packs.
+Extract Schedule A facts, B-I requirements list, and B-II exceptions list for fixture packs, matching `/truth` key fields (not wording).
 
 ## Places and affordances
 
-- Place: Step machine worker
-- Affordance: Classify commitment docs and route to parser
-- Place: Row table
-- Affordance: Show parser confidence and allow override notes
-
-## UI affordances
-
-| # | Component / place | Affordance | Control | Wires out | Reads |
-|---|---|---|---|---|---|
-| U1 | Row table | Parser confidence badge | render | none | row confidence |
-| U2 | Row drawer | Override note field | type | update row | row data |
+- Place: Run progress
+  - Affordance: "Parsing commitment" step shows progress and failure reasons
+- Place: Requirements tracker (rendered from row payload)
+  - Affordance: list of items with `bi_item`, owner placeholder, and citations
+- Place: Exceptions table (rendered from row payload)
+  - Affordance: list of items with `bii_item`, instrument refs, and citations
 
 ## Code affordances
 
-| # | Component / service | Affordance | Control | Wires out / returns |
+| # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Doc classifier | classifyCommitment | call | doc type |
-| N2 | OCR pipeline | extractCommitmentText | call | text blocks |
-| N3 | Commitment parser | parseScheduleA | call | schedule facts |
-| N4 | Commitment parser | parseBIRequirements | call | requirements list |
-| N5 | Commitment parser | parseBIIExceptions | call | exceptions list |
-| N6 | Confidence scorer | scoreParsing | call | confidence flag |
+| N1 | Doc classifier | `classifyCommitment(document)` | step | Must be auditable; unknown -> `needs_review` (not silent ignore). |
+| N2 | Commitment parser | `parseCommitment(text)` | step | Output is structured and schema-validated. |
+| N3 | Item normalizer | `normalizeItemFields()` | pure | Dates, instrument numbers, item numbers. |
+| N4 | Citation seeding | `seedCitationsFromHeaderAnchors()` | step | At minimum, cite section headers even if item-level citation is weak. |
 
 ## Parts list (BOM)
 
 | Part | Name | Mechanism |
 |---|---|---|
-| F2.2.1 | Doc-type classifier + routing | Route commitment docs to the parser. |
-| F2.2.2 | B-I extraction | Parse requirements list with item numbers. |
-| F2.2.3 | B-II extraction | Parse exceptions list with item numbers and refs. |
-| F2.2.4 | Parser confidence UI | Surface uncertainty + override notes. |
+| F2.2.1 | Schedule A extraction | Proposed insured, insured estate, legal desc basics (as required by question set). |
+| F2.2.2 | B-I extraction | `bi_item`, requirement text, owner placeholder. |
+| F2.2.3 | B-II extraction | `bii_item`, type, instrument refs (instrument_no, recorded). |
+| F2.2.4 | Uncertainty surfacing | When parsing is weak: row status remains `needs_review` with reason code (no hallucinated rows). |
 
 ## Fit check
 
-| Req | Requirement | Status | Fit |
-|---|---|---|---|
-| R2.2.1 | Requirements list for target packs | core goal | ⚠️ spike |
-| R2.2.2 | Exceptions list with refs | core goal | ⚠️ spike |
-| R2.2.3 | Confidence flag | must-have | ✅ |
+| Requirement | Packs | Fit |
+|---|---|---|
+| B-I key fields match truth | `pack_01_clean`, `pack_04_multi_parcel` | ⚠️ spike |
+| B-II key fields match truth | `pack_01_clean`, `pack_06_overlapping_easements` | ⚠️ spike |
+| Works on scan torture pack | `pack_07_scans_rotated_low_quality` | ⚠️ spike (quality gating) |
 
-## Rabbit holes, cuts, no-gos
-
-- Rabbit hole: Noisy scans and format variance (spike).
-- Cut: Universal format coverage.
-- Out of bounds: Deep semantic interpretation.
+Cuts / out of bounds:
+- Not solving every title company format.
+- No semantic interpretation of requirement meaning.
 
 ---
 
-# Breadboard 2.3 — Exception → instrument matching + summaries
+# Breadboard 2.3 - Exception instruments matching + per-instrument summary extraction
 
 ## Goal
 
-Link exceptions to the correct instrument PDFs, extract short summaries with citations, and flag ambiguity.
+Link exceptions to the correct instrument PDFs, extract short summaries + risk tags with citations, and surface ambiguity or missing docs explicitly.
 
 ## Places and affordances
 
-- Place: Row table
-- Affordance: Needs review badge for ambiguous matches
-- Place: Row drawer
-- Affordance: Show exception summary + citations
-- Place: Ambiguity picker (modal or inline)
-- Affordance: User selects correct instrument
-
-## UI affordances
-
-| # | Component / place | Affordance | Control | Wires out | Reads |
-|---|---|---|---|---|---|
-| U1 | Row table | Needs review badge | render | open ambiguity UI | match status |
-| U2 | Row drawer | Exception summary + citations | render | open viewer | citations |
-| U3 | Ambiguity UI | Select instrument | click | update match | candidate list |
+- Place: Exceptions table row
+  - Affordance: matched doc name + match state badge (`matched`, `ambiguous`, `missing_doc`)
+- Place: Exception detail drawer
+  - Affordance: summary, risk tags, citations, and "choose correct doc" when ambiguous
 
 ## Code affordances
 
-| # | Component / service | Affordance | Control | Wires out / returns |
+| # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Instrument matcher | matchException | call | match candidates |
-| N2 | Exception summarizer | summarizeInstrument | call | summary + citations |
-| N3 | Risk tagger | tagExceptionRisk | call | risk tags |
-| N4 | Ambiguity handler | markNeedsReview | write | status update |
+| N1 | Instrument matcher | `matchExceptionToDoc(exception, docs)` | step | Uses deterministic heuristics; never auto-picks when confidence is low. |
+| N2 | Reference follower | `followReference(refString)` | step | For `pack_08_defined_terms_and_cross_refs` style exhibit chase. |
+| N3 | Summary extractor | `summarizeInstrument(doc)` | step | Structured JSON output; citations must be lockable. |
+| N4 | Missing attachment detector | `detectMissingAttachment(doc)` | step | For instruments referencing exhibits not present. |
 
 ## Parts list (BOM)
 
 | Part | Name | Mechanism |
 |---|---|---|
-| F2.3.1 | Instrument matching service | Match by instrument # and book/page heuristics. |
-| F2.3.2 | Exception summary extractor | Short summary with citations. |
-| F2.3.3 | Risk tagging rubric | Access/use/parking/utility/monetary/boundary tags. |
-| F2.3.4 | Ambiguity UI | Surface multiple matches + user selection. |
+| F2.3.1 | Matching heuristics | instrument number, book/page, filename, and "defined terms" reference chain (bounded). |
+| F2.3.2 | Ambiguity UI | Show candidates; user selection is persisted. |
+| F2.3.3 | Missing-doc journey | If instrument doc absent (e.g. `pack_02_missing_rea`): item is `missing_doc` and row includes a missing-doc checklist. |
+| F2.3.4 | Missing-attachment flag | If exhibit referenced but not provided: flag `missing_attachment` and keep going. |
 
 ## Fit check
 
-| Req | Requirement | Status | Fit |
-|---|---|---|---|
-| R2.3.1 | Correct matching on pack_01_clean | core goal | ⚠️ spike |
-| R2.3.2 | Duplicate/missing exhibit flags | core goal | ⚠️ spike |
-| R2.3.3 | Summary includes citations | core goal | ⚠️ spike |
+| Requirement | Packs | Fit |
+|---|---|---|
+| Correct matches on happy path | `pack_01_clean` | ⚠️ spike |
+| Disambiguation for overlaps | `pack_06_overlapping_easements` | ⚠️ spike |
+| Missing exception doc handled | `pack_02_missing_rea` | ✅ (fixture exists) |
+| Exhibit chase bounded | `pack_08_defined_terms_and_cross_refs` | ⚠️ spike |
 
-## Rabbit holes, cuts, no-gos
-
-- Rabbit hole: False matches across packs (spike).
-- Cut: Deep semantic understanding of easement scope.
-- Out of bounds: Materiality scoring.
+Cuts / out of bounds:
+- No deep semantic "scope" interpretation.
+- No materiality scoring.
 
 ---
 
-# Breadboard 2.4 — Survey parsing with citations
+# Breadboard 2.4 - Survey parsing (certification + key callouts) with citations
 
 ## Goal
 
-Extract certification parties and textual callouts from survey documents with citations.
+Extract survey certification parties and at least a baseline set of text callouts (encroachments/easements/access) with citations.
 
 ## Places and affordances
 
-- Place: Row drawer
-- Affordance: Survey callouts with citations
-- Place: Row table
-- Affordance: Survey quality indicator (needs review)
-
-## UI affordances
-
-| # | Component / place | Affordance | Control | Wires out | Reads |
-|---|---|---|---|---|---|
-| U1 | Row table | Quality indicator | render | none | quality flag |
-| U2 | Row drawer | Callout list + citations | render | open viewer | citations |
+- Place: Survey extract row
+  - Affordance: certification parties + callouts list
+- Place: Quality indicator
+  - Affordance: extraction quality badge and "needs manual review" when OCR is weak
 
 ## Code affordances
 
-| # | Component / service | Affordance | Control | Wires out / returns |
+| # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Doc classifier | classifySurvey | call | doc type |
-| N2 | OCR pipeline | extractSurveyText | call | text blocks |
-| N3 | Survey parser | parseCertification | call | parties + dates |
-| N4 | Survey parser | parseCallouts | call | callout list |
-| N5 | Quality scorer | scoreSurveyExtraction | call | quality flag |
-
-## Parts list (BOM)
-
-| Part | Name | Mechanism |
-|---|---|---|
-| F2.4.1 | Survey doc-type routing | Identify survey docs and send to parser. |
-| F2.4.2 | Certification extraction | Parties, surveyor, date. |
-| F2.4.3 | Callout extraction | Encroachments/easements/access text + citations. |
-| F2.4.4 | Quality indicator | Needs-review flag when signal is weak. |
+| N1 | Survey classifier | `classifySurvey(document)` | step | Must tolerate scan-only PDFs. |
+| N2 | Survey parser | `parseSurvey(layout)` | step | Focus on text callouts first; graphics are out of scope. |
+| N3 | Quality scorer | `scoreSurveyExtraction()` | pure | Drives `needs_review` and UX copy. |
 
 ## Fit check
 
-| Req | Requirement | Status | Fit |
-|---|---|---|---|
-| R2.4.1 | Non-empty survey extract for pack_01_clean | core goal | ⚠️ spike |
-| R2.4.2 | Flags cert gap for pack_03_mismatch_and_cert_gap | core goal | ⚠️ spike |
-| R2.4.3 | Works on noisy scans | core goal | ⚠️ spike |
+| Requirement | Packs | Fit |
+|---|---|---|
+| Certification extracted | `pack_01_clean` | ⚠️ spike |
+| Cert gap flagged | `pack_03_mismatch_and_cert_gap` | ⚠️ spike |
+| Works on scan torture pack | `pack_07_scans_rotated_low_quality` | ⚠️ spike |
 
-## Rabbit holes, cuts, no-gos
-
-- Rabbit hole: OCR signal quality on survey scans (spike).
-- Cut: Visual/geometry parsing.
-- Out of bounds: Property visualizer.
+Cuts / out of bounds:
+- No property visualizer.
+- No attempt to infer geometry-only labels without text support.
 
 ---
 
-# Breadboard 2.5 — Title ↔ survey reconciliation
+# Breadboard 2.5 - Title <-> survey reconciliation (honest issues list)
 
 ## Goal
 
-Cross-check commitment exceptions against survey depiction and produce reconciliation issues with citations or "unknown".
+Cross-check exception items against survey evidence and produce a reconciliation issues list that prefers "unknown/needs_review" over incorrect "not depicted".
+
+Important alignment:
+- The state machine for report rows remains `needs_review|reviewed|missing_input|citation_failed`.
+- "depicted/not depicted/unknown" is an item-level classification inside the issues payload, not a new report-row status.
 
 ## Places and affordances
 
-- Place: Reconciliation issues list
-- Affordance: Filter by depicted / not depicted / unknown
-- Place: Row drawer
-- Affordance: Show both title and survey citations
-
-## UI affordances
-
-| # | Component / place | Affordance | Control | Wires out | Reads |
-|---|---|---|---|---|---|
-| U1 | Issues list | Status filter | click | filter list | issues store |
-| U2 | Issues list | Unknown badge | render | none | issue status |
-| U3 | Row drawer | Dual citations | render | open viewer | citations |
+- Place: Issues list table (rendered from row payload)
+  - Affordance: filters by classification and shows dual citations (instrument + survey)
+- Place: Issue detail drawer
+  - Affordance: guidance copy for "unknown" and what evidence is missing
 
 ## Code affordances
 
-| # | Component / service | Affordance | Control | Wires out / returns |
+| # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Reconciliation engine | reconcileException | call | issue record |
-| N2 | Evidence scorer | scoreEvidence | call | depicted/unknown |
-| N3 | Issue generator | buildIssuesList | call | issues list |
-
-## Parts list (BOM)
-
-| Part | Name | Mechanism |
-|---|---|---|
-| F2.5.1 | Reconciliation rules engine | Map exception types to survey checks. |
-| F2.5.2 | Issues list generator | Create structured issue rows with citations. |
-| F2.5.3 | Reconciliation UI | Filters, statuses, notes. |
-| F2.5.4 | Unknown handling + guidance | Prefer unknown when evidence is weak. |
+| N1 | Reconciliation rules | `classifyIssue(exception, survey)` | pure | Deterministic rules first; model only as fallback with strict schema. |
+| N2 | Evidence thresholding | `evidenceStrength()` | pure | When below threshold -> classify `unknown` and keep row `needs_review`. |
+| N3 | Guidance generator | `buildGuidance()` | pure | "What to do next" copy for the drawer. |
 
 ## Fit check
 
-| Req | Requirement | Status | Fit |
-|---|---|---|---|
-| R2.5.1 | Depicted vs not depicted for pack_01_clean | core goal | ⚠️ spike |
-| R2.5.2 | Flags incomplete plotting for pack_05_duplicate_instrument_exhibit_missing | core goal | ⚠️ spike |
-| R2.5.3 | Unknown state when uncertain | core goal | ⚠️ spike |
+| Requirement | Packs | Fit |
+|---|---|---|
+| Basic issues exist | `pack_01_clean` | ⚠️ spike |
+| Mismatch/cert gap triggers issues | `pack_03_mismatch_and_cert_gap` | ⚠️ spike |
+| Unknown bias works | `pack_07_scans_rotated_low_quality` | ⚠️ spike |
 
-## Rabbit holes, cuts, no-gos
-
-- Rabbit hole: False positives in "not depicted" (spike).
-- Cut: Geometry overlays.
-- Out of bounds: Semantic easement scope interpretation.
+Cuts / out of bounds:
+- No geometry overlays.
+- No semantic interpretation of easement scope.
 
 ---
 
-# Breadboard 2.6 — Run orchestration + incremental report population
+# Breadboard 2.6 - Run orchestration + incremental report population (WDK)
 
 ## Goal
 
-Run a deterministic step machine that writes rows incrementally and surfaces progress.
+Implement a WDK workflow that executes deterministic-ish steps per `question_id` and writes terminal report rows incrementally with progress events.
 
 ## Places and affordances
 
 - Place: Run progress view
-- Affordance: Step indicator + restart run
-- Place: Row table
-- Affordance: Incremental row updates with status
-
-## UI affordances
-
-| # | Component / place | Affordance | Control | Wires out | Reads |
-|---|---|---|---|---|---|
-| U1 | Run progress view | Step indicator | render | none | run state |
-| U2 | Run progress view | Restart run | click | restart run | run state |
-| U3 | Row table | Incremental updates | render | none | rows store |
+  - Affordance: step indicator and safe restart
+- Place: Report table
+  - Affordance: rows appear progressively during run
 
 ## Code affordances
 
-| # | Component / service | Affordance | Control | Wires out / returns |
+| # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Runs API | createRun | call | run state |
-| N2 | Step machine worker | advanceStep | call | parser routing |
-| N3 | Row upsert | upsertRow | write | idempotent rows |
-| N4 | Provenance stamping | stampRow | write | snippet hash |
-| N5 | UI update channel | pollRun / sse | observe | run state + rows |
-
-## Parts list (BOM)
-
-| Part | Name | Mechanism |
-|---|---|---|
-| F2.6.1 | Runs API + state model | created/running/partial/completed/failed. |
-| F2.6.2 | Worker job runner + steps | Deterministic step model. |
-| F2.6.3 | Incremental UI updates | Polling or SSE for row updates. |
-| F2.6.4 | Row upsert + provenance | Idempotent writes by question_id. |
+| N1 | Runs API | `POST /folders/:id/runs` | handler | Pins `index_version` + `agent_bundle_version`. |
+| N2 | Workflow controller | QuickStart workflow | workflow | Must start with `"use workflow"` and contain no side effects. |
+| N3 | Steps | retrieve/draft/lock/verify/write | step | Must start with `"use step"`; steps own idempotency. |
+| N4 | Row upsert invariant | unique `(run_id, question_id)` | DB constraint | Prevents duplicates on restart. |
+| N5 | Status + export gating | fail-closed | policy | `citation_failed` rows are non-exportable by default. |
 
 ## Fit check
 
-| Req | Requirement | Status | Fit |
-|---|---|---|---|
-| R2.6.1 | Step progress visible | core goal | ✅ |
-| R2.6.2 | Rows appear progressively | core goal | ✅ |
-| R2.6.3 | Idempotent restart | core goal | ⚠️ spike |
-| R2.6.4 | pack_02_missing_rea fails safely | must-have | ✅ |
+| Requirement | Packs | Fit |
+|---|---|---|
+| Rows stream in during run | `pack_01_clean` | ✅ |
+| Missing-doc run fails safely | `pack_02_missing_rea` | ✅ |
+| Restart is idempotent | any | ⚠️ spike |
 
-## Rabbit holes, cuts, no-gos
-
-- Rabbit hole: Idempotent restarts (spike).
-- Cut: Long-running agent loops.
-- Out of bounds: Freeform chat.
+Cuts / out of bounds:
+- No free-running agent loops.
+- No freeform chat.

@@ -1,625 +1,256 @@
-# Spike investigation — Quick Start Engine (Initiative 002)
+# Spike investigation - Quick Start Engine (Initiative 002)
 
 This doc captures planned spikes for the rabbit holes in `risk-register.md`.
 
----
+How to use:
+- Each spike has a plan and a small report stub.
+- After running a spike: fill in the report stub and update `brief.md`, `breadboard-pack.md`, and `risk-register.md`.
+- Do not write PRDs until the spike outcomes remove the biggest rabbit holes (see `brief.md` GO criteria).
 
-# Spike plan — Practitioner question set review
-
-## Question
-
-Do the 20-25 questions match how a senior associate reads a commitment?
-
-## Context
-
-- Feature / concept: Breadboard 2.1 (question set + schema freeze).
-- Related requirement(s): R2.1.1.
-- Why now: The entire pipeline depends on this question set being credible.
-
-## Success criteria
-
-Proof looks like:
-
-- Practitioner says "yes, I'd use this table" for the 20-25 questions.
-- At least 80% of questions align with their mental model without major rewrites.
-
-## Timebox
-
-- Start: TBD
-- Hard stop: TBD (<= 0.5 day)
-
-## Scope
-
-Include:
-
-- One practitioner review pass with written feedback.
-
-Exclude:
-
-- Multiple iterations or consensus-building.
-
-## Approach
-
-- Step 1: Share question set v1 with senior associate.
-- Step 2: Collect feedback on coverage and ordering.
-- Step 3: Record edits and cut questions to <=25.
-
-## Artefacts
-
-Keep:
-
-- Notes of practitioner feedback.
-- Updated question list diff.
-
-Throw away:
-
-- Any proposed new questions beyond v1 scope.
-
-## Expected outcomes
-
-- If straight shot: freeze question set v1.
-- If tangle: cut to 15-20 and mark expanded set as later.
-- If fog: pause initiative until alignment obtained.
-
-## Oracle notes
-
-- Pending (Oracle pass not run yet).
-
-# Spike report — Practitioner question set review
-
-## Question
-
-Do the 20-25 questions match how a senior associate reads a commitment?
-
-## Result
-
-- Outcome: pending
-- Decision: pending
-
-## Proof
-
-- Pending
-
-## Key findings
-
-- Pending
-
-## Updated assumptions
-
-- Before: pending
-- After: pending
-
-## Implications for the concept
-
-- Patches: pending
-- Cuts: pending
-- Out of bounds: pending
-
-## Follow-ups
-
-- Update wiring diagram: pending
-- Update parts list: pending
-- Update fit check: pending
-
-## Appendix
-
-- Repro steps: pending
-- Links: pending
+Fixture sources:
+- Pack list (canonical): `docs/08-example-data/packs_summary.md`
+- Truth comparators: `docs/08-example-data/<pack>/truth/*`
+- Viewer anchors: `docs/08-example-data/<pack>/layout/*.anchors.json`
 
 ---
 
-# Spike plan — Commitment parsing from noisy scans
+# SP-2.1 Practitioner question set review
 
 ## Question
+Does question set v1 (<=25) match how a senior associate wants to consume a "first pass" title + survey report?
 
-Can we parse B-I/B-II reliably from scanned PDFs?
+## Why now
+If question set v1 is wrong, the rest of Initiative 002 can "work" while producing the wrong artefacts.
 
-## Context
-
-- Feature / concept: Breadboard 2.2 (commitment parsing).
-- Related requirement(s): R2.2.1, R2.2.2.
-- Why now: OCR noise could make the parser brittle.
-
-## Success criteria
-
-Proof looks like:
-
-- `pack_06_noisy_scans_rotated_page` yields correct item counts within +/- 1.
-- `pack_01_clean` and `pack_04_multi_parcel_complex` match truth tables on key fields.
+## Success criteria (proof)
+- Practitioner says: "Yes, I'd use this table as a first pass."
+- >=80% of questions survive with only wording/order edits.
+- Any missing must-haves are either:
+  - added by cutting elsewhere to keep <=25, or
+  - explicitly pushed to "later" with rationale.
 
 ## Timebox
-
-- Start: TBD
-- Hard stop: TBD (<= 1 day)
-
-## Scope
-
-Include:
-
-- Run parsing on `pack_01_clean` and `pack_06_noisy_scans_rotated_page`.
-
-Exclude:
-
-- Generalization to all title formats.
+- <= 0.5 day (one pass)
 
 ## Approach
+1) Start from the union of `golden_questions.json` across packs.
+2) Present the output shapes:
+  - scalar rows (Schedule A facts, etc.)
+  - list-shaped artefacts (B-I/B-II/issues) rendered as tables.
+3) Record feedback and apply cuts/reorder/rename (no scope expansion beyond 25).
 
-- Step 1: OCR text extraction for the target packs.
-- Step 2: Parse B-I/B-II sections and count items.
-- Step 3: Compare against truth tables and note drift.
-
-## Artefacts
-
-Keep:
-
-- Item counts + comparison notes.
-- Parser heuristics summary.
-
-Throw away:
-
-- Production-ready parser code beyond the spike.
-
-## Expected outcomes
-
-- If straight shot: proceed with parser implementation.
-- If tangle: cut scope to clean packs only.
-- If fog: consider alternate extraction strategy.
+## Artefacts to keep
+- Notes + updated question-set diff.
 
 ## Oracle notes
+- Pending.
 
-- Pending (Oracle pass not run yet).
-
-# Spike report — Commitment parsing from noisy scans
-
-## Question
-
-Can we parse B-I/B-II reliably from scanned PDFs?
-
-## Result
-
-- Outcome: pending
-- Decision: pending
-
-## Proof
-
-- Pending
-
-## Key findings
-
-- Pending
-
-## Updated assumptions
-
-- Before: pending
-- After: pending
-
-## Implications for the concept
-
-- Patches: pending
-- Cuts: pending
-- Out of bounds: pending
-
-## Follow-ups
-
-- Update wiring diagram: pending
-- Update parts list: pending
-- Update fit check: pending
-
-## Appendix
-
-- Repro steps: pending
-- Links: pending
+## Report (fill after running)
+- Outcome:
+- Proof links:
+- Cuts/patches:
 
 ---
 
-# Spike plan — Exception to instrument matching heuristics
+# SP-2.2 Commitment parsing (clean + multi-parcel + scan torture)
 
 ## Question
+Can we extract Schedule A facts, B-I requirements, and B-II exceptions matching `/truth` key fields across clean + multi-parcel + scan torture packs?
 
-What matching rules minimize false matches across the target packs?
+## Packs
+- `pack_01_clean`
+- `pack_04_multi_parcel`
+- `pack_07_scans_rotated_low_quality`
 
-## Context
-
-- Feature / concept: Breadboard 2.3 (exception matching + summaries).
-- Related requirement(s): R2.3.1, R2.3.2.
-- Why now: Silent mismatch undermines trust in the report.
-
-## Success criteria
-
-Proof looks like:
-
-- No false matches across the target packs.
-- Ambiguous cases surface as `needs_review`.
+## Success criteria (proof)
+- For `pack_01_clean` and `pack_04_multi_parcel`, key fields match truth CSVs (not wording):
+  - `truth/expected_requirements_tracker.csv`
+  - `truth/expected_exceptions_table.csv`
+- For `pack_07_scans_rotated_low_quality`:
+  - either key fields match truth within an explicitly recorded tolerance, or
+  - output stays honest as `needs_review` with reason codes (no hallucinated items).
 
 ## Timebox
-
-- Start: TBD
-- Hard stop: TBD (<= 1 day)
-
-## Scope
-
-Include:
-
-- Instrument number + book/page heuristics.
-
-Exclude:
-
-- Deep semantic matching.
+- <= 1 day
 
 ## Approach
-
-- Step 1: Build matching rules from instrument number + book/page.
-- Step 2: Test across all target packs.
-- Step 3: Record ambiguous cases and thresholds.
-
-## Artefacts
-
-Keep:
-
-- Matching rules summary.
-- List of ambiguous cases.
-
-Throw away:
-
-- Full production pipeline code.
-
-## Expected outcomes
-
-- If straight shot: proceed with matching service.
-- If tangle: add explicit user selection flow and reduce auto-match.
-- If fog: cut to basic matching only.
+1) Use truth CSVs as comparator (diffs, not eyeballing).
+2) Record failures precisely: missing headers, item numbering drift, date formats, instrument ref extraction.
+3) Decide treatment: Patch heuristics vs Cut formats vs Out-of-bounds.
 
 ## Oracle notes
+- Pending.
 
-- Pending (Oracle pass not run yet).
-
-# Spike report — Exception to instrument matching heuristics
-
-## Question
-
-What matching rules minimize false matches across the target packs?
-
-## Result
-
-- Outcome: pending
-- Decision: pending
-
-## Proof
-
-- Pending
-
-## Key findings
-
-- Pending
-
-## Updated assumptions
-
-- Before: pending
-- After: pending
-
-## Implications for the concept
-
-- Patches: pending
-- Cuts: pending
-- Out of bounds: pending
-
-## Follow-ups
-
-- Update wiring diagram: pending
-- Update parts list: pending
-- Update fit check: pending
-
-## Appendix
-
-- Repro steps: pending
-- Links: pending
+## Report (fill after running)
+- Outcome:
+- Proof links:
+- Parsing heuristics:
+- Cuts/patches:
 
 ---
 
-# Spike plan — Survey extraction from scans
+# SP-2.3 Exception -> instrument matching + missing doc/attachment handling
 
 ## Question
+Can we avoid false matches, surface ambiguity, and handle missing docs/attachments explicitly?
 
-Can we extract certification parties and at least 3 callouts reliably?
+## Packs
+- `pack_01_clean` (happy path matches)
+- `pack_02_missing_rea` (missing exception doc)
+- `pack_06_overlapping_easements` (disambiguation + missing attachment)
+- `pack_08_defined_terms_and_cross_refs` (defined terms + exhibit chase)
 
-## Context
-
-- Feature / concept: Breadboard 2.4 (survey parsing).
-- Related requirement(s): R2.4.1, R2.4.2, R2.4.3.
-- Why now: Surveys are visual and OCR can be messy.
-
-## Success criteria
-
-Proof looks like:
-
-- Extraction works on `pack_01_clean` and `pack_06_noisy_scans_rotated_page`.
-- Missing certification party is flagged for `pack_03_mismatch_and_cert_gap`.
+## Success criteria (proof)
+- No false matches on the above packs.
+- Ambiguity surfaces as `needs_review` and requires user selection (never silent auto-pick).
+- Missing exception doc:
+  - produces an explicit missing-doc checklist in row notes/provenance, and
+  - uses `missing_input` when an answer truly cannot be supported.
+- Missing attachment:
+  - detected and flagged (no fabricated summaries).
 
 ## Timebox
-
-- Start: TBD
-- Hard stop: TBD (<= 1 day)
-
-## Scope
-
-Include:
-
-- Text callouts, labels, and certification blocks.
-
-Exclude:
-
-- Graphic interpretation of plotted easements.
+- <= 1 day
 
 ## Approach
-
-- Step 1: OCR and text extraction.
-- Step 2: Identify certification block and callouts.
-- Step 3: Compare against expected survey issues.
-
-## Artefacts
-
-Keep:
-
-- Extraction notes and success/failure examples.
-
-Throw away:
-
-- Production-ready parser beyond the spike.
-
-## Expected outcomes
-
-- If straight shot: proceed with survey parser.
-- If tangle: tighten scope to a smaller set of callouts.
-- If fog: cut survey parsing from v1.
+1) Start with deterministic matching (instrument number, book/page, filename).
+2) Add bounded reference following for exhibit chase (max depth; record the chain).
+3) Catalog ambiguous cases and the minimal UI affordance to resolve them.
 
 ## Oracle notes
+- Pending.
 
-- Pending (Oracle pass not run yet).
-
-# Spike report — Survey extraction from scans
-
-## Question
-
-Can we extract certification parties and at least 3 callouts reliably?
-
-## Result
-
-- Outcome: pending
-- Decision: pending
-
-## Proof
-
-- Pending
-
-## Key findings
-
-- Pending
-
-## Updated assumptions
-
-- Before: pending
-- After: pending
-
-## Implications for the concept
-
-- Patches: pending
-- Cuts: pending
-- Out of bounds: pending
-
-## Follow-ups
-
-- Update wiring diagram: pending
-- Update parts list: pending
-- Update fit check: pending
-
-## Appendix
-
-- Repro steps: pending
-- Links: pending
+## Report (fill after running)
+- Outcome:
+- Proof links:
+- Matching rules:
+- Ambiguity UX notes:
 
 ---
 
-# Spike plan — Reconciliation "unknown" handling
+# SP-2.4 Survey extraction (certification + baseline callouts)
 
 ## Question
+Can we reliably extract certification parties and baseline text callouts with citations on scan packs?
 
-Can we keep reconciliation honest by emitting "unknown" instead of incorrect "not shown"?
+## Packs
+- `pack_01_clean`
+- `pack_03_mismatch_and_cert_gap`
+- `pack_07_scans_rotated_low_quality`
 
-## Context
-
-- Feature / concept: Breadboard 2.5 (reconciliation).
-- Related requirement(s): R2.5.1, R2.5.2, R2.5.3.
-- Why now: False positives are worse than incomplete output.
-
-## Success criteria
-
-Proof looks like:
-
-- When survey signal is weak, output is "unknown" not "not shown".
-- Clear guidance copy for why a row is unknown.
+## Success criteria (proof)
+- Matches `truth/expected_survey_issues.csv` on major callouts where present (not wording).
+- Flags the missing lender certification party in `pack_03_mismatch_and_cert_gap`.
+- On scan torture:
+  - either extracts >=3 callouts with citations, or
+  - stays honest as `needs_review` + guidance (no made-up callouts).
 
 ## Timebox
-
-- Start: TBD
-- Hard stop: TBD (<= 0.5 day)
-
-## Scope
-
-Include:
-
-- A small ruleset that detects weak evidence.
-
-Exclude:
-
-- Full semantic reasoning.
+- <= 1 day
 
 ## Approach
-
-- Step 1: Define evidence thresholds for "depicted" vs "unknown".
-- Step 2: Run against sample cases.
-- Step 3: Capture examples for UI copy.
-
-## Artefacts
-
-Keep:
-
-- Threshold rules and example rows.
-
-Throw away:
-
-- Full reconciliation engine beyond the spike.
-
-## Expected outcomes
-
-- If straight shot: proceed with rules engine.
-- If tangle: bias to "unknown" in v1.
-- If fog: cut reconciliation from v1.
+1) Focus on text callouts and certification blocks first; ignore pure graphics.
+2) Compare against truth and `golden_questions.json`.
+3) Decide extraction quality threshold behavior (ready vs needs_review).
 
 ## Oracle notes
+- Pending.
 
-- Pending (Oracle pass not run yet).
-
-# Spike report — Reconciliation "unknown" handling
-
-## Question
-
-Can we keep reconciliation honest by emitting "unknown" instead of incorrect "not shown"?
-
-## Result
-
-- Outcome: pending
-- Decision: pending
-
-## Proof
-
-- Pending
-
-## Key findings
-
-- Pending
-
-## Updated assumptions
-
-- Before: pending
-- After: pending
-
-## Implications for the concept
-
-- Patches: pending
-- Cuts: pending
-- Out of bounds: pending
-
-## Follow-ups
-
-- Update wiring diagram: pending
-- Update parts list: pending
-- Update fit check: pending
-
-## Appendix
-
-- Repro steps: pending
-- Links: pending
+## Report (fill after running)
+- Outcome:
+- Proof links:
+- Threshold decisions:
+- Cuts/patches:
 
 ---
 
-# Spike plan — Idempotent run restarts
+# SP-2.5 Reconciliation honesty (unknown bias)
 
 ## Question
+Can we keep reconciliation honest by biasing to "unknown/needs_review" instead of incorrect "not depicted"?
 
-Can we restart runs without duplicating rows or changing stable snippet hashes?
+## Packs
+- `pack_01_clean`
+- `pack_03_mismatch_and_cert_gap`
+- `pack_07_scans_rotated_low_quality`
 
-## Context
-
-- Feature / concept: Breadboard 2.6 (run orchestration).
-- Related requirement(s): R2.6.3.
-- Why now: Non-idempotent runs create duplicate or drifting data.
-
-## Success criteria
-
-Proof looks like:
-
-- Restarting a run does not duplicate rows.
-- Snippet hashes remain stable for unchanged inputs.
+## Success criteria (proof)
+- When evidence is weak, item classification is `unknown` (item-level) and report row stays `needs_review`.
+- Drawer guidance copy explains what evidence is missing and what to do next.
 
 ## Timebox
-
-- Start: TBD
-- Hard stop: TBD (<= 0.5 day)
-
-## Scope
-
-Include:
-
-- Row upsert keyed by `question_id` + run_id.
-
-Exclude:
-
-- Full backfill or migration logic.
+- <= 0.5 day
 
 ## Approach
-
-- Step 1: Define idempotent upsert strategy.
-- Step 2: Simulate run restart with identical inputs.
-- Step 3: Validate no duplication.
-
-## Artefacts
-
-Keep:
-
-- Upsert strategy notes.
-- Example before/after row states.
-
-Throw away:
-
-- Production-ready code beyond the spike.
-
-## Expected outcomes
-
-- If straight shot: proceed with step machine design.
-- If tangle: reduce to a single-run v1 with no restarts.
-- If fog: cut incremental updates and run as batch.
+1) Define explicit evidence thresholds for depicted/not depicted/unknown.
+2) Prove thresholds on scan torture.
+3) If we cannot keep it honest, cut reconciliation to "unknown only" in v1.
 
 ## Oracle notes
+- Pending.
 
-- Pending (Oracle pass not run yet).
+## Report (fill after running)
+- Outcome:
+- Proof links:
+- Threshold decisions:
+- Cuts/patches:
 
-# Spike report — Idempotent run restarts
+---
+
+# SP-2.6 Run idempotency + snippet_hash stability
 
 ## Question
+On restart/retry, do we avoid duplicate rows and keep stable citation `snippet_hash` values (same `index_version`)?
 
-Can we restart runs without duplicating rows or changing stable snippet hashes?
+## Success criteria (proof)
+- Unique `(run_id, question_id)` holds and no duplicates appear after restart.
+- Citation locking produces stable `snippet_hash` values across reruns (same inputs + pinned versions).
+- Failure taxonomy counts are stable across reruns (no new "mystery failures").
 
-## Result
+## Timebox
+- <= 0.5 day
 
-- Outcome: pending
-- Decision: pending
+## Approach
+1) Run `pack_01_clean` twice with pinned versions.
+2) Compare row payloads + citation hashes + eval reports.
+3) Identify nondeterminism sources and patch with deterministic idempotency keys.
 
-## Proof
+## Oracle notes
+- Pending.
 
-- Pending
+## Report (fill after running)
+- Outcome:
+- Proof links:
+- Idempotency keys:
 
-## Key findings
+---
 
-- Pending
+# SP-2.7 Payload representation decision (rows vs tables)
 
-## Updated assumptions
+## Question
+Where do we store and version the structured payload for list-shaped artefacts (B-I/B-II/issues) so UI can render it and evals can compare it?
 
-- Before: pending
-- After: pending
+Constraints:
+- Must obey the report-row status invariants in `docs/03-architecture/20_state_model.md`.
+- Citations must be lockable/immutable and attached to rows (and ideally to item-level entries).
 
-## Implications for the concept
+## Options to decide between
+1) Store structured payload in `report_rows.provenance_json` and render from it in UI.
+2) Store structured payload as JSON in `report_rows.answer` (string) and treat `answer` as machine-readable.
+3) Introduce first-class artefact tables and keep report rows as summaries.
 
-- Patches: pending
-- Cuts: pending
-- Out of bounds: pending
+## Success criteria (proof)
+- Can represent `truth/expected_requirements_tracker.csv` and `truth/expected_exceptions_table.csv` faithfully:
+  - item fields
+  - item-level citations
+  - item-level status (without inventing new report-row statuses)
+- Does not weaken fail-closed verification or citation locking.
 
-## Follow-ups
+## Timebox
+- <= 0.5 day
 
-- Update wiring diagram: pending
-- Update parts list: pending
-- Update fit check: pending
+## Report (fill after running)
+- Decision:
+- Why:
+- Follow-up schema/UX implications:
 
-## Appendix
-
-- Repro steps: pending
-- Links: pending
