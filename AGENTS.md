@@ -39,6 +39,10 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 - `docs/04-projects/AGENTS.md`: Dossier conventions and delivery workflow for project work.
 - `docs/06-release/AGENTS.md`: Release process and changelog/postmortem expectations
 
+## File management
+- Store once off files like `oracle` bundles (to be uploaded) in `throwaway` folder (not synced to Github)
+- Store tmp files in `tmp` folder (synced to Github)
+
 ## Core skills to use
 - `ask-questions-if-underspecified` skill when unclear
 - `oracle` skill for deep research
