@@ -1,4 +1,4 @@
-Saved handoff: docs/98-tmp/handoffs/2026_02_06/2026_02_06_17_35_25_0003-shape-split-commits.md
+Saved handoff: docs/98-tmp/handoffs/handoff_2026-02-06_17-35-25_shape-split-commits.md
 
 - Scope/status:
   - Re-shaped Initiative 0003 dossier (brief, breadboard, risks, spikes) and deleted prior PRD files.
@@ -12,7 +12,7 @@ Saved handoff: docs/98-tmp/handoffs/2026_02_06/2026_02_06_17_35_25_0003-shape-sp
     - .agents/skills/00-utilities/oracle/SKILL.md
     - .agents/skills/02-shape/wf-shape/SKILL.md
     - .gitignore
-    - docs/03-architecture/decisions.md
+    - docs/03-architecture/DECISIONS.md
     - docs/AGENTS.md
   - Untracked directories/files (not committed):
     - docs/97-throwaway/ (local-only scratch; not committed)
@@ -31,7 +31,7 @@ Saved handoff: docs/98-tmp/handoffs/2026_02_06/2026_02_06_17_35_25_0003-shape-sp
   - docs/04-projects/02-features/0002_quick-start-engine/
   - docs/04-projects/02-features/0001_trust-substrate/
 - Oracle manual bundle (paste into ChatGPT Pro):
-  - docs/04-projects/02-features/0003_demo-grade-outputs/tmp/oracle-bundles/initiative-0003-shape_bundle.md
+  - docs/04-projects/02-features/0003_demo-grade-outputs/tmp-oracle/oracle-bundle_0003_demo-grade-outputs_initiative-0003-shape.md
   - Note: Oracle CLI could not run (npm registry/DNS blocked), so bundle was generated locally.
 - Running processes:
   - None (tmux: none).

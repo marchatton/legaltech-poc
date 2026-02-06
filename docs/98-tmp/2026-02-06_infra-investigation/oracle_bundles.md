@@ -18,7 +18,7 @@ npx -y @steipete/oracle --engine browser --model gpt-5.2-pro --slug "poc-deploy-
   --file docs/03-architecture/06_frameworks_agents_rag_evals.md \
   --file docs/03-architecture/10_system_architecture.md \
   --file docs/03-architecture/50_api_surface.md \
-  --file docs/03-architecture/decisions.md \
+  --file docs/03-architecture/DECISIONS.md \
   --file docs/98-tmp/2026-02-06_infra-investigation/deployment.md \
   --file docs/98-tmp/2026-02-06_infra-investigation/recommended-stack.md
 ```
@@ -45,4 +45,4 @@ npx -y @steipete/oracle --engine browser --model gpt-5.2-pro --slug "poc-ocr-cho
 
 ## 4) LLM gateway options (routing + observability)
 
-See: `docs/98-tmp/oracle-bundles/oracle_bundle_llm-gateways.md`
+See: `docs/98-tmp/oracle/oracle-bundle_llm-gateways.md`
