@@ -34,7 +34,7 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 - `AGENTS.md`: Repo‑wide engineering standards, tooling, and verification rules.
 - `apps/web/AGENTS.md`: Stack and guardrails for the Next.js web app.
 - `docs/AGENTS.md`: Structure and rules for the docs/knowledge hub.
-- `docs/02-guidelines/AGENTS.md`: Brand, tone, and  accessibility guidance sources.
+- `docs/02-guidelines/AGENTS.md`: Brand/tone/a11y guidance + Brand DNA outputs (including Tailwind-ready token/preset artefacts).
 - `docs/03-architecture/AGENTS.md`: Architecture boundaries and security posture rules.
 - `docs/04-projects/AGENTS.md`: Dossier conventions and delivery workflow for project work.
 - `docs/06-release/AGENTS.md`: Release process and changelog/postmortem expectations
