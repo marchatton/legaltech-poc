@@ -36,5 +36,5 @@ Single place for workflow artefacts + docs outputs.
 - Completed work and old context is manually moved into `docs/99-archive/` which mirrors the live structure.
 
 ## Cross-cutting concerns
-- Log ADRs by appending to `03-architecture/decisions.md`.
+- Log ADRs by appending to `docs/03-architecture/decisions.md`.
 - Synthesis: use `compound` to consolidate learnings.
