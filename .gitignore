@@ -1,5 +1,10 @@
 # Onboarding defaults
-.DS_Store
 /node_modules/
-/throwaway/
+
+# Local-only scratch
+**/*throwaway*/
 /.agents/skills/00-product-sense/
+
+# macOS
+.DS_Store
+**/.DS_Store
