@@ -5,7 +5,7 @@
 ## Spike plan — PDF viewer performance on noisy scans
 
 ### Question
-Can pdf.js render and page-jump on `pack_06_noisy_scans_rotated_page/docs/01_Title_Commitment_SCANNED.pdf` without UI freezing?
+Can pdf.js render and page-jump on scanned/rotated PDFs (e.g. `docs/08-example-data/pack_07_scans_rotated_low_quality/docs/TitleCommitment_SCANNED_ROTATED.pdf`) without UI freezing?
 
 ### Context
 - Feature / concept: 1.1 Matter + document viewer baseline
@@ -94,12 +94,15 @@ Throw away:
 - If tangle: patch to bbox-only or limit zoom levels
 - If fog: re-scope to page-level highlights only
 
+### Oracle pass (planned)
+Generate a bundle and run an oracle review focused on coordinate spaces, transform math, and test strategy.
+
 ---
 
 ## Spike plan — Canonical snippet + hash stability
 
 ### Question
-What snippet normalization produces stable hashes across reprocessing the same PDF?
+Does the canonical `normalise()` rule for `snippet_hash` (defined in `docs/03-architecture/30_data_model.md`) produce stable hashes for citations in practice?
 
 ### Context
 - Feature / concept: 1.3 Citation data model + API
@@ -118,7 +121,7 @@ Proof looks like:
 ### Scope
 Include:
 - Two PDFs with known snippets
-- Normalization variants (line-join, whitespace collapse)
+- Implement canonical normalisation once and reuse it everywhere
 
 Exclude:
 - LLM verification
@@ -138,7 +141,7 @@ Throw away:
 
 ### Expected outcomes
 - If straight shot: codify normalization + hash util
-- If tangle: patch to anchor_id-based hash
+- If tangle: patch by pinning to anchor_id + snippet_hash (keep both), or by storing chunk_id + index_version as the authoritative reference
 - If fog: restrict to anchor JSON only
 
 ---
@@ -240,3 +243,8 @@ Throw away:
 ## Spike reports (pending)
 
 No spike reports yet. After each spike, add a report section and run an oracle pass.
+
+## Oracle bundles
+When you run an oracle pass, create a `--render` bundle in `docs/97-throwaway/oracle-bundles/` so it can be pasted into ChatGPT Pro.
+
+- RH2 (highlight overlay transform): `docs/97-throwaway/oracle-bundles/oracle_bundle_0001_trust-substrate_RH2_highlight-overlay.md`

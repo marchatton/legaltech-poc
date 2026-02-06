@@ -1,19 +1,23 @@
-# Breadboard Pack — Trust substrate
+# Breadboard Pack — 0001 Trust Substrate
 
 ## Context
 
 - Appetite: TBD
 - Problem: No baseline surface exists for viewing evidence, attaching citations, verifying claims, or showing failures. Trust must be established before any AI-driven work can be credible.
 - Success: Matter + viewer works end-to-end; citations are real; verification is fail-closed; failures and provenance are explicit.
-- Constraints: No auth/RBAC, no retrieval/generation beyond verification, no OCR geometry beyond anchor JSON, no external web research.
+- Constraints: No auth/RBAC, no external web research, no full Quick Start generation (this is the trust substrate it depends on), anchors-first highlights until OCR wiring is ready.
+- Canonical references:
+  - State invariants: `docs/03-architecture/20_state_model.md`
+  - API contracts: `docs/03-architecture/50_api_surface.md`
+  - Trust ADRs: `docs/03-architecture/decisions.md`
 
 ## Current state
 
 ### What exists today
 
 - Seed packs in `docs/08-example-data`.
-- Anchor scaffolding in `/layout/*.anchors.json`.
-- No confirmed matter/document UI surface in the web app.
+- Anchor scaffolding in `docs/08-example-data/*/layout/*.anchors.json`.
+- Web app scaffolding exists, but there is no confirmed Matter/Document/Viewer UI or API yet.
 
 ### Current flow (breadboard)
 
@@ -23,8 +27,8 @@
 
 ### Proposed flow (breadboard)
 
-- _Matter list (entry)_
-  - Create matter
+- _Matter list (entry UI; API/DB calls it Folder)_
+  - Create matter (folder)
   - -> Matter detail
 - _Matter detail_
   - Upload documents
@@ -48,8 +52,8 @@
 
 ### Elements
 
-- Matter list + detail views
-- Upload pipeline + document list with statuses
+- Matter list + detail views (folder CRUD)
+- Upload pipeline + document list with ingest statuses
 - PDF viewer (pdf.js) with page nav + zoom
 - Citation chips + highlight overlay
 - Verification status + export gate
@@ -78,17 +82,17 @@
 
 | # | Component / service | Affordance | Control | Wires out / returns |
 |---|---|---|---|---|
-| N1 | Matter API | `POST /matters` | call | creates matter ID |
-| N2 | Upload service | direct-to-storage upload + progress | call | writes file + emits status |
-| N3 | Doc processing store | doc status read/write | read/write | updates list state |
-| N4 | PDF viewer | render page + jump/zoom | call | returns rendered canvas |
-| N5 | Citations API | `GET /citations/:id` | call | returns citation payload |
-| N6 | Anchor loader | map anchor IDs to geometry | call | returns polygons |
-| N7 | Highlight renderer | PDF->viewport transform | call | returns overlay geometry |
-| N8 | Verification pipeline | code checks + LLM entailment | call | returns verdict |
-| N9 | Row status machine | state transitions | write | sets `needs_review` / `citation_failed` |
-| N10 | Failure logger | taxonomy + structured logs | write | emits failure events |
-| N11 | Provenance store | trace schema + export | write/call | returns run trace JSON |
+| N1 | Folders API (Matter CRUD) | `POST /folders` | call | creates `folder_id` |
+| N2 | Upload service | init upload + put to storage + complete | call | `POST /folders/:id/documents` → upload target; `POST /documents/:id/complete` enqueues ingest |
+| N3 | Documents store | ingest status + quality metadata | read/write | drives list state (`parse_status`, `ocr_status`, `extraction_quality`) |
+| N4 | Viewer render contract | render URL + viewer state | call | `GET /documents/:id/render?page=N` returns `render_url`; viewer handles page nav + zoom |
+| N5 | Citations API | `GET /citations/:id` | call | locked citation payload `{document_id,page_number,polygons,snippet,snippet_hash}` |
+| N6 | Anchor fixture loader | map fixture anchor IDs to polygons | call | returns polygons for highlight scaffold |
+| N7 | Highlight renderer | PDF space → viewport transform | call | returns overlay geometry for rendering |
+| N8 | Verification pipeline | code checks + (optional) entailment | call | returns verdict + failure reason code |
+| N9 | Row status machine | status invariants + export gate | write | sets row status + blocks export by default on `citation_failed` |
+| N10 | Failure logger | taxonomy + structured logs | write | emits safe failure events |
+| N11 | Provenance store | minimal trace schema + export | write/call | returns run trace JSON |
 
 ## Wiring diagram
 
@@ -167,3 +171,12 @@ graph LR
 ## Optional: Extract vs duplicate analysis
 
 Not applicable (no comparable existing feature).
+
+## PRD slicing (record only; do not create PRDs until spikes are closed)
+Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slices should map to parts (F#) and affordances (U#/N#):
+- Slice A (F1, U1–U4, N1–N3): Matter (folder) CRUD + upload pipeline + doc list statuses
+- Slice B (F2, U7, N4): PDF viewer + render URL contract
+- Slice C (F3, U6–U8, N5–N7): Citation chips + jump-to-highlight (anchors-first)
+- Slice D (F4, N5): Citation locking + hashing util + citations API
+- Slice E (F5–F6, U9–U12, N8–N10): Status machine + export gate + failure journeys
+- Slice F (F7, U13, N11): Provenance capture + trace export
