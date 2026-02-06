@@ -1,0 +1,344 @@
+{
+  "run_metadata": {
+    "run_id": "brand-dna-2026-02-06",
+    "timestamp_utc": "2026-02-06T16:27:35+00:00",
+    "config": {
+      "run_id": "brand-dna-2026-02-06",
+      "timestamp_utc": "2026-02-06T16:27:35+00:00",
+      "blend_mode": "harmonise",
+      "weights": {
+        "amp": 0.16666666666666666,
+        "coinshift": 0.16666666666666666,
+        "parallel": 0.16666666666666666,
+        "every": 0.16666666666666666,
+        "firecrawl": 0.16666666666666666,
+        "raycast": 0.16666666666666666
+      },
+      "inputs": {
+        "inspiration_file": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/brand-apps-inspiration.md",
+        "selection_file": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.probe/brand-dna-2026-02-06/selection.json"
+      },
+      "sources": {
+        "firecrawl": {
+          "pages_scraped": 7
+        },
+        "parallel": {
+          "pages_extracted": 23
+        },
+        "browser_probe": {
+          "pages_probed": 8,
+          "viewports": [
+            "desktop",
+            "mobile"
+          ],
+          "media_modes": [
+            "light",
+            "dark"
+          ],
+          "states": [
+            "base",
+            "hover",
+            "focus"
+          ],
+          "probe_script": ".agents/skills/00-utilities/brand-dna-extractor/scripts/probe_css.js"
+        }
+      }
+    }
+  },
+  "per_site_prompt_packs": [
+    {
+      "id": "prompt_pack_amp",
+      "scope": "per_site",
+      "site_id": "amp",
+      "brand_style_prompt": "Brand style (per_site amp). [amp:home:colour.primary] [amp:home:typography.body.font_family] [amp:home:motion.transition_durations_ms]\nPalette: primary #DFDFC1, secondary #D0D0B4, accent #171917.\nBackground #DFDFC1 with text #0B0D0B.\nType: body system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, sans-serif, headings \"Sagittaire Display\", serif, mono Berkeley Mono.\nSpacing step 4; radius scale [2, 4, 6].\n",
+      "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [amp:home:colour.primary] [amp:home:typography.body.font_family] [amp:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: []).\nAccents are high-chroma but disciplined.\n",
+      "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [amp:home:colour.primary] [amp:home:typography.body.font_family] [amp:home:motion.transition_durations_ms]\nMotion: [150]ms with ['cubic-bezier(0.4, 0, 0.2, 1)'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+      "copywriting_prompt": "Copywriting: modern, medium energy, developer-first, direct. [amp:home:colour.primary] [amp:home:typography.body.font_family] [amp:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+      "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+      "token_set": {
+        "colour": [
+          "Primary: #DFDFC1",
+          "Secondary: #D0D0B4",
+          "Accent: #171917",
+          "BG/Text: #DFDFC1 / #0B0D0B"
+        ],
+        "type": [
+          "Body: system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, sans-serif",
+          "Headings: \"Sagittaire Display\", serif",
+          "Mono: Berkeley Mono"
+        ],
+        "layout": [
+          "Spacing step: 4",
+          "Radius scale: [2, 4, 6]"
+        ],
+        "imagery": [
+          "Prefer product-first visuals, UI screenshots, sparse illustrations."
+        ],
+        "voice": [
+          "modern",
+          "medium energy",
+          "developer-first",
+          "direct"
+        ],
+        "motion": [
+          "Durations: [150]",
+          "Easing: ['cubic-bezier(0.4, 0, 0.2, 1)']"
+        ]
+      }
+    },
+    {
+      "id": "prompt_pack_coinshift",
+      "scope": "per_site",
+      "site_id": "coinshift",
+      "brand_style_prompt": "Brand style (per_site coinshift). [coinshift:home:colour.primary] [coinshift:home:typography.body.font_family] [coinshift:home:motion.transition_durations_ms]\nPalette: primary #F0F8FF, secondary #FEFDFC, accent #FA3812.\nBackground #FEFDFC with text #000000.\nType: body \"ABC ROM\", sans-serif, headings \"ABC ROM\", sans-serif, mono None.\nSpacing step 4; radius scale [0, 1, 32].\n",
+      "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [coinshift:home:colour.primary] [coinshift:home:typography.body.font_family] [coinshift:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: []).\nAccents are high-chroma but disciplined.\n",
+      "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [coinshift:home:colour.primary] [coinshift:home:typography.body.font_family] [coinshift:home:motion.transition_durations_ms]\nMotion: [0]ms with ['ease'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+      "copywriting_prompt": "Copywriting: modern, medium energy, trust-forward, ops-focused. [coinshift:home:colour.primary] [coinshift:home:typography.body.font_family] [coinshift:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+      "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+      "token_set": {
+        "colour": [
+          "Primary: #F0F8FF",
+          "Secondary: #FEFDFC",
+          "Accent: #FA3812",
+          "BG/Text: #FEFDFC / #000000"
+        ],
+        "type": [
+          "Body: \"ABC ROM\", sans-serif",
+          "Headings: \"ABC ROM\", sans-serif",
+          "Mono: None"
+        ],
+        "layout": [
+          "Spacing step: 4",
+          "Radius scale: [0, 1, 32]"
+        ],
+        "imagery": [
+          "Prefer product-first visuals, UI screenshots, sparse illustrations."
+        ],
+        "voice": [
+          "modern",
+          "medium energy",
+          "trust-forward",
+          "ops-focused"
+        ],
+        "motion": [
+          "Durations: [0]",
+          "Easing: ['ease']"
+        ]
+      }
+    },
+    {
+      "id": "prompt_pack_parallel",
+      "scope": "per_site",
+      "site_id": "parallel",
+      "brand_style_prompt": "Brand style (per_site parallel). [parallel:home:colour.primary] [parallel:home:typography.body.font_family] [parallel:home:motion.transition_durations_ms]\nPalette: primary #FB631B, secondary #858483, accent #0D6EA5.\nBackground #FFFFFF with text #000000.\nType: body gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\", headings gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\", mono FT System Mono.\nSpacing step 4; radius scale [0, 4].\n",
+      "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [parallel:home:colour.primary] [parallel:home:typography.body.font_family] [parallel:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: []).\nAccents are high-chroma but disciplined.\n",
+      "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [parallel:home:colour.primary] [parallel:home:typography.body.font_family] [parallel:home:motion.transition_durations_ms]\nMotion: [400]ms with ['ease'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+      "copywriting_prompt": "Copywriting: modern, medium energy, developer-first, direct. [parallel:home:colour.primary] [parallel:home:typography.body.font_family] [parallel:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+      "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+      "token_set": {
+        "colour": [
+          "Primary: #FB631B",
+          "Secondary: #858483",
+          "Accent: #0D6EA5",
+          "BG/Text: #FFFFFF / #000000"
+        ],
+        "type": [
+          "Body: gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\"",
+          "Headings: gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\"",
+          "Mono: FT System Mono"
+        ],
+        "layout": [
+          "Spacing step: 4",
+          "Radius scale: [0, 4]"
+        ],
+        "imagery": [
+          "Prefer product-first visuals, UI screenshots, sparse illustrations."
+        ],
+        "voice": [
+          "modern",
+          "medium energy",
+          "developer-first",
+          "direct"
+        ],
+        "motion": [
+          "Durations: [400]",
+          "Easing: ['ease']"
+        ]
+      }
+    },
+    {
+      "id": "prompt_pack_every",
+      "scope": "per_site",
+      "site_id": "every",
+      "brand_style_prompt": "Brand style (per_site every). [every:home:colour.primary] [every:home:typography.body.font_family] [every:home:motion.transition_durations_ms]\nPalette: primary #C0F0FB, secondary #FFFFFF, accent #03120F.\nBackground #020202 with text #FFFFFF.\nType: body Switzer, Signifier, \"Hoefler Text\", \"Baskerville Old Face\", Garamond, Georgia, \"Times New Roman\", serif, headings Signifier, ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif, mono None.\nSpacing step 4; radius scale [0, 4, 5].\n",
+      "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [every:home:colour.primary] [every:home:typography.body.font_family] [every:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: []).\nAccents are high-chroma but disciplined.\n",
+      "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [every:home:colour.primary] [every:home:typography.body.font_family] [every:home:motion.transition_durations_ms]\nMotion: [0]ms with ['ease'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+      "copywriting_prompt": "Copywriting: modern, medium energy, editorial, opinionated. [every:home:colour.primary] [every:home:typography.body.font_family] [every:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+      "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+      "token_set": {
+        "colour": [
+          "Primary: #C0F0FB",
+          "Secondary: #FFFFFF",
+          "Accent: #03120F",
+          "BG/Text: #020202 / #FFFFFF"
+        ],
+        "type": [
+          "Body: Switzer, Signifier, \"Hoefler Text\", \"Baskerville Old Face\", Garamond, Georgia, \"Times New Roman\", serif",
+          "Headings: Signifier, ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+          "Mono: None"
+        ],
+        "layout": [
+          "Spacing step: 4",
+          "Radius scale: [0, 4, 5]"
+        ],
+        "imagery": [
+          "Prefer product-first visuals, UI screenshots, sparse illustrations."
+        ],
+        "voice": [
+          "modern",
+          "medium energy",
+          "editorial",
+          "opinionated"
+        ],
+        "motion": [
+          "Durations: [0]",
+          "Easing: ['ease']"
+        ]
+      }
+    },
+    {
+      "id": "prompt_pack_firecrawl",
+      "scope": "per_site",
+      "site_id": "firecrawl",
+      "brand_style_prompt": "Brand style (per_site firecrawl). [firecrawl:home:colour.primary] [firecrawl:home:typography.body.font_family] [firecrawl:home:motion.transition_durations_ms]\nPalette: primary #FF4C00, secondary #FF4D00, accent #FF4C00.\nBackground #F9F9F9 with text #262626.\nType: body suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\", headings suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\", mono None.\nSpacing step 4; radius scale [5, 8, 10, 999, 9999].\n",
+      "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [firecrawl:home:colour.primary] [firecrawl:home:typography.body.font_family] [firecrawl:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: ['color(display-p3 0.9804 0.1127 0.098 / 0.2) 0px -6px 12px 0px inset, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px 2px 4px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px 1px 1px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.16) 0px 0.5px 0.5px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.2) 0px 0.25px 0.25px 0px']).\nAccents are high-chroma but disciplined.\n",
+      "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [firecrawl:home:colour.primary] [firecrawl:home:typography.body.font_family] [firecrawl:home:motion.transition_durations_ms]\nMotion: [50]ms with ['ease'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+      "copywriting_prompt": "Copywriting: modern, high energy, developer-first, direct. [firecrawl:home:colour.primary] [firecrawl:home:typography.body.font_family] [firecrawl:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+      "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+      "token_set": {
+        "colour": [
+          "Primary: #FF4C00",
+          "Secondary: #FF4D00",
+          "Accent: #FF4C00",
+          "BG/Text: #F9F9F9 / #262626"
+        ],
+        "type": [
+          "Body: suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+          "Headings: suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+          "Mono: None"
+        ],
+        "layout": [
+          "Spacing step: 4",
+          "Radius scale: [5, 8, 10, 999, 9999]"
+        ],
+        "imagery": [
+          "Prefer product-first visuals, UI screenshots, sparse illustrations."
+        ],
+        "voice": [
+          "modern",
+          "high energy",
+          "developer-first",
+          "direct"
+        ],
+        "motion": [
+          "Durations: [50]",
+          "Easing: ['ease']"
+        ]
+      }
+    },
+    {
+      "id": "prompt_pack_raycast",
+      "scope": "per_site",
+      "site_id": "raycast",
+      "brand_style_prompt": "Brand style (per_site raycast). [raycast:home:colour.primary] [raycast:home:typography.body.font_family] [raycast:home:motion.transition_durations_ms]\nPalette: primary #FF6363, secondary #9C9C9D, accent #D8ACFF.\nBackground #07080A with text #FFFFFF.\nType: body Inter, \"Inter Fallback\", sans-serif, headings Inter, \"Inter Fallback\", sans-serif, mono GeistMono.\nSpacing step 4; radius scale [0, 6, 8].\n",
+      "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [raycast:home:colour.primary] [raycast:home:typography.body.font_family] [raycast:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: []).\nAccents are high-chroma but disciplined.\n",
+      "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [raycast:home:colour.primary] [raycast:home:typography.body.font_family] [raycast:home:motion.transition_durations_ms]\nMotion: [200]ms with ['ease-in-out'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+      "copywriting_prompt": "Copywriting: modern, medium energy, polished, tool-like. [raycast:home:colour.primary] [raycast:home:typography.body.font_family] [raycast:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+      "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+      "token_set": {
+        "colour": [
+          "Primary: #FF6363",
+          "Secondary: #9C9C9D",
+          "Accent: #D8ACFF",
+          "BG/Text: #07080A / #FFFFFF"
+        ],
+        "type": [
+          "Body: Inter, \"Inter Fallback\", sans-serif",
+          "Headings: Inter, \"Inter Fallback\", sans-serif",
+          "Mono: GeistMono"
+        ],
+        "layout": [
+          "Spacing step: 4",
+          "Radius scale: [0, 6, 8]"
+        ],
+        "imagery": [
+          "Prefer product-first visuals, UI screenshots, sparse illustrations."
+        ],
+        "voice": [
+          "modern",
+          "medium energy",
+          "polished",
+          "tool-like"
+        ],
+        "motion": [
+          "Durations: [200]",
+          "Easing: ['ease-in-out']"
+        ]
+      }
+    }
+  ],
+  "composite_prompt_pack": {
+    "id": "prompt_pack_composite",
+    "scope": "composite",
+    "site_id": null,
+    "brand_style_prompt": "Brand style (composite). [parallel:home:colour.primary] [every:home:typography.headings.font_family] [raycast:home:colour.accent] [firecrawl:home:motion.transition_durations_ms]\nPalette: primary #FB631B, secondary #C0F0FB, accent #D8ACFF.\nBackground #DFDFC1 with text #0B0D0B.\nType: body Switzer, Inter, system-ui, -apple-system, sans-serif, headings Signifier, ui-serif, Georgia, serif, mono GeistMono, FT System Mono, Berkeley Mono, ui-monospace, SFMono-Regular, monospace.\nSpacing step 4; radius scale [4, 6, 8, 10, 32, 9999].\n",
+    "visual_direction_prompt": "Visual direction: crisp, engineered UI with occasional editorial moments. [parallel:home:colour.primary] [every:home:typography.headings.font_family] [raycast:home:colour.accent] [firecrawl:home:motion.transition_durations_ms]\nPrefer flat surfaces; use elevation sparingly (sample: ['0px 1px 2px rgba(0,0,0,0.05)']).\nAccents are high-chroma but disciplined.\n",
+    "ui_direction_prompt": "UI direction: compact but readable, strong hierarchy, confident CTAs. [parallel:home:colour.primary] [every:home:typography.headings.font_family] [raycast:home:colour.accent] [firecrawl:home:motion.transition_durations_ms]\nMotion: [150, 200, 400]ms with ['cubic-bezier(0.4, 0, 0.2, 1)', 'ease-in-out', 'ease'].\nFocus rings visible (not neon). Hover states subtle but obvious.\n",
+    "copywriting_prompt": "Copywriting: developer-first, direct, evidence-led, confident, polished, minimal hype, editorial when explaining. [parallel:home:colour.primary] [every:home:typography.headings.font_family] [raycast:home:colour.accent] [firecrawl:home:motion.transition_durations_ms]\nBe specific. Avoid buzzwords. Use short sentences.\nCTAs: verb-first, concrete (Get started, Try, Install, Read more).\n",
+    "negative_prompt": "Negative: generic purple-on-white SaaS, empty slogans, unjustified superlatives, cluttered components.",
+    "token_set": {
+      "colour": [
+        "Primary: #FB631B",
+        "Secondary: #C0F0FB",
+        "Accent: #D8ACFF",
+        "BG/Text: #DFDFC1 / #0B0D0B"
+      ],
+      "type": [
+        "Body: Switzer, Inter, system-ui, -apple-system, sans-serif",
+        "Headings: Signifier, ui-serif, Georgia, serif",
+        "Mono: GeistMono, FT System Mono, Berkeley Mono, ui-monospace, SFMono-Regular, monospace"
+      ],
+      "layout": [
+        "Spacing step: 4",
+        "Radius scale: [4, 6, 8, 10, 32, 9999]"
+      ],
+      "imagery": [
+        "Prefer product-first visuals, UI screenshots, sparse illustrations."
+      ],
+      "voice": [
+        "developer-first",
+        "direct",
+        "evidence-led",
+        "confident",
+        "polished",
+        "minimal hype",
+        "editorial when explaining"
+      ],
+      "motion": [
+        "Durations: [150, 200, 400]",
+        "Easing: ['cubic-bezier(0.4, 0, 0.2, 1)', 'ease-in-out', 'ease']"
+      ]
+    }
+  },
+  "provenance_map": {
+    "weights": {
+      "amp": 0.16666666666666666,
+      "coinshift": 0.16666666666666666,
+      "parallel": 0.16666666666666666,
+      "every": 0.16666666666666666,
+      "firecrawl": 0.16666666666666666,
+      "raycast": 0.16666666666666666
+    },
+    "evidence_anchor_format": "[site_id:page_id:signal_key]"
+  }
+}

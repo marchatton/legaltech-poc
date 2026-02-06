@@ -1,0 +1,1619 @@
+{
+  "run_metadata": {
+    "run_id": "brand-dna-2026-02-06",
+    "timestamp_utc": "2026-02-06T16:27:35+00:00",
+    "config": {
+      "run_id": "brand-dna-2026-02-06",
+      "timestamp_utc": "2026-02-06T16:27:35+00:00",
+      "blend_mode": "harmonise",
+      "weights": {
+        "amp": 0.16666666666666666,
+        "coinshift": 0.16666666666666666,
+        "parallel": 0.16666666666666666,
+        "every": 0.16666666666666666,
+        "firecrawl": 0.16666666666666666,
+        "raycast": 0.16666666666666666
+      },
+      "inputs": {
+        "inspiration_file": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/brand-apps-inspiration.md",
+        "selection_file": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.probe/brand-dna-2026-02-06/selection.json"
+      },
+      "sources": {
+        "firecrawl": {
+          "pages_scraped": 7
+        },
+        "parallel": {
+          "pages_extracted": 23
+        },
+        "browser_probe": {
+          "pages_probed": 8,
+          "viewports": [
+            "desktop",
+            "mobile"
+          ],
+          "media_modes": [
+            "light",
+            "dark"
+          ],
+          "states": [
+            "base",
+            "hover",
+            "focus"
+          ],
+          "probe_script": ".agents/skills/00-utilities/brand-dna-extractor/scripts/probe_css.js"
+        }
+      }
+    }
+  },
+  "per_site_tokens": [
+    {
+      "site_id": "amp",
+      "weight": 0.16666666666666666,
+      "confidence": 0.75,
+      "needs_human_review": false,
+      "tokens": {
+        "colour": {
+          "primary": "#DFDFC1",
+          "secondary": "#D0D0B4",
+          "accent": "#171917",
+          "background": "#DFDFC1",
+          "text": "#0B0D0B"
+        },
+        "typography": {
+          "body": {
+            "font_family": "system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, sans-serif",
+            "font_size": "13px",
+            "line_height": "20px",
+            "font_weight": "400"
+          },
+          "headings": {
+            "font_family": "\"Sagittaire Display\", serif",
+            "h1_size": "75.84px",
+            "letter_spacing": "-4.5504px",
+            "font_weight": "400"
+          },
+          "ui": {
+            "monospace": "Berkeley Mono"
+          }
+        },
+        "spacing": {
+          "step": 4,
+          "scale": [
+            4,
+            8,
+            12,
+            16,
+            24,
+            32,
+            48,
+            64
+          ]
+        },
+        "radius": {
+          "scale": [
+            2,
+            4,
+            6
+          ]
+        },
+        "elevation": {
+          "shadows": []
+        },
+        "motion": {
+          "transition_durations_ms": [
+            150
+          ],
+          "timing_functions": [
+            "cubic-bezier(0.4, 0, 0.2, 1)"
+          ],
+          "notes": []
+        },
+        "voice": {
+          "traits": [
+            "modern",
+            "medium energy",
+            "developer-first",
+            "direct"
+          ]
+        },
+        "components": {
+          "buttonPrimary": {
+            "background": "#171917",
+            "textColor": "#FAFAF8",
+            "borderRadius": "6px",
+            "borderRadiusCorners": {
+              "topLeft": "6px",
+              "topRight": "6px",
+              "bottomRight": "6px",
+              "bottomLeft": "6px"
+            },
+            "shadow": "none"
+          }
+        }
+      },
+      "evidence_map": {
+        "voice.traits": [
+          {
+            "type": "excerpt",
+            "page_url": "https://ampcode.com/",
+            "excerpt": "Amp is a frontier coding agent that lets you wield the full power of leading models.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/amp/home.json"
+          }
+        ],
+        "colour.primary": [
+          {
+            "type": "excerpt",
+            "page_url": "https://ampcode.com/",
+            "excerpt": "branding.colors.primary = #DFDFC1",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/amp/home.json"
+          }
+        ],
+        "colour.accent": [
+          {
+            "type": "excerpt",
+            "page_url": "https://ampcode.com/",
+            "excerpt": "branding.colors.accent/link = #171917",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/amp/home.json"
+          }
+        ],
+        "colour.background": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "body",
+            "property": "background-color",
+            "value": "rgb(223, 223, 193)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "colour.text": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "body",
+            "property": "color",
+            "value": "rgb(11, 13, 11)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.body.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "body",
+            "property": "font-family",
+            "value": "system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, sans-serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.headings.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "h1",
+            "property": "font-family",
+            "value": "\"Sagittaire Display\", serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.transition_durations_ms": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-duration",
+            "value": "0.15s",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.timing_functions": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-timing-function",
+            "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "spacing.step": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "padding",
+            "value": "4px 10px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "radius.scale": [
+          {
+            "type": "computed_style",
+            "page_url": "https://ampcode.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "border-radius",
+            "value": "4px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.hover_diff": [
+          {
+            "type": "computed_style_diff",
+            "page_url": "https://ampcode.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "color",
+            "from": "oklab(0.155891 -0.00437056 0.00303265 / 0.8)",
+            "to": "rgb(11, 13, 11)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "hover"
+          }
+        ],
+        "components.buttonPrimary.background": [
+          {
+            "type": "excerpt",
+            "page_url": "https://ampcode.com/",
+            "excerpt": "branding.components.buttonPrimary.background = #171917",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/amp/home.json"
+          }
+        ],
+        "components.buttonPrimary.borderRadius": [
+          {
+            "type": "excerpt",
+            "page_url": "https://ampcode.com/",
+            "excerpt": "branding.components.buttonPrimary.borderRadius = 6px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/amp/home.json"
+          }
+        ],
+        "elevation.shadows": [
+          {
+            "type": "excerpt",
+            "page_url": "https://ampcode.com/",
+            "excerpt": "No prominent shadows detected in sampled elements.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/amp/home.json"
+          }
+        ]
+      }
+    },
+    {
+      "site_id": "coinshift",
+      "weight": 0.16666666666666666,
+      "confidence": 0.75,
+      "needs_human_review": false,
+      "tokens": {
+        "colour": {
+          "primary": "#F0F8FF",
+          "secondary": "#FEFDFC",
+          "accent": "#FA3812",
+          "background": "#FEFDFC",
+          "text": "#000000"
+        },
+        "typography": {
+          "body": {
+            "font_family": "\"ABC ROM\", sans-serif",
+            "font_size": "16px",
+            "line_height": "20.8px",
+            "font_weight": "400"
+          },
+          "headings": {
+            "font_family": "\"ABC ROM\", sans-serif",
+            "h1_size": "82px",
+            "letter_spacing": "-3.28px",
+            "font_weight": "400"
+          },
+          "ui": {
+            "monospace": null
+          }
+        },
+        "spacing": {
+          "step": 4,
+          "scale": [
+            4,
+            8,
+            12,
+            16,
+            24,
+            32,
+            48,
+            64
+          ]
+        },
+        "radius": {
+          "scale": [
+            0,
+            1,
+            32
+          ]
+        },
+        "elevation": {
+          "shadows": []
+        },
+        "motion": {
+          "transition_durations_ms": [
+            0
+          ],
+          "timing_functions": [
+            "ease"
+          ],
+          "notes": []
+        },
+        "voice": {
+          "traits": [
+            "modern",
+            "medium energy",
+            "trust-forward",
+            "ops-focused"
+          ]
+        },
+        "components": {
+          "buttonPrimary": {
+            "background": "#181818",
+            "textColor": "#FEFDFC",
+            "borderRadius": "32px",
+            "borderRadiusCorners": {
+              "topLeft": "32px",
+              "topRight": "32px",
+              "bottomRight": "32px",
+              "bottomLeft": "32px"
+            },
+            "shadow": "none"
+          }
+        }
+      },
+      "evidence_map": {
+        "voice.traits": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.coinshift.xyz/",
+            "excerpt": "Trusted by leading teams like Perpetual Protocol, Instadapp, Gamma, Biconomy, Zapper, Pudgy Penguins, PrimeDAO and UMA. Secured by Gnosis Safe.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/coinshift/home.json"
+          }
+        ],
+        "colour.primary": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.coinshift.xyz/",
+            "excerpt": "branding.colors.primary = #F0F8FF",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/coinshift/home.json"
+          }
+        ],
+        "colour.accent": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.coinshift.xyz/",
+            "excerpt": "branding.colors.accent/link = #FA3812",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/coinshift/home.json"
+          }
+        ],
+        "colour.background": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "body",
+            "property": "background-color",
+            "value": "rgba(0, 0, 0, 0)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "colour.text": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "body",
+            "property": "color",
+            "value": "rgb(0, 0, 0)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.body.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "body",
+            "property": "font-family",
+            "value": "\"ABC ROM\", sans-serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.headings.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "h1",
+            "property": "font-family",
+            "value": "\"ABC ROM\", sans-serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.transition_durations_ms": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-duration",
+            "value": "0s",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.timing_functions": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-timing-function",
+            "value": "ease",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "spacing.step": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "padding",
+            "value": "0px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "radius.scale": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.coinshift.xyz/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "border-radius",
+            "value": "0px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "components.buttonPrimary.background": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.coinshift.xyz/",
+            "excerpt": "branding.components.buttonPrimary.background = #181818",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/coinshift/home.json"
+          }
+        ],
+        "components.buttonPrimary.borderRadius": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.coinshift.xyz/",
+            "excerpt": "branding.components.buttonPrimary.borderRadius = 32px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/coinshift/home.json"
+          }
+        ],
+        "elevation.shadows": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.coinshift.xyz/",
+            "excerpt": "No prominent shadows detected in sampled elements.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/coinshift/home.json"
+          }
+        ]
+      }
+    },
+    {
+      "site_id": "parallel",
+      "weight": 0.16666666666666666,
+      "confidence": 0.75,
+      "needs_human_review": false,
+      "tokens": {
+        "colour": {
+          "primary": "#FB631B",
+          "secondary": "#858483",
+          "accent": "#0D6EA5",
+          "background": "#FFFFFF",
+          "text": "#000000"
+        },
+        "typography": {
+          "body": {
+            "font_family": "gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\"",
+            "font_size": "16px",
+            "line_height": "24px",
+            "font_weight": "400"
+          },
+          "headings": {
+            "font_family": "gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\"",
+            "h1_size": "36px",
+            "letter_spacing": "normal",
+            "font_weight": "500"
+          },
+          "ui": {
+            "monospace": "FT System Mono"
+          }
+        },
+        "spacing": {
+          "step": 4,
+          "scale": [
+            4,
+            8,
+            12,
+            16,
+            24,
+            32,
+            48,
+            64
+          ]
+        },
+        "radius": {
+          "scale": [
+            0,
+            4
+          ]
+        },
+        "elevation": {
+          "shadows": []
+        },
+        "motion": {
+          "transition_durations_ms": [
+            400
+          ],
+          "timing_functions": [
+            "ease"
+          ],
+          "notes": []
+        },
+        "voice": {
+          "traits": [
+            "modern",
+            "medium energy",
+            "developer-first",
+            "direct"
+          ]
+        },
+        "components": {
+          "buttonPrimary": {
+            "background": "#FB631B",
+            "textColor": "#FFFFFF",
+            "borderRadius": "4px",
+            "borderRadiusCorners": {
+              "topLeft": "4px",
+              "topRight": "4px",
+              "bottomRight": "4px",
+              "bottomLeft": "4px"
+            },
+            "shadow": "none"
+          }
+        }
+      },
+      "evidence_map": {
+        "voice.traits": [
+          {
+            "type": "excerpt",
+            "page_url": "https://parallel.ai/",
+            "excerpt": "Best-in-class web search API for AI agents. Powering deep research, page extraction, enrichment, monitoring, and database creation. SOC 2 Type",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/parallel/home.json"
+          }
+        ],
+        "colour.primary": [
+          {
+            "type": "excerpt",
+            "page_url": "https://parallel.ai/",
+            "excerpt": "branding.colors.primary = #FB631B",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/parallel/home.json"
+          }
+        ],
+        "colour.accent": [
+          {
+            "type": "excerpt",
+            "page_url": "https://parallel.ai/",
+            "excerpt": "branding.colors.accent/link = #0D6EA5",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/parallel/home.json"
+          }
+        ],
+        "colour.background": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "body",
+            "property": "background-color",
+            "value": "rgba(0, 0, 0, 0)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "colour.text": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "body",
+            "property": "color",
+            "value": "rgb(0, 0, 0)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.body.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "body",
+            "property": "font-family",
+            "value": "gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\"",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.headings.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "h1",
+            "property": "font-family",
+            "value": "gerstnerProgramm, \"gerstnerProgramm Fallback\", \"sans-serif\"",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.transition_durations_ms": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-duration",
+            "value": "0.4s",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.timing_functions": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-timing-function",
+            "value": "ease",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "spacing.step": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "padding",
+            "value": "0px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "radius.scale": [
+          {
+            "type": "computed_style",
+            "page_url": "https://parallel.ai/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "border-radius",
+            "value": "0px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.hover_diff": [
+          {
+            "type": "computed_style_diff",
+            "page_url": "https://parallel.ai/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "color",
+            "from": "rgb(133, 132, 131)",
+            "to": "rgb(251, 99, 27)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "hover"
+          }
+        ],
+        "components.buttonPrimary.background": [
+          {
+            "type": "excerpt",
+            "page_url": "https://parallel.ai/",
+            "excerpt": "branding.components.buttonPrimary.background = #FB631B",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/parallel/home.json"
+          }
+        ],
+        "components.buttonPrimary.borderRadius": [
+          {
+            "type": "excerpt",
+            "page_url": "https://parallel.ai/",
+            "excerpt": "branding.components.buttonPrimary.borderRadius = 4px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/parallel/home.json"
+          }
+        ],
+        "elevation.shadows": [
+          {
+            "type": "excerpt",
+            "page_url": "https://parallel.ai/",
+            "excerpt": "No prominent shadows detected in sampled elements.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/parallel/home.json"
+          }
+        ]
+      }
+    },
+    {
+      "site_id": "every",
+      "weight": 0.16666666666666666,
+      "confidence": 0.75,
+      "needs_human_review": false,
+      "tokens": {
+        "colour": {
+          "primary": "#C0F0FB",
+          "secondary": "#FFFFFF",
+          "accent": "#03120F",
+          "background": "#020202",
+          "text": "#FFFFFF"
+        },
+        "typography": {
+          "body": {
+            "font_family": "Switzer, Signifier, \"Hoefler Text\", \"Baskerville Old Face\", Garamond, Georgia, \"Times New Roman\", serif",
+            "font_size": "15px",
+            "line_height": "22.5px",
+            "font_weight": "400"
+          },
+          "headings": {
+            "font_family": "Signifier, ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+            "h1_size": "52px",
+            "letter_spacing": "normal",
+            "font_weight": "400"
+          },
+          "ui": {
+            "monospace": null
+          }
+        },
+        "spacing": {
+          "step": 4,
+          "scale": [
+            4,
+            8,
+            12,
+            16,
+            24,
+            32,
+            48,
+            64
+          ]
+        },
+        "radius": {
+          "scale": [
+            0,
+            4,
+            5
+          ]
+        },
+        "elevation": {
+          "shadows": []
+        },
+        "motion": {
+          "transition_durations_ms": [
+            0
+          ],
+          "timing_functions": [
+            "ease"
+          ],
+          "notes": []
+        },
+        "voice": {
+          "traits": [
+            "modern",
+            "medium energy",
+            "editorial",
+            "opinionated"
+          ]
+        },
+        "components": {
+          "buttonPrimary": {
+            "background": "#C0F0FB",
+            "textColor": "#000000",
+            "borderRadius": "4px",
+            "borderRadiusCorners": {
+              "topLeft": "4px",
+              "topRight": "4px",
+              "bottomRight": "4px",
+              "bottomLeft": "4px"
+            },
+            "shadow": "none"
+          }
+        }
+      },
+      "evidence_map": {
+        "voice.traits": [
+          {
+            "type": "excerpt",
+            "page_url": "https://every.to/",
+            "excerpt": "We’ve tested both models thoroughly—here’s our head-to-head Vibe Check",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/every/home.json"
+          }
+        ],
+        "colour.primary": [
+          {
+            "type": "excerpt",
+            "page_url": "https://every.to/",
+            "excerpt": "branding.colors.primary = #C0F0FB",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/every/home.json"
+          }
+        ],
+        "colour.accent": [
+          {
+            "type": "excerpt",
+            "page_url": "https://every.to/",
+            "excerpt": "branding.colors.accent/link = #03120F",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/every/home.json"
+          }
+        ],
+        "colour.background": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "body",
+            "property": "background-color",
+            "value": "rgb(2, 2, 2)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "colour.text": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "body",
+            "property": "color",
+            "value": "rgb(255, 255, 255)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.body.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "body",
+            "property": "font-family",
+            "value": "Switzer, Signifier, \"Hoefler Text\", \"Baskerville Old Face\", Garamond, Georgia, \"Times New Roman\", serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.headings.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "h1",
+            "property": "font-family",
+            "value": "Signifier, ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.transition_durations_ms": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-duration",
+            "value": "0s",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.timing_functions": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-timing-function",
+            "value": "ease",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "spacing.step": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "padding",
+            "value": "0px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "radius.scale": [
+          {
+            "type": "computed_style",
+            "page_url": "https://every.to/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "border-radius",
+            "value": "0px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "components.buttonPrimary.background": [
+          {
+            "type": "excerpt",
+            "page_url": "https://every.to/",
+            "excerpt": "branding.components.buttonPrimary.background = #C0F0FB",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/every/home.json"
+          }
+        ],
+        "components.buttonPrimary.borderRadius": [
+          {
+            "type": "excerpt",
+            "page_url": "https://every.to/",
+            "excerpt": "branding.components.buttonPrimary.borderRadius = 4px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/every/home.json"
+          }
+        ],
+        "elevation.shadows": [
+          {
+            "type": "excerpt",
+            "page_url": "https://every.to/",
+            "excerpt": "No prominent shadows detected in sampled elements.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/every/home.json"
+          }
+        ]
+      }
+    },
+    {
+      "site_id": "firecrawl",
+      "weight": 0.16666666666666666,
+      "confidence": 0.75,
+      "needs_human_review": false,
+      "tokens": {
+        "colour": {
+          "primary": "#FF4C00",
+          "secondary": "#FF4D00",
+          "accent": "#FF4C00",
+          "background": "#F9F9F9",
+          "text": "#262626"
+        },
+        "typography": {
+          "body": {
+            "font_family": "suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+            "font_size": "16px",
+            "line_height": "24px",
+            "font_weight": "400"
+          },
+          "headings": {
+            "font_family": "suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+            "h1_size": "60px",
+            "letter_spacing": "-0.3px",
+            "font_weight": "500"
+          },
+          "ui": {
+            "monospace": null
+          }
+        },
+        "spacing": {
+          "step": 4,
+          "scale": [
+            4,
+            8,
+            12,
+            16,
+            24,
+            32,
+            48,
+            64
+          ]
+        },
+        "radius": {
+          "scale": [
+            5,
+            8,
+            10,
+            999,
+            9999
+          ]
+        },
+        "elevation": {
+          "shadows": [
+            "color(display-p3 0.9804 0.1127 0.098 / 0.2) 0px -6px 12px 0px inset, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px 2px 4px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px 1px 1px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.16) 0px 0.5px 0.5px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.2) 0px 0.25px 0.25px 0px"
+          ]
+        },
+        "motion": {
+          "transition_durations_ms": [
+            50
+          ],
+          "timing_functions": [
+            "ease"
+          ],
+          "notes": []
+        },
+        "voice": {
+          "traits": [
+            "modern",
+            "high energy",
+            "developer-first",
+            "direct"
+          ]
+        },
+        "components": {
+          "buttonPrimary": {
+            "background": "#FF4C00",
+            "textColor": "#FFFFFF",
+            "borderRadius": "10px",
+            "borderRadiusCorners": {
+              "topLeft": "10px",
+              "topRight": "10px",
+              "bottomRight": "10px",
+              "bottomLeft": "10px"
+            },
+            "shadow": "color(display-p3 0.9804 0.1127 0.098 / 0.2) 0px -6px 12px 0px inset, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px 2px 4px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px 1px 1px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.16) 0px 0.5px 0.5px 0px, color(display-p3 0.9804 0.3647 0.098 / 0.2) 0px 0.25px 0.25px 0px"
+          }
+        }
+      },
+      "evidence_map": {
+        "voice.traits": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.firecrawl.dev/",
+            "excerpt": "The web crawling, scraping, and search API for AI. Built for scale. Firecrawl delivers the entire internet to AI agents",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/firecrawl/home.json"
+          }
+        ],
+        "colour.primary": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.firecrawl.dev/",
+            "excerpt": "branding.colors.primary = #FF4C00",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/firecrawl/home.json"
+          }
+        ],
+        "colour.accent": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.firecrawl.dev/",
+            "excerpt": "branding.colors.accent/link = #FF4C00",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/firecrawl/home.json"
+          }
+        ],
+        "colour.background": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "body",
+            "property": "background-color",
+            "value": "color(display-p3 0.976471 0.976471 0.976471)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "colour.text": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "body",
+            "property": "color",
+            "value": "color(display-p3 0.14902 0.14902 0.14902)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.body.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "body",
+            "property": "font-family",
+            "value": "suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.headings.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "h1",
+            "property": "font-family",
+            "value": "suisse, \"suisse Fallback\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.transition_durations_ms": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-duration",
+            "value": "0.05s",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.timing_functions": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-timing-function",
+            "value": "ease",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "spacing.step": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "padding",
+            "value": "6px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "radius.scale": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.firecrawl.dev/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "border-radius",
+            "value": "8px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "components.buttonPrimary.background": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.firecrawl.dev/",
+            "excerpt": "branding.components.buttonPrimary.background = #FF4C00",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/firecrawl/home.json"
+          }
+        ],
+        "components.buttonPrimary.borderRadius": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.firecrawl.dev/",
+            "excerpt": "branding.components.buttonPrimary.borderRadius = 10px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/firecrawl/home.json"
+          }
+        ],
+        "elevation.shadows": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.firecrawl.dev/",
+            "excerpt": "branding.components.buttonPrimary.shadow = color(display-p3 0.9804 0.1127 0.098 / 0.2) 0px -6px 12px 0px inset, color(display-p3 0.9804 0.3647 0.098 / 0.12) 0px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/firecrawl/home.json"
+          }
+        ]
+      }
+    },
+    {
+      "site_id": "raycast",
+      "weight": 0.16666666666666666,
+      "confidence": 0.75,
+      "needs_human_review": false,
+      "tokens": {
+        "colour": {
+          "primary": "#FF6363",
+          "secondary": "#9C9C9D",
+          "accent": "#D8ACFF",
+          "background": "#07080A",
+          "text": "#FFFFFF"
+        },
+        "typography": {
+          "body": {
+            "font_family": "Inter, \"Inter Fallback\", sans-serif",
+            "font_size": "16px",
+            "line_height": "18.4px",
+            "font_weight": "400"
+          },
+          "headings": {
+            "font_family": "Inter, \"Inter Fallback\", sans-serif",
+            "h1_size": "64px",
+            "letter_spacing": "normal",
+            "font_weight": "600"
+          },
+          "ui": {
+            "monospace": "GeistMono"
+          }
+        },
+        "spacing": {
+          "step": 4,
+          "scale": [
+            4,
+            8,
+            12,
+            16,
+            24,
+            32,
+            48,
+            64
+          ]
+        },
+        "radius": {
+          "scale": [
+            0,
+            6,
+            8
+          ]
+        },
+        "elevation": {
+          "shadows": []
+        },
+        "motion": {
+          "transition_durations_ms": [
+            200
+          ],
+          "timing_functions": [
+            "ease-in-out"
+          ],
+          "notes": []
+        },
+        "voice": {
+          "traits": [
+            "modern",
+            "medium energy",
+            "polished",
+            "tool-like"
+          ]
+        },
+        "components": {
+          "buttonPrimary": {
+            "background": "#07080A",
+            "textColor": "#FFFFFF",
+            "borderRadius": "0px",
+            "borderRadiusCorners": {
+              "topLeft": "0px",
+              "topRight": "0px",
+              "bottomRight": "0px",
+              "bottomLeft": "0px"
+            },
+            "shadow": "none"
+          }
+        }
+      },
+      "evidence_map": {
+        "voice.traits": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.raycast.com/",
+            "excerpt": "A collection of powerful productivity tools all within an extendable launcher.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/raycast/home.json"
+          }
+        ],
+        "colour.primary": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.raycast.com/",
+            "excerpt": "branding.colors.primary = #FF6363",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/raycast/home.json"
+          }
+        ],
+        "colour.accent": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.raycast.com/",
+            "excerpt": "branding.colors.accent/link = #D8ACFF",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/raycast/home.json"
+          }
+        ],
+        "colour.background": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "body",
+            "property": "background-color",
+            "value": "rgb(7, 8, 10)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "colour.text": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "body",
+            "property": "color",
+            "value": "rgb(255, 255, 255)",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.body.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "body",
+            "property": "font-family",
+            "value": "Inter, \"Inter Fallback\", sans-serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "typography.headings.font_family": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "h1",
+            "property": "font-family",
+            "value": "Inter, \"Inter Fallback\", sans-serif",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.transition_durations_ms": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-duration",
+            "value": "0.2s",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "motion.timing_functions": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "transition-timing-function",
+            "value": "ease-in-out",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "spacing.step": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "padding",
+            "value": "12px 8px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "radius.scale": [
+          {
+            "type": "computed_style",
+            "page_url": "https://www.raycast.com/",
+            "selector": "[data-brandprobe=\"primary-cta\"]",
+            "property": "border-radius",
+            "value": "6px",
+            "viewport": "desktop",
+            "media_mode": "light",
+            "state": "base"
+          }
+        ],
+        "components.buttonPrimary.background": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.raycast.com/",
+            "excerpt": "branding.components.buttonPrimary.background = #07080A",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/raycast/home.json"
+          }
+        ],
+        "components.buttonPrimary.borderRadius": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.raycast.com/",
+            "excerpt": "branding.components.buttonPrimary.borderRadius = 0px",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/raycast/home.json"
+          }
+        ],
+        "elevation.shadows": [
+          {
+            "type": "excerpt",
+            "page_url": "https://www.raycast.com/",
+            "excerpt": "No prominent shadows detected in sampled elements.",
+            "path_or_url": "docs/02-guidelines/inspiration/brand-dna-2026-02-06/.firecrawl/brand-dna-2026-02-06/scrape/raycast/home.json"
+          }
+        ]
+      }
+    }
+  ],
+  "composite_tokens": {
+    "colour": {
+      "primary": "#FB631B",
+      "secondary": "#C0F0FB",
+      "accent": "#D8ACFF",
+      "background": "#DFDFC1",
+      "text": "#0B0D0B",
+      "themes": {
+        "dark": {
+          "background": "#07080A",
+          "text": "#FFFFFF",
+          "primary": "#FF4C00",
+          "secondary": "#C0F0FB",
+          "accent": "#D8ACFF"
+        }
+      }
+    },
+    "typography": {
+      "body": {
+        "font_family": "Switzer, Inter, system-ui, -apple-system, sans-serif",
+        "notes": [
+          "Blend editorial clarity (Every) with product UI crispness (Raycast/Firecrawl/Parallel)."
+        ]
+      },
+      "headings": {
+        "font_family": "Signifier, ui-serif, Georgia, serif",
+        "notes": [
+          "Allow display swap-in for hero moments: Sagittaire Display (Amp)."
+        ]
+      },
+      "ui": {
+        "monospace": "GeistMono, FT System Mono, Berkeley Mono, ui-monospace, SFMono-Regular, monospace"
+      }
+    },
+    "spacing": {
+      "step": 4,
+      "scale": [
+        4,
+        8,
+        12,
+        16,
+        24,
+        32,
+        48,
+        64
+      ]
+    },
+    "radius": {
+      "scale": [
+        4,
+        6,
+        8,
+        10,
+        32,
+        9999
+      ]
+    },
+    "elevation": {
+      "shadows": [
+        "0px 1px 2px rgba(0,0,0,0.05)",
+        "0px 8px 24px rgba(0,0,0,0.10)"
+      ]
+    },
+    "motion": {
+      "transition_durations_ms": [
+        150,
+        200,
+        400
+      ],
+      "timing_functions": [
+        "cubic-bezier(0.4, 0, 0.2, 1)",
+        "ease-in-out",
+        "ease"
+      ],
+      "notes": [
+        "Quick, tactile transitions; avoid bouncy springs unless the UI is explicitly playful."
+      ]
+    },
+    "voice_hints": {
+      "traits": [
+        "developer-first",
+        "direct",
+        "evidence-led",
+        "confident",
+        "polished",
+        "minimal hype",
+        "editorial when explaining"
+      ]
+    },
+    "provenance": {
+      "colour": {
+        "primary": "parallel",
+        "secondary": "every",
+        "accent": "raycast",
+        "background": "amp",
+        "text": "amp",
+        "themes.dark.background": "raycast",
+        "themes.dark.primary": "firecrawl"
+      }
+    }
+  },
+  "conflicts": [
+    {
+      "type": "theme_split",
+      "description": "Some sources are strongly dark-mode (Every/Raycast) while others present as light (Amp/Parallel/Firecrawl/Coinshift).",
+      "sources": [
+        "every",
+        "raycast",
+        "amp",
+        "parallel",
+        "firecrawl",
+        "coinshift"
+      ]
+    },
+    {
+      "type": "accent_clash",
+      "description": "Multiple high-chroma accents compete (orange vs purple/cyan).",
+      "sources": [
+        "coinshift",
+        "parallel",
+        "firecrawl",
+        "raycast",
+        "every"
+      ]
+    }
+  ],
+  "resolutions": [
+    {
+      "decision": "Include explicit dark theme variant, keep light theme as default.",
+      "rationale": "Preserves Raycast/Every feel without forcing all sources into a single luminance posture.",
+      "chosen_sources": [
+        "raycast",
+        "every",
+        "amp"
+      ],
+      "blend_mode": "harmonise"
+    },
+    {
+      "decision": "Assign roles: orange=primary, cyan=secondary highlight, purple=accent; enforce usage limits.",
+      "rationale": "Keeps the palette energetic but prevents rainbow UI.",
+      "chosen_sources": [
+        "parallel",
+        "every",
+        "raycast"
+      ],
+      "blend_mode": "harmonise"
+    }
+  ]
+}
