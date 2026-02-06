@@ -13,11 +13,10 @@ Purpose: package the current state so the next agent (or future you) can resume 
   - Prefer: `git rev-parse --show-toplevel`
   - Fallback: current working directory
 - Use a git-tracked handoff area so it can be reused later (including via automations):
-  - If the work is tied to a dossier under `docs/04-projects/.../<dossier>/`: write to `<dossier>/tmp/handoffs/YYYY_MM_DD/`.
-  - Otherwise (non-dossier or cross-dossier): write to `docs/98-tmp/handoffs/YYYY_MM_DD/`.
-- Create the day folder if missing.
+  - If the work is tied to a dossier under `docs/04-projects/.../<dossier>/`: write to `<dossier>/tmp-handoffs/`.
+  - Otherwise (non-dossier or cross-dossier): write to `docs/98-tmp/handoffs/`.
 - Generate filename using the handoff time:
-  - `YYYY_MM_DD_HH_MM_ss_<3-5 words>.md`
+  - `handoff_YYYY-MM-DD_HH-MM-SS_<3-5 words>.md`
   - Choose 3–5 words that describe the work or topic.
   - Prefer lowercase kebab-case for the words (avoid spaces and special characters).
 - Write the handoff checklist content into that markdown file.

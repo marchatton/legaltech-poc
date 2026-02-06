@@ -40,15 +40,15 @@ Recommended defaults:
 
 - Manual paste fallback (assemble bundle):
   - Store bundles in git-tracked `tmp/` locations so they can be reused by automations later:
-    - If the work is tied to a dossier under `docs/04-projects/.../<dossier>/`: write to `<dossier>/tmp/oracle-bundles/`.
-    - Otherwise: write to `docs/98-tmp/oracle-bundles/`.
+    - If the work is tied to a dossier under `docs/04-projects/.../<dossier>/`: write to `<dossier>/tmp-oracle/`.
+    - Otherwise: write to `docs/98-tmp/oracle/`.
   - `npx -y @steipete/oracle --render --copy -p "<task>" --file "src/**"`
   - Note: `--copy` is a hidden alias for `--copy-markdown`.
   - Save-to-file (recommended so it can be committed):
     - Dossier work:
-      - `mkdir -p "<dossier>/tmp/oracle-bundles" && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "<dossier>/tmp/oracle-bundles/$(date +%Y%m%d-%H%M%S)_oracle.md"`
+      - `mkdir -p "<dossier>/tmp-oracle" && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "<dossier>/tmp-oracle/oracle-bundle_<slug>.md"`
     - Non-dossier work:
-      - `mkdir -p docs/98-tmp/oracle-bundles && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "docs/98-tmp/oracle-bundles/$(date +%Y%m%d-%H%M%S)_oracle.md"`
+      - `mkdir -p docs/98-tmp/oracle && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "docs/98-tmp/oracle/oracle-bundle_<slug>.md"`
 
 ## Attaching files (`--file`)
 

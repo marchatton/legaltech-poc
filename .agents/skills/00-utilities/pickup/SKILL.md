@@ -11,9 +11,9 @@ Purpose: rehydrate context quickly when you start work.
 
 - If the user provides a handoff note path, read that file first.
 - Else, attempt to locate the most recent handoff note under repo root:
-  - If the work is tied to a dossier: `<dossier>/tmp/handoffs/*/*.md`
-  - Otherwise (or if unsure): `docs/04-projects/**/tmp/handoffs/*/*.md`
-  - Also check cross-dossier handoffs: `docs/98-tmp/handoffs/*/*.md`
+  - If the work is tied to a dossier: `<dossier>/tmp-handoffs/handoff_*.md`
+  - Otherwise (or if unsure): `docs/04-projects/**/tmp-handoffs/handoff_*.md`
+  - Also check cross-dossier handoffs: `docs/98-tmp/handoffs/handoff_*.md`
 - If no handoff note exists, continue with the standard pickup steps.
 
 ## Pickup steps
