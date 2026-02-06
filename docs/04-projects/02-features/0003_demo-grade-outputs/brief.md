@@ -1,59 +1,93 @@
-# Brief: Demo-grade outputs and repeatability (initiative 3)
+# Brief: Initiative 0003 — Demo-grade outputs and repeatability
 
 ## Problem / why now
-We can generate rows, but we cannot reliably show or share them. Demos are brittle, exports are missing, and regressions slip in unnoticed. This initiative makes the PoC demoable and testable with credible outputs (CSV + Word), a minimal eval harness, and repeatable demo controls.
+The PoC’s “trust spine” produces report rows with locked citations and explicit row statuses. But we can’t yet reliably *show, share, or regression-test* those outputs:
+- Demos are brittle (manual steps, unknown state, no reset path).
+- There’s no export path to produce lawyer-usable artefacts (CSV + a single Word memo).
+- Regressions in citations/retrieval/verification can slip in unnoticed until demo day.
+
+This initiative is the finishing layer that makes the PoC **demoable and repeatable** without contaminating the core workflow logic.
 
 ## Goals
-- One-click CSV exports for requirements, exceptions, and survey issues with citations and row statuses.
-- Generate a single Word artefact (memo template) from the report table.
-- Lightweight eval harness with a few metrics and a soft CI gate.
-- Demo repeatability: load known packs and reset safely (dev-only / feature-flagged).
+- **Exports (CSV + Word)** that align with the canonical API and state model:
+  - CSV exports for the 3 report artefacts.
+  - One Word export (single fixed template).
+  - Export creates stored artefacts and returns a download URL.
+- **Regression safety** via fixture-driven evals:
+  - per-pack report (JSON + Markdown summary)
+  - minimal trust metrics (schema + citation integrity + expected failure journeys)
+- **Demo repeatability controls** (dev-only / feature-flagged):
+  - load known fixture packs
+  - safe reset that cannot delete non-demo data
+  - a short demo checklist for the human operator
 
 ## Non-goals
-- Per-firm templates or tone tuning.
+- Per-firm template customisation or tone tuning.
 - Excel formatting beyond CSV.
-- Deep scoring models or full analytics dashboards.
-- Full onboarding or production-grade demo tooling.
+- Complex scoring models, dashboards, or analytics pipelines.
+- Production-grade onboarding, multi-tenant auth, SSO/RBAC, audit dashboards.
 
-## In scope (perimeter)
-- 3.1 CSV export for requirements_tracker, exceptions_table, survey_issues.
-- 3.2 Word export using one fixed memo template.
-- 3.3 Golden-set eval harness against /truth with minimal metrics.
-- 3.4 Demo reliability pack (pack selector + reset + checklist).
+## Scope / perimeter (in/out)
+In scope:
+- CSV exports for `requirements_tracker`, `exceptions_table`, `survey_issues`.
+- Word export using **one** fixed template (default: memo).
+- Artefact persistence + listing (so exports are retrievable after the fact).
+- Eval harness that compares against fixture `/truth` and emits artefacts.
+- Demo reliability pack:
+  - demo mode flag
+  - pack selector
+  - safe reset + confirmation
+  - demo checklist markdown
 
-## Out of scope (explicit)
-- Closing checklist export.
-- Multiple Word templates or template customization UI.
-- A/B testing of scoring models.
-- Production auth, multi-tenant permissions, or audit dashboards.
+Out of scope (explicit cuts):
+- “Closing checklist” export.
+- Multiple Word templates or a template editor UI.
+- Hard CI gating on nuanced quality metrics (start report-only, then gate later).
+- Any workflow that depends on external web research (explicitly out per ADR-0007).
+
+## Constraints / dependencies (load-bearing)
+- Canonical architecture contracts live in `docs/03-architecture/*` and must win:
+  - Export endpoints + error envelope: `docs/03-architecture/50_api_surface.md`
+  - Export gating rules: `docs/03-architecture/20_state_model.md`
+  - Artefact persistence shape: `docs/03-architecture/30_data_model.md`
+  - Evals posture + failure taxonomy: `docs/03-architecture/60_observability_and_evals.md`
+- This initiative assumes Initiatives 001 and 002 exist in some form:
+  - report rows with `status` and locked citations
+  - fixture packs + `/truth` exist (or will be created as part of eval harness work)
 
 ## Success (done means)
-- Exports produce stable, lawyer-usable CSVs with citations and statuses.
-- Word export produces a clean .docx with deal snapshot, requirements, exceptions, and survey issues.
-- Eval runner outputs coverage, citation validity rate, and missing_input correctness per pack.
-- Demo can be run twice in a row without manual cleanup or hidden state issues.
+- From a fixture pack, a demo operator can:
+  - export the 3 CSV artefacts and 1 Word memo
+  - see exported artefacts listed for the matter and download them
+- `fixture:eval` (or equivalent) produces:
+  - JSON report + Markdown summary per pack
+  - at minimum: schema validity + citation integrity + expected failure journeys
+- The demo can be run twice in a row without manual cleanup and without risk to non-demo data.
 
-## Constraints / dependencies
-- Initiative 1 and 2 outputs exist (rows, citations, statuses).
-- Seed packs in `docs/08-example-data` are the primary fixtures.
-- Word output uses a simple fixed template to reduce formatting risk.
-- `citation_failed` rows are excluded from exports with a warning banner by default.
-
-## Risks / unknowns (with treatment)
-| Risk | Why it matters | Treatment |
+## Top risks / unknowns (with treatment)
+| Risk / unknown | Why it matters | Treatment |
 |---|---|---|
-| CSV columns/ordering do not match practitioner expectations | Exports rejected on first use | Spike (quick paralegal check) |
-| Memo template still feels weak for demo narrative | Product story weak | Patch (tighten structure + framing copy) |
-| Docx formatting fragility | Output looks unprofessional | Patch (keep template simple) |
-| Eval metrics too shallow | False confidence | Patch (include negative tests) |
-| Demo reset risks data loss | Accidental deletion | Patch (demo-only guardrails + flag) |
+| CSV column schema usability | First practitioner reaction can kill the export story | Spike (practitioner paste test) |
+| Word template choice (memo vs objection/cure letter) | Storytelling impact for demo audience | Spike (15-minute stakeholder choice) |
+| Export behaviour when any row is `citation_failed` | Trust posture vs demo usefulness; needs a crisp default | Patch (follow state model default) + Spike (decide if demo-only override exists) |
+| Docx formatting fragility | “Looks broken” erodes trust fast | Patch (keep template simple, constrain layout) |
+| Minimal metrics that actually predict demo readiness | Avoid false confidence without building a full eval platform | Spike (3–5 metrics only) |
+| Demo reset safety | Accidental deletion is unacceptable | Patch (demo-only allowlist + explicit confirmation) |
 
 ## Open questions
-- Where do exports live: immediate download only, or stored artefacts list?
-- What is the appetite/timebox for each sub-initiative slice?
+- Export gating UX: if export is blocked (`EXPORT_BLOCKED`), what is the operator path (fix vs override)?
+- Where do fixture packs live and how are they selected/loaded (filesystem vs object storage)?
+- What’s the target appetite/timebox for each slice (CSV vs Word vs eval vs demo mode)?
 
-## PRD seams
-Each sub-initiative can be broken into multiple PRDs (2-4 each). This dossier captures the umbrella PRD plus seam recommendations.
+## PRD slicing plan (after spikes)
+Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
+
+Planned PRD dossiers (names from `docs/00-strategy/initiatives/001-003_handoff.md`):
+- `0013_csv-export`
+- `0014_word-export`
+- `0015_eval-harness`
+- `0016_demo-reliability`
 
 ## Shaping decision (GO/NO-GO)
-GO once the spikes above are executed and reviewed; otherwise NO-GO for production-facing demos.
+- GO when the listed spikes are completed (or cut), the perimeter is locked, and export gating is unambiguous.
+- NO-GO if we cannot define a thin, demo-safe export path without undermining trust defaults.
