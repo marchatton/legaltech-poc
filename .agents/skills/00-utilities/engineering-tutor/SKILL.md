@@ -40,6 +40,8 @@ description: Teach engineering concepts for real understanding using the Feynman
 - Identify weak spots; re-explain only those.
 - Use a different metaphor on retry.
 
+8) Save learnings to a markdown file in the folder defined in `/docs/AGENTS.md`
+
 ## Engineering mindset
 Include at least one: inputs/outputs, constraints, trade-offs, failure modes, why this design vs alternatives.
 
