@@ -12,6 +12,7 @@ Single place for workflow artefacts + docs outputs.
     - `03-architecture/`: up-to-date system and data architecture 
     - `05-reviews-audits/`: periodic reviews, audits, and systems compliance 
     - `06-release/`: global `CHANGELOG.md` and postmortems etc
+    - `96-engineering-tutor-learnings` a collection of learnings from `engineering-tutor` skill. 
     - `97-throwaway/`: shareable one-off artefacts (oracle bundles, exports). Synced to GitHub
     - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
   - Resources:
