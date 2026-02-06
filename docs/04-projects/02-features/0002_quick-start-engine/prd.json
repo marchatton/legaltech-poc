@@ -1,0 +1,288 @@
+{
+  "project": "Quick Start Engine (Initiative 002)",
+  "branchName": "codex/quick-start-engine",
+  "description": "PRD slices derived from breadboards 2.1–2.6 for a deterministic Quick Start pipeline.",
+  "userStories": [
+    {
+      "id": "S-2.1A",
+      "title": "Question set JSON + versioning",
+      "description": "As an operator, I can load a fixed question set (<=25) with stable IDs and a version tag.",
+      "acceptanceCriteria": [
+        "Question set v1 has <=25 questions with stable IDs",
+        "Version tag is included in run metadata",
+        "Running pack_01_clean produces one row per question_id"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.1B",
+      "title": "Row schema + migrations",
+      "description": "As an operator, row schema is stable and migrations preserve data.",
+      "acceptanceCriteria": [
+        "Row schema includes question_id, question, answer, citations[], status, confidence?, docs_searched[]",
+        "Schema validation passes for pack_01_clean rows",
+        "Migration leaves existing rows readable"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.1C",
+      "title": "UI table columns + row drawer layout",
+      "description": "As a user, I can view fixed columns and open a row drawer with citations.",
+      "acceptanceCriteria": [
+        "Row table renders fixed columns for pack_01_clean",
+        "Row drawer shows answer and citations",
+        "Citation click opens viewer at cited location"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.2A",
+      "title": "Commitment doc-type classifier + parser routing",
+      "description": "As the system, I can classify commitment docs and route them to the parser.",
+      "acceptanceCriteria": [
+        "Commitment docs in pack_01_clean and pack_04_multi_parcel_complex route to parser",
+        "Unknown doc types are flagged as needs_review"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.2B",
+      "title": "B-I extraction logic (requirements)",
+      "description": "As an operator, I can extract B-I requirements with item numbers.",
+      "acceptanceCriteria": [
+        "pack_01_clean yields requirements list matching truth key fields",
+        "pack_04_multi_parcel_complex yields requirements list with item numbers",
+        "Missing section sets needs_review"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.2C",
+      "title": "B-II extraction logic (exceptions)",
+      "description": "As an operator, I can extract B-II exceptions with item numbers and refs.",
+      "acceptanceCriteria": [
+        "pack_01_clean yields exceptions list matching truth key fields",
+        "pack_04_multi_parcel_complex yields exceptions with recording refs",
+        "Missing refs set needs_review"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.2D",
+      "title": "Parser confidence UI + override notes",
+      "description": "As a user, I can see parser confidence and add override notes.",
+      "acceptanceCriteria": [
+        "pack_06_noisy_scans_rotated_page shows low confidence badges",
+        "Override notes persist on row updates"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.3A",
+      "title": "Instrument matching service",
+      "description": "As a user, exceptions link to the correct instrument PDFs with ambiguity surfaced.",
+      "acceptanceCriteria": [
+        "pack_01_clean exceptions link to correct PDFs",
+        "pack_05_duplicate_instrument_exhibit_missing surfaces needs_review for duplicates"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.3B",
+      "title": "Exception summary extractor",
+      "description": "As a user, I can read a short exception summary with citations.",
+      "acceptanceCriteria": [
+        "pack_01_clean summaries include citations",
+        "Missing exhibit in pack_05_duplicate_instrument_exhibit_missing is flagged"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.3C",
+      "title": "Risk tagging rubric",
+      "description": "As a user, exceptions are tagged with basic risk categories.",
+      "acceptanceCriteria": [
+        "pack_01_clean exceptions receive at least one tag",
+        "Tags render in row drawer"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.3D",
+      "title": "Ambiguity UI + user selection",
+      "description": "As a user, I can choose the correct instrument when multiple matches exist.",
+      "acceptanceCriteria": [
+        "pack_05_duplicate_instrument_exhibit_missing surfaces multiple matches",
+        "User selection updates the row and clears ambiguity badge"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.4A",
+      "title": "Survey doc-type classifier + extraction routing",
+      "description": "As the system, I can identify survey docs and route them to the parser.",
+      "acceptanceCriteria": [
+        "pack_01_clean and pack_06_noisy_scans_rotated_page surveys route to parser",
+        "Non-survey docs are ignored with a logged reason"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.4B",
+      "title": "Certification extraction",
+      "description": "As a user, I can see certification parties, surveyor, and date.",
+      "acceptanceCriteria": [
+        "pack_01_clean shows certification parties and date",
+        "pack_03_mismatch_and_cert_gap flags missing certification party"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.4C",
+      "title": "Callout extraction",
+      "description": "As a user, I can see survey callouts with citations.",
+      "acceptanceCriteria": [
+        "pack_01_clean yields at least 3 callouts with citations",
+        "pack_06_noisy_scans_rotated_page yields at least 3 callouts with citations"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.4D",
+      "title": "Survey extraction quality indicator",
+      "description": "As a user, I can see when survey extraction is low quality.",
+      "acceptanceCriteria": [
+        "Low signal in pack_06_noisy_scans_rotated_page shows quality badge",
+        "Quality badge appears in row list and drawer"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.5A",
+      "title": "Reconciliation rules engine",
+      "description": "As the system, I can compare exceptions to survey evidence and emit a status.",
+      "acceptanceCriteria": [
+        "pack_01_clean emits depicted/not depicted/unknown statuses",
+        "pack_05_duplicate_instrument_exhibit_missing flags incomplete plotting"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.5B",
+      "title": "Issues list generator",
+      "description": "As a user, I can view a reconciliation issues list with citations.",
+      "acceptanceCriteria": [
+        "pack_01_clean issues list includes citations when available",
+        "Issues list includes status and category fields"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.5C",
+      "title": "Reconciliation issues UI",
+      "description": "As a user, I can filter and review reconciliation issues.",
+      "acceptanceCriteria": [
+        "Filters work on pack_01_clean issues list",
+        "Clicking an issue opens drawer with dual citations"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.5D",
+      "title": "Unknown handling + guidance copy",
+      "description": "As a user, I understand why a reconciliation row is unknown and what to do.",
+      "acceptanceCriteria": [
+        "Unknown rows show guidance copy in drawer",
+        "pack_05_duplicate_instrument_exhibit_missing produces unknowns when evidence is weak"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.6A",
+      "title": "Runs API + run state model",
+      "description": "As a user, I can start a run and see its state progress.",
+      "acceptanceCriteria": [
+        "pack_01_clean run transitions through states",
+        "pack_02_missing_rea fails gracefully with failed state"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.6B",
+      "title": "Worker job runner + step model",
+      "description": "As the system, I execute deterministic steps for each run.",
+      "acceptanceCriteria": [
+        "Steps execute in order for pack_01_clean",
+        "Step progress is persisted and viewable in UI"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.6C",
+      "title": "Incremental UI updates (polling/SSE)",
+      "description": "As a user, I see rows appear progressively during a run.",
+      "acceptanceCriteria": [
+        "pack_01_clean rows appear incrementally without full refresh",
+        "Run progress updates within a bounded interval"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "S-2.6D",
+      "title": "Row upsert behavior + provenance stamping",
+      "description": "As an operator, restarting a run does not duplicate rows and retains provenance.",
+      "acceptanceCriteria": [
+        "Restarting pack_01_clean run does not duplicate rows",
+        "Snippet hashes remain stable across retries"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
