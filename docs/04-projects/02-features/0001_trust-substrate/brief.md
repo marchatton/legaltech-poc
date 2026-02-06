@@ -50,7 +50,7 @@ This work is the foundation for Initiatives 002 (Quick Start engine) and 003 (de
 
 ## Constraints / guardrails (must align with `docs/03-architecture`)
 - Terminology: **Folder** is API/DB; UI calls it **Matter**. (`docs/03-architecture/20_state_model.md`)
-- Evidence-first + citation locking (ADR-0001) and fail-closed verification (ADR-0002). (`docs/03-architecture/decisions.md`)
+- Evidence-first + citation locking (ADR-0001) and fail-closed verification (ADR-0002). (`docs/03-architecture/DECISIONS.md`)
 - No external web research (ADR-0007).
 - API error envelope; do not leak internals. (`docs/03-architecture/50_api_surface.md`, `docs/03-architecture/AGENTS.md`)
 - Validate inputs at boundaries with Zod; client/server module boundaries must remain clean. (`apps/web/AGENTS.md`)

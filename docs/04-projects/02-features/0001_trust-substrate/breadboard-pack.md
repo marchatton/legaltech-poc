@@ -9,7 +9,7 @@
 - Canonical references:
   - State invariants: `docs/03-architecture/20_state_model.md`
   - API contracts: `docs/03-architecture/50_api_surface.md`
-  - Trust ADRs: `docs/03-architecture/decisions.md`
+  - Trust ADRs: `docs/03-architecture/DECISIONS.md`
 
 ## Current state
 

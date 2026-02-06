@@ -6,7 +6,7 @@
   - Updated shaping packet docs under `docs/04-projects/02-features/0001_trust-substrate/` to align with architecture contracts (Folders API naming, state model, packs list).
   - Deleted `docs/04-projects/02-features/0001_trust-substrate/prd.md` and `docs/04-projects/02-features/0001_trust-substrate/prd.json`.
   - Created a manual “oracle render” bundle for Spike RH2 (highlight overlay transform) at:
-    - `tmp/oracle-bundles/oracle_bundle_0001_trust-substrate_RH2_highlight-overlay.md`
+    - `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
 - Pending:
   - Execute the spikes in `docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md` (especially RH2).
   - After spikes are closed, slice PRDs per `docs/00-strategy/initiatives/prd-slicing-rules.md`.
@@ -22,7 +22,7 @@
  M .agents/skills/02-shape/wf-shape/SKILL.md
  M .gitignore
  M docs/02-guidelines/AGENTS.md
- M docs/03-architecture/decisions.md
+ M docs/03-architecture/DECISIONS.md
  M docs/AGENTS.md
 ?? docs/02-guidelines/inspiration/brand-dna-2026-02-06/brand_guidelines.md
 ?? docs/02-guidelines/inspiration/brand-dna-2026-02-06/design_tokens.json
@@ -66,7 +66,7 @@ Relevant commit for this thread:
   - `docs/04-projects/02-features/0001_trust-substrate/risk-register.md`
   - `docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md`
 - Run Spike RH2 (highlight overlay transform). Use the manual oracle bundle to get an external review:
-  - Paste `tmp/oracle-bundles/oracle_bundle_0001_trust-substrate_RH2_highlight-overlay.md` into ChatGPT Pro.
+  - Paste `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md` into ChatGPT Pro.
 - Capture spike results back into `docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md` (add a “report” section per spike).
 - Once spikes are closed (or cut/patch decided), slice thin PRDs from the breadboard parts list.
 

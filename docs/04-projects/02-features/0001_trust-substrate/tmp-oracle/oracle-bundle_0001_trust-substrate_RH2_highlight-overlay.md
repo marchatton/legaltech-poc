@@ -21,7 +21,7 @@ Stay aligned to repo docs: evidence-first citation locking, fail-closed posture,
 - docs/03-architecture/10_system_architecture.md
 - docs/03-architecture/50_api_surface.md
 - docs/03-architecture/30_data_model.md
-- docs/03-architecture/decisions.md
+- docs/03-architecture/DECISIONS.md
 - docs/08-example-data/packs_summary.md
 - apps/web/AGENTS.md
 
@@ -82,7 +82,7 @@ This work is the foundation for Initiatives 002 (Quick Start engine) and 003 (de
 
 ## Constraints / guardrails (must align with `docs/03-architecture`)
 - Terminology: **Folder** is API/DB; UI calls it **Matter**. (`docs/03-architecture/20_state_model.md`)
-- Evidence-first + citation locking (ADR-0001) and fail-closed verification (ADR-0002). (`docs/03-architecture/decisions.md`)
+- Evidence-first + citation locking (ADR-0001) and fail-closed verification (ADR-0002). (`docs/03-architecture/DECISIONS.md`)
 - No external web research (ADR-0007).
 - API error envelope; do not leak internals. (`docs/03-architecture/50_api_surface.md`, `docs/03-architecture/AGENTS.md`)
 - Validate inputs at boundaries with Zod; client/server module boundaries must remain clean. (`apps/web/AGENTS.md`)
@@ -131,7 +131,7 @@ NO-GO until spike items in `spike-investigation.md` are executed and oracle-revi
 - Canonical references:
   - State invariants: `docs/03-architecture/20_state_model.md`
   - API contracts: `docs/03-architecture/50_api_surface.md`
-  - Trust ADRs: `docs/03-architecture/decisions.md`
+  - Trust ADRs: `docs/03-architecture/DECISIONS.md`
 
 ## Current state
 
@@ -583,9 +583,9 @@ Throw away:
 No spike reports yet. After each spike, add a report section and run an oracle pass.
 
 ## Oracle bundles
-When you run an oracle pass, create a `--render` bundle in `tmp/oracle-bundles/` so it can be pasted into ChatGPT Pro.
+When you run an oracle pass, create a `--render` bundle in `tmp-oracle/` so it can be pasted into ChatGPT Pro.
 
-- RH2 (highlight overlay transform): `tmp/oracle-bundles/oracle_bundle_0001_trust-substrate_RH2_highlight-overlay.md`
+- RH2 (highlight overlay transform): `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
 
 ````
 
@@ -633,7 +633,7 @@ Every material claim must have citations or â€œNot found in provided documents.â
 - Deterministic-ish orchestration: explicit step machine, not free-running agents
 - Fixture-driven reliability: synthetic packs + truth files used in CI-style evals
 
-Canonical ADRs for these defaults live in `docs/03-architecture/decisions.md` (append-only).
+Canonical ADRs for these defaults live in `docs/03-architecture/DECISIONS.md` (append-only).
 
 ## Where RAG fits
 RAG is the engine inside Quick Start:
@@ -1093,7 +1093,7 @@ This rule must be implemented once (e.g. in `packages/core/citations`) and reuse
 
 ---
 
-## File: docs/03-architecture/decisions.md
+## File: docs/03-architecture/DECISIONS.md
 
 ````md
 # Architecture decisions (ADRs)

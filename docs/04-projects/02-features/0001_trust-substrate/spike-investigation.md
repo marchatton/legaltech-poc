@@ -245,6 +245,6 @@ Throw away:
 No spike reports yet. After each spike, add a report section and run an oracle pass.
 
 ## Oracle bundles
-When you run an oracle pass, create a `--render` bundle in `tmp/oracle-bundles/` so it can be pasted into ChatGPT Pro.
+When you run an oracle pass, create a `--render` bundle in `tmp-oracle/` so it can be pasted into ChatGPT Pro.
 
-- RH2 (highlight overlay transform): `tmp/oracle-bundles/oracle_bundle_0001_trust-substrate_RH2_highlight-overlay.md`
+- RH2 (highlight overlay transform): `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
