@@ -15,6 +15,7 @@ Single place for workflow artefacts + docs outputs.
     - `10-tmp/`: scratch space (should be moved or deleted). Synced to Github
   - Resources:
     - `01-insights/`: reports, summaries and raw transcripts covering customers, competitors, capabilities (internal) and tech-market trends.
+    - `08-example-data/` contains worked examples with synthetic yet realistic data.
     - `02-guidelines/`: brand-tone (storytelling and visual) incl inspiration.
   - Archive: 
     - `99-archive/` - mirrors (00..10) for closed work + old context
