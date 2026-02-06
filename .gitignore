@@ -1,6 +1,12 @@
 # Onboarding defaults
 /node_modules/
 
+# Env files (never commit secrets)
+.env
+.env.*
+!.env.example
+!.env.template
+
 # Local-only scratch
 **/*throwaway*/
 /.agents/skills/00-product-sense/
