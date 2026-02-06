@@ -10,7 +10,7 @@ This pack is the wiring diagram and parts list for Initiative 002. It is intenti
   - `docs/03-architecture/06_frameworks_agents_rag_evals.md` (WDK conventions)
   - `docs/03-architecture/20_state_model.md` (status invariants)
   - `docs/03-architecture/30_data_model.md` (citation locking + hashing)
-  - `docs/03-architecture/decisions.md` (ADRs)
+  - `docs/03-architecture/DECISIONS.md` (ADRs)
 
 Dependencies:
 - Initiative 001 ("trust substrate") provides viewer, citation locking, and fail-closed verification primitives. Initiative 002 consumes them.

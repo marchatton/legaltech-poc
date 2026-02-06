@@ -1,8 +1,9 @@
-🧿 oracle 0.8.5 — Quiet prompt, thunderous answers.
-[SYSTEM]
-You are Oracle, a focused one-shot problem solver. Emphasize direct answers and cite any files referenced.
+# Oracle Bundle (Manual Paste)
 
-[USER]
+Paste this entire file into ChatGPT Pro as one message.
+
+## Prompt
+
 Review this shaping packet for Initiative 002 (Quick Start Engine: Title + Survey -> 3 artefacts).
 
 Goal: improve the shaping artefacts (brief, breadboard, risk register, spikes) so the packet is de-risked and ready for PRD creation later.
@@ -20,8 +21,11 @@ What to produce:
 
 Keep suggestions implementable and specific (avoid generic advice).
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/brief.md
-```md
+## Attached Files
+
+### docs/04-projects/02-features/0002_quick-start-engine/brief.md
+
+````md
 # Project Brief (1-2 pager)
 
 **Initiative 002: Quick Start Engine (Title + Survey -> 3 artefacts)**
@@ -37,7 +41,7 @@ Source docs (canonical):
 - `docs/03-architecture/00_overview.md`
 - `docs/03-architecture/20_state_model.md`
 - `docs/03-architecture/30_data_model.md`
-- `docs/03-architecture/decisions.md`
+- `docs/03-architecture/DECISIONS.md`
 
 Dependencies:
 - Initiative 001 ("trust substrate") must exist for citation locking, fail-closed verification, and viewer jump-to-evidence.
@@ -134,9 +138,10 @@ Biggest items to resolve before PRDs:
   - We have a credible question set v1
   - We have a clear artefact representation decision (rows vs tables)
   - We can pass the fixture-driven spikes on parsing/matching/survey extraction/idempotency
-```
+````
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md
+### docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md
+
 ````md
 # Breadboard Pack - Quick Start Engine (Initiative 002)
 
@@ -150,7 +155,7 @@ This pack is the wiring diagram and parts list for Initiative 002. It is intenti
   - `docs/03-architecture/06_frameworks_agents_rag_evals.md` (WDK conventions)
   - `docs/03-architecture/20_state_model.md` (status invariants)
   - `docs/03-architecture/30_data_model.md` (citation locking + hashing)
-  - `docs/03-architecture/decisions.md` (ADRs)
+  - `docs/03-architecture/DECISIONS.md` (ADRs)
 
 Dependencies:
 - Initiative 001 ("trust substrate") provides viewer, citation locking, and fail-closed verification primitives. Initiative 002 consumes them.
@@ -461,8 +466,9 @@ Cuts / out of bounds:
 - No freeform chat.
 ````
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/risk-register.md
-```md
+### docs/04-projects/02-features/0002_quick-start-engine/risk-register.md
+
+````md
 # Risk register (rabbit holes)
 
 Use this during shaping to capture tail risks and choose mitigations (Cut / Patch / Spike / Out-of-bounds).
@@ -486,10 +492,11 @@ Key rule (per `docs/00-strategy/initiatives/001-003_depedency_plan.md`):
 Notes:
 - Status for report rows must follow `docs/03-architecture/20_state_model.md` (do not invent new row statuses).
 - "Unknown" belongs as an item-level classification inside a row payload, not as a report-row status.
-```
+````
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md
-```md
+### docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md
+
+````md
 # Spike investigation - Quick Start Engine (Initiative 002)
 
 This doc captures planned spikes for the rabbit holes in `risk-register.md`.
@@ -745,10 +752,12 @@ Constraints:
 - Decision:
 - Why:
 - Follow-up schema/UX implications:
-```
 
-### File: docs/00-strategy/initiatives/initiative-overview-001-002-003.md
-```md
+````
+
+### docs/00-strategy/initiatives/initiative-overview-001-002-003.md
+
+````md
 # Initiative map — Orbital Copilot PoC (US CRE Title + Survey Quick Start)
 
 ## Assumptions used for this breakdown (can be changed later)
@@ -831,10 +840,11 @@ These are finishing moves that protect against context rot and brittle demos. Th
 - “It works on my laptop” syndrome
 - Regression in citations/retrieval that no-one notices until demo day
 - Export producing unusable junk that lawyers reject instantly
-```
+````
 
-### File: docs/00-strategy/initiatives/002-quick-start-engine.md
-```md
+### docs/00-strategy/initiatives/002-quick-start-engine.md
+
+````md
 # Initiative 2: Quick Start engine (Title + Survey → 3 artefacts)
 
 ## 2.1 Question set v1 + report schema freeze (what rows exist, what columns exist)
@@ -1002,10 +1012,11 @@ Implement the Quick Start run worker that executes the pipeline deterministicall
 2) PRD: Worker job runner + step model  
 3) PRD: Incremental UI updates (polling or server-sent events)  
 4) PRD: Row upsert behaviour + provenance stamping
-```
+````
 
-### File: docs/00-strategy/initiatives/001-003_depedency_plan.md
-```md
+### docs/00-strategy/initiatives/001-003_depedency_plan.md
+
+````md
 # Dependency graph and ordering recommendation
 
 ## Process rule
@@ -1066,10 +1077,11 @@ Note: Do not PRD-slice this demo until the breadboards for 1.1–1.3 are complet
 - Survey parsing reliability (text vs visual callouts).
 - Exception-to-instrument matching (duplicate instrument numbers, missing exhibits).
 - Verification rubric (avoiding false passes).
-```
+````
 
-### File: docs/03-architecture/00_overview.md
-```md
+### docs/03-architecture/00_overview.md
+
+````md
 # Orbital Copilot PoC Architecture
 US CRE Title + Survey Quick Start (evidence-first, artefact-first)
 
@@ -1109,7 +1121,7 @@ Every material claim must have citations or “Not found in provided documents.�
 - Deterministic-ish orchestration: explicit step machine, not free-running agents
 - Fixture-driven reliability: synthetic packs + truth files used in CI-style evals
 
-Canonical ADRs for these defaults live in `docs/03-architecture/decisions.md` (append-only).
+Canonical ADRs for these defaults live in `docs/03-architecture/DECISIONS.md` (append-only).
 
 ## Where RAG fits
 RAG is the engine inside Quick Start:
@@ -1128,10 +1140,11 @@ Evals are first-class because trust is the product:
 See:
 - `docs/03-architecture/05_tech_stack_and_dev_workflow.md` for stack, dev workflow, and fixtures
 - `docs/03-architecture/06_frameworks_agents_rag_evals.md` for framework options and why we chose Workflow DevKit
-```
+````
 
-### File: docs/03-architecture/06_frameworks_agents_rag_evals.md
-```md
+### docs/03-architecture/06_frameworks_agents_rag_evals.md
+
+````md
 # Frameworks, agents, RAG, and evals
 
 This doc answers:
@@ -1277,10 +1290,11 @@ Must be real early:
 - citation object contract and snippet hashing rules
 - fail-closed verification and row status transitions
 - missing-doc behaviour and explicit “not found” outputs
-```
+````
 
-### File: docs/03-architecture/20_state_model.md
-```md
+### docs/03-architecture/20_state_model.md
+
+````md
 # State model
 
 This doc defines the state machines and invariants for the PoC. Keep this as the canonical reference and link to it from other docs.
@@ -1388,9 +1402,10 @@ User-driven transitions:
 
 Export gating (PoC defaults):
 - If any row in the selected run is `citation_failed`, export returns an error unless an explicit override flag is provided.
-```
+````
 
-### File: docs/03-architecture/30_data_model.md
+### docs/03-architecture/30_data_model.md
+
 ````md
 # Data model (Postgres + pgvector)
 
@@ -1488,7 +1503,8 @@ This rule must be implemented once (e.g. in `packages/core/citations`) and reuse
 - index `runs.folder_id`
 ````
 
-### File: docs/03-architecture/decisions.md
+### docs/03-architecture/DECISIONS.md
+
 ````md
 # Architecture decisions (ADRs)
 
@@ -1662,7 +1678,7 @@ Links
 - Related docs: `docs/03-architecture/50_api_surface.md`, `docs/03-architecture/AGENTS.md`
 
 ## ADR-0009: Deployment posture is Hetzner-first (single VM) until proven otherwise
-- Status: accepted
+- Status: proposed
 - Date: 2026-02-06
 
 Context
@@ -1703,7 +1719,7 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/storage.md`
 
 ## ADR-0011: Postgres is the primary datastore (local compose; Hetzner in deploy)
-- Status: accepted
+- Status: proposed
 - Date: 2026-02-06
 
 Context
@@ -1742,7 +1758,7 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/ocr.md`
 
 ## ADR-0013: LLM access is via an internal router; gateway is optional
-- Status: accepted
+- Status: proposed
 - Date: 2026-02-06
 
 Context
@@ -1806,8 +1822,9 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/deployment.md`, `docs/98-tmp/2026-02-06_infra-investigation/recommended-stack.md`
 ````
 
-### File: docs/08-example-data/packs_summary.md
-```md
+### docs/08-example-data/packs_summary.md
+
+````md
 # Synthetic PoC Test Packs Summary
 
 | Pack | State | Scenario | Edge cases | Missing docs | Docs |
@@ -1820,4 +1837,4 @@ Links
 | `pack_06_overlapping_easements` | GA | Multiple utility easements with similar naming and different instrument numbers; one instrument references a missing Exhibit B attachment; tests disambiguation and missing-attachment handling. | overlapping_similar_exceptions;missing_attachment | Utility_Easement_10ft_ExhibitB.pdf | 5 |
 | `pack_07_scans_rotated_low_quality` | NJ | OCR torture pack: scanned-only commitment + survey with rotated pages and blur; tests extraction-quality metering and rerun OCR flows. | scanned_rotated;low_quality_ocr | - | 7 |
 | `pack_08_defined_terms_and_cross_refs` | WA | CC&Rs/REA with defined terms and exhibit chase (e.g., 'Easement Area' defined elsewhere; REA references Exhibit C site plan); tests multi-hop retrieval and definition resolver. | defined_terms;exhibit_chase | - | 6 |
-```
+````

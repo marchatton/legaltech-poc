@@ -13,7 +13,7 @@ Source docs (canonical):
 - `docs/03-architecture/00_overview.md`
 - `docs/03-architecture/20_state_model.md`
 - `docs/03-architecture/30_data_model.md`
-- `docs/03-architecture/decisions.md`
+- `docs/03-architecture/DECISIONS.md`
 
 Dependencies:
 - Initiative 001 ("trust substrate") must exist for citation locking, fail-closed verification, and viewer jump-to-evidence.

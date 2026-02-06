@@ -27,7 +27,7 @@ Time: 2026-02-06 17:34:56 (local)
  M .agents/skills/00-utilities/oracle/SKILL.md
  M .agents/skills/02-shape/wf-shape/SKILL.md
  M .gitignore
- M docs/03-architecture/decisions.md
+ M docs/03-architecture/DECISIONS.md
  M docs/AGENTS.md
 ?? docs/02-guidelines/inspiration/brand-dna-2026-02-06/brand_guidelines.md
 ?? docs/02-guidelines/inspiration/brand-dna-2026-02-06/design_tokens.json
@@ -65,8 +65,8 @@ af4d61c chore: ignore .env files
 2. Run spikes in order (suggested): SP-2.7 payload representation -> SP-2.2 parsing -> SP-2.3 matching -> SP-2.4 survey -> SP-2.5 reconciliation -> SP-2.6 idempotency -> SP-2.1 practitioner review.
 3. After each spike, fill the report stub and update `brief.md` / `breadboard-pack.md` / `risk-register.md`.
 4. If you want an Oracle "manual paste" bundle for ChatGPT Pro:
-  - Oracle CLI render (ready to paste): `docs/04-projects/02-features/0002_quick-start-engine/tmp/oracle-bundles/oracle_bundle_wf-shape_0002_2026-02-06_oracle-cli.md`
-  - Manual fallback: `docs/04-projects/02-features/0002_quick-start-engine/tmp/oracle-bundles/oracle_bundle_wf-shape_0002_2026-02-06.md`
+  - Oracle CLI render (ready to paste): `docs/04-projects/02-features/0002_quick-start-engine/tmp-oracle/oracle-bundle_0002_quick-start-engine_wf-shape_2026-02-06_oracle-cli.md`
+  - Manual fallback: `docs/04-projects/02-features/0002_quick-start-engine/tmp-oracle/oracle-bundle_0002_quick-start-engine_wf-shape_2026-02-06.md`
 5. Once GO criteria in `brief.md` are met, proceed to `wf-plan` (or create PRDs if explicitly desired).
 
 ## 7) Risks/gotchas
