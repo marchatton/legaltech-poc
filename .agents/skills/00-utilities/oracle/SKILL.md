@@ -46,7 +46,7 @@ Recommended defaults:
   - Note: `--copy` is a hidden alias for `--copy-markdown`.
   - Save-to-file (recommended so it can be committed):
     - Dossier work:
-      - `mkdir -p tmp/oracle-bundles && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "tmp/oracle-bundles/$(date +%Y%m%d-%H%M%S)_oracle.md"`
+      - `mkdir -p "<dossier>/tmp/oracle-bundles" && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "<dossier>/tmp/oracle-bundles/$(date +%Y%m%d-%H%M%S)_oracle.md"`
     - Non-dossier work:
       - `mkdir -p docs/98-tmp/oracle-bundles && npx -y @steipete/oracle --render -p "<task>" --file "src/**" > "docs/98-tmp/oracle-bundles/$(date +%Y%m%d-%H%M%S)_oracle.md"`
 
