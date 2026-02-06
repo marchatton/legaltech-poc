@@ -187,7 +187,7 @@ Consequences
 
 Links
 - Related docs: `docs/03-architecture/10_system_architecture.md`, `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
-- Investigation: `docs/97-throwaway/2026-02-06_infra-investigation/deployment.md`
+- Investigation: `docs/98-tmp/2026-02-06_infra-investigation/deployment.md`
 
 ## ADR-0010: Use S3-compatible object storage as the baseline
 - Status: proposed
@@ -208,7 +208,7 @@ Consequences
 
 Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
-- Investigation: `docs/97-throwaway/2026-02-06_infra-investigation/storage.md`
+- Investigation: `docs/98-tmp/2026-02-06_infra-investigation/storage.md`
 
 ## ADR-0011: Postgres is the primary datastore (local compose; Hetzner in deploy)
 - Status: proposed
@@ -247,7 +247,7 @@ Consequences
 
 Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`, `docs/03-architecture/40_rag_and_agents.md`
-- Investigation: `docs/97-throwaway/2026-02-06_infra-investigation/ocr.md`
+- Investigation: `docs/98-tmp/2026-02-06_infra-investigation/ocr.md`
 
 ## ADR-0013: LLM access is via an internal router; gateway is optional
 - Status: proposed
@@ -267,7 +267,7 @@ Consequences
 
 Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
-- Investigation: `docs/97-throwaway/2026-02-06_infra-investigation/llm-gateways.md`
+- Investigation: `docs/98-tmp/2026-02-06_infra-investigation/llm-gateways.md`
 
 ## ADR-0014: Create a minimal runnable scaffold to validate the architecture
 - Status: proposed

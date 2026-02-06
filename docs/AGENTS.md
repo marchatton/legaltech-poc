@@ -13,8 +13,10 @@ Single place for workflow artefacts + docs outputs.
     - `05-reviews-audits/`: periodic reviews, audits, and systems compliance 
     - `06-release/`: global `CHANGELOG.md` and postmortems etc
     - `96-engineering-tutor-learnings` a collection of learnings from `engineering-tutor` skill. 
-    - `97-throwaway/`: shareable one-off artefacts (oracle bundles, exports). Synced to GitHub
+    - `97-throwaway/`: local-only scratch space (NOT synced to GitHub)
     - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
+      - `98-tmp/oracle-bundles/`: oracle `--render` bundles for non-dossier work
+      - `98-tmp/handoffs/`: handoff notes for non-dossier or cross-dossier work
   - Resources:
     - `01-insights/`: reports, summaries and raw transcripts covering customers, competitors, capabilities (internal) and tech-market trends.
     - `08-example-data/` contains worked examples with synthetic yet realistic data.

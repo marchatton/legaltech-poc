@@ -76,5 +76,5 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 ## 9) Contributing hygiene
 - [ ] Append non-trivial learnings to `docs/LEARNINGS.md`.
 - [ ] ADRs are append-only in `docs/03-architecture/decisions.md` (link the PR).
-- [ ] Shareable one-offs go in `docs/97-throwaway/` and local-only one-offs go in root `throwaway/`.
-
+- [ ] Oracle bundles + handoff notes are committed under dossier `tmp/` (preferred) or `docs/98-tmp/` (when not tied to a dossier).
+- [ ] Local-only scratch goes in root `throwaway/`.

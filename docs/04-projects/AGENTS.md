@@ -7,8 +7,11 @@ This folder tracks work items once implementation begins.
 - Within each work item:
   - `prd.md` and `prd.json`, which form handoff between shaping, planning and development.
   - Reviews for a work item live inside the dossier (e.g. `reviews/`).
-  - Store once off files in `throwaway/` folder (not synced to Github) such as `oracle` skill bundles.
-  - Store tmp files in `tmp/` folder (synced to Github)
+  - Store oracle bundles + handoff notes in the dossier’s `tmp/` folder (synced to GitHub):
+    - `tmp/oracle-bundles/`
+    - `tmp/handoffs/YYYY_MM_DD/`
+  - Store local-only scratch in the dossier’s `throwaway/` folder (gitignored; not synced).
+  - Store tmp files in `tmp/` folder (synced to GitHub).
   - If using file-based todos, store them in the dossier’s `todos/` folder.
 
 ## Workflow defaults

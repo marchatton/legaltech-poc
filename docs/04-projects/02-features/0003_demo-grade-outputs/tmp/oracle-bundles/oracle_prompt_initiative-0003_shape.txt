@@ -1,0 +1,26 @@
+You are reviewing a shaping packet for "Initiative 0003: Demo-grade outputs and repeatability" in the Orbital Copilot PoC (US CRE Title + Survey Quick Start).
+
+Task
+- Review the shaping dossier docs (brief, breadboard pack, risk register, spike plans).
+- Check consistency with the canonical architecture docs (state model, API surface, data model, observability/evals, ADRs).
+- Identify contradictions, missing decisions, and places where the perimeter is too wide.
+- Recommend scope cuts or patches to keep the work thin-tailed.
+- Propose a post-spike PRD slicing plan (names + ordering) that follows the repo's PRD slicing rules.
+
+Output format (keep it crisp)
+1) Findings (ordered by severity)
+   - Each finding: what is wrong, why it matters, and a concrete patch suggestion (which doc and what to change).
+2) Perimeter lock recommendation
+   - A short "in scope / out of scope" you think we should lock for the *first* buildable slice.
+3) Spike review
+   - For each planned spike: confirm it's the right question, tighten success criteria, and add any missing spike(s).
+4) PRD slices (AFTER spikes)
+   - 4-8 thin PRDs with suggested names and 5-10 acceptance criteria each.
+   - Each PRD must map to breadboard parts (F#) and affordances (U#/N#).
+5) GO / NO-GO
+   - State GO or NO-GO and the minimal conditions to flip it.
+
+Constraints
+- Assume no code exists yet; this is shaping only.
+- Prefer contracts that match the existing architecture docs (do not invent new API endpoints unless necessary).
+- Treat export gating and demo reset safety as non-negotiable trust/safety decisions.

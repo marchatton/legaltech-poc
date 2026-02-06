@@ -40,8 +40,13 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 - `docs/06-release/AGENTS.md`: Release process and changelog/postmortem expectations
 
 ## File management
-- Store shareable one-off artefacts (e.g. oracle bundles, exports) in `docs/97-throwaway/` (synced to GitHub)
-- Store local-only one-off files in root `throwaway/` (not synced to GitHub)
+- Oracle bundles (`oracle --render`) are committed under:
+  - Dossier work: `<dossier>/tmp/oracle-bundles/` (inside `docs/04-projects/...`)
+  - Non-dossier work: `docs/98-tmp/oracle-bundles/`
+- Handoff notes (`handoff` skill) are committed under:
+  - Dossier work: `<dossier>/tmp/handoffs/YYYY_MM_DD/` (inside `docs/04-projects/...`)
+  - Non-dossier or cross-dossier: `docs/98-tmp/handoffs/YYYY_MM_DD/`
+- Store local-only scratch in root `throwaway/` (gitignored; not synced to GitHub)
 - Store random tmp files in root `tmp/` folder (synced to GitHub)
 - When working on a project, follow the conventions outlined in `docs/04-projects/AGENTS.md`
 

@@ -75,8 +75,13 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 - `docs/06-release/AGENTS.md`: Release process and changelog/postmortem expectations
 
 ## File management
-- Store shareable one-off artefacts (e.g. oracle bundles, exports) in `docs/97-throwaway/` (synced to GitHub)
-- Store local-only one-off files in root `throwaway/` (not synced to GitHub)
+- Oracle bundles (`oracle --render`) are committed under:
+  - Dossier work: `<dossier>/tmp/oracle-bundles/` (inside `docs/04-projects/...`)
+  - Non-dossier work: `docs/98-tmp/oracle-bundles/`
+- Handoff notes (`handoff` skill) are committed under:
+  - Dossier work: `<dossier>/tmp/handoffs/YYYY_MM_DD/` (inside `docs/04-projects/...`)
+  - Non-dossier or cross-dossier: `docs/98-tmp/handoffs/YYYY_MM_DD/`
+- Store local-only scratch in root `throwaway/` (gitignored; not synced to GitHub)
 - Store tmp files in root `tmp/` folder (synced to GitHub)
 
 ## Core skills to use
@@ -106,8 +111,10 @@ Single place for workflow artefacts + docs outputs.
     - `03-architecture/`: up-to-date system and data architecture 
     - `05-reviews-audits/`: periodic reviews, audits, and systems compliance 
     - `06-release/`: global `CHANGELOG.md` and postmortems etc
-    - `97-throwaway/`: shareable one-off artefacts (oracle bundles, exports). Synced to GitHub
-    - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
+	    - `97-throwaway/`: local-only scratch space (NOT synced to GitHub)
+	    - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
+	      - `98-tmp/oracle-bundles/`: oracle `--render` bundles for non-dossier work
+	      - `98-tmp/handoffs/`: handoff notes for non-dossier or cross-dossier work
   - Resources:
     - `01-insights/`: reports, summaries and raw transcripts covering customers, competitors, capabilities (internal) and tech-market trends.
     - `08-example-data/` contains worked examples with synthetic yet realistic data.
