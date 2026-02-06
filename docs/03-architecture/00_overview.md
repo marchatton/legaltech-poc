@@ -37,7 +37,7 @@ Every material claim must have citations or â€œNot found in provided documents.â
 - Deterministic-ish orchestration: explicit step machine, not free-running agents
 - Fixture-driven reliability: synthetic packs + truth files used in CI-style evals
 
-Canonical ADRs for these defaults live in `docs/03-architecture/decisions.md` (append-only).
+Canonical ADRs for these defaults live in `docs/03-architecture/DECISIONS.md` (append-only).
 
 ## Where RAG fits
 RAG is the engine inside Quick Start:

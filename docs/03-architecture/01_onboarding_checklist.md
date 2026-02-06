@@ -15,7 +15,7 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] Postgres provider chosen (local Docker for dev; managed Postgres for deploy).
 - [ ] Object storage chosen (S3-compatible, or Vercel Blob).
 - [ ] OCR provider chosen (Azure Document Intelligence or AWS Textract).
-- [ ] LLM provider chosen (direct keys) or Vercel AI Gateway.
+- [ ] LLM + embeddings path chosen (via AI SDK): Vercel AI Gateway (preferred) or direct provider keys (only with a reason).
 
 ## 2) Local tooling
 - [ ] Node.js installed (LTS recommended). If `.nvmrc` / `.node-version` appears in the repo later, follow it.
@@ -39,14 +39,16 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] `pgvector` available (required for embeddings).
 - [ ] Object storage available for PDFs + exports (local filesystem for dev, or MinIO for S3-parity).
 - [ ] OCR provider wired (Azure Document Intelligence or AWS Textract).
-- [ ] LLM + embeddings wired (direct provider keys, or Vercel AI Gateway).
+- [ ] LLM + embeddings wired via AI SDK (gateway default; direct provider only when intentional).
 
 ## 5) Environment variables (when code is present)
 - [ ] Create local env files (never commit secrets): `apps/web/.env.local` (and others as needed).
 - [ ] Database connection configured.
 - [ ] Object storage credentials + bucket configured.
 - [ ] OCR credentials configured.
-- [ ] LLM credentials configured.
+- [ ] AI Gateway + model selection configured:
+  - `AI_GATEWAY_API_KEY` (required locally/Hetzner; Vercel OIDC can work without it)
+  - `LLM_MODEL_CHAT`, `LLM_MODEL_SUMMARY`, `EMBED_MODEL`
 - [ ] Confirm no secrets use the `NEXT_PUBLIC_` prefix.
 
 ## 6) Run locally (when code is present)
@@ -75,6 +77,6 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 
 ## 9) Contributing hygiene
 - [ ] Append non-trivial learnings to `docs/LEARNINGS.md`.
-- [ ] ADRs are append-only in `docs/03-architecture/decisions.md` (link the PR).
+- [ ] ADRs are append-only in `docs/03-architecture/DECISIONS.md` (link the PR).
 - [ ] Oracle bundles + handoff notes are committed under dossier `tmp/` (preferred) or `docs/98-tmp/` (when not tied to a dossier).
 - [ ] Local-only scratch goes in root `throwaway/`.

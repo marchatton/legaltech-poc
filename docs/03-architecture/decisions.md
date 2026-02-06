@@ -249,21 +249,27 @@ Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`, `docs/03-architecture/40_rag_and_agents.md`
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/ocr.md`
 
-## ADR-0013: LLM access is via an internal router; gateway is optional
+## ADR-0013: LLM + embeddings calls go through AI SDK; gateway is default
 - Status: proposed
 - Date: 2026-02-06
 
 Context
 - We need to route between "fast draft" and "strong verify" models and keep observability consistent.
-- Introducing a gateway too early can add another debugging layer; but it can also simplify auth and logging.
+- We want one interface across:
+  - streaming UX in Next.js route handlers
+  - durable side effects in worker steps (WDK)
+- A gateway can simplify auth, provider swaps, and consistent telemetry.
 
 Decision
-- Define a small internal LLM router interface (draft, verify, embed) and keep it provider-agnostic.
-- Start with direct provider keys; add a gateway (Vercel AI Gateway, Cloudflare AI Gateway, or LiteLLM Proxy) if/when friction justifies it.
+- Standardize on AI SDK (`ai`) as the only “public API” for LLM + embeddings calls in this repo.
+- Default to Vercel AI Gateway (via AI SDK gateway provider) so auth + model routing are consistent across web + worker.
+- Keep a small internal router interface (draft, verify, embed) but implement it via AI SDK.
+- Direct provider SDKs (OpenAI SDK, Anthropic SDK, etc) are only allowed with an explicit reason (eg missing feature, debugging, or a provider-specific capability).
 
 Consequences
-- Low lock-in and a clear place to add logging, retries, and budgets.
-- Gateway adoption later is additive (swap base URL / auth), not architectural surgery.
+- Consistent auth, retries, and observability patterns for all model calls.
+- Model selection becomes an env/config concern (eg `LLM_MODEL_CHAT`, `LLM_MODEL_SUMMARY`, `EMBED_MODEL`), not scattered code changes.
+- Gateway auth becomes part of the minimum env contract (eg `AI_GATEWAY_API_KEY` locally/Hetzner; Vercel OIDC where available).
 
 Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
