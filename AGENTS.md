@@ -41,11 +41,14 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 
 ## File management
 - Oracle bundles (`oracle --render`) are committed under:
-  - Dossier work: `<dossier>/tmp/oracle-bundles/` (inside `docs/04-projects/...`)
-  - Non-dossier work: `docs/98-tmp/oracle-bundles/`
+  - Dossier work: `<dossier>/tmp-oracle/` (inside `docs/04-projects/...`)
+  - Non-dossier work: `docs/98-tmp/oracle/`
 - Handoff notes (`handoff` skill) are committed under:
-  - Dossier work: `<dossier>/tmp/handoffs/YYYY_MM_DD/` (inside `docs/04-projects/...`)
-  - Non-dossier or cross-dossier: `docs/98-tmp/handoffs/YYYY_MM_DD/`
+  - Dossier work: `<dossier>/tmp-handoffs/` (inside `docs/04-projects/...`)
+  - Non-dossier or cross-dossier: `docs/98-tmp/handoffs/`
+- Filenames:
+  - Oracle bundles: `oracle-bundle_<slug>.md` (or `oracle-bundle_<id>_<slug>.md` inside dossiers)
+  - Handoff notes: `handoff_YYYY-MM-DD_HH-MM-SS_<slug>.md`
 - Store local-only scratch in root `throwaway/` (gitignored; not synced to GitHub)
 - Store random tmp files in root `tmp/` folder (synced to GitHub)
 - When working on a project, follow the conventions outlined in `docs/04-projects/AGENTS.md`

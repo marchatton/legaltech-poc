@@ -13,7 +13,7 @@ What to produce:
 1) Findings ordered by severity (P0..P3). Each finding must include: file path + line numbers + why it matters.
 2) Concrete suggested edits as unified diffs for the markdown files (or clearly delimited replacement sections).
 3) Seed ADRs:
-   - Provide a minimal ADR format for `docs/03-architecture/decisions.md`.
+   - Provide a minimal ADR format for `docs/03-architecture/DECISIONS.md`.
    - Add initial ADR entries for decisions already implied in the docs (evidence-first, fail-closed verification, OCR-all default, hybrid retrieval, deterministic-ish orchestration via steps, fixture-driven evals, etc).
 4) DRY consolidation plan:
    - Identify duplicated content across docs/03-architecture.
@@ -21,7 +21,7 @@ What to produce:
 
 Specific things to address (if applicable):
 - Repo hygiene: `docs/03-architecture/.DS_Store` should not be committed; propose deleting it and updating `.gitignore` accordingly.
-- `docs/03-architecture/decisions.md` is empty but referenced by docs; fix this.
+- `docs/03-architecture/DECISIONS.md` is empty but referenced by docs; fix this.
 - Clarify what "Workflow DevKit (WDK)" is and what the "use workflow" convention means in practice.
 - Tighten state machine definitions and transitions (folder/document/run/report row) with clear invariants.
 - Data model: ensure provenance is sufficient for debugging and replay (e.g. whether citations should store `chunk_id`).
@@ -76,11 +76,11 @@ Vibe: be practical, stay curious, optimise for long-term leverage over short-ter
 
 ## File management
 - Oracle bundles (`oracle --render`) are committed under:
-  - Dossier work: `<dossier>/tmp/oracle-bundles/` (inside `docs/04-projects/...`)
-  - Non-dossier work: `docs/98-tmp/oracle-bundles/`
+  - Dossier work: `<dossier>/tmp-oracle/` (inside `docs/04-projects/...`)
+  - Non-dossier work: `docs/98-tmp/oracle/`
 - Handoff notes (`handoff` skill) are committed under:
-  - Dossier work: `<dossier>/tmp/handoffs/YYYY_MM_DD/` (inside `docs/04-projects/...`)
-  - Non-dossier or cross-dossier: `docs/98-tmp/handoffs/YYYY_MM_DD/`
+  - Dossier work: `<dossier>/tmp-handoffs/` (inside `docs/04-projects/...`)
+  - Non-dossier or cross-dossier: `docs/98-tmp/handoffs/`
 - Store local-only scratch in root `throwaway/` (gitignored; not synced to GitHub)
 - Store tmp files in root `tmp/` folder (synced to GitHub)
 
@@ -113,7 +113,7 @@ Single place for workflow artefacts + docs outputs.
     - `06-release/`: global `CHANGELOG.md` and postmortems etc
 	    - `97-throwaway/`: local-only scratch space (NOT synced to GitHub)
 	    - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
-	      - `98-tmp/oracle-bundles/`: oracle `--render` bundles for non-dossier work
+	      - `98-tmp/oracle/`: oracle `--render` bundles for non-dossier work
 	      - `98-tmp/handoffs/`: handoff notes for non-dossier or cross-dossier work
   - Resources:
     - `01-insights/`: reports, summaries and raw transcripts covering customers, competitors, capabilities (internal) and tech-market trends.
@@ -137,7 +137,7 @@ Single place for workflow artefacts + docs outputs.
 - Completed work and old context is manually moved into `docs/99-archive/` which mirrors the live structure.
 
 ## Cross-cutting concerns
-- Log ADRs by appending to `03-architecture/decisions.md`.
+- Log ADRs by appending to `03-architecture/DECISIONS.md`.
 - Synthesis: use `compound` to consolidate learnings.
 
 ----- END FILE: docs/AGENTS.md -----
@@ -204,7 +204,7 @@ Next.js App Router web application.
 
 ## Docs + decisions
 - Artefacts live under `docs/03-architecture/`.
-- ADRs: Append to `docs/03-architecture/decisions.md` when you introduce a new cross-cutting pattern (dependency class, boundary rule, auth/security posture). Keep it short and link the PR.
+- ADRs: Append to `docs/03-architecture/DECISIONS.md` when you introduce a new cross-cutting pattern (dependency class, boundary rule, auth/security posture). Keep it short and link the PR.
 
 ----- END FILE: docs/03-architecture/AGENTS.md -----
 
@@ -835,9 +835,9 @@ Outputs:
 
 ----- END FILE: docs/03-architecture/60_observability_and_evals.md -----
 
------ BEGIN FILE: docs/03-architecture/decisions.md -----
+----- BEGIN FILE: docs/03-architecture/DECISIONS.md -----
 
------ END FILE: docs/03-architecture/decisions.md -----
+----- END FILE: docs/03-architecture/DECISIONS.md -----
 
 ----- BEGIN FILE: docs/03-architecture/.gitkeep -----
 
