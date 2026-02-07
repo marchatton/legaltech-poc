@@ -1,0 +1,30 @@
+{
+  "project": "0002_quick-start-engine",
+  "branchName": "codex/0002-s6-reconciliation-honesty-pack-03-07",
+  "description": "Initiative 0002 Slice 6: reconciliation issues list with an explicit honesty policy (unknown bias) proven on pack_03_mismatch_and_cert_gap and pack_07_scans_rotated_low_quality; not_depicted requires positive evidence of absence and is always cited.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Produce honest reconciliation classifications (unknown bias)",
+      "description": "Generate reconciliation issues classified as depicted|not_depicted|unknown with strict evidence thresholds that bias to unknown under uncertainty.",
+      "acceptanceCriteria": [
+        "Reconciliation items use item-level classification depicted|not_depicted|unknown.",
+        "not_depicted requires positive evidence of absence that is narrowly defined and cited; otherwise classification must be unknown.",
+        "When evidence is weak or ambiguous (especially on pack_07), items are downgraded to unknown; no fabricated negatives."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Unknown issues are actionable (guidance copy)",
+      "description": "When an issue is unknown, the UI explains what evidence is missing and what to do next, without leaking internal errors or provider payloads.",
+      "acceptanceCriteria": [
+        "Issue drawer includes guidance copy explaining what evidence is missing (survey callout text, instrument match, etc).",
+        "Guidance is specific to the observed failure mode (missing doc, low extraction quality, ambiguous match) and avoids vague 'try again' copy.",
+        "If no citations can be locked due to low extraction quality, the row falls back safely to missing_input with remediation checklist."
+      ],
+      "priority": 2
+    }
+  ]
+}
+
