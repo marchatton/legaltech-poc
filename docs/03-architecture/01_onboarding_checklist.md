@@ -80,6 +80,30 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] Ask at least one question that is not answerable from the uploaded pack.
 - [ ] Confirm the run resolves to `missing_input` / a blocked row (eg `citation_failed`), not an uncited answer.
 
+## 6a) ADR-0014 tracer bullet (minimal runnable scaffold)
+Once the ADR-0014 scaffold code is present, this is the fastest end-to-end slice to validate the “trust moment” (citation chip → viewer → highlight overlay) without wiring OCR, embeddings, or LLM credentials.
+
+Prereqs:
+- [ ] Postgres is running locally and `pgvector` is available (e.g. via `docker compose` once scaffolded).
+- [ ] Database env var is set (expected shape: `DATABASE_URL=postgresql://...`).
+- [ ] PDF access is configured for the viewer (expected default for the tracer bullet: serve PDFs directly from fixture files on disk; no MinIO required).
+- [ ] Fixture packs exist under `docs/08-example-data/` (at minimum: `pack_01_clean`, `pack_02_missing_rea`).
+
+Run it:
+- [ ] Start local services: `docker compose up -d`
+- [ ] Install deps: `pnpm install`
+- [ ] Seed fixtures:
+  - [ ] `pnpm fixture:seed pack_01_clean`
+  - [ ] `pnpm fixture:seed pack_02_missing_rea`
+- [ ] Start dev server: `pnpm dev`
+- [ ] Open the UI: `http://localhost:3000/matters`
+
+What it must prove:
+- [ ] Clicking a citation chip opens the correct document + page and renders a highlight overlay from locked polygons.
+- [ ] Snippet + `snippet_hash` are visible in the viewer (hashing per `docs/03-architecture/30_data_model.md`).
+- [ ] Fail-closed viewer: deliberately bad/invalid citations show an explicit error state and render no overlay.
+- [ ] Export is blocked when any row is `citation_failed` (API surface `EXPORT_BLOCKED`).
+
 ## 7) Deploy (Hetzner-first is proposed; Vercel optional)
 - [ ] Confirm deployment target (ADR-0009, proposed).
 - [ ] Hetzner: SSH access to the VM.
