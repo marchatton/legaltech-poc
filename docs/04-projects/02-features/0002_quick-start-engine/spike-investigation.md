@@ -239,7 +239,7 @@ Can we avoid false matches and surface missing-doc behaviour explicitly?
   - `match_status: ambiguous` with candidates listed (never silent auto-pick)
 - `pack_02_missing_rea`:
   - the missing REA is surfaced as item-level `match_status: missing_doc`
-  - notes include an actionable missing-doc checklist (include filename when known)
+  - notes include an actionable missing-doc checklist (include filename `REA.pdf`)
   - only use `missing_input` when an answer truly cannot be supported
 
 ## Timebox
@@ -270,6 +270,7 @@ Can we surface ambiguity and detect missing attachments without fabricating summ
   - row remains `needs_review` (with citations) and requires manual resolution later
 - Missing attachment is detected and recorded as item-level `match_status: missing_attachment` (or equivalent) with:
   - a citation to the clause referencing the exhibit/attachment
+  - checklist includes expected missing attachment filename `Utility_Easement_10ft_ExhibitB.pdf` (from `docs/08-example-data/packs_summary.md`)
   - no fabricated summary of missing content
 
 ## Timebox
@@ -410,6 +411,10 @@ On restart/retry, do we avoid duplicate rows and keep stable citation `snippet_h
   - payload/answer (canonicalised)
   - ordered list of `citation.snippet_hash` values per row
 - Allowed differences: timestamps, run IDs, DB IDs.
+- Negative test: deliberately corrupt one locked citation (fixture/test hook) and confirm:
+  - affected row becomes `citation_failed` with reason `CITATION_MISMATCH`
+  - workflow continues processing remaining questions
+  - run can still reach `completed` (exports remain blocked by default)
 
 ## Timebox
 - <= 0.5 day
@@ -436,7 +441,10 @@ Constraints:
 
 ## Packs
 - `pack_01_clean`
-- `pack_04_multi_parcel` (forces scoping fields)
+- `pack_03_mismatch_and_cert_gap` (issues payload truth)
+
+Notes:
+- Multi-parcel scoping is covered separately by SP-2.10.
 
 ## Options to decide between
 1. Store structured payload in `report_rows.provenance_json` and render from it in UI.
@@ -515,3 +523,88 @@ Do we have a concrete scoping representation and UI rendering that stays within 
 - Outcome:
 - Proof links:
 - Field + rendering decision:
+
+---
+
+# SP-2.11 Verification semantics for list-shaped rows
+
+## Question
+For a list payload (items with multiple claimed fields), what is the smallest safe verification policy that preserves fail-closed posture without creating unnecessary whole-row `citation_failed` outcomes?
+
+## Packs
+- `pack_01_clean`
+
+## Success criteria (proof)
+- A written v1 verification policy for list payloads that defines:
+  - unit of verification (item-level fields, not just the row shell)
+  - behavior on partial failures (choose one and justify):
+    - downgrade unsupported fields/items to `unknown` (and re-verify), OR
+    - fail the entire row as `citation_failed`
+  - required provenance fields + reason codes for auditability
+- The policy is consistent with the row invariants in `docs/03-architecture/20_state_model.md` and the fail-closed posture in ADR-0002.
+- If a “downgrade/repair” path is chosen, the step boundary is explicit: where the repair occurs (draft vs verify) and how citations remain immutable (no mutation of existing `citation_id`s).
+
+## Timebox
+- <= 0.5 day
+
+## Oracle notes
+- Pending.
+
+## Report (fill after running)
+- Outcome:
+- Policy chosen:
+- Cut/patch decisions:
+
+---
+
+# SP-2.12 Run gating vs folder state (`indexed` runnable + warning UX)
+
+## Question
+Can Quick Start run on `indexed` folders even when `ready` health checks fail, with explicit warning UX and no blocking?
+
+## Packs
+- `pack_07_scans_rotated_low_quality`
+
+## Success criteria (proof)
+- Run start is allowed when `folders.state in {indexed, ready}` (matches `docs/03-architecture/20_state_model.md` and `docs/03-architecture/50_api_surface.md`).
+- UI shows an explicit “quality warning” state when folder is `indexed` but not `ready` (e.g. low extraction quality) while still allowing the run to start.
+- The warning UX is safe and actionable (no internal errors/provider payloads; points to remediation like re-scan/rotate/re-upload).
+
+## Timebox
+- <= 0.25 day
+
+## Oracle notes
+- Pending.
+
+## Report (fill after running)
+- Outcome:
+- Warning copy:
+- Cuts/patches:
+
+---
+
+# SP-2.13 Human-in-the-loop ambiguity resolution semantics (optional; v1 cut)
+
+## Question
+If/when a user resolves an ambiguous match, how do we re-run verification without mutating immutable citations and without hand-wavy “choose correct doc” behavior?
+
+## Packs
+- `pack_06_overlapping_easements`
+
+## Success criteria (proof)
+- A concrete mechanism is chosen and documented (one of):
+  - new run type (e.g. `quick_start_repair`) that re-runs a single `question_id`, OR
+  - a new run with an override that pins the user selection as input
+- Existing citations remain immutable; the resolution produces new locked citations and a newly verified output (no in-place mutation).
+- UX/auditability: the system can show what changed (original ambiguous output vs resolved output) and why.
+
+## Timebox
+- <= 0.5 day
+
+## Oracle notes
+- Pending.
+
+## Report (fill after running)
+- Outcome:
+- Mechanism chosen:
+- Data model implications:
