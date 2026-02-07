@@ -37,18 +37,23 @@ Time: 2026-02-07 01:05:12 (local)
 ## 2) Working tree
 `git status -sb`:
 ```text
-## main...origin/main
+## main...origin/main [ahead 1]
+?? docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs/handoff_2026-02-07_01-05-10_0003-prd-dossiers.md
 ```
 
-Local commits not pushed: none.
+Local commits not pushed:
+```text
+d50f50e docs(projects): add 0002 handoff note
+```
 
 Latest commit:
 ```text
+d50f50e docs(projects): add 0002 handoff note
 5e33d22 docs(projects): update 0002 PRD slices and spike notes
 ```
 
 ## 3) Branch/PR
-- Branch: `main` (matches `origin/main`).
+- Branch: `main` (ahead of `origin/main` by 1 commit).
 - PR: none.
 - CI: not checked in this session.
 
