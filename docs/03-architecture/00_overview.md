@@ -56,3 +56,10 @@ Evals are first-class because trust is the product:
 See:
 - `docs/03-architecture/05_tech_stack_and_dev_workflow.md` for stack, dev workflow, and fixtures
 - `docs/03-architecture/06_frameworks_agents_rag_evals.md` for framework options and why we chose Workflow DevKit
+
+## Open decisions to pin (before implementation)
+These should become explicit (ideally as ADRs) before we build the relevant slices:
+- Chunking strategy: target chunk size/overlap, boundary rules, and what makes a chunk citable.
+- Embeddings: model + dimension (and index parameters) to treat as the default for fixtures/evals.
+- Question set v1 storage: file vs DB, version pinning, and edit workflow.
+- Auth posture for the PoC: what is (and is not) protected in demo environments.

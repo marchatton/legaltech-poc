@@ -11,7 +11,7 @@ This doc answers:
 ### Chosen for PoC: Workflow DevKit (WDK)
 Why:
 - Our core requirement is a durable, resumable, deterministic-ish workflow:
-  `retrieve → draft → verify → write` per row
+  `retrieve → draft → lock → verify → write` per row
 - WDK naturally models this with workflows and steps:
   - workflow is the deterministic controller
   - steps encapsulate non-deterministic side effects (OCR, embeddings, LLM calls, DB writes)

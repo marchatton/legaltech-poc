@@ -2,9 +2,27 @@
 
 This doc defines the state machines and invariants for the PoC. Keep this as the canonical reference and link to it from other docs.
 
+## Principles (why these states exist)
+- Prefer monotonic state machines: a state should only move "forward" unless a user explicitly retries/restarts.
+- States can be stored for UI convenience, but they must be derivable from persisted facts and remain consistent.
+- Fail safe: if we cannot prove an answer is supported by locked evidence, we do not export it (ADR-0002).
+- Keep states small and explicit. Avoid "magic" implied meaning in free-form JSON.
+
 ## Terminology
 - **Folder** is the DB/API name for a workspace container. In the UI we call it a **Matter**.
+- A **Run** is one execution of a Quick Start workflow for a folder.
+- A **Report row** is the persisted output for a `(run_id, question_id)` pair.
+- A **Citation** is an immutable, locked evidence object (snippet + hash + geometry) referenced by `citation_id` (ADR-0001).
 - States are stored on rows for convenience, but must remain consistent with the invariants below.
+
+## Version pinning (cross-cutting invariants)
+Runs must pin the versions they executed with (see `docs/03-architecture/30_data_model.md`):
+- `index_version`: which retrieval substrate (chunks + indices) was used.
+- `agent_bundle_version`: prompts + schemas + step logic version (git SHA is fine for PoC).
+- `question_set_version`: which question set was used.
+
+Why:
+- Replays and evals need to answer: "what code + schema + questions produced this row?"
 
 ## Folder state (`folders.state`)
 States:
@@ -41,6 +59,12 @@ Allowed transitions (monotonic, except for retry):
 - `indexed` → `ready` (health checks pass)
 - `ingesting|indexed|ready` → `failed` (non-recoverable ingest/index error)
 - `failed` → `ingesting` (explicit retry/re-ingest; bumps `latest_index_version`)
+
+Notes:
+- Quick Start can start in `indexed` as well as `ready` (the "ready checks" are demo quality gates, not a hard requirement to run).
+- `folders.state` should be explainable in the UI. If we introduce a new state, also define:
+  - the user-facing label
+  - the primary remediation action (retry, re-upload, contact support)
 
 ## Document state (`documents.parse_status`, `documents.ocr_status`)
 Parse status:
@@ -80,6 +104,21 @@ Allowed transitions:
 - `created` → `running`
 - `running` → `completed|partial|failed|cancelled`
 
+## Run step state (`run_steps.state`)
+Run steps are the durable execution log of side effects (OCR, embed, retrieve, draft, lock, verify, write, export). Steps make retries and resumability observable.
+
+States:
+- `queued` (scheduled but not started)
+- `running`
+- `succeeded` (terminal)
+- `failed` (terminal)
+
+Invariants (must hold):
+- A step must be idempotent: retries must not duplicate `report_rows` or `citations`.
+- A step attempt counter increments on each retry; attempt `1` is the first execution.
+- `metrics_json` should be safe and structured (timings, token/cost usage, chunk counts). No raw PDF text.
+- `error_json` must be safe to show to a user when needed (no provider payloads; no stack traces).
+
 ## Report row state (`report_rows.status`)
 Statuses (terminal for the workflow):
 - `needs_review` (verification passed; user may review)
@@ -104,4 +143,41 @@ User-driven transitions:
 - `needs_review` → `reviewed` (only via explicit user action)
 
 Export gating (PoC defaults):
-- If any row in the selected run is `citation_failed`, export returns an error unless an explicit override flag is provided.
+- Exports are only allowed when `runs.state = completed` (PoC default).
+- If any row in the selected run is `citation_failed`, export returns `EXPORT_BLOCKED` unless `unsafe_override = true` is provided.
+  - Unsafe override is intended to be demo-only. See `docs/03-architecture/50_api_surface.md` for the HTTP contract and guardrails.
+
+Notes:
+- Do not invent new `report_rows.status` values. If you need additional per-item classification (eg survey issue `unknown`), store it inside the row payload/provenance, not by adding row statuses.
+- The UI must reflect gating truthfully: "blocked" is a first-class state, not an exception.
+
+## Suggested invariant checks (SQL; run in debug/evals)
+These are optional, but they make "broken windows" obvious.
+
+1) Report rows are 1:1 per run/question
+```sql
+select run_id, question_id, count(*) as n
+from report_rows
+group by run_id, question_id
+having count(*) > 1;
+```
+
+2) `missing_input` rows have no citations and exact string answer
+```sql
+select rr.id
+from report_rows rr
+left join citations c on c.report_row_id = rr.id
+where rr.status = 'missing_input'
+group by rr.id, rr.answer
+having rr.answer <> 'Not found in provided documents.' or count(c.id) > 0;
+```
+
+3) Export gating sanity: runs marked `completed` must have only terminal row statuses
+```sql
+select r.id
+from runs r
+join report_rows rr on rr.run_id = r.id
+where r.state = 'completed'
+  and rr.status not in ('needs_review', 'reviewed', 'missing_input', 'citation_failed')
+group by r.id;
+```
