@@ -3236,10 +3236,10 @@ Out of scope (explicit cuts):
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
 
 Planned PRD dossiers (names from `docs/00-strategy/initiatives/001-003_handoff.md`):
-- `0013_csv-export` (`docs/04-projects/02-features/0013_csv-export/`)
-- `0014_word-export` (`docs/04-projects/02-features/0014_word-export/`)
-- `0015_eval-harness` (`docs/04-projects/02-features/0015_eval-harness/`)
-- `0016_demo-reliability` (`docs/04-projects/02-features/0016_demo-reliability/`)
+- `0004_csv-export` (`docs/04-projects/02-features/0004_csv-export/`)
+- `0005_word-export` (`docs/04-projects/02-features/0005_word-export/`)
+- `0006_eval-harness` (`docs/04-projects/02-features/0006_eval-harness/`)
+- `0007_demo-reliability` (`docs/04-projects/02-features/0007_demo-reliability/`)
 
 ## Glossary (canonical names)
 - **Folder**: API/DB container (UI term: “Matter”).
