@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orbital Tailwind Brand Preview</title>
+
+    <!--
+      Brand tokens + Tailwind theme match:
+      - docs/02-guidelines/inspiration/tailwind/tokens.css
+      - docs/02-guidelines/inspiration/tailwind/tailwind.preset.ts
+
+      This file is intentionally standalone (Tailwind CDN), so you can open it directly.
+    -->
+    <link rel="stylesheet" href="docs/02-guidelines/inspiration/tailwind/tokens.css" />
+    <link rel="stylesheet" href="docs/02-guidelines/inspiration/tailwind/tokens.override.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Tailwind CDN sets `window.tailwind` itself; configure it *after* the CDN script loads.
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              background: "rgb(var(--background) / <alpha-value>)",
+              foreground: "rgb(var(--foreground) / <alpha-value>)",
+              card: {
+                DEFAULT: "rgb(var(--card) / <alpha-value>)",
+                foreground: "rgb(var(--card-foreground) / <alpha-value>)",
+              },
+              primary: {
+                DEFAULT: "rgb(var(--primary) / <alpha-value>)",
+                foreground: "rgb(var(--primary-foreground) / <alpha-value>)",
+              },
+              secondary: {
+                DEFAULT: "rgb(var(--secondary) / <alpha-value>)",
+                foreground: "rgb(var(--secondary-foreground) / <alpha-value>)",
+              },
+              accent: {
+                DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+                foreground: "rgb(var(--accent-foreground) / <alpha-value>)",
+              },
+              muted: {
+                DEFAULT: "rgb(var(--muted) / <alpha-value>)",
+                foreground: "rgb(var(--muted-foreground) / <alpha-value>)",
+              },
+              border: "rgb(var(--border) / <alpha-value>)",
+              ring: "rgb(var(--ring) / <alpha-value>)",
+            },
+            borderRadius: {
+              "ui-sm": "var(--radius-sm)",
+              "ui-md": "var(--radius-md)",
+              "ui-lg": "var(--radius-lg)",
+              "ui-xl": "var(--radius-xl)",
+              pill: "var(--radius-pill)",
+            },
+            boxShadow: {
+              "ui-sm": "0px 1px 2px rgba(0,0,0,0.05)",
+              "ui-lg": "0px 8px 24px rgba(0,0,0,0.10)",
+            },
+            transitionDuration: {
+              micro: "150ms",
+              standard: "200ms",
+              large: "400ms",
+            },
+            transitionTimingFunction: {
+              "brand-standard": "cubic-bezier(0.4, 0, 0.2, 1)",
+            },
+            fontFamily: {
+              sans: ["Switzer", "Inter", "system-ui", "-apple-system", "sans-serif"],
+              serif: ["Signifier", "ui-serif", "Georgia", "serif"],
+              mono: ["GeistMono", "FT System Mono", "Berkeley Mono", "ui-monospace", "SFMono-Regular", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-full font-sans antialiased selection:bg-accent/35 selection:text-accent-foreground">
+    <div class="mx-auto max-w-6xl px-6 py-10">
+      <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <p class="text-xs font-medium tracking-wide text-foreground/70">Orbital</p>
+          <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">Tailwind Brand UI Preview</h1>
+          <p class="max-w-2xl text-sm text-foreground/70">
+            Tokens + recipe-driven components (no framework). Hover, focus, and toggle dark mode to sanity-check surfaces.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            id="themeToggle"
+            type="button"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+              transition-colors duration-standard ease-brand-standard
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+              bg-card text-foreground border border-border/15 hover:bg-card/80 active:bg-card/70"
+          >
+            Toggle dark
+          </button>
+          <a
+            href="docs/02-guidelines/inspiration/tailwind/component-recipes.md"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+              transition-colors duration-standard ease-brand-standard
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+              bg-transparent text-foreground underline-offset-4 hover:underline"
+          >
+            Recipes
+          </a>
+        </div>
+      </header>
+
+      <main class="mt-10 space-y-10">
+        <section class="grid gap-6 lg:grid-cols-3">
+          <div class="rounded-ui-lg border border-border/10 bg-card text-card-foreground shadow-ui-sm p-6">
+            <p class="text-xs font-medium tracking-wide text-foreground/70">Hero</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight">Trusty surfaces, playful accents</h2>
+            <p class="mt-2 text-sm text-foreground/70">
+              Primary is loud. Secondary is airy. Accent is a signal. Borders are subtle; focus is distinct.
+            </p>
+
+            <div class="mt-5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+                  transition-colors duration-standard ease-brand-standard
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                  disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none
+                  border border-primary/35 bg-transparent text-foreground
+                  hover:bg-primary/10 hover:border-primary/50 active:bg-primary/15
+                  dark:border-transparent dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 dark:active:bg-primary/80"
+              >
+                Primary action
+              </button>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+                  transition-colors duration-standard ease-brand-standard
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                  disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none
+                  bg-card text-foreground border border-border/15 hover:bg-card/80 active:bg-card/70"
+              >
+                Secondary
+              </button>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+                  transition-colors duration-standard ease-brand-standard
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                  disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none
+                  bg-transparent text-foreground hover:bg-muted/40 active:bg-muted/60"
+              >
+                Ghost
+              </button>
+            </div>
+
+            <div class="mt-5 flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center rounded-pill border border-border/15 bg-card px-2 py-1 text-xs text-foreground">
+                Neutral chip
+              </span>
+              <span class="inline-flex items-center rounded-pill bg-secondary/50 px-2 py-1 text-xs text-secondary-foreground">
+                Highlight chip
+              </span>
+            </div>
+          </div>
+
+          <div class="rounded-ui-lg border border-border/10 bg-card text-card-foreground shadow-ui-sm p-6 lg:col-span-2">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-xs font-medium tracking-wide text-foreground/70">Color tokens</p>
+                <h2 class="mt-2 text-xl font-semibold tracking-tight">Palette + core surfaces</h2>
+              </div>
+              <div class="rounded-ui-md border border-border/15 bg-background px-3 py-2 text-xs text-foreground/70">
+                <span class="font-mono">bg-*</span>, <span class="font-mono">text-*</span>, <span class="font-mono">ring-*</span>
+              </div>
+            </div>
+
+            <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div class="rounded-ui-lg border border-border/15 bg-background p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium">background</p>
+                  <span class="text-xs text-foreground/60 font-mono">--background</span>
+                </div>
+                <div class="mt-3 h-10 rounded-ui-md bg-background ring-1 ring-border/15"></div>
+              </div>
+
+              <div class="rounded-ui-lg border border-border/15 bg-card p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium">card</p>
+                  <span class="text-xs text-foreground/60 font-mono">--card</span>
+                </div>
+                <div class="mt-3 h-10 rounded-ui-md bg-card ring-1 ring-border/15"></div>
+              </div>
+
+              <div class="rounded-ui-lg border border-border/15 bg-muted/25 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium">muted</p>
+                  <span class="text-xs text-foreground/60 font-mono">--muted</span>
+                </div>
+                <div class="mt-3 h-10 rounded-ui-md bg-muted ring-1 ring-border/15"></div>
+              </div>
+
+              <div class="rounded-ui-lg border border-border/15 bg-primary/10 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium">primary</p>
+                  <span class="text-xs text-foreground/60 font-mono">--primary</span>
+                </div>
+                <div class="mt-3 h-10 rounded-ui-md bg-primary"></div>
+              </div>
+
+              <div class="rounded-ui-lg border border-border/15 bg-secondary/20 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium">secondary</p>
+                  <span class="text-xs text-foreground/60 font-mono">--secondary</span>
+                </div>
+                <div class="mt-3 h-10 rounded-ui-md bg-secondary"></div>
+              </div>
+
+              <div class="rounded-ui-lg border border-border/15 bg-accent/20 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium">accent</p>
+                  <span class="text-xs text-foreground/60 font-mono">--accent</span>
+                </div>
+                <div class="mt-3 h-10 rounded-ui-md bg-accent"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid gap-6 lg:grid-cols-2">
+          <div class="rounded-ui-lg border border-border/10 bg-card text-card-foreground shadow-ui-sm p-6">
+            <p class="text-xs font-medium tracking-wide text-foreground/70">Typography</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight">Type scale + families</h2>
+
+            <div class="mt-4 space-y-4">
+              <div>
+                <p class="text-sm text-foreground/70">Heading</p>
+                <p class="mt-1 text-3xl font-semibold tracking-tight">A calm system with sharp edges</p>
+              </div>
+              <div>
+                <p class="text-sm text-foreground/70">Body</p>
+                <p class="mt-1 text-sm leading-6 text-foreground/85">
+                  This is default body copy. It should feel readable on <span class="font-medium">background</span> and
+                  <span class="font-medium">card</span> surfaces. Keep contrast strong, keep decoration sparse.
+                </p>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-ui-md border border-border/15 bg-background p-3">
+                  <p class="text-xs font-medium tracking-wide text-foreground/70">Serif sample</p>
+                  <p class="mt-2 font-serif text-lg">Signifier fallback shows here.</p>
+                </div>
+                <div class="rounded-ui-md border border-border/15 bg-background p-3">
+                  <p class="text-xs font-medium tracking-wide text-foreground/70">Mono sample</p>
+                  <p class="mt-2 font-mono text-sm">pnpm -C apps/web dev</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-ui-lg border border-border/10 bg-card text-card-foreground shadow-ui-sm p-6">
+            <p class="text-xs font-medium tracking-wide text-foreground/70">Forms</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight">Inputs + focus ring</h2>
+
+            <form class="mt-4 space-y-4" action="#">
+              <label class="block">
+                <span class="text-sm font-medium">Email</span>
+                <input
+                  class="mt-2 w-full rounded-ui-md bg-background text-foreground border border-border/15 px-3 py-2 text-sm
+                    placeholder:text-foreground/50
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                    disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+                  type="email"
+                  placeholder="you@orbital.test"
+                />
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-medium">Plan</span>
+                <select
+                  class="mt-2 w-full rounded-ui-md bg-background text-foreground border border-border/15 px-3 py-2 text-sm
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                    disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+                >
+                  <option>Starter</option>
+                  <option>Pro</option>
+                  <option>Enterprise</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-medium">Notes</span>
+                <textarea
+                  class="mt-2 w-full rounded-ui-md bg-background text-foreground border border-border/15 px-3 py-2 text-sm
+                    placeholder:text-foreground/50
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                    disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+                  rows="3"
+                  placeholder="A short message..."
+                ></textarea>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-medium">Error state</span>
+                <input
+                  class="mt-2 w-full rounded-ui-md bg-background text-foreground border border-primary/50 px-3 py-2 text-sm
+                    placeholder:text-foreground/50
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                    disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+                  type="text"
+                  placeholder="Try focusing me"
+                />
+                <p class="mt-2 text-xs text-foreground/70">
+                  Use copy, not color-only. Focus ring can shift to <span class="font-mono">primary</span> when invalid.
+                </p>
+              </label>
+
+              <div class="flex flex-wrap items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+                    transition-colors duration-standard ease-brand-standard
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                    disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none
+                    border border-primary/35 bg-transparent text-foreground
+                    hover:bg-primary/10 hover:border-primary/50 active:bg-primary/15
+                    dark:border-transparent dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 dark:active:bg-primary/80"
+                >
+                  Submit
+                </button>
+
+                <button
+                  type="button"
+                  disabled
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ui-md px-3 py-2 text-sm font-medium
+                    transition-colors duration-standard ease-brand-standard
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                    disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none
+                    bg-card text-foreground border border-border/15 hover:bg-card/80 active:bg-card/70"
+                >
+                  Disabled
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="grid gap-6 lg:grid-cols-3">
+          <div class="rounded-ui-lg border border-border/10 bg-card text-card-foreground shadow-ui-sm p-6 lg:col-span-2">
+            <p class="text-xs font-medium tracking-wide text-foreground/70">Table</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight">Dense trust surface</h2>
+
+            <div class="mt-4 overflow-hidden rounded-ui-lg border border-border/15">
+              <table class="w-full text-sm">
+                <thead class="border-b border-border/15 bg-muted/20 text-foreground/80">
+                  <tr>
+                    <th class="px-4 py-3 text-left font-medium">File</th>
+                    <th class="px-4 py-3 text-left font-medium">Status</th>
+                    <th class="px-4 py-3 text-left font-medium">Updated</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border/10">
+                  <tr class="hover:bg-muted/20">
+                    <td class="px-4 py-3 font-mono text-xs">apps/web/tailwind.config.ts</td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center rounded-pill bg-secondary/50 px-2 py-1 text-xs text-secondary-foreground">
+                        Draft
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-foreground/70">today</td>
+                  </tr>
+                  <tr class="hover:bg-muted/20">
+                    <td class="px-4 py-3 font-mono text-xs">docs/02-guidelines/inspiration/tailwind/tokens.css</td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center rounded-pill border border-border/15 bg-card px-2 py-1 text-xs text-foreground">
+                        Stable
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-foreground/70">yesterday</td>
+                  </tr>
+                  <tr class="hover:bg-muted/20">
+                    <td class="px-4 py-3 font-mono text-xs">brand-preview.html</td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center rounded-pill bg-accent/40 px-2 py-1 text-xs text-accent-foreground">
+                        Preview
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-foreground/70">now</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="rounded-ui-lg border border-border/10 bg-card text-card-foreground shadow-ui-sm p-6">
+            <p class="text-xs font-medium tracking-wide text-foreground/70">Radii + shadow</p>
+            <h2 class="mt-2 text-xl font-semibold tracking-tight">Corners + elevation</h2>
+
+            <div class="mt-4 grid gap-3">
+              <div class="rounded-ui-sm border border-border/15 bg-background p-4">
+                <p class="text-sm font-medium">rounded-ui-sm</p>
+              </div>
+              <div class="rounded-ui-md border border-border/15 bg-background p-4">
+                <p class="text-sm font-medium">rounded-ui-md</p>
+              </div>
+              <div class="rounded-ui-lg border border-border/15 bg-background p-4 shadow-ui-sm">
+                <p class="text-sm font-medium">rounded-ui-lg + shadow-ui-sm</p>
+              </div>
+              <div class="rounded-ui-xl border border-border/15 bg-background p-4 shadow-ui-lg">
+                <p class="text-sm font-medium">rounded-ui-xl + shadow-ui-lg</p>
+              </div>
+              <div class="rounded-pill border border-border/15 bg-background p-4 text-center">
+                <p class="text-sm font-medium">rounded-pill</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="mt-10 border-t border-border/10 pt-6 text-xs text-foreground/60">
+        Tip: Tab through inputs/buttons to check focus styles; hover table rows to confirm muted affordances; toggle dark mode.
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var key = "orbital.brandPreview.theme";
+        var root = document.documentElement;
+        var toggle = document.getElementById("themeToggle");
+
+        function getInitialTheme() {
+          var saved = null;
+          try {
+            saved = localStorage.getItem(key);
+          } catch (_err) {}
+          if (saved === "dark" || saved === "light") return saved;
+          var prefersDark =
+            typeof window !== "undefined" &&
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          return prefersDark ? "dark" : "light";
+        }
+
+        function setTheme(next) {
+          root.classList.toggle("dark", next === "dark");
+          try {
+            localStorage.setItem(key, next);
+          } catch (_err) {}
+        }
+
+        setTheme(getInitialTheme());
+
+        if (toggle) {
+          toggle.addEventListener("click", function () {
+            setTheme(root.classList.contains("dark") ? "light" : "dark");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
