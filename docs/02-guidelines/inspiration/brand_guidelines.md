@@ -1,5 +1,8 @@
 # Overview
 
+Note: this file is the canonical "latest" Brand DNA output for the current run.
+Archived snapshot copies live under `docs/02-guidelines/inspiration/brand-dna-2026-02-06/`.
+
 - Run: `brand-dna-2026-02-06`
 - Timestamp (UTC): `2026-02-06T16:27:35+00:00`
 - Inspiration input: `docs/02-guidelines/inspiration/brand-dna-2026-02-06/brand-apps-inspiration.md`
