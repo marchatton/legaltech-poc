@@ -32,7 +32,7 @@ In the survey artefact row drawer:
   - `pack_01_clean`
   - `pack_03_mismatch_and_cert_gap`
 - Outputs compared to `truth/expected_survey_issues.csv` where applicable (key fields, not wording)
-  - Comparator rules are single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`.
+  - Comparator rules are single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md`.
 
 ## Goals
 
@@ -51,7 +51,7 @@ As a user, I can see certification parties (where present) backed by evidence so
 
 #### Verification
 - Packs: `pack_01_clean`
-- Automated: comparator against truth key fields (rules single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`); citation integrity checks.
+- Automated: comparator against truth key fields (rules single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md`); citation integrity checks.
 
 ### US-002: Flag certification gap as structured issue code
 As a user, I see a structured cert gap issue (missing lender) backed by evidence, not a vague note.
@@ -85,4 +85,4 @@ As a user, I see a structured cert gap issue (missing lender) backed by evidence
 
 - Survey spikes: SP-2.4A in `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md`
 - Architecture: `docs/03-architecture/40_rag_and_agents.md`, `docs/03-architecture/60_observability_and_evals.md`
-- Comparator spec: `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`
+- Comparator spec: `docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md`

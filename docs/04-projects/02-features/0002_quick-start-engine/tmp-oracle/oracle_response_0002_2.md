@@ -255,7 +255,7 @@ I’d restructure spikes to isolate failure modes. You can still keep the same d
 
 * Add a concrete deliverable:
 
-  * Create a shaping artefact file: `docs/04-projects/02-features/0002_quick-start-engine/question_set_v1.json` (or `.md` if you prefer) containing:
+  * Create a shaping artefact file: `docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json` (or `.md` if you prefer) containing:
 
     * `question_set_version`
     * stable `question_id`s

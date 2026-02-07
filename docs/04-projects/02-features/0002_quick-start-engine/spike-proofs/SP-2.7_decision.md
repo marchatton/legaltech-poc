@@ -6,7 +6,7 @@ Decision:
 
 Schema:
 - `payload_schema_version = "list_payload_v0"`
-- Canonical schema doc: `docs/04-projects/02-features/0002_quick-start-engine/list_payload_v0.schema.md`
+- Canonical schema doc: `docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md`
 
 Docs updated:
 - `docs/03-architecture/30_data_model.md` (report_rows includes payload columns)

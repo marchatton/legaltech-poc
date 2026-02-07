@@ -19,12 +19,12 @@ Time: 2026-02-07 01:05:12 (local)
   - Created PRD spine + slice PRDs (each has a matching JSON PRD that validates against `docs/04-projects/_templates/json-prd.schema.json`):
     - `docs/04-projects/02-features/0002_quick-start-engine/prd.md`
     - `docs/04-projects/02-features/0002_quick-start-engine/prd.json`
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-01-run-skeleton.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-02-row-payload-contract.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-03-commitment-parsing-pack-01-clean.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-04-exception-matching-pack-01-02.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-05-survey-extraction-pack-01-03.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-06-reconciliation-honesty-pack-03-07.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-01-run-skeleton.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-02-row-payload-contract.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-03-commitment-parsing-pack-01-clean.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-04-exception-matching-pack-01-02.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-05-survey-extraction-pack-01-03.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-06-reconciliation-honesty-pack-03-07.md` (+ `.json`)
   - Proof capture tooling notes added to spikes:
     - `agent-browser` (`pnpm dlx agent-browser ...`)
     - `browser-use` (`uvx "browser-use[cli]" ...`)

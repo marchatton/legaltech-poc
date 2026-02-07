@@ -1,4 +1,4 @@
-# PRD: 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)
+# PRD (Spine): 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)
 
 Owner: marc
 Status: Draft (Blocked by RH1-RH5 spikes)

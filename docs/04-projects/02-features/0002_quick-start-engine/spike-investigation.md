@@ -11,7 +11,7 @@ Fixture sources:
 - Pack list (canonical): `docs/08-example-data/packs_summary.md`
 - Truth comparators: `docs/08-example-data/<pack>/truth/*`
 - Viewer anchors: `docs/08-example-data/<pack>/layout/*.anchors.json`
-- Comparator spec (canonical): `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`
+- Comparator spec (canonical): `docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md`
 - Spike proof artefacts: `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/`
 
 ## Proof contract (apply to every spike)
@@ -84,7 +84,7 @@ If question set v1 is wrong, Initiative 002 can "work" while producing the wrong
 
 ## Deliverable
 - A committed artefact capturing the frozen question set:
-  - `docs/04-projects/02-features/0002_quick-start-engine/question_set_v1.json` (preferred)
+  - `docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json` (preferred)
   - `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.1_practitioner_review.md`
   - plus a short note of cuts/changes in this spike report stub
 
@@ -174,7 +174,7 @@ Can we extract Schedule A facts, B-I requirements, and B-II exceptions matching 
 
 Notes:
 - Snapshot must include rows for `TS-03` (B-I) and `TS-04` (B-II).
-- Comparator rules are single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`.
+- Comparator rules are single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md`.
 
 ## Oracle notes
 - Pending.
@@ -458,7 +458,7 @@ On restart/retry, do we avoid duplicate rows and keep stable citation `snippet_h
 - `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.6_negative_test.json`
 
 Notes:
-- Record the exact normalisation function used as `normalise_row_for_idempotency_v0()` (defined in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`).
+- Record the exact normalisation function used as `normalise_row_for_idempotency_v0()` (defined in `docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md`).
 
 ## Timebox
 - <= 0.5 day
@@ -498,7 +498,7 @@ Notes:
 
 ## Current decision (doc-level)
 - Chosen: Option 4 (`report_rows.payload_json` + `report_rows.payload_schema_version`).
-- Schema: `docs/04-projects/02-features/0002_quick-start-engine/list_payload_v0.schema.md` (`payload_schema_version = list_payload_v0`).
+- Schema: `docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md` (`payload_schema_version = list_payload_v0`).
 
 ## Success criteria (proof)
 - Can represent truth comparators faithfully (key fields + item numbering) for the chosen packs.

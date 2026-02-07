@@ -1,4 +1,4 @@
-# PRD: 0002 Quick Start Engine (PRD Spine + Slices)
+# PRD (Spine): 0002 Quick Start Engine (Slices in `prds/`)
 
 Owner:
 Status: Draft (NO-GO until key spikes close)
@@ -45,17 +45,17 @@ Primary near-term anchors for implementation slices:
 
 ## Slice PRDs (thin, executable)
 
-1. `prd-slice-01-run-skeleton.md`
+1. `prds/prd-slice-01-run-skeleton.md`
   - Runs API + version pinning + WDK workflow skeleton + incremental UI progress, with strict invariants.
-2. `prd-slice-02-row-payload-contract.md`
+2. `prds/prd-slice-02-row-payload-contract.md`
   - Decide and implement list payload storage + schema versioning + UI rendering contract for artefact tables.
-3. `prd-slice-03-commitment-parsing-pack-01-clean.md`
+3. `prds/prd-slice-03-commitment-parsing-pack-01-clean.md`
   - Commitment parsing baseline for `pack_01_clean` producing B-I + B-II payloads matching truth key fields.
-4. `prd-slice-04-exception-matching-pack-01-02.md`
+4. `prds/prd-slice-04-exception-matching-pack-01-02.md`
   - Exception → instrument matching baseline + missing-doc journey on `pack_02_missing_rea`; ambiguity surfaced without “silent pick”.
-5. `prd-slice-05-survey-extraction-pack-01-03.md`
+5. `prds/prd-slice-05-survey-extraction-pack-01-03.md`
   - Survey extraction baseline + certification gap issue on `pack_03_mismatch_and_cert_gap` with locked citations.
-6. `prd-slice-06-reconciliation-honesty-pack-03-07.md`
+6. `prds/prd-slice-06-reconciliation-honesty-pack-03-07.md`
   - Reconciliation issues list with an honesty policy (bias to item-level `unknown`; `not_depicted` requires positive evidence of absence).
 
 ## Open questions (spike-owned)

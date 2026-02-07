@@ -629,7 +629,7 @@ If question set v1 is wrong, Initiative 002 can "work" while producing the wrong
 
 ## Deliverable
 - A committed artefact capturing the frozen question set:
-  - `docs/04-projects/02-features/0002_quick-start-engine/question_set_v1.json` (preferred)
+  - `docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json` (preferred)
   - plus a short note of cuts/changes in this spike report stub
 
 ## Timebox
@@ -1217,17 +1217,17 @@ Primary near-term anchors for implementation slices:
 
 ## Slice PRDs (thin, executable)
 
-1. `prd-slice-01-run-skeleton.md`
+1. `prds/prd-slice-01-run-skeleton.md`
   - Runs API + version pinning + WDK workflow skeleton + incremental UI progress, with strict invariants.
-2. `prd-slice-02-row-payload-contract.md`
+2. `prds/prd-slice-02-row-payload-contract.md`
   - Decide and implement list payload storage + schema versioning + UI rendering contract for artefact tables.
-3. `prd-slice-03-commitment-parsing-pack-01-clean.md`
+3. `prds/prd-slice-03-commitment-parsing-pack-01-clean.md`
   - Commitment parsing baseline for `pack_01_clean` producing B-I + B-II payloads matching truth key fields.
-4. `prd-slice-04-exception-matching-pack-01-02.md`
+4. `prds/prd-slice-04-exception-matching-pack-01-02.md`
   - Exception → instrument matching baseline + missing-doc journey on `pack_02_missing_rea`; ambiguity surfaced without “silent pick”.
-5. `prd-slice-05-survey-extraction-pack-01-03.md`
+5. `prds/prd-slice-05-survey-extraction-pack-01-03.md`
   - Survey extraction baseline + certification gap issue on `pack_03_mismatch_and_cert_gap` with locked citations.
-6. `prd-slice-06-reconciliation-honesty-pack-03-07.md`
+6. `prds/prd-slice-06-reconciliation-honesty-pack-03-07.md`
   - Reconciliation issues list with an honesty policy (bias to item-level `unknown`; `not_depicted` requires positive evidence of absence).
 
 ## Open questions (spike-owned)
@@ -1245,7 +1245,7 @@ Primary near-term anchors for implementation slices:
 - `spike-investigation.md`: `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md`
 ```
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/prd-slice-01-run-skeleton.md
+### File: docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-01-run-skeleton.md
 ```md
 # PRD: Initiative 0002 (Slice 1) Run Skeleton + Version Pinning + Incremental Progress
 
@@ -1354,7 +1354,7 @@ As a user, I can see rows appear in the report table as they finish, and every r
 - Dossier breadboard: `docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md`
 ```
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/prd-slice-02-row-payload-contract.md
+### File: docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-02-row-payload-contract.md
 ```md
 # PRD: Initiative 0002 (Slice 2) Row Payload Contract + Artefact Table Rendering
 
@@ -1464,7 +1464,7 @@ As a user, I can view B-I/B-II/issues as tables, open a row drawer, and click ci
 - Evidence-first ADRs: `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002)
 ```
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/prd-slice-03-commitment-parsing-pack-01-clean.md
+### File: docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-03-commitment-parsing-pack-01-clean.md
 ```md
 # PRD: Initiative 0002 (Slice 3) Commitment Parsing Baseline (pack_01_clean)
 
@@ -1571,7 +1571,7 @@ As a user, I can see a B-II exceptions table derived from the commitment and bac
 - Dossier spikes: SP-2.2A in `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md`
 ```
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/prd-slice-04-exception-matching-pack-01-02.md
+### File: docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-04-exception-matching-pack-01-02.md
 ```md
 # PRD: Initiative 0002 (Slice 4) Exception → Instrument Matching (pack_01_clean + pack_02_missing_rea)
 
@@ -1668,7 +1668,7 @@ As a user, I see missing instrument docs called out explicitly with a checklist 
 - RAG pipeline: `docs/03-architecture/40_rag_and_agents.md`
 ```
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/prd-slice-05-survey-extraction-pack-01-03.md
+### File: docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-05-survey-extraction-pack-01-03.md
 ```md
 # PRD: Initiative 0002 (Slice 5) Survey Extraction Baseline + Cert Gap (pack_01_clean + pack_03_mismatch_and_cert_gap)
 
@@ -1758,7 +1758,7 @@ As a user, I see a structured cert gap issue (missing lender) backed by evidence
 - Architecture: `docs/03-architecture/40_rag_and_agents.md`, `docs/03-architecture/60_observability_and_evals.md`
 ```
 
-### File: docs/04-projects/02-features/0002_quick-start-engine/prd-slice-06-reconciliation-honesty-pack-03-07.md
+### File: docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-06-reconciliation-honesty-pack-03-07.md
 ```md
 # PRD: Initiative 0002 (Slice 6) Reconciliation Issues List Honesty Policy (pack_03_mismatch_and_cert_gap + pack_07_scans_rotated_low_quality)
 
@@ -1871,12 +1871,12 @@ Time: 2026-02-07 01:05:12 (local)
   - Created PRD spine + slice PRDs (each has a matching JSON PRD that validates against `docs/04-projects/_templates/json-prd.schema.json`):
     - `docs/04-projects/02-features/0002_quick-start-engine/prd.md`
     - `docs/04-projects/02-features/0002_quick-start-engine/prd.json`
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-01-run-skeleton.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-02-row-payload-contract.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-03-commitment-parsing-pack-01-clean.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-04-exception-matching-pack-01-02.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-05-survey-extraction-pack-01-03.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd-slice-06-reconciliation-honesty-pack-03-07.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-01-run-skeleton.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-02-row-payload-contract.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-03-commitment-parsing-pack-01-clean.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-04-exception-matching-pack-01-02.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-05-survey-extraction-pack-01-03.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-06-reconciliation-honesty-pack-03-07.md` (+ `.json`)
   - Proof capture tooling notes added to spikes:
     - `agent-browser` (`pnpm dlx agent-browser ...`)
     - `browser-use` (`uvx "browser-use[cli]" ...`)

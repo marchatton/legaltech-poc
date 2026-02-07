@@ -27,7 +27,7 @@ In the report table, list-shaped artefact rows render as tables backed by struct
   - stable `item_id`
   - item-level `citation_ids[]`
   - optional item-level states (`match_status`, `item_classification`) that do not change report-row statuses
-  - canonical schema doc: `docs/04-projects/02-features/0002_quick-start-engine/list_payload_v0.schema.md`
+  - canonical schema doc: `docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md`
 - Storage + versioning for structured payload (see Decision below)
 - API returns payload + schema version alongside the existing row shell
 - UI renders artefact tables from payload (table view + row drawer)

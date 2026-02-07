@@ -7,6 +7,8 @@ import {
   bboxFromCssPolygons,
   mapNormPolygonsToViewportCss,
   type CssPolygons,
+  type NormPoint,
+  type NormPolygons,
   type ViewBox,
 } from "@orbital-poc/core";
 import { useRouter } from "next/navigation";
@@ -26,7 +28,7 @@ type PdfJsModule = {
   getDocument: (opts: any) => { promise: Promise<any> };
 };
 
-function validateNormPolygons(polygons: ReadonlyArray<ReadonlyArray<readonly [number, number]>>): string | null {
+function validateNormPolygons(polygons: NormPolygons): string | null {
   if (!polygons.length) return "NO_POLYGONS";
   for (const poly of polygons) {
     if (poly.length < 3) return "POLYGON_TOO_SMALL";
@@ -184,13 +186,9 @@ export function Rh2OverlayClient(props: Props) {
       await renderTask.promise;
 
       const polygonsBase = anchorBoxToPolygons({ page: selectedAnchor.page, bbox: selectedAnchor.bbox });
+      const badPoint: NormPoint = [-0.1, 0.2] as const;
       const polygons = injectInvalidPolygon
-        ? [
-            [
-              [-0.1, 0.2],
-              ...polygonsBase[0].slice(1),
-            ],
-          ]
+        ? [[badPoint, ...polygonsBase[0].slice(1)]]
         : polygonsBase;
 
       const polyErr = validateNormPolygons(polygons);

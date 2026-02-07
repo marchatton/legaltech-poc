@@ -2,6 +2,7 @@
 
 > Status: planned only. No spikes executed yet.
 > Oracle pass: RH2 highlight overlay reviewed (2026-02-06). See `tmp-oracle/oracle_response_0001.md`.
+> Proof artefacts: commit under `spike-proofs/` and link them from the report stubs at the end of this doc.
 
 ## Spike plan — PDF viewer performance on noisy scans
 
@@ -294,10 +295,54 @@ Throw away:
 
 ## Spike reports (pending)
 
-No spike reports yet (spikes not executed). After each spike, add a report section. Oracle pass is required per spike; RH2 oracle pass is already captured.
+No spike reports yet (spikes not executed). After each spike:
+- Commit proof artefacts under `spike-proofs/`.
+- Fill in the corresponding report stub below.
+- Update `risk-register.md` RH status (`closed` / Cut / Patch / Out-of-bounds) with a link to proof.
+
+### RH1 report — pdf.js performance on scanned/rotated PDFs (page jumps, zoom)
+- Date:
+- Outcome: PASS / FAIL / Cut / Patch
+- Environment: browser + OS + machine notes
+- Proof (files under `spike-proofs/`):
+- Key numbers: p50 / p95 / max totalMs; max long task; notes
+- Decision: proceed with slice(s) / cut / patch
+- Follow-ups (docs to update):
+
+### RH2 report — highlight overlay coordinate transforms across zoom levels
+- Date:
+- Outcome: PASS / FAIL / Cut / Patch
+- Proof (screenshots + JSON log under `spike-proofs/`):
+- Decision: proceed / lock-to-100%-zoom cut / evidence-card patch
+- Follow-ups (docs to update):
+
+### RH3 report — snippet normalisation + stable `snippet_hash`
+- Date:
+- Outcome: PASS / FAIL / Cut / Patch
+- Proof (stability table / harness output under `spike-proofs/`):
+- Decision:
+- Follow-ups (docs to update):
+
+### RH4 report — verification avoids false passes at acceptable latency
+- Date:
+- Outcome: PASS / FAIL / Cut / Patch
+- Proof (results JSON under `spike-proofs/`):
+- Key numbers: FP=0 check; p50/p95/max latency; notes
+- Decision:
+- Follow-ups (docs to update):
+
+### RH5 report — missing-doc detection heuristics reliability
+- Date:
+- Outcome: PASS / FAIL / Cut / Patch
+- Proof (heuristics results under `spike-proofs/`):
+- Key numbers: FP/FN table; confidence thresholds; notes
+- Decision:
+- Follow-ups (docs to update):
 
 ## Oracle bundles
 Keep oracle bundles/notes in `tmp-oracle/` so they are git-tracked and easy to re-run/review.
 
+- RH1-RH5 closure bundle: `tmp-oracle/oracle-bundle_0001_trust-substrate_RH1-RH5_spike-closure.md`
+- RH1-RH5 closure response: `tmp-oracle/oracle-bundle_0001_trust-substrate_RH1-RH5_spike-closure_RESPONSE.md`
 - RH2 bundle: `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
 - RH2 response: `tmp-oracle/oracle_response_0001.md`
