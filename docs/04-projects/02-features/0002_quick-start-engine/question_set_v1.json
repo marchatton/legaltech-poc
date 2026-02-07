@@ -1,0 +1,74 @@
+{
+  "question_set_id": "qs_0002_v1",
+  "question_set_version_format": "qs:0002:v{major}.{minor}:sha256:{canonical_json_sha256}",
+  "questions": [
+    {
+      "question_id": "TS-01",
+      "group": "title_schedule_a",
+      "question": "Who is the Proposed Insured?",
+      "response_kind": "scalar_text"
+    },
+    {
+      "question_id": "TS-02",
+      "group": "title_schedule_a",
+      "question": "What is the Insured Estate?",
+      "response_kind": "scalar_text"
+    },
+    {
+      "question_id": "TS-03",
+      "group": "artefacts",
+      "question": "List Schedule B-I requirements.",
+      "response_kind": "list_payload",
+      "artefact_kind": "requirements_tracker",
+      "payload_schema_version": "list_payload_v0"
+    },
+    {
+      "question_id": "TS-04",
+      "group": "artefacts",
+      "question": "List the recorded exceptions in Schedule B-II.",
+      "response_kind": "list_payload",
+      "artefact_kind": "exceptions_table",
+      "payload_schema_version": "list_payload_v0"
+    },
+    {
+      "question_id": "TS-05",
+      "group": "survey",
+      "question": "Who is the survey certified to?",
+      "response_kind": "scalar_text"
+    },
+    {
+      "question_id": "TS-06",
+      "group": "survey",
+      "question": "Are there any encroachments or protrusions noted on the survey?",
+      "response_kind": "scalar_text"
+    },
+    {
+      "question_id": "TS-07",
+      "group": "survey",
+      "question": "Does the survey flag any mismatch with the record description?",
+      "response_kind": "scalar_text"
+    },
+    {
+      "question_id": "TS-08",
+      "group": "reconciliation",
+      "question": "Is any referenced exception document missing from the pack?",
+      "response_kind": "scalar_text"
+    },
+    {
+      "question_id": "TS-09",
+      "group": "artefacts",
+      "question": "List survey reconciliation issues and QC flags (title <-> survey), including missing-doc, cert-gap, mismatch, encroachments, and scan-quality warnings.",
+      "response_kind": "list_payload",
+      "artefact_kind": "survey_issues",
+      "payload_schema_version": "list_payload_v0"
+    }
+  ],
+  "list_shaped_question_ids": ["TS-03", "TS-04", "TS-09"],
+  "notes": {
+    "pinning": {
+      "runs.question_set_version": "Set to qs:0002:v1.0:sha256:{canonical_json_sha256} at run start; stored on run; must be returned by GET /runs/:id and in report responses.",
+      "canonicalisation": "Before hashing, serialise JSON with stable key ordering and no insignificant whitespace; then sha256 the bytes."
+    }
+  }
+}
+
