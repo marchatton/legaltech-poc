@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbital Design System - V6 Earthy Organic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Overpass+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Earthy Organic - Warm, natural, human */
+      --color-primary: #D97706;
+      --color-primary-hover: #B45309;
+      --color-primary-light: rgba(217, 119, 6, 0.1);
+      --color-secondary: #059669;
+      --color-secondary-hover: #047857;
+      --color-accent: #7C3AED;
+      --color-background: #FFFBF5;
+      --color-surface: #FFFFFF;
+      --color-surface-warm: #FDF7ED;
+      --color-text: #292524;
+      --color-text-muted: #78716C;
+      --color-border: #E7E5E4;
+      --color-border-warm: #D6D3D1;
+      --color-success: #16A34A;
+      --color-error: #DC2626;
+
+      /* Typography */
+      --font-body: 'Karla', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Lora', Georgia, serif;
+      --font-mono: 'Overpass Mono', ui-monospace, monospace;
+
+      /* Spacing */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-8: 48px;
+      --space-10: 64px;
+
+      /* Organic Radius */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-organic: 40% 60% 55% 45% / 55% 45% 55% 45%;
+      --radius-pill: 9999px;
+
+      /* Motion */
+      --duration-fast: 180ms;
+      --duration-normal: 280ms;
+      --duration-slow: 450ms;
+      --ease-organic: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.65;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: var(--space-8);
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: var(--space-10);
+      padding: var(--space-8) 0;
+    }
+
+    .header .badge {
+      display: inline-block;
+      padding: var(--space-2) var(--space-5);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-5);
+      border: 1px solid var(--color-primary);
+    }
+
+    .header h1 {
+      font-family: var(--font-heading);
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--space-4);
+    }
+
+    .header h1 em {
+      font-style: italic;
+      color: var(--color-primary);
+    }
+
+    .header p {
+      color: var(--color-text-muted);
+      font-size: 18px;
+      font-weight: 400;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Decorative blob */
+    .blob {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, var(--color-primary-light), rgba(5, 150, 105, 0.05));
+      border-radius: var(--radius-organic);
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .blob-1 {
+      top: -100px;
+      right: -100px;
+      animation: blob-float 12s ease-in-out infinite;
+    }
+
+    .blob-2 {
+      bottom: 20%;
+      left: -150px;
+      animation: blob-float 15s ease-in-out infinite reverse;
+    }
+
+    @keyframes blob-float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -20px) scale(1.05); }
+      66% { transform: translate(-10px, 10px) scale(0.95); }
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: var(--space-10);
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      font-weight: 500;
+      margin-bottom: var(--space-6);
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .section-title .leaf {
+      width: 24px;
+      height: 24px;
+      background: var(--color-secondary);
+      border-radius: 50% 0 50% 50%;
+      transform: rotate(-45deg);
+    }
+
+    /* Color Palette */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .color-swatch {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      transition: all var(--duration-normal) var(--ease-organic);
+    }
+
+    .color-swatch:hover {
+      transform: translateY(-4px) rotate(1deg);
+      box-shadow: 0 12px 32px rgba(41, 37, 36, 0.1);
+    }
+
+    .color-preview {
+      height: 90px;
+    }
+
+    .color-info {
+      padding: var(--space-4);
+    }
+
+    .color-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .color-value {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* Typography */
+    .type-showcase {
+      background: var(--color-surface-warm);
+      padding: var(--space-8);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+    }
+
+    .type-row {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px dashed var(--color-border-warm);
+    }
+
+    .type-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-3);
+    }
+
+    .type-heading-xl {
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+
+    .type-heading-lg {
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 500;
+      line-height: 1.25;
+    }
+
+    .type-heading-md {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .type-body {
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.75;
+      max-width: 560px;
+    }
+
+    .type-mono {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--color-text-muted);
+      background: var(--color-surface);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      display: inline-block;
+      border: 1px solid var(--color-border);
+    }
+
+    /* Buttons */
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-organic);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(217, 119, 6, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 2px solid var(--color-border-warm);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+      padding: var(--space-2) var(--space-4);
+    }
+
+    .btn-ghost:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .btn-accent {
+      background: var(--color-secondary);
+      color: white;
+    }
+
+    .btn-accent:hover {
+      background: var(--color-secondary-hover);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* Inputs */
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .input-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .input {
+      padding: var(--space-4);
+      font-family: var(--font-body);
+      font-size: 16px;
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .input:hover {
+      border-color: var(--color-border-warm);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px var(--color-primary-light);
+    }
+
+    .input::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.6;
+    }
+
+    .input-error {
+      border-color: var(--color-error);
+    }
+
+    .input-error:focus {
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    }
+
+    .error-text {
+      font-size: 13px;
+      color: var(--color-error);
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: all var(--duration-normal) var(--ease-organic);
+    }
+
+    .card:hover {
+      transform: translateY(-4px) rotate(-0.5deg);
+      box-shadow: 0 16px 40px rgba(41, 37, 36, 0.1);
+      border-color: var(--color-primary);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .card-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+    }
+
+    .card-badge.success {
+      background: rgba(22, 163, 74, 0.1);
+      color: var(--color-success);
+    }
+
+    .card-badge.warning {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .card-body {
+      color: var(--color-text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .card-meta {
+      margin-top: var(--space-5);
+      padding-top: var(--space-4);
+      border-top: 1px dashed var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    /* Loaders */
+    .loader-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-10);
+      align-items: center;
+    }
+
+    .loader-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .loader-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Leaf Spinner */
+    .spinner {
+      width: 36px;
+      height: 36px;
+      position: relative;
+    }
+
+    .spinner::before,
+    .spinner::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: var(--color-primary);
+      border-radius: 50% 0 50% 50%;
+    }
+
+    .spinner::before {
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%) rotate(-45deg);
+      animation: leaf-spin 1.2s ease-in-out infinite;
+    }
+
+    .spinner::after {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) rotate(135deg);
+      background: var(--color-secondary);
+      animation: leaf-spin 1.2s ease-in-out infinite reverse;
+    }
+
+    @keyframes leaf-spin {
+      0%, 100% { transform: translateX(-50%) rotate(-45deg) scale(1); }
+      50% { transform: translateX(-50%) rotate(45deg) scale(0.8); }
+    }
+
+    /* Orbital Organic */
+    .orbital-loader {
+      width: 48px;
+      height: 48px;
+      position: relative;
+    }
+
+    .orbital-loader .ring {
+      position: absolute;
+      inset: 0;
+      border: 2px solid transparent;
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: organic-orbit 2s var(--ease-out) infinite;
+    }
+
+    .orbital-loader .ring:nth-child(2) {
+      inset: 8px;
+      border-top-color: var(--color-secondary);
+      animation-duration: 2.5s;
+      animation-direction: reverse;
+    }
+
+    .orbital-loader .ring:nth-child(3) {
+      inset: 16px;
+      border-top-color: var(--color-accent);
+      animation-duration: 3s;
+    }
+
+    @keyframes organic-orbit {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Grow Dots */
+    .grow-loader {
+      display: flex;
+      gap: 8px;
+    }
+
+    .grow-loader span {
+      width: 12px;
+      height: 12px;
+      background: var(--color-primary);
+      border-radius: 50% 0 50% 50%;
+      transform: rotate(-45deg);
+      animation: grow-pulse 1.4s var(--ease-organic) infinite;
+    }
+
+    .grow-loader span:nth-child(2) {
+      animation-delay: 0.2s;
+      background: var(--color-secondary);
+    }
+
+    .grow-loader span:nth-child(3) {
+      animation-delay: 0.4s;
+      background: var(--color-accent);
+    }
+
+    @keyframes grow-pulse {
+      0%, 80%, 100% { transform: rotate(-45deg) scale(0.7); opacity: 0.5; }
+      40% { transform: rotate(-45deg) scale(1.1); opacity: 1; }
+    }
+
+    /* Flowing Progress */
+    .progress-bar {
+      width: 120px;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .progress-bar::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+      border-radius: var(--radius-pill);
+      animation: flow 1.8s ease-in-out infinite;
+    }
+
+    @keyframes flow {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(150%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Chat Widget */
+    .chat-preview {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(41, 37, 36, 0.08);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-5);
+      background: var(--color-surface-warm);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      border-radius: 50% 0 50% 50%;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-avatar span {
+      transform: rotate(45deg);
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-style: italic;
+      color: white;
+    }
+
+    .chat-title {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      font-size: 16px;
+    }
+
+    .chat-status {
+      font-size: 13px;
+      color: var(--color-success);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--color-success);
+      border-radius: 50%;
+      animation: pulse-status 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-status {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+
+    .chat-messages {
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      min-height: 200px;
+    }
+
+    .chat-message {
+      max-width: 85%;
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: 15px;
+      line-height: 1.5;
+      animation: message-grow 0.4s var(--ease-organic);
+    }
+
+    @keyframes message-grow {
+      from { opacity: 0; transform: scale(0.95) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .chat-message.incoming {
+      background: var(--color-surface-warm);
+      border: 1px solid var(--color-border);
+      align-self: flex-start;
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+    }
+
+    .chat-message.outgoing {
+      background: var(--color-primary);
+      color: white;
+      align-self: flex-end;
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
+    }
+
+    .chat-input-area {
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      font-family: var(--font-body);
+      font-size: 15px;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .chat-send {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 50% 0 50% 50%;
+      transform: rotate(-45deg);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-organic);
+    }
+
+    .chat-send svg {
+      transform: rotate(45deg);
+    }
+
+    .chat-send:hover {
+      background: var(--color-primary-hover);
+      transform: rotate(-45deg) scale(1.08);
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--duration-fast) var(--ease-organic);
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px) rotate(-1deg);
+    }
+
+    .chip.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+      transform: rotate(-1deg);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: var(--space-10);
+      padding-top: var(--space-6);
+      border-top: 1px dashed var(--color-border);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 14px;
+    }
+
+    .footer strong {
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="container">
+    <header class="header">
+      <span class="badge">V6 Earthy Organic</span>
+      <h1><em>Orbital</em> Design System</h1>
+      <p>Warm, natural, and human. Lora serif with Karla sans. Organic shapes and playful motion.</p>
+    </header>
+
+    <!-- Colors -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Color Palette
+      </h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-primary)"></div>
+          <div class="color-info">
+            <div class="color-name">Primary</div>
+            <div class="color-value">#D97706</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-secondary)"></div>
+          <div class="color-info">
+            <div class="color-name">Secondary</div>
+            <div class="color-value">#059669</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-accent)"></div>
+          <div class="color-info">
+            <div class="color-name">Accent</div>
+            <div class="color-value">#7C3AED</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-background)"></div>
+          <div class="color-info">
+            <div class="color-name">Background</div>
+            <div class="color-value">#FFFBF5</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-text)"></div>
+          <div class="color-info">
+            <div class="color-name">Text</div>
+            <div class="color-value">#292524</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-success)"></div>
+          <div class="color-info">
+            <div class="color-name">Success</div>
+            <div class="color-value">#16A34A</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Typography
+      </h2>
+      <div class="type-showcase">
+        <div class="type-row">
+          <div class="type-label">Heading XL / Lora</div>
+          <div class="type-heading-xl">Trust, verified.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading LG / Lora</div>
+          <div class="type-heading-lg">Compliance made human</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading MD / Lora</div>
+          <div class="type-heading-md">Evidence-backed decisions</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Body / Karla</div>
+          <div class="type-body">Orbital helps you trace every commitment back to its source. No more guesswork, no more manual cross-referencing. Just clear, auditable evidence.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Monospace / Overpass Mono</div>
+          <div class="type-mono">folder_id: 8f4e2a1b-9c3d | status: reviewed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Buttons
+      </h2>
+      <div class="button-grid">
+        <button class="btn btn-primary">Run Quick Start</button>
+        <button class="btn btn-secondary">View Evidence</button>
+        <button class="btn btn-accent">Export CSV</button>
+        <button class="btn btn-ghost">Learn more</button>
+      </div>
+    </section>
+
+    <!-- Inputs -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Form Inputs
+      </h2>
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label">Matter name</label>
+          <input type="text" class="input" placeholder="Enter matter name...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Search documents</label>
+          <input type="text" class="input" placeholder="Search by keyword or ID...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Email (with error)</label>
+          <input type="email" class="input input-error" value="invalid-email">
+          <span class="error-text">Please enter a valid email address</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chips -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Chips & Tags
+      </h2>
+      <div class="chip-row">
+        <span class="chip active">All</span>
+        <span class="chip">Needs review</span>
+        <span class="chip">Reviewed</span>
+        <span class="chip">Missing input</span>
+        <span class="chip">Citation failed</span>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Cards
+      </h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Commitment #247</div>
+            <span class="card-badge success">Reviewed</span>
+          </div>
+          <div class="card-body">
+            Annual carbon offset commitment as per Schedule 3, Section 4.2 of the sustainability framework.
+          </div>
+          <div class="card-meta">
+            <span>2h ago</span>
+            <span>3 citations</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Exception #89</div>
+            <span class="card-badge warning">Needs review</span>
+          </div>
+          <div class="card-body">
+            Force majeure clause triggered. Pending verification against referenced contract amendment.
+          </div>
+          <div class="card-meta">
+            <span>Today</span>
+            <span>0 citations</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loaders -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Loaders
+      </h2>
+      <div class="loader-grid">
+        <div class="loader-item">
+          <div class="spinner"></div>
+          <span class="loader-label">Leaf</span>
+        </div>
+        <div class="loader-item">
+          <div class="orbital-loader">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+          </div>
+          <span class="loader-label">Orbital</span>
+        </div>
+        <div class="loader-item">
+          <div class="grow-loader">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="loader-label">Grow</span>
+        </div>
+        <div class="loader-item">
+          <div class="progress-bar"></div>
+          <span class="loader-label">Flow</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="leaf"></span>
+        Chat Modal
+      </h2>
+      <div class="chat-preview">
+        <div class="chat-header">
+          <div class="chat-avatar">
+            <span>O</span>
+          </div>
+          <div>
+            <div class="chat-title">Orbital Assistant</div>
+            <div class="chat-status">Online</div>
+          </div>
+        </div>
+        <div class="chat-messages">
+          <div class="chat-message incoming">
+            Hi! I can help you find evidence and verify commitments. What would you like to explore?
+          </div>
+          <div class="chat-message outgoing">
+            Show me all unverified carbon commitments
+          </div>
+          <div class="chat-message incoming">
+            Found 12 carbon-related commitments needing review. 3 are missing source documents.
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" placeholder="Ask about your documents...">
+          <button class="chat-send">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Orbital Design System</strong> - V6 Earthy Organic</p>
+      <p>Warm amber and forest green. Organic shapes with playful micro-interactions. Lora + Karla.</p>
+    </footer>
+  </div>
+</body>
+</html>

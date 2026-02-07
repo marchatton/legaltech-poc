@@ -1,0 +1,41 @@
+/*
+  Local overrides for the generated Brand DNA token pack.
+
+  Goal (2026-02-07): make LIGHT theme feel more Parallel-inspired (clean whites),
+  and keep high-chroma accents disciplined. Dark theme remains as generated.
+
+  This file is intended to be loaded *after* `tokens.css`.
+*/
+
+/* Light theme overrides only (do not clobber `.dark` theme variables). */
+:root:not(.dark) {
+  /* Surfaces: clean + crisp, with just enough separation for cards. */
+  --background: 252 252 250; /* #FCFCFA */
+  --foreground: 11 13 11; /* #0B0D0B */
+
+  --card: 255 255 255; /* #FFFFFF */
+  --card-foreground: 11 13 11;
+
+  --muted: 246 246 244; /* #F6F6F4 */
+  --muted-foreground: 11 13 11;
+
+  /* Keep borders subtle in the UI by relying on alpha in Tailwind classes. */
+  --border: 11 13 11;
+
+  /*
+    Color roles:
+    - primary: orange, but should be used mostly as outline/hover in LIGHT mode
+    - accent: Parallel-like blue for links/focus
+    - secondary: pale highlight (supporting, not loud)
+  */
+  --primary: 232 90 26; /* #E85A1A (calmer than #FB631B) */
+  --primary-foreground: 11 13 11;
+
+  --accent: 13 110 165; /* #0D6EA5 */
+  --accent-foreground: 255 255 255;
+
+  --secondary: 219 243 250; /* #DBF3FA */
+  --secondary-foreground: 11 13 11;
+
+  --ring: var(--accent);
+}

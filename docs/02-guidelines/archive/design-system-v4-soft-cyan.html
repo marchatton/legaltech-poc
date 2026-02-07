@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbital Design System - V4 Soft Cyan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,500;0,6..12,600;1,6..12,400&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Soft Cyan - Every-inspired muted palette */
+      --color-primary: #1DB4C5;
+      --color-primary-hover: #17A3B3;
+      --color-primary-light: rgba(29, 180, 197, 0.1);
+      --color-secondary: #F5A862;
+      --color-secondary-hover: #F19B4C;
+      --color-accent: #B39DDB;
+      --color-background: #F7F9FA;
+      --color-surface: #FFFFFF;
+      --color-surface-elevated: #FFFFFF;
+      --color-text: #2D3748;
+      --color-text-muted: #718096;
+      --color-border: #E2E8F0;
+      --color-success: #48BB78;
+      --color-error: #F56565;
+
+      /* Typography */
+      --font-body: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Crimson Pro', Georgia, serif;
+      --font-mono: 'Source Code Pro', ui-monospace, monospace;
+
+      /* Spacing */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-8: 48px;
+      --space-10: 64px;
+
+      /* Radius */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
+      --radius-pill: 9999px;
+
+      /* Motion */
+      --duration-fast: 150ms;
+      --duration-normal: 250ms;
+      --duration-slow: 400ms;
+      --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.65;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: var(--space-8);
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: var(--space-10);
+      padding: var(--space-8) 0;
+    }
+
+    .header .badge {
+      display: inline-block;
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-5);
+      border: 1px solid rgba(29, 180, 197, 0.2);
+    }
+
+    .header h1 {
+      font-family: var(--font-heading);
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-4);
+      color: var(--color-text);
+    }
+
+    .header h1 em {
+      font-style: italic;
+      color: var(--color-primary);
+    }
+
+    .header p {
+      color: var(--color-text-muted);
+      font-size: 17px;
+      font-weight: 300;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: var(--space-10);
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      font-weight: 400;
+      margin-bottom: var(--space-5);
+      color: var(--color-text);
+      position: relative;
+      padding-left: var(--space-5);
+    }
+
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background: var(--color-primary);
+      border-radius: 50%;
+    }
+
+    /* Color Palette */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .color-swatch {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .color-swatch:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border-color: var(--color-primary);
+    }
+
+    .color-preview {
+      height: 90px;
+    }
+
+    .color-info {
+      padding: var(--space-4);
+    }
+
+    .color-name {
+      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .color-value {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* Typography */
+    .type-showcase {
+      background: var(--color-surface);
+      padding: var(--space-6);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+    }
+
+    .type-row {
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-5);
+      border-bottom: 1px dashed var(--color-border);
+    }
+
+    .type-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-2);
+    }
+
+    .type-heading-xl {
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+
+    .type-heading-lg {
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.25;
+    }
+
+    .type-heading-md {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .type-body {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.7;
+      max-width: 580px;
+    }
+
+    .type-mono {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--color-text-muted);
+      background: var(--color-background);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+    }
+
+    /* Buttons */
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-5);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(29, 180, 197, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .btn-ghost:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .btn-accent {
+      background: var(--color-secondary);
+      color: white;
+    }
+
+    .btn-accent:hover {
+      background: var(--color-secondary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Inputs */
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .input-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .input {
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .input:hover {
+      border-color: #CBD5E0;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .input::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.6;
+    }
+
+    .input-error {
+      border-color: var(--color-error);
+    }
+
+    .input-error:focus {
+      box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+    }
+
+    .error-text {
+      font-size: 12px;
+      color: var(--color-error);
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .card-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+    }
+
+    .card-badge.success {
+      background: rgba(72, 187, 120, 0.12);
+      color: var(--color-success);
+    }
+
+    .card-badge.warning {
+      background: rgba(237, 137, 54, 0.12);
+      color: #ED8936;
+    }
+
+    .card-body {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .card-meta {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px dashed var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    /* Loaders */
+    .loader-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-10);
+      align-items: center;
+    }
+
+    .loader-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .loader-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Ripple Spinner */
+    .spinner {
+      width: 36px;
+      height: 36px;
+      position: relative;
+    }
+
+    .spinner::before,
+    .spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--color-primary);
+      border-radius: 50%;
+      animation: ripple 1.5s ease-out infinite;
+    }
+
+    .spinner::after {
+      animation-delay: 0.5s;
+    }
+
+    @keyframes ripple {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(1.2); opacity: 0; }
+    }
+
+    /* Orbital Calm */
+    .orbital-loader {
+      width: 44px;
+      height: 44px;
+      position: relative;
+    }
+
+    .orbital-loader .ring {
+      position: absolute;
+      inset: 0;
+      border: 1.5px solid transparent;
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: calm-orbit 2s linear infinite;
+    }
+
+    .orbital-loader .ring:nth-child(2) {
+      inset: 8px;
+      border-top-color: var(--color-secondary);
+      animation-duration: 2.5s;
+      animation-direction: reverse;
+    }
+
+    .orbital-loader .ring:nth-child(3) {
+      inset: 16px;
+      border-top-color: var(--color-accent);
+      animation-duration: 3s;
+    }
+
+    @keyframes calm-orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Soft Pulse */
+    .pulse-loader {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pulse-loader span {
+      width: 10px;
+      height: 10px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      animation: soft-pulse 1.4s ease-in-out infinite;
+    }
+
+    .pulse-loader span:nth-child(2) {
+      animation-delay: 0.2s;
+      background: var(--color-secondary);
+    }
+
+    .pulse-loader span:nth-child(3) {
+      animation-delay: 0.4s;
+      background: var(--color-accent);
+    }
+
+    @keyframes soft-pulse {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* Gentle Progress */
+    .progress-bar {
+      width: 120px;
+      height: 4px;
+      background: var(--color-border);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .progress-bar::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 40%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-radius: var(--radius-pill);
+      animation: gentle-progress 1.8s ease-in-out infinite;
+    }
+
+    @keyframes gentle-progress {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(200%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Chat Widget */
+    .chat-preview {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-background);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .chat-avatar {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-style: italic;
+      color: white;
+    }
+
+    .chat-title {
+      font-weight: 500;
+      font-size: 15px;
+    }
+
+    .chat-status {
+      font-size: 12px;
+      color: var(--color-success);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--color-success);
+      border-radius: 50%;
+    }
+
+    .chat-messages {
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      min-height: 200px;
+    }
+
+    .chat-message {
+      max-width: 85%;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.5;
+      animation: fadeUp 0.4s var(--ease-out);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-message.incoming {
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      align-self: flex-start;
+    }
+
+    .chat-message.outgoing {
+      background: var(--color-primary);
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-input-area {
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 300;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .chat-send {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .chat-send:hover {
+      background: var(--color-primary-hover);
+      transform: scale(1.05);
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 400;
+      transition: all var(--duration-fast) var(--ease-out);
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .chip.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: var(--space-10);
+      padding-top: var(--space-6);
+      border-top: 1px dashed var(--color-border);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 13px;
+      font-weight: 300;
+    }
+
+    .footer strong {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <span class="badge">V4 Soft Cyan</span>
+      <h1><em>Orbital</em> Design System</h1>
+      <p>Calm and approachable. Muted cyan with warm secondary tones. Crimson Pro serif for editorial warmth.</p>
+    </header>
+
+    <!-- Colors -->
+    <section class="section">
+      <h2 class="section-title">Color Palette</h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-primary)"></div>
+          <div class="color-info">
+            <div class="color-name">Primary</div>
+            <div class="color-value">#1DB4C5</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-secondary)"></div>
+          <div class="color-info">
+            <div class="color-name">Secondary</div>
+            <div class="color-value">#F5A862</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-accent)"></div>
+          <div class="color-info">
+            <div class="color-name">Accent</div>
+            <div class="color-value">#B39DDB</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-background)"></div>
+          <div class="color-info">
+            <div class="color-name">Background</div>
+            <div class="color-value">#F7F9FA</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-text)"></div>
+          <div class="color-info">
+            <div class="color-name">Text</div>
+            <div class="color-value">#2D3748</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-success)"></div>
+          <div class="color-info">
+            <div class="color-name">Success</div>
+            <div class="color-value">#48BB78</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="section">
+      <h2 class="section-title">Typography</h2>
+      <div class="type-showcase">
+        <div class="type-row">
+          <div class="type-label">Heading XL / Crimson Pro</div>
+          <div class="type-heading-xl">Trust, verified.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading LG / Crimson Pro</div>
+          <div class="type-heading-lg">Compliance made human</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading MD / Crimson Pro</div>
+          <div class="type-heading-md">Evidence-backed decisions</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Body / Nunito Sans</div>
+          <div class="type-body">Orbital helps you trace every commitment back to its source. No more guesswork, no more manual cross-referencing. Just clear, auditable evidence.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Monospace / Source Code Pro</div>
+          <div class="type-mono">folder_id: 8f4e2a1b-9c3d | status: reviewed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="section">
+      <h2 class="section-title">Buttons</h2>
+      <div class="button-grid">
+        <button class="btn btn-primary">Run Quick Start</button>
+        <button class="btn btn-secondary">View Evidence</button>
+        <button class="btn btn-accent">Export CSV</button>
+        <button class="btn btn-ghost">Learn more</button>
+      </div>
+    </section>
+
+    <!-- Inputs -->
+    <section class="section">
+      <h2 class="section-title">Form Inputs</h2>
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label">Matter name</label>
+          <input type="text" class="input" placeholder="Enter matter name...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Search documents</label>
+          <input type="text" class="input" placeholder="Search by keyword or ID...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Email (with error)</label>
+          <input type="email" class="input input-error" value="invalid-email">
+          <span class="error-text">Please enter a valid email address</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chips -->
+    <section class="section">
+      <h2 class="section-title">Chips & Tags</h2>
+      <div class="chip-row">
+        <span class="chip active">All</span>
+        <span class="chip">Needs review</span>
+        <span class="chip">Reviewed</span>
+        <span class="chip">Missing input</span>
+        <span class="chip">Citation failed</span>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="section">
+      <h2 class="section-title">Cards</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Commitment #247</div>
+            <span class="card-badge success">Reviewed</span>
+          </div>
+          <div class="card-body">
+            Annual carbon offset commitment as per Schedule 3, Section 4.2 of the sustainability framework.
+          </div>
+          <div class="card-meta">
+            <span>2h ago</span>
+            <span>3 citations</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Exception #89</div>
+            <span class="card-badge warning">Needs review</span>
+          </div>
+          <div class="card-body">
+            Force majeure clause triggered. Pending verification against referenced contract amendment.
+          </div>
+          <div class="card-meta">
+            <span>Today</span>
+            <span>0 citations</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loaders -->
+    <section class="section">
+      <h2 class="section-title">Loaders</h2>
+      <div class="loader-grid">
+        <div class="loader-item">
+          <div class="spinner"></div>
+          <span class="loader-label">Ripple</span>
+        </div>
+        <div class="loader-item">
+          <div class="orbital-loader">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+          </div>
+          <span class="loader-label">Orbital</span>
+        </div>
+        <div class="loader-item">
+          <div class="pulse-loader">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="loader-label">Pulse</span>
+        </div>
+        <div class="loader-item">
+          <div class="progress-bar"></div>
+          <span class="loader-label">Progress</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section class="section">
+      <h2 class="section-title">Chat Modal</h2>
+      <div class="chat-preview">
+        <div class="chat-header">
+          <div class="chat-avatar">O</div>
+          <div>
+            <div class="chat-title">Orbital Assistant</div>
+            <div class="chat-status">Online</div>
+          </div>
+        </div>
+        <div class="chat-messages">
+          <div class="chat-message incoming">
+            Hi! I can help you find evidence and verify commitments. What would you like to explore?
+          </div>
+          <div class="chat-message outgoing">
+            Show me all unverified carbon commitments
+          </div>
+          <div class="chat-message incoming">
+            Found 12 carbon-related commitments needing review. 3 are missing source documents.
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" placeholder="Ask about your documents...">
+          <button class="chat-send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Orbital Design System</strong> - V4 Soft Cyan</p>
+      <p>Approachable cyan with warm orange and lavender accents. Nunito Sans + Crimson Pro.</p>
+    </footer>
+  </div>
+</body>
+</html>

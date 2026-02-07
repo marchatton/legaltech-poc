@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbital Design System - V5 Purple Accent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&family=Manrope:wght@300;400;500;600;700&family=Inconsolata:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Purple Accent - Raycast-inspired dark with purple moments */
+      --color-primary: #A78BFA;
+      --color-primary-hover: #C4B5FD;
+      --color-primary-glow: rgba(167, 139, 250, 0.25);
+      --color-secondary: #F97316;
+      --color-secondary-hover: #FB923C;
+      --color-accent: #22D3EE;
+      --color-background: #0C0C0F;
+      --color-surface: #15151A;
+      --color-surface-elevated: #1E1E24;
+      --color-text: #F4F4F5;
+      --color-text-muted: #71717A;
+      --color-border: #27272A;
+      --color-success: #34D399;
+      --color-error: #F87171;
+
+      /* Typography */
+      --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Literata', Georgia, serif;
+      --font-mono: 'Inconsolata', ui-monospace, monospace;
+
+      /* Spacing */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-8: 48px;
+      --space-10: 64px;
+
+      /* Radius */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
+      --radius-pill: 9999px;
+
+      /* Motion */
+      --duration-fast: 120ms;
+      --duration-normal: 200ms;
+      --duration-slow: 350ms;
+      --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.6;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: var(--space-8);
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: var(--space-10);
+      padding: var(--space-10) 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, var(--color-primary-glow) 0%, transparent 60%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+
+    .header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-4);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      color: var(--color-primary);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-5);
+    }
+
+    .header h1 {
+      font-family: var(--font-heading);
+      font-size: 56px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-4);
+      position: relative;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: var(--color-text-muted);
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: var(--space-10);
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: var(--space-5);
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .section-title .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-primary-glow);
+    }
+
+    /* Color Palette */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--space-3);
+    }
+
+    .color-swatch {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .color-swatch:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-primary);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .color-preview {
+      height: 80px;
+    }
+
+    .color-info {
+      padding: var(--space-3);
+    }
+
+    .color-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .color-value {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    /* Typography */
+    .type-showcase {
+      background: var(--color-surface);
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+    }
+
+    .type-row {
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .type-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-2);
+    }
+
+    .type-heading-xl {
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .type-heading-lg {
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .type-heading-md {
+      font-family: var(--font-body);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .type-body {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.7;
+      max-width: 560px;
+      color: var(--color-text-muted);
+    }
+
+    .type-mono {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--color-accent);
+      background: rgba(34, 211, 238, 0.1);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+    }
+
+    /* Buttons */
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: var(--color-background);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+      box-shadow: 0 0 20px var(--color-primary-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--color-surface-elevated);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-surface);
+      border-color: var(--color-text-muted);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+    }
+
+    .btn-ghost:hover {
+      color: var(--color-text);
+      background: var(--color-surface);
+    }
+
+    .btn-accent {
+      background: var(--color-secondary);
+      color: white;
+    }
+
+    .btn-accent:hover {
+      background: var(--color-secondary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Inputs */
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .input-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input {
+      padding: var(--space-3);
+      font-family: var(--font-body);
+      font-size: 14px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .input:hover {
+      border-color: var(--color-text-muted);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-glow);
+    }
+
+    .input::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.6;
+    }
+
+    .input-error {
+      border-color: var(--color-error);
+    }
+
+    .input-error:focus {
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+    }
+
+    .error-text {
+      font-size: 11px;
+      color: var(--color-error);
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      transition: all var(--duration-normal) var(--ease-out);
+      position: relative;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, var(--color-primary), transparent, transparent);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity var(--duration-normal) var(--ease-out);
+    }
+
+    .card:hover {
+      border-color: transparent;
+      transform: translateY(-2px);
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px var(--space-2);
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-badge.success {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--color-success);
+    }
+
+    .card-badge.warning {
+      background: rgba(251, 146, 60, 0.15);
+      color: var(--color-secondary);
+    }
+
+    .card-body {
+      color: var(--color-text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .card-meta {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    /* Loaders */
+    .loader-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-8);
+      align-items: center;
+    }
+
+    .loader-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .loader-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Glow Spinner */
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--color-surface-elevated);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      box-shadow: 0 0 12px var(--color-primary-glow);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Orbital Glow */
+    .orbital-loader {
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+
+    .orbital-loader .ring {
+      position: absolute;
+      inset: 0;
+      border: 1.5px solid transparent;
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: glow-orbit 1.2s linear infinite;
+      box-shadow: 0 0 8px var(--color-primary-glow);
+    }
+
+    .orbital-loader .ring:nth-child(2) {
+      inset: 6px;
+      border-top-color: var(--color-secondary);
+      animation-duration: 1.6s;
+      animation-direction: reverse;
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.25);
+    }
+
+    .orbital-loader .ring:nth-child(3) {
+      inset: 12px;
+      border-top-color: var(--color-accent);
+      animation-duration: 2s;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.25);
+    }
+
+    @keyframes glow-orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Dot Fade */
+    .dot-loader {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot-loader span {
+      width: 8px;
+      height: 8px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      animation: dot-fade 1s ease-in-out infinite;
+      box-shadow: 0 0 8px var(--color-primary-glow);
+    }
+
+    .dot-loader span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .dot-loader span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes dot-fade {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Gradient Bar */
+    .progress-bar {
+      width: 100px;
+      height: 3px;
+      background: var(--color-surface-elevated);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .progress-bar::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 60%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-radius: var(--radius-pill);
+      animation: shimmer 1.5s ease-in-out infinite;
+      box-shadow: 0 0 8px var(--color-primary-glow);
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-150%); }
+      100% { transform: translateX(200%); }
+    }
+
+    /* Chat Widget */
+    .chat-preview {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      max-width: 380px;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      background: var(--color-surface-elevated);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--color-background);
+    }
+
+    .chat-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .chat-status {
+      font-size: 11px;
+      color: var(--color-success);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--color-success);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--color-success);
+    }
+
+    .chat-messages {
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      min-height: 180px;
+    }
+
+    .chat-message {
+      max-width: 85%;
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .chat-message.incoming {
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
+      align-self: flex-start;
+    }
+
+    .chat-message.outgoing {
+      background: var(--color-primary);
+      color: var(--color-background);
+      align-self: flex-end;
+    }
+
+    .chat-input-area {
+      padding: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 13px;
+      background: var(--color-surface-elevated);
+      color: var(--color-text);
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .chat-send {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary);
+      color: var(--color-background);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .chat-send:hover {
+      background: var(--color-primary-hover);
+      box-shadow: 0 0 16px var(--color-primary-glow);
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 500;
+      transition: all var(--duration-fast) var(--ease-out);
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .chip.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-background);
+      box-shadow: 0 0 12px var(--color-primary-glow);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: var(--space-10);
+      padding-top: var(--space-5);
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 12px;
+    }
+
+    .footer strong {
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <span class="badge">V5 Purple Accent</span>
+      <h1><span>Orbital</span> Design System</h1>
+      <p>Dark sophistication with purple glow accents. Literata serif + Manrope sans.</p>
+    </header>
+
+    <!-- Colors -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Color Palette
+      </h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-primary)"></div>
+          <div class="color-info">
+            <div class="color-name">Primary</div>
+            <div class="color-value">#A78BFA</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-secondary)"></div>
+          <div class="color-info">
+            <div class="color-name">Secondary</div>
+            <div class="color-value">#F97316</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-accent)"></div>
+          <div class="color-info">
+            <div class="color-name">Accent</div>
+            <div class="color-value">#22D3EE</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-background)"></div>
+          <div class="color-info">
+            <div class="color-name">Background</div>
+            <div class="color-value">#0C0C0F</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-surface-elevated)"></div>
+          <div class="color-info">
+            <div class="color-name">Surface</div>
+            <div class="color-value">#1E1E24</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-success)"></div>
+          <div class="color-info">
+            <div class="color-name">Success</div>
+            <div class="color-value">#34D399</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Typography
+      </h2>
+      <div class="type-showcase">
+        <div class="type-row">
+          <div class="type-label">Heading XL / Literata</div>
+          <div class="type-heading-xl">Trust, verified.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading LG / Literata</div>
+          <div class="type-heading-lg">Compliance made human</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading MD / Manrope</div>
+          <div class="type-heading-md">Evidence-backed decisions</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Body / Manrope</div>
+          <div class="type-body">Orbital helps you trace every commitment back to its source. No more guesswork, no more manual cross-referencing. Just clear, auditable evidence.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Monospace / Inconsolata</div>
+          <div class="type-mono">folder_id: 8f4e2a1b-9c3d</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Buttons
+      </h2>
+      <div class="button-grid">
+        <button class="btn btn-primary">Run Quick Start</button>
+        <button class="btn btn-secondary">View Evidence</button>
+        <button class="btn btn-accent">Export CSV</button>
+        <button class="btn btn-ghost">Learn more</button>
+      </div>
+    </section>
+
+    <!-- Inputs -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Form Inputs
+      </h2>
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label">Matter name</label>
+          <input type="text" class="input" placeholder="Enter matter name...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Search documents</label>
+          <input type="text" class="input" placeholder="Search by keyword or ID...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Email (with error)</label>
+          <input type="email" class="input input-error" value="invalid-email">
+          <span class="error-text">Please enter a valid email address</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chips -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Chips & Tags
+      </h2>
+      <div class="chip-row">
+        <span class="chip active">All</span>
+        <span class="chip">Needs review</span>
+        <span class="chip">Reviewed</span>
+        <span class="chip">Missing input</span>
+        <span class="chip">Citation failed</span>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Cards
+      </h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Commitment #247</div>
+            <span class="card-badge success">Reviewed</span>
+          </div>
+          <div class="card-body">
+            Annual carbon offset commitment as per Schedule 3, Section 4.2 of the sustainability framework.
+          </div>
+          <div class="card-meta">
+            <span>2h ago</span>
+            <span>3 citations</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Exception #89</div>
+            <span class="card-badge warning">Needs review</span>
+          </div>
+          <div class="card-body">
+            Force majeure clause triggered. Pending verification against referenced contract amendment.
+          </div>
+          <div class="card-meta">
+            <span>Today</span>
+            <span>0 citations</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loaders -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Loaders
+      </h2>
+      <div class="loader-grid">
+        <div class="loader-item">
+          <div class="spinner"></div>
+          <span class="loader-label">Spinner</span>
+        </div>
+        <div class="loader-item">
+          <div class="orbital-loader">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+          </div>
+          <span class="loader-label">Orbital</span>
+        </div>
+        <div class="loader-item">
+          <div class="dot-loader">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="loader-label">Dots</span>
+        </div>
+        <div class="loader-item">
+          <div class="progress-bar"></div>
+          <span class="loader-label">Progress</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="dot"></span>
+        Chat Modal
+      </h2>
+      <div class="chat-preview">
+        <div class="chat-header">
+          <div class="chat-avatar">O</div>
+          <div>
+            <div class="chat-title">Orbital Assistant</div>
+            <div class="chat-status">Online</div>
+          </div>
+        </div>
+        <div class="chat-messages">
+          <div class="chat-message incoming">
+            Hi! I can help you find evidence and verify commitments. What would you like to explore?
+          </div>
+          <div class="chat-message outgoing">
+            Show me all unverified carbon commitments
+          </div>
+          <div class="chat-message incoming">
+            Found 12 carbon-related commitments needing review. 3 are missing source documents.
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" placeholder="Ask about your documents...">
+          <button class="chat-send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Orbital Design System</strong> - V5 Purple Accent</p>
+      <p>Raycast-inspired dark with purple glow effects. Literata + Manrope.</p>
+    </footer>
+  </div>
+</body>
+</html>

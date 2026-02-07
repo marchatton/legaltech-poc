@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbital Design System - V3 Orange Energy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Orange Energy - Firecrawl/Parallel-inspired */
+      --color-primary: #FF5C00;
+      --color-primary-hover: #FF7A2E;
+      --color-primary-glow: rgba(255, 92, 0, 0.4);
+      --color-secondary: #00D4AA;
+      --color-secondary-hover: #00E8BC;
+      --color-accent: #8B5CF6;
+      --color-background: #FAFAFA;
+      --color-surface: #FFFFFF;
+      --color-surface-elevated: #FFFFFF;
+      --color-text: #1A1A1A;
+      --color-text-muted: #6B7280;
+      --color-border: #E5E7EB;
+      --color-success: #10B981;
+      --color-error: #EF4444;
+
+      /* Typography */
+      --font-body: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'Fira Code', ui-monospace, monospace;
+
+      /* Spacing */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-8: 48px;
+      --space-10: 64px;
+
+      /* Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-pill: 9999px;
+
+      /* Motion */
+      --duration-fast: 100ms;
+      --duration-normal: 200ms;
+      --duration-slow: 400ms;
+      --ease-out: cubic-bezier(0.2, 0, 0, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.6;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-8);
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: var(--space-10);
+      padding: var(--space-10) 0;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--color-primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .header h1 {
+      font-family: var(--font-heading);
+      font-size: 64px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-4);
+      position: relative;
+    }
+
+    .header h1 span {
+      color: var(--color-primary);
+    }
+
+    .header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-primary);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-5);
+      box-shadow: 0 4px 20px var(--color-primary-glow);
+    }
+
+    .header .badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    .header p {
+      color: var(--color-text-muted);
+      font-size: 18px;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: var(--space-10);
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 36px;
+      font-weight: 400;
+      margin-bottom: var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .section-title .icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C4D 100%);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 4px 12px var(--color-primary-glow);
+    }
+
+    /* Color Palette */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .color-swatch {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      transition: all var(--duration-normal) var(--ease-out);
+      border: 1px solid var(--color-border);
+    }
+
+    .color-swatch:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    .color-preview {
+      height: 100px;
+    }
+
+    .color-info {
+      padding: var(--space-4);
+    }
+
+    .color-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .color-value {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* Typography */
+    .type-showcase {
+      background: var(--color-surface);
+      padding: var(--space-8);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--color-border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    }
+
+    .type-row {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .type-row:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-2);
+      font-weight: 500;
+    }
+
+    .type-heading-xl {
+      font-family: var(--font-heading);
+      font-size: 56px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .type-heading-lg {
+      font-family: var(--font-heading);
+      font-size: 40px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .type-heading-md {
+      font-family: var(--font-body);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .type-body {
+      font-size: 16px;
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .type-mono {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--color-text-muted);
+      background: var(--color-background);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+    }
+
+    /* Buttons */
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-5);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-bounce);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C4D 100%);
+      color: white;
+      box-shadow: 0 4px 16px var(--color-primary-glow),
+                  inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px var(--color-primary-glow),
+                  inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 2px solid var(--color-border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .btn-ghost:hover {
+      color: var(--color-primary);
+      background: rgba(255, 92, 0, 0.08);
+    }
+
+    .btn-accent {
+      background: var(--color-secondary);
+      color: white;
+    }
+
+    .btn-accent:hover {
+      background: var(--color-secondary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 212, 170, 0.3);
+    }
+
+    /* Inputs */
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .input-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .input {
+      padding: var(--space-4);
+      font-family: var(--font-body);
+      font-size: 15px;
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .input:hover {
+      border-color: #D1D5DB;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(255, 92, 0, 0.1);
+    }
+
+    .input::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.6;
+    }
+
+    .input-error {
+      border-color: var(--color-error);
+    }
+
+    .input-error:focus {
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    }
+
+    .error-text {
+      font-size: 12px;
+      color: var(--color-error);
+      font-weight: 500;
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: all var(--duration-normal) var(--ease-out);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-secondary));
+      opacity: 0;
+      transition: opacity var(--duration-normal) var(--ease-out);
+    }
+
+    .card:hover {
+      border-color: transparent;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transform: translateY(-4px);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .card-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .card-badge.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--color-success);
+    }
+
+    .card-badge.warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #F59E0B;
+    }
+
+    .card-body {
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .card-meta {
+      margin-top: var(--space-5);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-muted);
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    /* Loaders */
+    .loader-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-10);
+      align-items: center;
+    }
+
+    .loader-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .loader-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+    }
+
+    /* Fire Spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      box-shadow: 0 0 20px var(--color-primary-glow);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Orbital Flame */
+    .orbital-loader {
+      width: 48px;
+      height: 48px;
+      position: relative;
+    }
+
+    .orbital-loader .orbit {
+      position: absolute;
+      inset: 0;
+      border: 2px solid transparent;
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: orbit 1s linear infinite;
+    }
+
+    .orbital-loader .orbit:nth-child(2) {
+      inset: 6px;
+      border-top-color: #FF8C4D;
+      animation-duration: 1.2s;
+      animation-direction: reverse;
+    }
+
+    .orbital-loader .orbit:nth-child(3) {
+      inset: 12px;
+      border-top-color: var(--color-secondary);
+      animation-duration: 1.4s;
+    }
+
+    .orbital-loader .center {
+      position: absolute;
+      inset: 18px;
+      background: linear-gradient(135deg, var(--color-primary), #FF8C4D);
+      border-radius: 50%;
+      box-shadow: 0 0 16px var(--color-primary-glow);
+    }
+
+    @keyframes orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Bounce Dots */
+    .bounce-loader {
+      display: flex;
+      gap: 6px;
+    }
+
+    .bounce-loader span {
+      width: 10px;
+      height: 10px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      animation: bounce 0.6s var(--ease-bounce) infinite alternate;
+    }
+
+    .bounce-loader span:nth-child(2) {
+      animation-delay: 0.1s;
+      background: #FF8C4D;
+    }
+
+    .bounce-loader span:nth-child(3) {
+      animation-delay: 0.2s;
+      background: var(--color-secondary);
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-12px); }
+    }
+
+    /* Progress Fire */
+    .progress-bar {
+      width: 140px;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--color-primary), #FF8C4D, var(--color-secondary));
+      animation: progress-sweep 1.2s ease-in-out infinite;
+      transform-origin: left;
+    }
+
+    @keyframes progress-sweep {
+      0% { transform: scaleX(0) translateX(0); }
+      50% { transform: scaleX(1) translateX(0); }
+      100% { transform: scaleX(0) translateX(100%); }
+    }
+
+    /* Chat Widget */
+    .chat-preview {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      max-width: 420px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-5);
+      background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C4D 100%);
+      color: white;
+    }
+
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-style: italic;
+    }
+
+    .chat-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .chat-status {
+      font-size: 13px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    .chat-messages {
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      min-height: 200px;
+    }
+
+    .chat-message {
+      max-width: 85%;
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .chat-message.incoming {
+      background: var(--color-background);
+      align-self: flex-start;
+      animation: popIn 0.3s var(--ease-bounce);
+    }
+
+    .chat-message.outgoing {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C4D 100%);
+      color: white;
+      align-self: flex-end;
+      animation: popIn 0.3s var(--ease-bounce);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .chat-input-area {
+      padding: var(--space-4);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 14px;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .chat-send {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C4D 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-bounce);
+    }
+
+    .chat-send:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px var(--color-primary-glow);
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all var(--duration-fast) var(--ease-bounce);
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C4D 100%);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 12px var(--color-primary-glow);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: var(--space-10);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 13px;
+    }
+
+    .footer strong {
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <span class="badge">V3 Orange Energy</span>
+      <h1><span>Orbital</span> Design System</h1>
+      <p>High-energy warmth with Firecrawl-inspired vibrance. Instrument Serif + Space Grotesk.</p>
+    </header>
+
+    <!-- Colors -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">*</span>
+        Color Palette
+      </h2>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="color-preview" style="background: linear-gradient(135deg, #FF5C00, #FF8C4D)"></div>
+          <div class="color-info">
+            <div class="color-name">Primary</div>
+            <div class="color-value">#FF5C00</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-secondary)"></div>
+          <div class="color-info">
+            <div class="color-name">Secondary</div>
+            <div class="color-value">#00D4AA</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-accent)"></div>
+          <div class="color-info">
+            <div class="color-name">Accent</div>
+            <div class="color-value">#8B5CF6</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-background)"></div>
+          <div class="color-info">
+            <div class="color-name">Background</div>
+            <div class="color-value">#FAFAFA</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-text)"></div>
+          <div class="color-info">
+            <div class="color-name">Text</div>
+            <div class="color-value">#1A1A1A</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-preview" style="background: var(--color-success)"></div>
+          <div class="color-info">
+            <div class="color-name">Success</div>
+            <div class="color-value">#10B981</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">A</span>
+        Typography
+      </h2>
+      <div class="type-showcase">
+        <div class="type-row">
+          <div class="type-label">Heading XL / Instrument Serif</div>
+          <div class="type-heading-xl">Trust, verified.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading LG / Instrument Serif</div>
+          <div class="type-heading-lg">Compliance made human</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Heading MD / Space Grotesk</div>
+          <div class="type-heading-md">Evidence-backed decisions</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Body / Space Grotesk</div>
+          <div class="type-body">Orbital helps you trace every commitment back to its source. No more guesswork, no more manual cross-referencing. Just clear, auditable evidence.</div>
+        </div>
+        <div class="type-row">
+          <div class="type-label">Monospace / Fira Code</div>
+          <div class="type-mono">folder_id: 8f4e2a1b-9c3d | status: reviewed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">+</span>
+        Buttons
+      </h2>
+      <div class="button-grid">
+        <button class="btn btn-primary">Run Quick Start</button>
+        <button class="btn btn-secondary">View Evidence</button>
+        <button class="btn btn-accent">Export CSV</button>
+        <button class="btn btn-ghost">Learn more</button>
+      </div>
+    </section>
+
+    <!-- Inputs -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">/</span>
+        Form Inputs
+      </h2>
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label">Matter name</label>
+          <input type="text" class="input" placeholder="Enter matter name...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Search documents</label>
+          <input type="text" class="input" placeholder="Search by keyword or ID...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Email (with error)</label>
+          <input type="email" class="input input-error" value="invalid-email">
+          <span class="error-text">Please enter a valid email address</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chips -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">#</span>
+        Chips & Tags
+      </h2>
+      <div class="chip-row">
+        <span class="chip active">All</span>
+        <span class="chip">Needs review</span>
+        <span class="chip">Reviewed</span>
+        <span class="chip">Missing input</span>
+        <span class="chip">Citation failed</span>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">*</span>
+        Cards
+      </h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Commitment #247</div>
+            <span class="card-badge success">Reviewed</span>
+          </div>
+          <div class="card-body">
+            Annual carbon offset commitment as per Schedule 3, Section 4.2 of the sustainability framework.
+          </div>
+          <div class="card-meta">
+            <span>2h ago</span>
+            <span>3 citations</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Exception #89</div>
+            <span class="card-badge warning">Needs review</span>
+          </div>
+          <div class="card-body">
+            Force majeure clause triggered. Pending verification against referenced contract amendment.
+          </div>
+          <div class="card-meta">
+            <span>Today</span>
+            <span>0 citations</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loaders -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">@</span>
+        Loaders
+      </h2>
+      <div class="loader-grid">
+        <div class="loader-item">
+          <div class="spinner"></div>
+          <span class="loader-label">Spinner</span>
+        </div>
+        <div class="loader-item">
+          <div class="orbital-loader">
+            <div class="orbit"></div>
+            <div class="orbit"></div>
+            <div class="orbit"></div>
+            <div class="center"></div>
+          </div>
+          <span class="loader-label">Orbital</span>
+        </div>
+        <div class="loader-item">
+          <div class="bounce-loader">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="loader-label">Bounce</span>
+        </div>
+        <div class="loader-item">
+          <div class="progress-bar"></div>
+          <span class="loader-label">Progress</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section class="section">
+      <h2 class="section-title">
+        <span class="icon">?</span>
+        Chat Modal
+      </h2>
+      <div class="chat-preview">
+        <div class="chat-header">
+          <div class="chat-avatar">O</div>
+          <div>
+            <div class="chat-title">Orbital Assistant</div>
+            <div class="chat-status">Ready to help</div>
+          </div>
+        </div>
+        <div class="chat-messages">
+          <div class="chat-message incoming">
+            Hi! I can help you find evidence and verify commitments. What would you like to explore?
+          </div>
+          <div class="chat-message outgoing">
+            Show me all unverified carbon commitments
+          </div>
+          <div class="chat-message incoming">
+            Found 12 carbon-related commitments needing review. 3 are missing source documents.
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" placeholder="Ask about your documents...">
+          <button class="chat-send">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Orbital Design System</strong> - V3 Orange Energy</p>
+      <p>Vibrant orange gradients with bouncy micro-interactions. Firecrawl/Parallel-inspired.</p>
+    </footer>
+  </div>
+</body>
+</html>
