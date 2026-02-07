@@ -1,7 +1,7 @@
 # PRD: CSV Exports + Artefacts List (Requirements / Exceptions / Survey Issues)
 
 Owner: TBD
-Status: DRAFT (NO-GO until spikes close)
+Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 export_payload persistence)
 Date: 2026-02-07
 
 ## Summary
@@ -25,19 +25,78 @@ Report rows are trapped in the UI and demos are brittle. We need a repeatable wa
 - A demo operator can export all 3 CSV artefacts from `docs/08-example-data/pack_01_clean`.
 - The export is **deterministic** (locked headers + deterministic row ordering).
 - Export is only available when `runs.state = completed`.
-- Export is blocked when any row is `citation_failed` (no override in slice 1).
+- Export is blocked by default when any row is `citation_failed` (unless demo-only `unsafe_override=true` is explicitly used).
 - Exported artefacts are listed for the matter and downloadable via fresh signed URLs.
 - Exports include:
   - row status
-  - citations rendered as `filename:page` (and optionally `citation_id`)
+  - citations rendered as `filename:page` plus `citation_ids`
+
+## Locked decisions from spikes (2026-02-07)
+
+### CSV schemas v1 (locked headers + ordering)
+
+requirements_tracker.csv headers (v1):
+1) requirement_id
+2) requirement_text
+3) source_question_id
+4) row_status
+5) source_answer
+6) failure_code
+7) citations
+8) citation_ids
+9) notes
+
+exceptions_table.csv headers (v1):
+1) exception_id
+2) exception_text
+3) source_question_id
+4) row_status
+5) source_answer
+6) failure_code
+7) citations
+8) citation_ids
+9) notes
+
+survey_issues.csv headers (v1):
+1) issue_id
+2) issue_text
+3) source_question_id
+4) row_status
+5) source_answer
+6) failure_code
+7) citations
+8) citation_ids
+9) notes
+
+### Deterministic row ordering (locked)
+
+- Sort rows by:
+  1) source_question_id asc
+  2) *_id asc
+  3) citations asc (tie-breaker)
+- Citations within a row are rendered as:
+  - citations: unique "filename:page" entries sorted by (filename asc, page asc, citation_id asc) and joined with "; "
+  - citation_ids: citation IDs sorted asc and joined with "; "
+
+### Export gating + unsafe override (locked)
+
+- runs.state must be completed, else 409 CONFLICT.
+- If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED.
+- unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise 403 UNAUTHORISED.
+- Unsafe exports must be visibly labelled in filename (e.g. requirements_tracker.UNSAFE.csv) and recorded in artefact metadata_json.
+- Under unsafe exports, any exported items derived from a citation_failed report row must:
+  - have row_status=citation_failed
+  - have failure_code populated from provenance
+  - have empty citations and citation_ids (do not export untrusted evidence)
+  - have notes prefixed with "UNSAFE: "
 
 ## Non-goals
 
-- Word export (.docx) (future slice).
-- Any unsafe/demo-only override path (future slice decision).
-- Eval harness + CI integration (future slice).
-- Demo toolbar and any reset/delete UI (future slice).
+- Word export (.docx) (handled in 0005).
+- Eval harness + CI integration (handled in 0006).
+- Demo reset/delete UI (handled in 0007; slice 1 has no deletion via HTTP).
 - Excel formatting beyond CSV.
+- Any prose-parsing fallback if `export_payload` is missing (exports must fail closed).
 
 ## Users
 
@@ -58,7 +117,8 @@ In scope:
 - Export endpoint + validation (`kind` support, request Zod boundary validation).
 - Export gating:
   - `runs.state = completed` required (else `409 CONFLICT`)
-  - any `citation_failed` row blocks export (`EXPORT_BLOCKED`)
+  - if any row in the run is `citation_failed` and `unsafe_override != true`, export is blocked (`EXPORT_BLOCKED`)
+  - `unsafe_override = true` is demo-only and requires `DEMO_MODE` + `ALLOW_UNSAFE_EXPORTS` (else `403 UNAUTHORISED`)
 - CSV schemas v1 for:
   - `requirements_tracker`
   - `exceptions_table`
@@ -75,7 +135,6 @@ In scope:
 - Logging: export attempt + success/blocked/failure with `trace_id`.
 
 Out of scope:
-- Any override behaviour.
 - Any destructive reset tooling.
 
 ## Breadboard Mapping
@@ -101,25 +160,31 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - FR-001: `POST /export/csv` accepts `{ folder_id, run_id, kind, unsafe_override }` per `docs/03-architecture/50_api_surface.md`.
 - FR-002: Supported CSV `kind` values are exactly: `requirements_tracker`, `exceptions_table`, `survey_issues`.
 - FR-003: Export only allowed when `runs.state = completed`; otherwise return `409` with `error.code = "CONFLICT"`.
-- FR-004: If any row in the run is `citation_failed`, export returns non-2xx with `error.code = "EXPORT_BLOCKED"`.
-- FR-005: CSV mapper consumes structured `export_payload` (no prose parsing). If `export_payload` is missing, export fails closed with a safe error (`CONFLICT`) that points to the dependency on Initiative 002.
-- FR-006: CSV headers + ordering are locked; column drift is prevented by snapshot tests against fixture packs.
-- FR-007: Artefact metadata includes `kind`, `schema_version`, `filename`, `source_run_id`, `created_at`.
-- FR-008: `GET /folders/:id/artefacts` returns a list with fresh `download_url` values (do not persist signed URLs).
-- FR-009: UI disables export until run completion, shows blocked banner on `EXPORT_BLOCKED`, and renders artefacts list.
-- FR-010: Logging exists for export attempt + success/blocked/fail: `folder_id`, `run_id`, `kind`, `artefact_id` (if created), `trace_id`.
-- FR-011: Exports include `status` and citations rendered as `filename:page` (and optionally `citation_id`).
+- FR-004: If any row in the run is `citation_failed` and `unsafe_override != true`, export returns non-2xx with `error.code = "EXPORT_BLOCKED"`.
+- FR-005: If `unsafe_override = true`:
+  - when demo mode is not enabled (or `ALLOW_UNSAFE_EXPORTS` is not enabled), return `403` with `error.code = "UNAUTHORISED"`.
+  - when allowed, export must label the artefact as unsafe (filename + metadata_json.unsafe_override=true).
+- FR-006: CSV mapper consumes structured `export_payload` (no prose parsing). If `export_payload` is missing, export fails closed with `409 CONFLICT` and a safe message pointing to the Initiative 002 dependency.
+- FR-007: CSV headers + ordering are locked (v1 schemas) and drift is prevented by snapshot tests against fixture packs.
+- FR-008: Deterministic row ordering is enforced in code (no DB ordering assumptions).
+- FR-009: Artefact metadata includes `kind`, `schema_version`, `filename`, `source_run_id`, `created_at`, and `unsafe_override` (when applicable).
+- FR-010: `GET /folders/:id/artefacts` returns a list with fresh `download_url` values (do not persist signed URLs).
+- FR-011: UI disables export until run completion, shows blocked banner on `EXPORT_BLOCKED`, and renders artefacts list.
+- FR-012: Logging exists for export attempt + success/blocked/fail: `folder_id`, `run_id`, `kind`, `artefact_id` (if created), `trace_id`.
+- FR-013: CSV rows include `row_status`, citations as `filename:page`, and `citation_ids`.
+- FR-014: For `missing_input`, `source_answer` must be exactly `Not found in provided documents.` and citations columns must be empty.
 
 ## Acceptance Criteria
 
 - AC-001: From `docs/08-example-data/pack_01_clean`, operator can export all 3 CSV kinds and download them successfully.
 - AC-002: If `runs.state != completed`, export button is disabled and API returns `409 CONFLICT` if called anyway.
-- AC-003: If any row is `citation_failed`, API returns `EXPORT_BLOCKED` and UI shows blocked banner with counts and next action.
+- AC-003: If any row is `citation_failed` and `unsafe_override != true`, API returns `EXPORT_BLOCKED` and UI shows blocked banner with counts and next action.
 - AC-004: Each CSV output matches the spike-locked header list + ordering and has deterministic row ordering.
 - AC-005: From `docs/08-example-data/pack_02_missing_rea`, exports succeed (unless blocked by `citation_failed`) and include `missing_input` rows with the canonical answer preserved.
 - AC-006: Artefact is persisted and appears in `GET /folders/:id/artefacts` with a working (fresh) `download_url`.
 - AC-007: No signed URLs are persisted; only `storage_key` + metadata are stored.
 - AC-008: Export does not parse `report_rows.answer` prose; it uses structured `export_payload` and fails closed if missing.
+- AC-009: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled, operator can export with `unsafe_override=true` and the resulting CSV filename is labelled `*.UNSAFE.csv`.
 
 ## Verification Plan
 
@@ -139,7 +204,17 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 ## Failure States + UX (no silent failures)
 
 - Run not completed: export disabled; explain “Run still running”.
-- Export blocked (`EXPORT_BLOCKED`): show blocked banner with counts and link to review/fix.
+- Export blocked (`EXPORT_BLOCKED`): show blocked banner with exact copy:
+  - Title: `Export blocked`
+  - Body: `This run contains {n} row(s) with failed citation verification. Fix the citations or re-run. By default we do not export when any row is citation_failed.`
+  - Detail line: `Run must be completed. Exports are only available for completed runs.`
+  - CTA (normal): `Review failed rows`
+  - Unsafe override CTA (only when `DEMO_MODE && ALLOW_UNSAFE_EXPORTS`):
+    - Button label: `Export anyway (UNSAFE)`
+    - Confirmation modal title: `Create an unsafe export?`
+    - Confirmation body: `This will export even though some rows failed citation verification. The file will be labelled UNSAFE and may contain unverified content. Do not share this outside internal demos.`
+    - Confirm button: `I understand, export UNSAFE`
+    - Cancel button: `Cancel`
 - Missing `export_payload`: show a hard error explaining the dependency on Initiative 002 (fail closed; no prose parsing fallback in this slice).
 - Storage errors: safe user-facing error; log with `EXPORT_FAIL`.
 
@@ -160,9 +235,8 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 
 ## Open Questions
 
-- What is the exact CSV header list/order per kind (CSV usability spike outcome)?
-- Do we ever allow unsafe/demo-only override exports (future slice; currently NO)?
-- Do we include `citation_id` as an extra column (in addition to `filename:page`)?
+- None for slice 0004 (spike outcomes locked).
+- Dependency remains: Initiative 002 must persist structured `export_payload` + `schema_version` for all three artefacts.
 
 ## Links (sources)
 
