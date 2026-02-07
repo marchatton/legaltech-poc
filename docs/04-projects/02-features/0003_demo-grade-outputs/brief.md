@@ -111,7 +111,7 @@ Out of scope (explicit cuts):
 ## PRD slicing plan (after spikes)
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
 
-Planned PRD dossiers (names from `docs/00-strategy/initiatives/001-003_handoff.md`):
+PRD dossiers (drafted as DRAFT/NO-GO until spikes close; names from `docs/00-strategy/initiatives/001-003_handoff.md`):
 - `0013_csv-export` (`docs/04-projects/02-features/0013_csv-export/`)
 - `0014_word-export` (`docs/04-projects/02-features/0014_word-export/`)
 - `0015_eval-harness` (`docs/04-projects/02-features/0015_eval-harness/`)
