@@ -14,7 +14,7 @@ This plan is derived from the JSON PRDs in this dossier and is optimized for run
 - `docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.json`
 - `docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.json`
 
-Key canonical contracts:
+Canonical contracts (do not drift):
 
 - API surface: `docs/03-architecture/50_api_surface.md`
 - State model + invariants: `docs/03-architecture/20_state_model.md`
@@ -24,70 +24,78 @@ Key canonical contracts:
 ## Goal
 
 1. Make dependencies between stories explicit (in-slice, cross-slice, and spike gates).
-2. Define “work lanes” with clean ownership boundaries so multiple agents can ship in parallel without stomping each other.
+2. Define ownership boundaries (paths + contracts) so multiple agents can ship in parallel with minimal merge/contract conflicts.
 
-## Story Inventory (Slice PRDs)
+## Security Posture (Non-Negotiables)
 
-These are the implementable slice PRDs under `prds/*/prd.json`. Story IDs repeat across slices, so always refer to them as `0001x.US-00y`.
+These rules apply across all lanes (spikes, API, UI, exports), even in PoC/no-auth setups.
 
-| Slice | Story | Title | Depends On (in-slice) |
-|---|---|---|---|
-| `0001a` | `US-001` | Create and open a Matter |  |
-| `0001a` | `US-002` | Upload PDFs and observe ingest status | `US-001` |
-| `0001b` | `US-001` | Open and view a PDF |  |
-| `0001b` | `US-002` | Page navigation and zoom stays responsive on scans | `US-001` |
-| `0001c` | `US-001` | Fetch a locked citation by ID |  |
-| `0001c` | `US-002` | Canonical snippet hashing is stable |  |
-| `0001d` | `US-001` | Click citation chip -> open viewer at cited evidence |  |
-| `0001d` | `US-002` | Evidence highlights align across zoom + rotation | `US-001` |
-| `0001e` | `US-001` | Missing docs yields missing_input with checklist |  |
-| `0001e` | `US-002` | Bad evidence yields citation_failed and blocks export | `US-001` |
-| `0001e` | `US-003` | needs_review -> reviewed is explicit and persisted | `US-002` |
-| `0001f` | `US-001` | Download run trace JSON |  |
+- Signed URLs (`render_url`, `download_url`): generate on demand with short TTL (target 5–15 minutes); never persist in DB; never include in provenance or trace exports; never log; treat `X-Amz-*` query params as secrets.
+- Admin-token gating (ADR-0018/ADR-0019): require `X-Orbital-Admin-Token` to match env `ORBITAL_ADMIN_TOKEN`; missing/mismatched returns `403` with the standard error envelope; token must never be stored, returned, or logged.
+- Dev-only endpoints: must live under `/spikes/*`, be dev-environment gated, and return `404` outside dev; validate inputs with Zod; avoid filesystem traversal patterns.
+- Trace/provenance redaction: trace exports are shareable artifacts; default export must contain only ids, timings, counts, code enums, and hashes (no raw PDF bytes, extracted text, prompts, provider payloads/headers, file paths, signed URLs, auth tokens, or PII).
+- Storage/logging posture: Postgres-stored extracted text is sensitive; object storage holds raw PDFs and artefacts; logs/traces/analytics must redact tokens and signed URLs and avoid raw document content.
 
-## Story Inventory (Overall Spine PRD)
+## Next.js App Router Boundaries (Server-First)
 
-The overall PRD is a single end-to-end chain:
-
-| Spine story | Depends on (spine) | Slice(s) that realize it |
-|---|---|---|
-| `overall.US-001` Matter baseline |  | `0001a.US-001` |
-| `overall.US-002` Upload PDFs + ingest status | `overall.US-001` | `0001a.US-002` |
-| `overall.US-003` View PDF (page nav + zoom) | `overall.US-002` | `0001b.US-001` + `0001b.US-002` |
-| `overall.US-004` Locked citation object + hashing | `overall.US-003` | `0001c.US-001` + `0001c.US-002` |
-| `overall.US-005` Citation chip -> highlight | `overall.US-004` | `0001d.US-001` + `0001d.US-002` |
-| `overall.US-006` Row status + export gate | `overall.US-005` | `0001e.US-001` + `0001e.US-002` + `0001e.US-003` |
-| `overall.US-007` Failure journeys + provenance export | `overall.US-006` | `0001e.*` + `0001f.US-001` |
+- Default to RSC for route shells under `apps/web/app/(app)/**`. Client components are small “islands”.
+- Client components talk to the server via Route Handlers under `apps/web/app/(api)/**/route.ts` (and/or Server Actions treated like public endpoints).
+- pdf.js is client-only: keep all pdf.js imports behind a dedicated client-component boundary and use dynamic import.
+- Avoid passing large payloads through RSC props (polygons, page text, etc). Prefer ids + client/server fetch as appropriate.
 
 ## Spike Gates (Blocked-By Dependencies)
 
-These are PRD-level gates (from `risksDependencies.blockedBy`) that block slices from being “GO”:
+These gates come from `risksDependencies.blockedBy` and block slices from being “GO”.
 
-| Gate | Blocks slice(s) | Primary code/harness location(s) today |
-|---|---|---|
-| `RH1` pdf.js perf on scans | `0001b` | `apps/web/app/(app)/spikes/rh1-pdf-perf/*`, `apps/web/app/(api)/spikes/local-pdf/route.ts` |
-| `RH2` overlay transforms | `0001d` | `apps/web/app/(app)/spikes/rh2-overlay/*`, `packages/core/src/geometry/*` |
-| `RH3` snippet hash stability | `0001c` | `packages/core/src/citations/snippet.ts`, `packages/core/src/spikes/rh3_snippet_hash_harness.ts` |
-| `RH4` verification precision/latency | `0001e` | `apps/web/app/(api)/spikes/rh4-verify/route.ts`, `packages/core/src/verify/verifier.ts`, `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` |
-| `RH5` missing-doc heuristics | `0001e` | `packages/core/src/missing-docs/*` (plus a harness to be executed/recorded) |
+| Gate | Blocks slice(s) | Primary harness/code today | Evidence location |
+|---|---|---|---|
+| `RH1` pdf.js perf on scans | `0001b` | `apps/web/app/(app)/spikes/rh1-pdf-perf/*`, `apps/web/app/(api)/spikes/local-pdf/route.ts` | `docs/04-projects/02-features/0001_trust-substrate/spike-proofs/` + `spike-investigation.md` |
+| `RH2` overlay transforms | `0001d` | `apps/web/app/(app)/spikes/rh2-overlay/*`, `packages/core/src/geometry/*` | `spike-proofs/` + `spike-investigation.md` |
+| `RH3` snippet hash stability | `0001c` | `packages/core/src/citations/snippet.ts`, `packages/core/src/spikes/rh3_snippet_hash_harness.ts` | `spike-proofs/` + `spike-investigation.md` |
+| `RH4` verification precision/latency | `0001e` | `apps/web/app/(api)/spikes/rh4-verify/route.ts`, `packages/core/src/verify/verifier.ts`, `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` | `spike-proofs/` + `spike-investigation.md` |
+| `RH5` missing-doc heuristics | `0001e` | `packages/core/src/missing-docs/*` (plus a harness to execute/record) | `spike-proofs/` + `spike-investigation.md` |
 
-Spike execution + evidence must be recorded in:
+## Gate Pass Criteria (Perf + Evidence)
 
-- `docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md`
-- `docs/04-projects/02-features/0001_trust-substrate/spike-proofs/` (artefacts)
+This section is intentionally redundant with PRDs so spike closure is consistent.
 
-## Cross-Slice Dependencies (What Actually Couples Work)
+RH1 PASS (pdf.js perf on scans) requires:
 
-PRD-level dependencies (from `risksDependencies.dependencies`) translated into concrete coupling points:
+- Range precondition: the target PDF URL returns `Accept-Ranges: bytes` and honors `Range: bytes=0-10` with `206 Partial Content` (record header proof).
+- Define `totalMs` as time from “request page N” to `renderTask.promise` resolve (exclude initial PDF load).
+- Serial test (N=20, 100% zoom): `p95(totalMs) < 1000ms` and `max(totalMs) < 1500ms`.
+- Spam test (N=30 @ 200ms): `maxLongTaskMs < 250ms` and final requested page completes `< 1500ms` after its request timestamp.
+- Cancellation requirement: `>= 70%` intermediate renders are cancelled (define cancellation rate from harness output).
+- Evidence committed: downloaded run JSON(s) + summary table in `spike-investigation.md`.
+- Important: Range proof must be for the actual URL used by the viewer (`render_url` target), not just `/spikes/local-pdf`.
 
-| Slice | Hard dependencies | Notes for parallel work |
-|---|---|---|
-| `0001a` Matter + docs | Postgres schema, object storage, OCR/layout adapter | Own the “Folder/Document” schema and endpoints first to unblock everything else. |
-| `0001b` Viewer | `0001a` document ingestion provides `page_count`; storage render contract | Viewer and overlay harness both touch pdf.js wiring; keep one “pdf.js integration owner”. |
-| `0001c` Citations API | citations schema; stable `document_id/page_number` identity | Implement hashing + schema once in `packages/core`; do not duplicate hashing rules in web app. |
-| `0001d` Chips + overlay | `0001b` viewer; `0001c` citations API | UI wiring can progress in parallel with API work if the API response shape is stable (mock/fixture OK). |
-| `0001e` Status + export gate | locked citations (ADR-0001); persisted report rows + runs; verifier + missing-doc heuristics | This slice couples product UX + hard server enforcement. Keep one owner for status invariants + export enforcement. |
-| `0001f` Trace export | persisted runs + run_steps + report_rows provenance | Pairs naturally with `0001e` since it reads the same data. |
+RH2 PASS (overlay transforms) requires:
+
+- pack_01: one commitment anchor and one survey anchor align at 100% zoom.
+- Zoom invariance: 50/100/150% bbox scales within `±2%` OR `±3 CSS px` vs `bbox100 * scale`, or an explicit cut is recorded (ADR-0020 “verified at 100% zoom only”).
+- Rotation: at least one rotated/scanned case in pack_07, or an explicit cut/patch is recorded.
+- Fail-closed proof: invalid polygon and wrong page show explicit failure UI and render no overlay.
+- Evidence committed: screenshots with HUD + bbox log JSON.
+
+RH3 PASS (snippet hash stability) requires:
+
+- `hashSnippet()` and `normaliseSnippet()` are single-sourced (core) and unit tested.
+- Harness `packages/core/src/spikes/rh3_snippet_hash_harness.ts` run twice yields identical hashes across runs for the same extracted snippets.
+- Evidence committed: the two JSON outputs + a stability note/table in `spike-investigation.md`.
+
+RH4 PASS (verification precision/latency) requires:
+
+- Dataset: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` (>= 20 bad examples).
+- Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`.
+- Latency budget: `p95 <= 8s` per row on dev machine (record p50/p95/max).
+- Evidence committed: results summary + raw results JSON (and any rubric/prompt notes if used later).
+
+RH5 PASS (missing-doc heuristics) requires:
+
+- `pack_02_missing_rea`: flags `REA.pdf` as missing with an actionable checklist.
+- `pack_01_clean`: false positives are zero (`FP=0`).
+- Only high-confidence candidates shown by default (`confidence >= 0.8`).
+- Evidence committed: harness output + a short note describing signals and candidate confidence.
 
 ## Dependency Graph (Slices + Gates)
 
@@ -107,8 +115,8 @@ graph TD
   RH5((RH5))
 
   A --> B
-  C --> D
   B --> D
+  C --> D
   C --> E
   D --> E
   E --> F
@@ -120,208 +128,137 @@ graph TD
   RH5 --> E
 ```
 
-## Story-Level Dependency Matrix (Runnable Units)
+## Story Dependency Matrix (Single Source Of Truth)
+
+Story IDs repeat across slices; always refer to them as `0001x.US-00y`.
+
+Owner lanes (used only for coordination):
+
+- Lane 0: spikes + harnesses only
+- Lane 1: DB + shared server primitives (single owner)
+- Lane 2: matter + documents
+- Lane 3: viewer
+- Lane 4: citations API + locking contract
+- Lane 5: chips + highlight overlay UX
+- Lane 6: row status + export gate + failure journeys
+- Lane 7: provenance + trace export
 
-This is the “agent scheduling” view: what must be true before a given story loop can safely merge.
+| Unit | Title | Owner lane | Prereqs (stories) | Gate prereqs | Contract prereqs | Verification (minimal) |
+|---|---|---:|---|---|---|---|
+| `0001a.US-001` | Create and open a Matter | 2 |  |  | `folders` table + `GET/POST /folders` + `GET /folders/:id` | V-repo + UI smoke (create/open matter) |
+| `0001a.US-002` | Upload PDFs and observe ingest status | 2 | `0001a.US-001` |  | `documents` table + `POST /folders/:id/documents` + `POST /documents/:id/complete` + `GET /folders/:id/documents` | V-repo + UI smoke (upload + observe statuses) |
+| `0001b.US-001` | Open and view a PDF | 3 | `0001a.US-002` | `RH1` | `GET /documents/:id/render?page=N` (page is viewer state; render_url is whole PDF) | V-web + UI smoke (open viewer); rerun RH1 if pdf.js wiring changed |
+| `0001b.US-002` | Page navigation and zoom stays responsive on scans | 3 | `0001b.US-001` | `RH1` | Range support + cancellation semantics measurable via harness | V-web + UI smoke (spam nav/zoom); rerun RH1 |
+| `0001c.US-001` | Fetch a locked citation by ID | 4 |  | `RH3` | citations table + immutability rules + `GET /citations/:id` reads locked rows | V-repo + dev server sanity check (`GET /citations/:id`) |
+| `0001c.US-002` | Canonical snippet hashing is stable | 4 |  | `RH3` | `packages/core/src/citations/snippet.ts` is canonical and reused everywhere | V-core + RH3 harness (run twice, compare outputs) |
+| `0001d.US-001` | Click citation chip -> open viewer at cited evidence | 5 | `0001b.US-001`, `0001c.US-001` | `RH2` | viewer accepts `page` + `citation`; citation payload drives overlay render; fail-closed UI states exist | V-web + UI smoke (chip -> viewer); rerun RH2 if overlay touched |
+| `0001d.US-002` | Evidence highlights align across zoom + rotation | 5 | `0001d.US-001` | `RH2` | polygon mapping util + zoom/rotation proof (or ADR-0020 cut/patch recorded) | V-web + UI smoke (zoom+rotation); rerun RH2 |
+| `0001e.US-001` | Missing docs yields missing_input with checklist | 6 |  | `RH5` | runs/report persistence exists (`runs`, `report_rows`, `GET /folders/:id/report?run_id=…`); missing-doc checklist shape + invariants for `missing_input` | V-repo + UI smoke; `pnpm fixtures:assert-row-invariants` (strict when reason codes change) |
+| `0001e.US-002` | Bad evidence yields citation_failed and blocks export | 6 | `0001e.US-001`, `0001c.US-001`, `0001c.US-002` | `RH4` | server-enforced export gate returns `EXPORT_BLOCKED` and checks `runs.state=completed`; unsafe override (ADR-0019) is admin-token gated + demo-flag gated and labels artefacts unsafe | V-repo + UI smoke; invariants script; rerun RH4 if verifier changes |
+| `0001e.US-003` | needs_review -> reviewed is explicit and persisted | 6 | `0001e.US-002` |  | persisted row status transition (`needs_review -> reviewed`) with invariants enforced | V-repo + UI smoke; invariants script |
+| `0001f.US-001` | Download run trace JSON | 7 |  |  | runs/run_steps/report_rows persisted with provenance; `GET /runs/:id/trace` admin-token gated + safe allowlist trace schema + `FEATURE_TRACE_EXPORT` flag | V-repo + dev server sanity check; trace redaction review |
 
-Legend:
+## Work Lanes (Ownership Boundaries)
 
-- `Gate:` must have a spike decision recorded (Pass, Cut, or Patch) and linked in `spike-investigation.md`.
-- `Contract:` another loop must have landed the contract (API/db/core util) that this story consumes.
+Use these to keep parallel work low-conflict.
 
-| Story (runnable unit) | Prereqs (stories) | Gate prereqs | Contract prereqs |
-|---|---|---|---|
-| `0001a.US-001` |  |  | API+DB contract for `folders` |
-| `0001a.US-002` | `0001a.US-001` |  | API+DB contract for `documents` + upload init/complete + ingest statuses |
-| `0001b.US-001` | `0001a.US-002` | Gate: `RH1` | Contract: `GET /documents/:id/render?page=N` (render_url semantics) |
-| `0001b.US-002` | `0001b.US-001` | Gate: `RH1` | Contract: Range support + render cancellation semantics measured in harness |
-| `0001c.US-001` |  | Gate: `RH3` | API+DB contract for locked citation payload (`GET /citations/:id`) |
-| `0001c.US-002` |  | Gate: `RH3` | Contract: canonical `hashSnippet()` implementation is single-sourced |
-| `0001d.US-001` | `0001b.US-001`, `0001c.US-001` | Gate: `RH2` | Contract: viewer accepts `page` + `citation` params; citation payload -> overlay render |
-| `0001d.US-002` | `0001d.US-001` | Gate: `RH2` | Contract: polygon mapping util + fail-closed semantics proven (zoom/rotation) |
-| `0001e.US-001` |  | Gate: `RH5` | Contract: missing-doc checklist shape + row invariants (`missing_input`) |
-| `0001e.US-002` | `0001e.US-001`, `0001c.US-001`, `0001c.US-002` | Gate: `RH4` | Contract: server-enforced export gate returning `EXPORT_BLOCKED` |
-| `0001e.US-003` | `0001e.US-002` |  | Contract: persisted row status transitions (`needs_review -> reviewed`) |
-| `0001f.US-001` |  |  | Contract: `GET /runs/:id/trace` (ADR-0018) + safe trace schema |
+| Lane | Owns paths | Owns contracts |
+|---:|---|---|
+| 0 | `apps/web/app/(app)/spikes/**`, `apps/web/app/(api)/spikes/**`, `packages/core/src/spikes/**`, `docs/04-projects/02-features/0001_trust-substrate/spike-proofs/**` | spike evidence + Pass/Cut/Patch decisions |
+| 1 | DB/migrations tooling + shared server DB utilities + signed URL policy | DB schema + constraints + transactions; shared “safe error” + schema reuse; signed URL helper/policy |
+| 2 | matter/doc UI and endpoints | `folders` + `documents` endpoints and UI surfaces |
+| 3 | viewer UI surfaces | pdf.js integration boundary + viewer UX contract |
+| 4 | citations core + endpoint | hashing + locked citation payload contract |
+| 5 | overlay mapping + viewer overlay UI | overlay mapping + fail-closed UX |
+| 6 | status/export core + endpoints + UI | row status invariants + export gate + failure journeys |
+| 7 | trace export endpoint + UI | admin-only trace export + redaction rules |
 
-Important: `0001e` and `0001f` also implicitly require the “run/report row persistence spine” (tables + APIs per `docs/03-architecture/*`). If those aren’t in place yet, treat that as a prerequisite foundation loop (owned by the same lane that owns DB/API).
+## API Route Ownership Split (Recommended)
 
-## Work Lanes (Min Overlap)
+This is the “min-overlap” split for target (non-spike) route handlers under `apps/web/app/(api)/**`. Adjust names as you implement, but keep the boundaries.
 
-The goal is to let multiple loops run concurrently while minimizing file/contract conflicts.
+| Lane | Own these route handler subtrees |
+|---:|---|
+| 2 | `apps/web/app/(api)/folders/**`, `apps/web/app/(api)/documents/**` |
+| 4 | `apps/web/app/(api)/citations/**` |
+| 6 | `apps/web/app/(api)/export/**` |
+| 7 | `apps/web/app/(api)/runs/**` (trace export endpoint only) |
 
-### Lane 0: Spike Closure (RH1-RH5)
+## Lane 1 Deliverables (DB + Shared Server Primitives, Single Owner)
 
-Ownership boundary:
+These must land before dependent lanes can safely implement their stories.
 
-- Harness UI under `apps/web/app/(app)/spikes/*`
-- Dev-only endpoints under `apps/web/app/(api)/spikes/*`
-- Core utilities under `packages/core/src/*`
-- Evidence under `docs/04-projects/02-features/0001_trust-substrate/spike-proofs/*`
+- Migration mechanism decision: where migrations live, how to apply/rollback in dev, and how to serialize migration changes (single owner).
+- Initial schema + constraints aligned with `docs/03-architecture/30_data_model.md` (at minimum: `folders`, `documents`, `runs`, `run_steps`, `report_rows`, `citations`).
+- Constraints that prevent corruption and retries from duplicating state: unique `(run_steps.run_id, run_steps.step_key)` and unique `(report_rows.run_id, report_rows.question_id)`.
+- FK integrity between `runs`, `run_steps`, `report_rows`, `citations`, `documents`, and `folders` (choose ON DELETE behavior intentionally).
+- “Citations are immutable” is enforced by convention and reviewed as a contract (no update semantics; fixes are insert-new + update refs + provenance).
+- Transaction/atomicity conventions for risky writes: lock citations + write row refs; run completion; export gating + artefact creation.
+- A single-sourced signed-URL helper/policy for `render_url` and `download_url` (short TTL; never persisted; never logged; never in trace/provenance).
 
-Runnable units:
+## Scheduling Rules (Parallel Work With Minimal Overlap)
 
-- `RH1`: run `/spikes/rh1-pdf-perf`, capture serial+spam artefacts (JSON + screenshots), record Pass/Patch/Cut.
-- `RH2`: run `/spikes/rh2-overlay`, capture 50/100/150 + rotation + fail-closed artefacts, record Pass/Patch/Cut.
-- `RH3`: run `packages/core/src/spikes/rh3_snippet_hash_harness.ts` twice, save outputs, record stability table.
-- `RH4`: run verifier harness on `fixtures/rh4_verification_cases.json`, record false-pass=0 and latency, record Pass/Patch/Cut.
-- `RH5`: run missing-doc heuristic harness against `pack_02_missing_rea` vs `pack_01_clean`, record FP=0, record Pass/Patch/Cut.
+- Lane 1 (migrations + shared DB primitives) is single-owner. Do not run parallel agents that touch migrations or the shared DB access layer.
+- API routes can be parallelized by subtree ownership, but do not touch files owned by another lane without explicit coordination.
+- Lane 0 can run in parallel with Lane 1 if it only touches harnesses and evidence, not production contracts.
+- A story can merge only when its matrix prerequisites are satisfied and gate outcomes are recorded in `spike-investigation.md`.
+- Any change touching pdf.js integration must re-run RH1 harness; any change touching overlay transforms must re-run RH2 harness.
+- Any change touching verifier/missing-doc status logic must re-run RH4/RH5 evidence and `pnpm fixtures:assert-row-invariants` where applicable.
 
-This lane can run in parallel with Lane 1, as long as it does not change the production contracts (only spike/harness code).
+## Data Integrity Invariants (Must Hold; Block Merge If Broken)
 
-### Lane 1: DB + API Contract Backbone (Shared Foundation)
+Source of truth:
 
-If multiple agents touch DB/API, you will get merge conflicts. Treat this lane as a single owner lane.
+- `docs/03-architecture/20_state_model.md`
+- `docs/03-architecture/30_data_model.md`
+- `docs/03-architecture/60_observability_and_evals.md`
 
-Ownership boundary:
+Run completion invariants:
 
-- Target API endpoints live under `apps/web/app/api/**` (never under `/spikes/*`).
-- Shared request/response Zod schemas live under `packages/core/src/**` and are imported into route handlers.
+- `runs.state = completed` only when every question in the pinned `question_set_version` has exactly one `report_rows` record.
+- Every `report_rows.status` is terminal: `needs_review|reviewed|missing_input|citation_failed`.
 
-Deliverables that unblock many stories:
+Report row invariants:
 
-- Postgres connectivity and a migration story aligned with `docs/03-architecture/30_data_model.md`.
-- Stable Zod schemas for:
-  - folder/document identifiers and payloads
-  - citation payload (`GET /citations/:id`)
-  - report row shell + status invariants
-  - standard error envelope (already exists in core; keep it single-source)
+- `needs_review|reviewed` rows must have `>= 1` locked `citation_id`.
+- `missing_input` must use exact answer string `Not found in provided documents.` and must have zero citations.
+- `citation_failed` must include a safe `reason_code` in provenance.
 
-### Lane 2: 0001a Matter + Documents (Real, Not Fixtures)
+Citation invariants:
 
-Stories:
+- Citations are locked + immutable after insert; fixes create new citation records.
+- Exportable citations must have valid `polygons` (fail closed if missing/invalid).
+- `snippet_hash` must match the canonical hashing rule (single-sourced in core).
 
-- `0001a.US-001` create/open matter
-- `0001a.US-002` upload PDFs + ingest status
+## Verification Ladder (Mandatory)
 
-Hard dependencies:
+Follow the repo’s `verify` ladder: smallest scope first; widen only if failures suggest shared impact. If you cannot verify, end the loop NO-GO with the smallest unblock request.
 
-- Lane 1 (DB/API backbone)
+Command profiles (run in ladder order):
 
-Coupling points to avoid overlap:
+- V-repo (cross-package or unsure): `pnpm lint && pnpm typecheck && pnpm test && pnpm build`
+- V-web (apps/web only): `pnpm --filter @orbital-poc/web lint && pnpm --filter @orbital-poc/web typecheck && pnpm --filter @orbital-poc/web build`
+- V-core (packages/core only): `pnpm --filter @orbital-poc/core typecheck && pnpm --filter @orbital-poc/core test && pnpm --filter @orbital-poc/core build`
 
-- Own `folders` + `documents` tables/migrations in one place.
-- Define the canonical place for “state derivation” logic (derive from facts, keep monotonic transitions per `docs/03-architecture/20_state_model.md`).
+Optional (only when relevant):
 
-### Lane 3: 0001b PDF Viewer (Render Contract + UX)
+- Docs/fixture pack references changed: `pnpm fixtures:verify-pack-names`
+- Row status invariants/reason codes touched: `pnpm fixtures:assert-row-invariants -- --snapshot <path/to/snapshot.json> --strict-reason-codes`
+- Truth comparison required: `pnpm fixtures:compare-truth -- --snapshot <path/to/snapshot.json>`
 
-Stories:
+Note: `pnpm verify` exists but does not include `typecheck` today. Do not treat it as sufficient for TS changes.
 
-- `0001b.US-001` open and view a PDF
-- `0001b.US-002` performance + cancellation + Range requirement
+UI smoke (required for UI/user-flow changes):
 
-Hard dependencies:
-
-- `0001a.US-002` (documents exist and have `page_count`)
-- Gate: `RH1` (or record a cut/patch)
-
-Coupling points to avoid overlap:
-
-- One “pdf.js integration owner” defines:
-  - worker wiring
-  - render cancellation behavior
-  - canvas sizing rules (DPR, CSS pixels vs backing store)
-  - the shared viewer component API consumed by overlay/highlight work
-
-### Lane 4: 0001c Citations API + Locking Contract
-
-Stories:
-
-- `0001c.US-001` `GET /citations/:id` locked payload
-- `0001c.US-002` canonical snippet hashing is stable
-
-Hard dependencies:
-
-- Gate: `RH3` (or record a cut/patch)
-
-Coupling points to avoid overlap:
-
-- `hashSnippet()` lives in `packages/core/src/citations/snippet.ts` only.
-- Citation polygon coordinate spec is already implemented in core; do not introduce alternate mapping.
-
-### Lane 5: 0001d Citation Chips + Click-to-Highlight
-
-Stories:
-
-- `0001d.US-001` chips -> open viewer at cited evidence
-- `0001d.US-002` highlight alignment across zoom/rotation (fail closed)
-
-Hard dependencies:
-
-- `0001b.US-001` viewer can open a doc
-- `0001c.US-001` citation payload endpoint exists
-- Gate: `RH2` (or record cut/patch, e.g., “verified at 100% zoom only”, ADR-0020)
-
-Coupling points to avoid overlap:
-
-- Viewer surface area: agree on prop/URL contract for `page`, `citation`, `zoom`, `rotation`.
-- Overlay surface area: treat overlay rendering as a “plugin” consuming `{viewBox, viewport, polygons}`.
-
-### Lane 6: 0001e Row Statuses + Export Gate + Failure Journeys
-
-Stories:
-
-- `0001e.US-001` missing_input + checklist
-- `0001e.US-002` citation_failed + export blocked (server-enforced)
-- `0001e.US-003` reviewed transition persisted
-
-Hard dependencies:
-
-- Gate: `RH4`, `RH5` (or record cut/patch outcomes)
-- `0001c` citation hashing contract (for mismatch detection)
-- DB/API backbone for runs/report rows (Lane 1)
-
-Coupling points to avoid overlap:
-
-- One owner for the row status machine invariants and enforcement:
-  - `missing_input` exact string + zero citations
-  - `needs_review|reviewed` require >=1 locked citation
-  - `citation_failed` requires safe reason codes
-- Export gating must be enforced in the API boundary (not only UI).
-
-### Lane 7: 0001f Provenance + Run Trace Export
-
-Story:
-
-- `0001f.US-001` download trace JSON (`GET /runs/:id/trace`, ADR-0018)
-
-Hard dependencies:
-
-- Runs/run_steps/report_rows persistence exists
-
-Coupling points to avoid overlap:
-
-- Trace schema must be “safe by default” (no raw PDF bytes, no provider payload dumps, avoid full extracted text).
-- Treat this endpoint as admin-only (admin token) and avoid leaking signed URLs (ADR-0018).
-
-## Suggested Parallel Schedule (Topological + Low Conflict)
-
-This is a practical ordering that still allows concurrency.
-
-1. Lane 1 (DB/API backbone) starts immediately and stays a single-owner lane.
-2. Lane 0 (spikes) runs in parallel:
-   - `RH3` can run in parallel with `RH1`/`RH2` since it touches core hashing + harness.
-   - `RH4`/`RH5` can run in parallel but should not “invent” new statuses or reason codes (must align with `docs/03-architecture`).
-3. Once Lane 1 lands the `folders/documents` contract, Lane 2 can land `0001a` stories.
-4. Once `0001a.US-002` exists and `RH1` is closed, Lane 3 can land `0001b` stories.
-5. Once `RH3` is closed, Lane 4 can land `0001c` stories.
-6. Once `0001b` + `0001c` exist and `RH2` is closed (or cut), Lane 5 can land `0001d` stories.
-7. Once `RH4`/`RH5` are closed (or cut/patch) and run/report persistence exists, Lane 6 can land `0001e` stories.
-8. Lane 7 can land `0001f` alongside Lane 6 (same persistence dependencies).
-
-## “Overlap Traps” (Things to Avoid)
-
-- Two agents touching DB migrations at once.
-- Duplicating hashing logic outside `packages/core`.
-- Letting dev-only tracer bullets under `/matters` or `/spikes/*` silently become production paths.
-- Adding new row statuses instead of storing per-item detail in payload/provenance.
-- Implementing export gating only in UI (must be server-enforced).
+- Start: `pnpm dev`
+- Exercise the touched route end-to-end, including one sad path.
+- Confirm no obvious console/network errors.
 
 ## Definition of Done (Per Story Loop)
 
-Each story loop should end with:
-
-- Contract correctness vs `docs/03-architecture/*` (API, state model, data model).
-- Fixture-driven verification on the relevant pack(s) mentioned in the PRD.
-- If it is a spike-gated slice: evidence artefacts committed under `spike-proofs/` and a decision recorded in `spike-investigation.md`.
-
+- Dependencies: story prerequisites and gate prerequisites are satisfied per the matrix.
+- Contracts: changes align with `docs/03-architecture/*` (API, state model, data model).
+- Verification: a `## Verification` section is included with PASS/NO-GO (commands run + UI smoke evidence when applicable).
+- Spike-gated stories: evidence artefacts committed under `spike-proofs/` and a decision recorded in `spike-investigation.md`.
+- Security: signed URLs are not persisted and not logged; admin-only endpoints return `403` without a valid admin token; trace export is redacted by default and reviewed for PII/secrets; dev-only endpoints are `404` outside dev.
+- Unsafe override (ADR-0019): if `unsafe_override=true` is supported, it is API-only, admin-token gated, and also gated behind explicit demo flags; unsafe exports are visibly labelled and recorded in artefact metadata.
