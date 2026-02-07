@@ -207,7 +207,7 @@ Response:
     "state": "running",
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:quick_start_title_survey:v1"
+    "question_set_version": "qs:0002:v1.0:sha256:..."
   }
 }
 ```
@@ -221,8 +221,8 @@ Response:
     "state": "running",
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:quick_start_title_survey:v1",
-    "progress": { "questions_total": 42, "questions_done": 11 },
+    "question_set_version": "qs:0002:v1.0:sha256:...",
+    "progress": { "questions_total": 9, "questions_done": 3 },
     "failure_counts": { "RETRIEVAL_MISS": 2, "CITATION_MISMATCH": 1 }
   }
 }
@@ -239,16 +239,35 @@ Response:
     "state": "completed",
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:quick_start_title_survey:v1"
+    "question_set_version": "qs:0002:v1.0:sha256:..."
   },
   "rows": [
     {
       "id": "row_123",
-      "question_id": "BII-01",
-      "question": "List Schedule B-II exceptions…",
-      "answer": "…",
+      "question_id": "TS-04",
+      "question": "List the recorded exceptions in Schedule B-II.",
+      "answer": "Extracted exceptions table (see payload).",
       "status": "needs_review",
       "citation_ids": ["cit_123", "cit_124"],
+      "payload_schema_version": "list_payload_v0",
+      "payload_json": {
+        "kind": "exceptions_table",
+        "items": [
+          {
+            "kind": "exceptions_table_item",
+            "item_id": "bii:15",
+            "bii_item": 15,
+            "type": "Reciprocal Easement Agreement (REA)",
+            "instrument_no": "2021-218785",
+            "recorded_date": "2021-10-22",
+            "doc": "REA.pdf",
+            "risk_tags": ["parking", "shared_costs"],
+            "match_status": "matched",
+            "item_status": "needs_review",
+            "citation_ids": ["cit_123"]
+          }
+        ]
+      },
       "notes": null
     }
   ]

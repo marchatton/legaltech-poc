@@ -100,6 +100,8 @@ Recommended constraints:
 ### `report_rows`
 - `id`, `folder_id`, `run_id`, `question_id`, `question`
 - `answer`, `status`, `notes`
+- `payload_schema_version` (string, nullable; e.g. `list_payload_v0`)
+- `payload_json` (jsonb, nullable; structured row payload for list-shaped artefacts)
 - `provenance_json` (minimum: retrieved chunk IDs + scores, models + prompt hashes, verification verdict + reason codes)
 - timestamps
 
