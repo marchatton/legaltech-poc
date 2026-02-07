@@ -115,7 +115,7 @@ As a demo operator, I can see and download the exported memo artefact reliably f
   - export gating matches `docs/03-architecture/20_state_model.md`
 - Manual viewer sanity:
   - open exported docx in Word, Google Docs, and Preview; capture pass/fail notes in the PR.
-  - optional automation: `pnpm dlx agent-browser` to drive Google Docs upload/view + screenshot if it saves time.
+  - optional automation: `pnpm dlx agent-browser` (snapshot/refs) or `browser-use` (persistent session) to drive Google Docs upload/view + screenshot if it saves time.
 
 ## Risks
 
@@ -136,4 +136,3 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 - `docs/03-architecture/30_data_model.md`
 - `docs/03-architecture/50_api_surface.md`
 - `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008)
-
