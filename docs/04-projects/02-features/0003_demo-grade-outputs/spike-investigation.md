@@ -1,9 +1,133 @@
 # Spike investigation — Initiative 0003: Demo-grade outputs and repeatability
 
-> Status: planned only. No spikes executed yet.
-> Note: Thin PRD dossiers (`0004`–`0007`) have been drafted as DRAFT/NO-GO to capture scope, but implementation should not start until these spikes close.
+> Status: outcomes locked (assumption-driven where explicitly marked).
+> Note: Practitioner/stakeholder time can still be used to falsify the assumptions, but the contracts below are now the working v1.
 
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: spikes come before PRDs.
+
+## Locked outcomes (2026-02-07)
+
+### CSV export format usability (RH1) — CLOSED (ASSUMPTION)
+
+ASSUMPTION:
+- The v1 CSV schemas below are usable enough for demo paste/import (<5 minutes of cleanup).
+
+Falsified if:
+- Practitioner says columns or ordering are unusable, or citations format needs a different shape.
+
+Deliverables (locked):
+- CSV schemas v1 (headers + ordering):
+  - requirements_tracker.csv:
+    1) requirement_id
+    2) requirement_text
+    3) source_question_id
+    4) row_status
+    5) source_answer
+    6) failure_code
+    7) citations
+    8) citation_ids
+    9) notes
+  - exceptions_table.csv:
+    1) exception_id
+    2) exception_text
+    3) source_question_id
+    4) row_status
+    5) source_answer
+    6) failure_code
+    7) citations
+    8) citation_ids
+    9) notes
+  - survey_issues.csv:
+    1) issue_id
+    2) issue_text
+    3) source_question_id
+    4) row_status
+    5) source_answer
+    6) failure_code
+    7) citations
+    8) citation_ids
+    9) notes
+
+- Deterministic row ordering rule (all kinds):
+  - sort by source_question_id asc
+  - then by *_id asc
+  - tie-breaker: citations asc
+  - citations within a row sorted by (document.filename asc, page_number asc, citation_id asc)
+
+- Citation rendering:
+  - citations = unique doc/page pairs as "filename:page" joined by "; "
+  - citation_ids = all citation IDs joined by "; "
+
+Smallest falsification action:
+- 60 minute practitioner paste/import test using sample exports from pack_01_clean.
+
+### Export gating behaviour (RH5) — CLOSED
+
+Default rule (locked):
+- Exports allowed only when runs.state = completed.
+- If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED.
+
+Unsafe override (locked, demo-only):
+- unsafe_override exists but is guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS.
+- If unsafe_override=true when not allowed, return 403 UNAUTHORISED.
+- Unsafe artefacts must be visibly labelled in filename and metadata_json.
+
+UX copy (locked, required strings):
+- Blocked banner title: "Export blocked"
+- Body: "This run contains {n} row(s) with failed citation verification. Fix the citations or re-run. By default we do not export when any row is citation_failed."
+- Demo-only button label: "Export anyway (UNSAFE)"
+- Confirmation title: "Create an unsafe export?"
+- Confirmation body: "This will export even though some rows failed citation verification. The file will be labelled UNSAFE and may contain unverified content. Do not share this outside internal demos."
+- Confirm button: "I understand, export UNSAFE"
+
+### Word artefact choice (RH3) — CLOSED (ASSUMPTION)
+
+Outcome (locked):
+- Single Word artefact kind = memo.
+
+ASSUMPTION:
+- Memo is the best demo narrative artefact.
+
+Falsified if:
+- Stakeholder explicitly requires objection/cure letter and provides must-have sections.
+
+Deliverables (locked):
+- Memo deterministic section order:
+  1) Title
+  2) Matter metadata (folder name, run_id, generated_at, versions)
+  3) Deal snapshot (optional)
+  4) Requirements
+  5) Exceptions
+  6) Survey issues
+  7) Missing inputs
+  8) Evidence index (optional)
+
+- Citation rendering:
+  - Inline, no footnotes:
+    - "Sources: <filename>:<page> (<citation_id>); ..."
+
+### Minimal eval metrics (RH7) — CLOSED
+
+Hard-gate metrics (locked):
+1) schema_validity (100%)
+2) citation_integrity (100%)
+3) failure_journeys (expected failures match)
+4) export_truth_match (CSV outputs match /truth)
+
+Report shape (locked):
+- per-pack JSON + per-pack Markdown summary + cross-pack summary table
+
+pack_03_bad_citation (locked minimum):
+- pack folder contains /docs, /truth (expected failure journeys), and /produced snapshots with at least one citation_failed row.
+
+### Demo repeatability controls and reset safety — CLOSED
+
+Outcome (locked):
+- Demo toolbar (dev-only) + checklist.
+- Slice 1 reset semantics: no deletion via HTTP. Reset means loading the pack again to create a fresh matter.
+- Pack loader does not auto-start runs by default (operator clicks Run Quick Start).
+
+---
 
 ## Spike plan — CSV export format usability
 
@@ -80,287 +204,3 @@ Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_res
 
 ---
 
-## Spike plan — Export gating behaviour (trust posture vs demo utility)
-
-## Question
-
-When any row is `citation_failed`, do we:
-1) block export by default (per state model), and
-2) allow a demo-only override (explicit + visibly unsafe)?
-
-## Context
-
-- Feature / concept: 3.1/3.2 exports
-- Related requirement(s): R5
-- Why now: This is a product trust decision; exporting "partial truth" is dangerous if underspecified.
-
-## Success criteria
-
-Proof looks like:
-
-- A single crisp default that matches `docs/03-architecture/20_state_model.md`.
-- If override exists, it is strictly scoped (demo-only) and impossible to trigger accidentally.
-- UX copy is unambiguous about what is missing/excluded.
-- Export readiness is unambiguous: exports are only allowed when `runs.state = completed` (PoC default).
-
-## Timebox
-
-- Start: TBD
-- Hard stop: TBD (30-60 minutes)
-
-## Scope
-
-Include:
-
-- Default behaviour and exact UX messaging for `EXPORT_BLOCKED`.
-- Decision on whether override exists, and if so: how it is guarded.
-
-Exclude:
-
-- Any attempt to "fix" citation_failed rows inside export.
-
-## Approach
-
-- Step 1: Restate canonical rule from state model and API surface docs.
-- Step 2: Draft 2 options (block-only vs demo-only override) with a concrete UI + API shape.
-- Step 3: Choose and lock the perimeter.
-- Step 4 (micro contract-lock): update `docs/03-architecture/20_state_model.md` + `docs/03-architecture/50_api_surface.md` to match the decision (no ghost contracts).
-
-## Artefacts
-
-Keep:
-
-- The chosen rule and the UX copy for blocked export.
-- If override exists: an explicit guardrail design (demo-only).
-
-Throw away:
-
-- Any design that silently drops `citation_failed` rows.
-
-## Expected outcomes
-
-- If straight shot: implement exactly as specified and write fixture tests for the blocked case.
-- If tangle: cut override entirely; ship block-only export.
-- If fog: defer exports until trust substrate is stable (unlikely; but call it out).
-
-## Oracle pass
-
-Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
-
----
-
-## Spike plan — Word artefact choice (memo vs objection/cure letter)
-
-## Question
-
-Which single Word artefact is most compelling for the demo audience: memo or objection/cure letter?
-
-## Context
-
-- Feature / concept: 3.2 Word export
-- Related requirement(s): R2
-- Why now: Template choice drives narrative and avoids wasted build effort.
-
-## Success criteria
-
-Proof looks like:
-
-- Stakeholder picks one template in 15 minutes (default assumption: memo).
-- We get 3-5 bullet requirements about what "must be in the Word export":
-  - section list + must-have fields
-  - how citations render (format)
-  - how `missing_input` rows appear
-- Feasibility proof: a minimal `.docx` renders acceptably (basic visual sanity, not pixel-perfect) in:
-  - Word
-  - Google Docs
-  - macOS Preview (or equivalent)
-
-## Timebox
-
-- Start: TBD
-- Hard stop: TBD (15-30 minutes)
-
-## Scope
-
-Include:
-
-- A paper mock outline for each template option (no formatting yet).
-- A decision and a list of must-have sections.
-
-Exclude:
-
-- Any attempt at per-firm customisation.
-- Any "perfect formatting" work.
-
-## Approach
-
-- Step 1: Draft two 1-page outlines (memo vs objection letter).
-- Step 2: Ask stakeholder to choose (and say why).
-- Step 3: Lock the template choice and section list.
-- Step 4: Generate a minimal docx using the chosen approach and open it in Word + Google Docs + Preview (pass/fail = “not broken”).
-  - Optional automation: use `pnpm dlx agent-browser …` (snapshot/refs) or `browser-use …` (persistent session) to script the Google Docs view + screenshot, if it materially saves time.
-
-## Artefacts
-
-Keep:
-
-- Chosen template name + section list.
-- Any copy notes that materially affect what we render.
-
-Throw away:
-
-- Any formatting experiments beyond proving feasibility.
-
-## Expected outcomes
-
-- If straight shot: implement the chosen template only.
-- If tangle: cut Word export entirely from the first demo-grade slice.
-- If fog: pick memo by default (simpler) and move on.
-
-## Oracle pass
-
-Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
-
----
-
-## Spike plan — Minimal eval metrics that predict demo readiness
-
-## Question
-
-What 3-5 metrics are predictive enough for demo readiness without becoming a time sink?
-
-## Context
-
-- Feature / concept: 3.3 eval harness
-- Related requirement(s): R3
-- Why now: We want regression safety without building a full eval platform.
-
-## Success criteria
-
-Proof looks like:
-
-- Metrics set includes the hard gates already defined in `docs/03-architecture/60_observability_and_evals.md`:
-  - schema validity (100%)
-  - citation integrity (100%)
-  - expected failure journeys (must fail in the expected way)
-- Runner produces:
-  - per-pack JSON report + per-pack Markdown summary
-  - a cross-pack summary table
-  - non-zero exit code when any hard gate fails (even if CI is report-only initially)
-- Metrics can be computed deterministically from fixtures without heavy model calls.
-
-## Timebox
-
-- Start: TBD
-- Hard stop: TBD (2-4 hours)
-
-## Scope
-
-Include:
-
-- At least 2 packs (happy path + missing-doc pack).
-- At least one negative test pack (bad citation or deliberate failure).
-
-Exclude:
-
-- Complex scoring models or subjective "quality" metrics.
-- Large-scale sampling.
-
-## Approach
-
-- Step 1: Implement metric computation on `pack_01_clean`.
-- Step 2: Validate that it flags expected failures on `pack_02_missing_rea`.
-- Step 3: Add a negative eval case that deliberately corrupts one locked citation and ensure it fails closed with the expected taxonomy.
-
-## Artefacts
-
-Keep:
-
-- Final metric definitions.
-- Example report output (JSON + Markdown).
-
-Throw away:
-
-- Extra metrics that don’t correlate with demo success.
-
-## Expected outcomes
-
-- If straight shot: lock metrics and wire into report-only CI.
-- If tangle: cut down to schema validity + citation integrity only.
-- If fog: stop and re-scope eval harness to a single "hard gates only" check.
-
-## Oracle pass
-
-Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
-
----
-
-## Spike plan — Demo repeatability controls and reset safety
-
-## Question
-
-Do we actually need demo mode, and if we do, what guardrails make reset provably safe?
-
-## Context
-
-- Feature / concept: 3.4 demo reliability pack (pack selector + reset + checklist)
-- Related requirement(s): R4
-- Why now: Reset is high-risk; demo mode can pollute UX if sloppy.
-
-## Success criteria
-
-Proof looks like:
-
-- First output is a binary decision: **demo mode required vs not required**.
-- If demo mode is required:
-  - pack loading behaviour is specified (what gets seeded, what gets returned, where packs live)
-- Reset semantics are explicit:
-  - preferred default: **no deletion via HTTP** in the PoC (reset = create a fresh demo matter from fixtures)
-  - if destructive reset is insisted on: guardrails + test plan must prove non-demo data cannot be touched
-
-## Timebox
-
-- Start: TBD
-- Hard stop: TBD (2-3 hours)
-
-## Scope
-
-Include:
-
-- Pack selector shape (loads fixture packs only).
-- Reset semantics decision (no-delete vs dev-only destructive tooling).
-
-Exclude:
-
-- Production onboarding wizard behaviours.
-- Any "admin" surface beyond what demos need.
-
-## Approach
-
-- Step 1: Identify the minimum UI affordances needed for the operator.
-- Step 2: Decide "demo mode required?" and lock the perimeter.
-- Step 3: If reset is required:
-  - choose no-delete semantics (preferred), or
-  - draft guardrails (allowlist + confirmation) and a safety test plan
-- Step 4: If destructive reset endpoints remain in scope, add a security review step (even for PoC) to confirm the guard can’t be bypassed by naming/user input/query params.
-
-## Artefacts
-
-Keep:
-
-- Guardrails design.
-- Demo checklist first draft.
-
-Throw away:
-
-- Any attempts to generalise demo tooling into production onboarding.
-
-## Expected outcomes
-
-- If straight shot: build demo mode behind a feature flag and keep it isolated.
-- If tangle: cut demo mode; rely on a written checklist and fixture scripts only.
-- If fog: timebox a second spike; otherwise cut to avoid safety risk.
-
-## Oracle pass
-
-Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
