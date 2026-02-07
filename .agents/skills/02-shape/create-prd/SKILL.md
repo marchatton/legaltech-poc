@@ -7,7 +7,7 @@ description: Draft PRD with scope, stories, acceptance criteria, verification. U
 
 ## Quick Start
 1. Copy the template: `assets/prd-template.md`
-2. Fill it out in the target dossier as `prd.md`
+2. Fill it out in the target dossier as `prd.md` (single PRD) or `prds/prd-1-<slug>.md`, `prds/prd-2-<slug>.md`, ... (multiple PRDs). Use a short kebab-case slug like `auth-token-rotation` or `invoice-pdf-export`.
 3. Pull all details from shaping inputs into the PRD so it’s implementable without extra context (no information loss)
 
 ## PRD Slicing Rubric (Reusable)
@@ -82,7 +82,8 @@ Try find this information:
 Where unclear, use the `ask-questions-if-underspecified` skill.
 
 ## Outputs
-- one or more PRD docs saved per `docs/AGENTS.md` in target repo.
+- one PRD saved per `docs/AGENTS.md` in the target repo as `prd.md`.
+- if there are multiple PRDs for a dossier, create a `prds/` subfolder and store them as `prds/prd-1-<slug>.md`, `prds/prd-2-<slug>.md`, ... (short kebab-case slug).
 
 ## Steps
 1. Ask 3-5 clarifying questions (answerable as 1A, 2B) that force a thin slice:
@@ -106,7 +107,7 @@ Where unclear, use the `ask-questions-if-underspecified` skill.
    - Success metrics + open questions
    - Sources: link to shaping inputs used
    - Appendix (optional): shaping notes / key excerpts when needed (see "No Context Loss")
-5. Ensure criteria map to verification; split oversized stories. If generating multiple PRDs, each PRD must be independently implementable and must not lose shaping input information.
+5. Ensure criteria map to verification; split oversized stories. If generating multiple PRDs, create a `prds/` subfolder and store them as `prds/prd-1-<slug>.md`, `prds/prd-2-<slug>.md`, ...; each PRD must be independently implementable and must not lose shaping input information.
 
 ## Verification
 - PRD delivers one affordance / one observable capability.
@@ -117,5 +118,6 @@ Where unclear, use the `ask-questions-if-underspecified` skill.
 - Rollback/disable path is explicit (flag or safe default).
 - Stories small, priority ordered.
 - Location matches `docs/AGENTS.md`.
+- If there are multiple PRDs for a dossier, they are stored under a `prds/` subfolder (for example `prds/prd-1-auth-token-rotation.md`, `prds/prd-2-invoice-pdf-export.md`, ...).
 - Sources section links to shaping inputs used.
 - No information is lost from shaping inputs (details are integrated into the PRD or captured in the appendix).
