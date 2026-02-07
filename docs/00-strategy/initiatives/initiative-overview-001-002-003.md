@@ -12,15 +12,6 @@
 - 002: Quick Start engine (Title Commitment + Exception instruments + Survey → 3 artefacts)
 - 003: Demo-grade outputs and repeatability (exports, eval harness, regression safety)
 
-# Initiative map — Orbital Copilot PoC (US CRE Title + Survey Quick Start)
-
-## Assumptions used for this breakdown (can be changed later)
-- **Export target:** Title & Survey memo (not objection/cure letter)
-- **OCR approach:** OCR everything (consistent geometry)
-- **Verification strictness:** Conservative fail-closed
-- **Audience:** internal demo + 1 friendly practitioner
-- **Timebox:** 2-week PoC mindset (but shaping items are still independent)
-
 ---
 
 ## Initiative 1: Trust substrate (citations, viewer, verification, failure states)

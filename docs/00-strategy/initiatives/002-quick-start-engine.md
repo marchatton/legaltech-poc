@@ -9,7 +9,10 @@ Define the PoC question set and row schema so engineering can build deterministi
   - B-I requirements extraction
   - B-II exceptions table
   - Survey issues list
-- Schema is stable: `{question_id, question, answer, citations[], status, confidence?, docs_searched[]}`
+- Schema is stable (v1): `{ question_id, question, answer, citation_ids: string[], status, notes?, payload_json?, payload_schema_version?, provenance_json }`
+  - `citation_ids` are locked `citations.id` values (never free-text).
+  - `docs_searched` lives under `provenance_json.retrieval.docs_searched` (not in the row shell).
+  - No `confidence` field in v1 (UX can show "needs_review reasons" from provenance instead).
 
 **Cut-lines / de-scopes**  
 - No “research agent” web browsing.  
@@ -34,7 +37,7 @@ Define the PoC question set and row schema so engineering can build deterministi
 Extract Schedule A facts and generate Requirements + Exceptions indices from commitment PDFs.
 
 **Done means**  
-- For `pack_01_clean` and `pack_04_multi_parcel_complex`, parser outputs:
+- For `pack_01_clean` and `pack_04_multi_parcel`, parser outputs:
   - Requirements list with item numbers
   - Exceptions list with item numbers + recording refs where present
 - Output matches `/truth/expected_requirements_tracker.csv` and `/truth/expected_exceptions_table.csv` at least on key fields (not wording).
@@ -47,7 +50,9 @@ Extract Schedule A facts and generate Requirements + Exceptions indices from com
 - Scanned commitments: **Patch** (OCR everything assumption helps).
 
 **Suggested spikes**  
-- “Can we parse B-I/B-II reliably from scanned PDFs?” Pass if `pack_06_noisy_scans_rotated_page` yields the right item counts within ±1.
+- “Can we parse B-I/B-II reliably from scanned PDFs without hallucinations?” Use `pack_07_scans_rotated_low_quality` and pass if:
+  - either items are extracted with 0 false positives and lockable citations, or
+  - the row is `missing_input` with an actionable remediation checklist (rotate/re-scan/higher DPI).
 
 **Natural PRD seams**  
 1) PRD: Commitment doc-type classifier + parser routing  
@@ -63,7 +68,7 @@ Link each exception item to the correct instrument PDF and extract a short summa
 
 **Done means**  
 - `pack_01_clean` exceptions link to their correct PDFs (by instrument number).  
-- `pack_05_duplicate_instrument_exhibit_missing` shows ambiguity handling (duplicate instrument number flagged; missing exhibit flagged).  
+- `pack_06_overlapping_easements` shows ambiguity handling (similar exceptions + disambiguation) and missing attachment flagged.  
 - For each exception summary row, citations point to the instrument clause location.
 
 **Cut-lines / de-scopes**  
@@ -75,7 +80,7 @@ Link each exception item to the correct instrument PDF and extract a short summa
 - Missing exhibits inside a provided PDF: **Patch** (flag and continue).
 
 **Suggested spikes**  
-- “What matching rules minimise false matches?” Pass if no false matches across 8 packs, and ambiguous cases surface as “needs_review”.
+- “What matching rules minimise false matches?” Pass if no false matches across the canonical packs, and ambiguous cases surface as item-level `match_status: ambiguous` (row stays `needs_review`) with candidates listed (never silent auto-pick).
 
 **Natural PRD seams**  
 1) PRD: Instrument matching service (instrument number, book/page heuristics)  
@@ -103,7 +108,9 @@ Extract survey facts needed for reconciliation: certification parties, labelled 
 - Rotated scanned page: **Patch** (auto-rotate or tolerate with weaker extraction).
 
 **Suggested spikes**  
-- “Can we extract certification parties and at least 3 callouts reliably?” Pass if extracted on `pack_06_noisy_scans_rotated_page` and `pack_01_clean`.
+- “Can we extract certification parties and at least 3 callouts reliably?” Use `pack_07_scans_rotated_low_quality` + `pack_01_clean`; pass if:
+  - callouts emitted all have citations, or
+  - row stays honest as `missing_input` with remediation checklist (no invented callouts).
 
 **Natural PRD seams**  
 1) PRD: Survey doc-type classifier + extraction routing  
@@ -119,7 +126,7 @@ Cross-check commitment exceptions against survey depiction and produce a survey 
 
 **Done means**  
 - `pack_01_clean` shows “easements depicted” vs “not depicted” for a subset, consistent with truth.  
-- `pack_05_duplicate_instrument_exhibit_missing` flags “survey notes incomplete plotting”.  
+- `pack_03_mismatch_and_cert_gap` flags survey certification omission (missing lender) and survey vs record mismatch.  
 - Issues list includes citations to both (instrument clause + survey callout) where possible.
 
 **Cut-lines / de-scopes**  
