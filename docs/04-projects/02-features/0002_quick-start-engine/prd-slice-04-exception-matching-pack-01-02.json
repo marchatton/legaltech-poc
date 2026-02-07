@@ -1,0 +1,30 @@
+{
+  "project": "0002_quick-start-engine",
+  "branchName": "codex/0002-s4-exception-matching-pack-01-02",
+  "description": "Initiative 0002 Slice 4: deterministically match B-II exception items to instrument PDFs for pack_01_clean and surface missing-doc journey for pack_02_missing_rea, using item-level match_status and locked citations (no silent auto-pick).",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Match exceptions to instrument PDFs (clean pack)",
+      "description": "Match exception items to instruments deterministically, attach evidence citations supporting the match, and surface ambiguity explicitly.",
+      "acceptanceCriteria": [
+        "For pack_01_clean, exception items with truth-linked instruments resolve to match_status=matched.",
+        "Each matched item includes citations supporting the match (instrument no/recording reference).",
+        "If >1 candidate matches, item is match_status=ambiguous with candidates listed (no silent auto-pick)."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Surface missing-doc journey (pack_02_missing_rea)",
+      "description": "When an exception references a missing instrument doc, show match_status=missing_doc with an actionable checklist including expected filename.",
+      "acceptanceCriteria": [
+        "For pack_02_missing_rea, missing REA is surfaced as match_status=missing_doc for the relevant items.",
+        "Row notes include an actionable checklist and include the expected filename when known (e.g. REA.pdf).",
+        "Row status uses missing_input only when an answer truly cannot be supported; otherwise row remains needs_review with item-level missing states."
+      ],
+      "priority": 2
+    }
+  ]
+}
+

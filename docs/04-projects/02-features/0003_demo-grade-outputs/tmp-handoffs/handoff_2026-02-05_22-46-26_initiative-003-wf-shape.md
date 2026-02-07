@@ -8,7 +8,7 @@
 2) Working tree
 - `git status -sb`:
   - `## main...origin/main [ahead 1]`
-  - Modified: `docs/00-strategy/initiatives/001-003_depedency_plan.md`, `docs/00-strategy/initiatives/001-003_handoff.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`
+  - Modified: `docs/00-strategy/initiatives/001-003_dependency_plan.md`, `docs/00-strategy/initiatives/001-003_handoff.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`
   - Added (untracked): `docs/00-strategy/initiatives/prd-slicing-rules.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/prd.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/prd.json`, `docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md`, `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
   - Note: existing untracked/added files in `docs/04-projects/02-features/0002_quick-start-engine/` pre-existed; not modified here.
 

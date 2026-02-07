@@ -49,7 +49,8 @@ flowchart LR
   VERIFY --> WRITE[Step: write_report_row]
 
   WRITE --> PG[(Postgres\nruns, run_steps,\nreport_rows, citations)]
-  UI -. poll/SSE .-> PG
+  UI -. "GET /runs/:id + GET /folders/:id/report?run_id=... (poll/SSE)" .-> API
+  API -. read .-> PG
 
   UI -->|open row drawer| CITS_API[Citations API]
   CITS_API -->|GET /citations/:id| PG
@@ -58,7 +59,8 @@ flowchart LR
 
 Notes:
 - Ingestion (OCR/layout, chunking, indexing) is a prerequisite substrate and is not redefined here.
-- For list-shaped outputs (requirements/exceptions/issues), we should keep a stable "row shell" but allow the row's payload to include a list of items, each with its own citations.
+- For list-shaped outputs (requirements/exceptions/issues), keep a stable report-row "shell" but attach a structured payload with a stable item-level contract (versioned). Item-level states must not reuse report-row statuses.
+- Canonical API contracts live in `docs/03-architecture/50_api_surface.md` (prefer matching those endpoint shapes over inventing new ones here).
 
 ---
 
@@ -81,7 +83,7 @@ Freeze question set v1 (<=25) and a stable row shell schema so we can build dete
 
 | # | Place | Affordance | Control | Writes | Reads |
 |---|---|---|---|---|---|
-| U1 | Setup | Question set version label | render | - | question set registry |
+| U1 | Setup | Question set version label (pinned per run) | render | - | run record + question set registry |
 | U2 | Setup | "Start run" CTA | click | create run | folder state |
 | U3 | Table | Row status badge | render | - | report rows |
 | U4 | Drawer | Citation list + click-to-jump | click | - | citations |
@@ -101,8 +103,28 @@ Freeze question set v1 (<=25) and a stable row shell schema so we can build dete
 | Part | Name | Mechanism |
 |---|---|---|
 | F2.1.1 | Question set v1 | JSON list with stable `question_id`s and a version tag. |
-| F2.1.2 | Stable row shell schema | `{question_id, question, answer, citation_ids[], status, notes?}` plus a home for structured payload. |
+| F2.1.2 | Stable row shell schema | `{question_id, question, answer, citation_ids[], status, notes?, payload_json?, payload_schema_version?, provenance_json}`. |
 | F2.1.3 | UI table + row drawer | Fixed columns, drawer detail, mark reviewed action. |
+
+### Row invariants (always enforce)
+
+From `docs/03-architecture/20_state_model.md`:
+- `needs_review|reviewed`: row has >= 1 locked citation.
+- `missing_input`: `answer` is exactly `Not found in provided documents.` and citations are empty; `notes` (or provenance) includes an actionable missing-doc checklist.
+- `citation_failed`: include a safe reason code in provenance (e.g. `CITATION_MISMATCH`, `ENTAILMENT_FAIL`).
+
+### List payload contract v0 (for B-I/B-II/issues)
+
+Regardless of storage location (SP-2.7), list-shaped artefacts should share a stable, versioned item contract:
+- `payload_schema_version`: string (e.g. `list_payload_v0`)
+- `payload_json.items[]`:
+  - `item_id`: string (stable/deterministic for diffing and idempotency)
+  - `citation_ids[]`: locked citation IDs for any claimed fields on the item
+  - Optional item-level fields:
+    - `match_status`: `matched|ambiguous|missing_doc|missing_attachment`
+    - `item_classification`: `depicted|not_depicted|unknown`
+    - `notes?`
+Item-level states do not change the report-row status machine.
 
 ## Fit check
 
@@ -140,7 +162,7 @@ Extract Schedule A facts, B-I requirements list, and B-II exceptions list for fi
 | N1 | Doc classifier | `classifyCommitment(document)` | step | Must be auditable; unknown -> `needs_review` (not silent ignore). |
 | N2 | Commitment parser | `parseCommitment(text)` | step | Output is structured and schema-validated. |
 | N3 | Item normalizer | `normalizeItemFields()` | pure | Dates, instrument numbers, item numbers. |
-| N4 | Citation seeding | `seedCitationsFromHeaderAnchors()` | step | At minimum, cite section headers even if item-level citation is weak. |
+| N4 | Citation seeding | `seedSectionCitations()` | step | Allowed only to support section existence (e.g. “Schedule B-II”), never as the sole evidence for item content. If item-local evidence can’t be locked, downgrade the item to `unknown` rather than fabricating fields. |
 
 ## Parts list (BOM)
 
@@ -176,7 +198,7 @@ Link exceptions to the correct instrument PDFs, extract short summaries + risk t
 - Place: Exceptions table row
   - Affordance: matched doc name + match state badge (`matched`, `ambiguous`, `missing_doc`)
 - Place: Exception detail drawer
-  - Affordance: summary, risk tags, citations, and "choose correct doc" when ambiguous
+  - Affordance: summary, risk tags, citations, and candidate docs when ambiguous (resolution is out of scope for v1)
 
 ## Code affordances
 
@@ -192,7 +214,7 @@ Link exceptions to the correct instrument PDFs, extract short summaries + risk t
 | Part | Name | Mechanism |
 |---|---|---|
 | F2.3.1 | Matching heuristics | instrument number, book/page, filename, and "defined terms" reference chain (bounded). |
-| F2.3.2 | Ambiguity UI | Show candidates; user selection is persisted. |
+| F2.3.2 | Ambiguity UI | Show candidates + guidance (no user selection in v1; keep row `needs_review`). |
 | F2.3.3 | Missing-doc journey | If instrument doc absent (e.g. `pack_02_missing_rea`): item is `missing_doc` and row includes a missing-doc checklist. |
 | F2.3.4 | Missing-attachment flag | If exhibit referenced but not provided: flag `missing_attachment` and keep going. |
 
@@ -302,9 +324,9 @@ Implement a WDK workflow that executes deterministic-ish steps per `question_id`
 
 | # | Component/service | Affordance | Control | Notes |
 |---|---|---|---|---|
-| N1 | Runs API | `POST /folders/:id/runs` | handler | Pins `index_version` + `agent_bundle_version`. |
+| N1 | Runs API | `POST /folders/:id/runs` | handler | Pins `index_version` + `agent_bundle_version` + `question_set_version`. Support `Idempotency-Key` and record `trace_id` for correlation (see `docs/03-architecture/50_api_surface.md`, `docs/03-architecture/60_observability_and_evals.md`). |
 | N2 | Workflow controller | QuickStart workflow | workflow | Must start with `"use workflow"` and contain no side effects. |
-| N3 | Steps | retrieve/draft/lock/verify/write | step | Must start with `"use step"`; steps own idempotency. |
+| N3 | Steps | retrieve/draft/lock/verify/write | step | Must start with `"use step"`; steps own idempotency via a deterministic `step_key` stored in `run_steps`. |
 | N4 | Row upsert invariant | unique `(run_id, question_id)` | DB constraint | Prevents duplicates on restart. |
 | N5 | Status + export gating | fail-closed | policy | `citation_failed` rows are non-exportable by default. |
 

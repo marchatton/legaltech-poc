@@ -1,0 +1,96 @@
+{
+  "project": "0001_trust-substrate",
+  "branchName": "codex/0001-trust-substrate",
+  "description": "Fixture-driven trust substrate: Matters (Folders), PDF viewer, locked citations, click-to-highlight evidence, fail-closed export gating, and minimal provenance export.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Matter baseline (Folder CRUD + detail surface)",
+      "description": "Create and open a Matter (Folder) to review evidence: Matter list/detail with document list and seeded report table.",
+      "acceptanceCriteria": [
+        "AC-001 I can create a Matter (folder) and see it in a Matter list.",
+        "AC-002 I can open a Matter detail page that shows a document list and a seeded report table."
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Upload PDFs and show ingest status",
+      "description": "Upload PDFs into a Matter and show them in a document list with ingest status and basic quality metadata fields (even if stubbed).",
+      "acceptanceCriteria": [
+        "AC-003 I can upload a PDF into a Matter and see it appear in the document list.",
+        "AC-004 The document list shows ingest status and basic quality metadata fields (even if stubbed)."
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "View a PDF (page nav + zoom) via render contract",
+      "description": "Provide a reliable PDF viewer with page navigation and zoom that fetches a render_url via GET /documents/:id/render?page=N.",
+      "acceptanceCriteria": [
+        "AC-005 Viewer renders the correct PDF and can navigate to any page.",
+        "AC-006 Zoom controls re-render consistently (no CSS-scaling drift) and the viewer stays responsive on pack_07 scans.",
+        "AC-007 Viewer obtains render_url via GET /documents/:id/render?page=N (server contract, 1-indexed page) rather than hardcoding storage paths."
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Locked citation object + hashing contract",
+      "description": "Treat citations as immutable, locked objects addressable by citation_id with snippet + snippet_hash and polygons; ensure snippet_hash is stable via canonical normalization.",
+      "acceptanceCriteria": [
+        "AC-008 GET /citations/:id returns locked payload {document_id,page_number,polygons,snippet,snippet_hash}.",
+        "AC-009 snippet_hash uses canonical normalisation rules (single implementation reused everywhere) and is stable across repeated processing."
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Citation chip -> jump-to-highlight (anchors-first, fail-closed)",
+      "description": "Clicking a citation chip opens the viewer at the correct document/page and renders a verified highlight overlay (anchors-first) with explicit fail-closed behavior.",
+      "acceptanceCriteria": [
+        "AC-010 Clicking a citation chip opens the viewer at the correct document + page.",
+        "AC-011 Highlight overlay maps locked polygons to viewport CSS pixels correctly at 50/100/150% zoom (or the UI explicitly enforces the chosen honest fallback).",
+        "AC-012 On rotated/scanned pages (pack_07), highlight remains aligned (or the UI explicitly enforces the chosen honest fallback).",
+        "AC-013 If citation invariants fail (doc mismatch, invalid polygons, wrong page, snippet_hash mismatch), the UI renders no overlay and shows explicit citation_failed details."
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Row status machine + export gate (fail closed)",
+      "description": "Report rows have terminal statuses and exports are blocked when evidence fails so we never ship untrusted output.",
+      "acceptanceCriteria": [
+        "AC-014 Rows can be in terminal statuses: needs_review|reviewed|missing_input|citation_failed and statuses are visible in the report table.",
+        "AC-015 One deliberate bad citation produces citation_failed and export is blocked by default when any row is citation_failed."
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Failure journeys + provenance export",
+      "description": "Missing-doc and citation failure states are actionable, and a minimal run trace JSON can be exported for debugging with safe redaction defaults.",
+      "acceptanceCriteria": [
+        "AC-016 In pack_02_missing_rea, rows that depend on missing docs are missing_input and show an actionable missing-doc checklist.",
+        "AC-016a missing_input rows use the exact answer string Not found in provided documents. and have zero citations.",
+        "AC-017 The UI can export a minimal run trace JSON (developer-facing) with safe redaction defaults (opaque IDs + hashes, no raw provider payloads).",
+        "AC-018 Flag citation wrong action logs a safe feedback event with citation_id + reason code."
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

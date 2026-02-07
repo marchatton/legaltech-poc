@@ -1,0 +1,41 @@
+{
+  "project": "0013_csv-export",
+  "branchName": "codex/0013-csv-export",
+  "description": "Export requirements_tracker, exceptions_table, and survey_issues CSVs from a completed run with strict gating, artefact persistence, and artefacts list/download.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Export CSV Artefacts",
+      "description": "As a demo operator, I can export the requirements tracker, exceptions table, and survey issues CSVs for a completed run so I can share outputs outside the UI.",
+      "acceptanceCriteria": [
+        "From docs/08-example-data/pack_01_clean, operator can export all 3 CSV kinds (requirements_tracker, exceptions_table, survey_issues) and download them successfully.",
+        "POST /export/csv supports kind=requirements_tracker|exceptions_table|survey_issues and validates the request; errors use the standard error envelope.",
+        "Exports are deterministic: locked headers/order and deterministic row ordering; snapshot-tested against fixture packs.",
+        "Export consumes structured export_payload (no prose parsing) and fails closed if export_payload is missing."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "See Not-Ready And Blocked States",
+      "description": "As a demo operator, I can clearly see when export is not ready (run still running) or blocked (citation failures) so I don’t create inconsistent artefacts.",
+      "acceptanceCriteria": [
+        "Export buttons are disabled until runs.state=completed; if called anyway, API returns 409 with error.code=CONFLICT.",
+        "If any row is citation_failed, API returns error.code=EXPORT_BLOCKED and UI shows a blocked banner with counts and next action.",
+        "No unsafe/demo-only override is supported in this PRD."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-003",
+      "title": "View And Download Artefacts",
+      "description": "As a demo operator, I can see previously exported artefacts for a matter and download them reliably.",
+      "acceptanceCriteria": [
+        "Export persists an artefact record with storage_key, source_run_id, kind, schema_version, and filename.",
+        "GET /folders/:id/artefacts returns the new artefact and includes a fresh signed download_url (not persisted).",
+        "Download links work after refresh because download_url is generated on demand."
+      ],
+      "priority": 3
+    }
+  ]
+}

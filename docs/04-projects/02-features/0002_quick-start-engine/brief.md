@@ -30,16 +30,21 @@ This is the product wedge: a fast first pass that is evidence-backed and repeata
 
 ## What we are building (PoC scope)
 
-A "Quick Start: Title + Survey" run that produces three artefacts (as report-table outputs first, export later):
+A "Quick Start: Title + Survey" run that produces a fixed question set v1 (<=25 rows). Three rows are list-shaped artefacts (rendered as tables in the report UI; export later):
 1) Schedule B-I requirements tracker
 2) Schedule B-II exceptions table linked to underlying instrument PDFs
 3) Survey reconciliation issues list (title <-> survey)
 
 Key trust posture (from `docs/03-architecture/*`):
 - Evidence-first: every material claim needs locked citations
+- Evidence references are IDs only (ADR-0001): drafting uses candidate `chunk_id`s; rows refer to locked `citation_id`s (no free-text citations)
 - Verification is fail-closed: any mismatch -> `citation_failed`
-- `missing_input` is a valid output and must use the exact string: `Not found in provided documents.`
+- `missing_input` is a valid output and must follow invariants:
+  - `answer` is exactly: `Not found in provided documents.`
+  - citations are empty
+  - `notes` (or provenance) includes an actionable missing-doc checklist
 - Deterministic-ish orchestration via Workflow DevKit (workflow + steps)
+- APIs must return the safe error envelope with `trace_id` on non-2xx (ADR-0008); do not leak internal errors/provider payloads
 
 ## Acceptance packs (fixtures)
 
@@ -55,7 +60,7 @@ Use fixture packs under `docs/08-example-data/` as the acceptance anchor (see `d
 
 ## Goals
 
-1. Deterministic, testable outputs for the fixture packs (start with `pack_01_clean` + one failure pack).
+1. Deterministic, testable outputs for the fixture packs (start with `pack_01_clean` + `pack_02_missing_rea`).
 2. Evidence-backed rows: citations are locked and verifiable; no "plausible but unprovable" answers.
 3. A run UX that shows progress and produces incremental row updates with correct terminal statuses.
 
@@ -71,9 +76,9 @@ Use fixture packs under `docs/08-example-data/` as the acceptance anchor (see `d
 In scope:
 - Question set v1 (<=25) with stable IDs and a stable row schema.
 - Commitment parsing for Schedule A / B-I / B-II for fixture packs.
-- Exception -> instrument matching with ambiguity surfaced as `needs_review` (never silent).
+- Exception -> instrument matching with ambiguity surfaced at item-level as `match_status: ambiguous` with candidates listed (never silent).
 - Survey extraction focused on certification + text callouts first.
-- Reconciliation that prefers "unknown/needs_review" over incorrect "not depicted".
+- Reconciliation that prefers item-level `unknown` (row stays `needs_review`) over incorrect item-level `not_depicted`.
 - WDK workflow orchestration: `retrieve -> draft -> lock citations -> verify -> write row`.
 
 Out of scope:
@@ -93,7 +98,7 @@ Biggest items to resolve before PRDs:
 - How we represent table-shaped artefacts (B-I/B-II/issues) within the report-row model without breaking status + citation invariants
 - Parsing robustness on `pack_07_scans_rotated_low_quality`
 - Exception matching + missing-attachment handling on `pack_06_overlapping_easements`
-- Reconciliation honesty: bias to `needs_review` rather than wrong "not depicted"
+- Reconciliation honesty: bias to item-level `unknown` (row stays `needs_review`) rather than wrong item-level `not_depicted`
 - Run idempotency: stable `snippet_hash` + no duplicate rows on restart
 
 ## Open questions
@@ -105,7 +110,7 @@ Biggest items to resolve before PRDs:
 
 ## Shaping decision
 
-- Decision: NO-GO (pending spikes; do not generate PRDs yet)
+- Decision: NO-GO for implementation (pending spikes; `prd.md`/`prd.json` exist as draft scaffolding only)
 - GO when:
   - We have a credible question set v1
   - We have a clear artefact representation decision (rows vs tables)

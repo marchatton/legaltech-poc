@@ -5,7 +5,9 @@
 - Appetite: TBD
 - Problem: No baseline surface exists for viewing evidence, attaching citations, verifying claims, or showing failures. Trust must be established before any AI-driven work can be credible.
 - Success: Matter + viewer works end-to-end; citations are real; verification is fail-closed; failures and provenance are explicit.
-- Constraints: No auth/RBAC, no external web research, no full Quick Start generation (this is the trust substrate it depends on), anchors-first highlights until OCR wiring is ready.
+- Constraints: No auth/RBAC, no external web research, no full Quick Start generation (this is the trust substrate it depends on).
+  - Highlight overlay spike (RH2) is anchors-first to validate mapping math quickly.
+  - OCR/layout extraction remains the default ingest posture for PDFs (ADR-0003).
 - Canonical references:
   - State invariants: `docs/03-architecture/20_state_model.md`
   - API contracts: `docs/03-architecture/50_api_surface.md`
@@ -88,11 +90,23 @@
 | N4 | Viewer render contract | render URL + viewer state | call | `GET /documents/:id/render?page=N` returns `render_url`; viewer handles page nav + zoom |
 | N5 | Citations API | `GET /citations/:id` | call | locked citation payload `{document_id,page_number,polygons,snippet,snippet_hash}` |
 | N6 | Anchor fixture loader | map fixture anchor IDs to polygons | call | returns polygons for highlight scaffold |
-| N7 | Highlight renderer | PDF space → viewport transform | call | returns overlay geometry for rendering |
+| N7 | Highlight renderer | anchor polygons → viewport CSS pixels | call | maps normalised anchors (`[0..1]`, origin top-left) → viewport CSS px via `viewBox` + `viewport.convertToViewportPoint()`; returns overlay geometry for rendering |
 | N8 | Verification pipeline | code checks + (optional) entailment | call | returns verdict + failure reason code |
 | N9 | Row status machine | status invariants + export gate | write | sets row status + blocks export by default on `citation_failed` |
 | N10 | Failure logger | taxonomy + structured logs | write | emits safe failure events |
 | N11 | Provenance store | minimal trace schema + export | write/call | returns run trace JSON |
+
+## Viewer architecture (Next.js App Router)
+
+This is a minimal, clean server/client boundary that keeps pdf.js imperative work on the client while fetching data server-first.
+
+- `app/(app)/matters/[folderId]/page.tsx` (Server): fetch folder + docs + seeded report rows; render citation chips as `<Link>` to the viewer.
+- `app/(app)/viewer/[documentId]/page.tsx` (Server): read `searchParams` (`page`, optional `citation`, optional `zoom`), server-fetch `render_url` and (if present) locked citation payload; pass minimal props to client viewer.
+- `PdfViewerClient` (Client): owns pdf.js load/render and page/zoom/rotation state; renders canvas + overlay; surfaces explicit failure states.
+- `HighlightOverlaySvg` (Client): maps polygons to viewport CSS pixels (pure util) and renders an `<svg>` overlay sized to `viewport.width/height`.
+
+### Fail-closed behaviour (viewer)
+- If a citation is present but any invariants fail (doc mismatch, page out of range, polygons invalid/out of range, `render_url` unavailable), do not render an overlay. Show an explicit `citation_failed` UI state and emit a safe failure log.
 
 ## Wiring diagram
 
@@ -161,7 +175,7 @@ graph LR
 
 ### Cuts / scope trims
 
-- No OCR geometry extraction beyond anchor scaffolding.
+- Do not require perfect OCR-derived highlight geometry before we can prove the trust UX. Use anchor fixtures first, then swap to OCR-derived geometry behind the same contracts.
 - No advanced trace UI (endpoint/export only).
 
 ### Out of bounds / no-gos
@@ -172,7 +186,7 @@ graph LR
 
 Not applicable (no comparable existing feature).
 
-## PRD slicing (record only; do not create PRDs until spikes are closed)
+## PRD slicing (record only; slice PRDs after spikes are closed)
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slices should map to parts (F#) and affordances (U#/N#):
 - Slice A (F1, U1–U4, N1–N3): Matter (folder) CRUD + upload pipeline + doc list statuses
 - Slice B (F2, U7, N4): PDF viewer + render URL contract
@@ -180,3 +194,6 @@ Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slices should map to pa
 - Slice D (F4, N5): Citation locking + hashing util + citations API
 - Slice E (F5–F6, U9–U12, N8–N10): Status machine + export gate + failure journeys
 - Slice F (F7, U13, N11): Provenance capture + trace export
+
+Notes:
+- A draft `prd.md`/`prd.json` “spine” may exist in this dossier for handoff, but implementation should happen via thin slice PRDs once spikes are closed and the perimeter is re-locked.

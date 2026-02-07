@@ -1,0 +1,41 @@
+{
+  "project": "0015_eval-harness",
+  "branchName": "codex/0015-eval-harness",
+  "description": "Fixture-driven eval harness that produces per-pack JSON+MD reports and enforces hard trust gates (schema validity, citation integrity, failure journeys).",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Run Fixture Evals Locally",
+      "description": "As a developer, I can run fixture:eval for a pack and get a deterministic report so I can catch regressions before demos.",
+      "acceptanceCriteria": [
+        "fixture:eval pack_01_clean produces per-pack JSON + Markdown reports and a cross-pack summary table.",
+        "fixture:eval pack_02_missing_rea confirms expected missing_input journeys (missing docs -> missing_input).",
+        "Runner outputs are deterministic for the same inputs (no flaky ordering or randomness)."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Enforce Hard Trust Gates",
+      "description": "As a developer, I get a clear pass/fail on schema validity, citation integrity, and failure journeys so we never ship a broken trust moment.",
+      "acceptanceCriteria": [
+        "Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), failure journeys.",
+        "Citation integrity checks validate cited page exists, polygons exist, and snippet_hash matches canonical normalization rule.",
+        "Runner exits non-zero if any hard gate fails (even if CI is report-only initially)."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-003",
+      "title": "Publish Eval Reports In CI (Report-Only)",
+      "description": "As a developer, CI uploads eval reports so reviewers can see regressions without running the harness locally.",
+      "acceptanceCriteria": [
+        "CI job runs fixture:eval and uploads JSON/MD outputs as build artefacts.",
+        "CI prints or posts a concise summary table (pass/fail + key counts) for quick scanning.",
+        "CI runtime is bounded; if it exceeds a budget, the job fails with clear output."
+      ],
+      "priority": 3
+    }
+  ]
+}
+

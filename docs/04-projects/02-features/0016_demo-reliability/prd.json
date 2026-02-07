@@ -1,0 +1,39 @@
+{
+  "project": "0016_demo-reliability",
+  "branchName": "codex/0016-demo-reliability",
+  "description": "Dev-only demo reliability pack: feature-flagged demo toolbar with pack loader for pack_01_clean and pack_02_missing_rea, plus a demo checklist. No deletion/reset via HTTP in slice 1.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Load A Demo Pack",
+      "description": "As a demo operator, I can load a known fixture pack and land in the created matter so I can start a demo quickly.",
+      "acceptanceCriteria": [
+        "Demo toolbar does not render unless demo flag is enabled.",
+        "With demo flag enabled, operator can load pack_01_clean and the system creates a fresh matter and navigates to it.",
+        "With demo flag enabled, operator can load pack_02_missing_rea and the system creates a fresh matter and navigates to it."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Run The Demo Twice Without Cleanup",
+      "description": "As a demo operator, I can run the same demo twice in a row without manual cleanup because each run starts from a fresh seeded matter.",
+      "acceptanceCriteria": [
+        "Loading a pack twice creates two distinct matters; no deletion/reset is required to re-run.",
+        "No destructive reset/delete endpoints are used or required in this PRD."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-003",
+      "title": "Follow A Demo Checklist",
+      "description": "As a demo operator, I have a short checklist that makes the demo repeatable and reduces tribal knowledge.",
+      "acceptanceCriteria": [
+        "Demo checklist exists at docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md.",
+        "Checklist matches the operator flow for loading packs and running Quick Start."
+      ],
+      "priority": 3
+    }
+  ]
+}
+

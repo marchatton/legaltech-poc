@@ -18,8 +18,24 @@ This initiative is the finishing layer that makes the PoC **demoable and repeata
   - minimal trust metrics (schema + citation integrity + expected failure journeys)
 - **Demo repeatability controls** (dev-only / feature-flagged):
   - load known fixture packs
-  - safe reset that cannot delete non-demo data
+  - “reset” semantics that are demo-safe (see below)
   - a short demo checklist for the human operator
+
+## Definitions (make behaviour explicit)
+
+### “Demo-grade outputs”
+For Initiative 0003, “demo-grade outputs” means:
+- **Constrained, stable exports** (CSV + one Word artefact) that a practitioner can use as-is for a demo.
+- **Stable schemas**: CSV headers + ordering are locked and do not drift silently.
+- **Trust posture preserved**: exports fail closed by default (no silent dropping of `citation_failed` rows).
+
+It explicitly does **not** mean: perfect prose, perfect Word formatting, per-firm template customisation, or broad jurisdiction nuance.
+
+### “Repeatability”
+For Initiative 0003, “repeatability” means:
+- **Export determinism**: for a given `run_id` + `kind`, the exported artefact is deterministic (stable headers/order + deterministic row ordering; no “whatever order the DB returns”).
+- **Regression repeatability**: fixture-driven evals are deterministic and produce the same hard-gate pass/fail for the same inputs.
+- **Demo repeatability**: an operator can run the same demo twice in a row without manual cleanup and without any capability that could delete non-demo data.
 
 ## Non-goals
 - Per-firm template customisation or tone tuning.
@@ -36,14 +52,16 @@ In scope:
 - Demo reliability pack:
   - demo mode flag
   - pack selector
-  - safe reset + confirmation
   - demo checklist markdown
+  - **Reset (slice 1)**: no deletion via HTTP. “Reset” means creating a fresh demo matter from fixtures.
+    - Optional later slice: dev-only destructive reset tool, but only with provable guardrails.
 
 Out of scope (explicit cuts):
 - “Closing checklist” export.
 - Multiple Word templates or a template editor UI.
 - Hard CI gating on nuanced quality metrics (start report-only, then gate later).
 - Any workflow that depends on external web research (explicitly out per ADR-0007).
+- Any destructive HTTP reset/delete endpoints in the first buildable slice.
 
 ## Constraints / dependencies (load-bearing)
 - Canonical architecture contracts live in `docs/03-architecture/*` and must win:
@@ -51,9 +69,15 @@ Out of scope (explicit cuts):
   - Export gating rules: `docs/03-architecture/20_state_model.md`
   - Artefact persistence shape: `docs/03-architecture/30_data_model.md`
   - Evals posture + failure taxonomy: `docs/03-architecture/60_observability_and_evals.md`
+- Canonical ADRs live in `docs/03-architecture/DECISIONS.md` (append-only) and apply here:
+  - Evidence-first and fail-closed exports (ADR-0001, ADR-0002)
+  - Deterministic-ish step boundaries (ADR-0005): keep route handlers thin; long-running export work should live in steps
+  - Fixture-driven evals are first-class (ADR-0006)
+  - No external web research inside runs (ADR-0007)
 - This initiative assumes Initiatives 001 and 002 exist in some form:
   - report rows with `status` and locked citations
   - fixture packs + `/truth` exist (or will be created as part of eval harness work)
+- **Load-bearing dependency for exports:** Initiative 002 must persist **structured export payloads** for the 3 artefacts (validated by Zod) in a stable location (recommended: `report_rows.provenance_json.export_payload` with a `schema_version`) so Initiative 003 exports are deterministic and do not parse prose.
 
 ## Success (done means)
 - From a fixture pack, a demo operator can:
@@ -72,22 +96,38 @@ Out of scope (explicit cuts):
 | Export behaviour when any row is `citation_failed` | Trust posture vs demo usefulness; needs a crisp default | Patch (follow state model default) + Spike (decide if demo-only override exists) |
 | Docx formatting fragility | “Looks broken” erodes trust fast | Patch (keep template simple, constrain layout) |
 | Minimal metrics that actually predict demo readiness | Avoid false confidence without building a full eval platform | Spike (3–5 metrics only) |
-| Demo reset safety | Accidental deletion is unacceptable | Patch (demo-only allowlist + explicit confirmation) |
+| Demo reset semantics (no-delete vs destructive tooling) | Accidental deletion is unacceptable | Spike (decide no-delete vs dev-only reset with provable guardrails) |
+| Missing structured export payloads (forced prose parsing) | Export work becomes brittle and contaminates workflow logic | Patch dependency into Initiative 002; fail closed until payload exists |
 
 ## Open questions
 - Export gating UX: if export is blocked (`EXPORT_BLOCKED`), what is the operator path (fix vs override)?
-- Where do fixture packs live and how are they selected/loaded (filesystem vs object storage)?
+- Export override: do we allow *any* demo-only unsafe override?
+  - Slice 1 default: **no override**. If override exists later, it must be demo-only and must label the artefact as unsafe.
+- Fixture packs: **in-repo filesystem** for PoC + CI determinism (use `docs/08-example-data/`). Object storage only if needed later.
+- Reset semantics: do we ever ship HTTP deletion in the PoC?
+  - Slice 1 default: **no deletion via HTTP** (reset = create a fresh demo matter from fixtures).
 - What’s the target appetite/timebox for each slice (CSV vs Word vs eval vs demo mode)?
 
 ## PRD slicing plan (after spikes)
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
 
 Planned PRD dossiers (names from `docs/00-strategy/initiatives/001-003_handoff.md`):
-- `0013_csv-export`
-- `0014_word-export`
-- `0015_eval-harness`
-- `0016_demo-reliability`
+- `0013_csv-export` (`docs/04-projects/02-features/0013_csv-export/`)
+- `0014_word-export` (`docs/04-projects/02-features/0014_word-export/`)
+- `0015_eval-harness` (`docs/04-projects/02-features/0015_eval-harness/`)
+- `0016_demo-reliability` (`docs/04-projects/02-features/0016_demo-reliability/`)
+
+## Glossary (canonical names)
+- **Folder**: API/DB container (UI term: “Matter”).
+- **Run**: one Quick Start execution attempt for a folder.
+- **Report row**: one question/answer/status (+ citations) produced by a run.
+- **Artefact**: an exported file (csv/docx/eval report) stored in object storage with metadata in DB.
+- **Fixture pack**: deterministic in-repo demo/eval bundle (docs + `/truth`).
 
 ## Shaping decision (GO/NO-GO)
-- GO when the listed spikes are completed (or cut), the perimeter is locked, and export gating is unambiguous.
-- NO-GO if we cannot define a thin, demo-safe export path without undermining trust defaults.
+- **GO** when:
+  - export API contract is unblocked (supports `kind`, defines artefacts list response)
+  - structured export payload shape/location is locked (or “tracker-grade CSVs” are explicitly cut until Initiative 002 provides structure)
+  - reset semantics are explicit (default: no destructive HTTP reset in slice 1)
+  - spikes are completed (or consciously cut) with written outcomes that update this dossier
+- **NO-GO** if export gating remains ambiguous, or if any demo tool could delete non-demo data without provable guardrails.

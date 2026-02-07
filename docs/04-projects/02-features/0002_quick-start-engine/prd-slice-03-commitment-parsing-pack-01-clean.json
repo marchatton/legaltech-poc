@@ -1,0 +1,32 @@
+{
+  "project": "0002_quick-start-engine",
+  "branchName": "codex/0002-s3-commitment-parsing-pack-01-clean",
+  "description": "Initiative 0002 Slice 3: commitment parsing baseline for pack_01_clean producing B-I requirements and B-II exceptions payloads that match truth key fields with lockable citations and fail-closed verification.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Extract B-I requirements tracker (clean pack)",
+      "description": "Extract Schedule B-I requirements into list_payload_v0 with stable item_id and item-level citation_ids, matching truth key fields with zero false positives.",
+      "acceptanceCriteria": [
+        "For pack_01_clean, extracted requirements item count equals truth item count.",
+        "For pack_01_clean, every extracted item has the correct truth item number and required key fields as defined by the comparator.",
+        "Precision rule: no extra items not present in truth by item number.",
+        "Each item has item-level citation_ids that lock and verify; no header-only citations for item content."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Extract B-II exceptions table (clean pack)",
+      "description": "Extract Schedule B-II exceptions into list_payload_v0 with stable item_id and item-level citation_ids, matching truth key fields and normalising instrument refs deterministically.",
+      "acceptanceCriteria": [
+        "For pack_01_clean, extracted exceptions item count equals truth item count.",
+        "For pack_01_clean, every extracted exception has the correct item number and required key fields as defined by the comparator.",
+        "Instrument references are normalised to a single canonical form (declared once and reused).",
+        "Each exception item has item-level citation_ids that lock and verify."
+      ],
+      "priority": 2
+    }
+  ]
+}
+

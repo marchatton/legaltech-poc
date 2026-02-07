@@ -1,6 +1,7 @@
 # Spike investigation — Trust substrate
 
-> Status: planned only. No spikes executed yet. Oracle pass pending for each spike.
+> Status: planned only. No spikes executed yet.
+> Oracle pass: RH2 highlight overlay reviewed (2026-02-06). See `tmp-oracle/oracle_response_0001.md`.
 
 ## Spike plan — PDF viewer performance on noisy scans
 
@@ -76,26 +77,75 @@ Include:
 Exclude:
 - Citation chips UI and data model
 
-### Approach
-- Step 1: Load anchors and PDF page
-- Step 2: Implement transform math to viewport
-- Step 3: Validate alignment across zoom
+### Key decisions (pre-spike)
+- Canonical polygon spec (fixtures + locked citations): normalised page coordinates in `[0..1]`, origin top-left, relative to the unrotated page `viewBox`.
+- Mapping: normalised -> PDF points via `viewBox` -> viewport CSS pixels via `viewport.convertToViewportPoint()`. Overlay is rendered in `viewport.width/height` CSS pixels (never canvas backing store pixels).
+- Fail-closed: if any invariants break (doc mismatch, page out of range, invalid polygons, render URL missing), do not draw a “best effort” highlight.
+
+### Approach (fixture-backed mini-eval)
+1. Build a dev-only spike harness route:
+   - `app/(app)/__spikes/rh2-overlay/page.tsx`
+   - Controls: pack selector (`pack_01_clean`, `pack_07_scans_rotated_low_quality`), doc selector, page number, anchor id, zoom 50/100/150, rotation 0/90/180/270.
+   - Debug HUD: pack/doc/page/anchor, `scale`, `totalRotation`, `viewport.width/height`, `canvas.width/height` and CSS size, `devicePixelRatio`.
+
+2. Implement the pure mapping util (unit-testable):
+   - `xPdf = xMin + xNorm * (xMax - xMin)`
+   - `yPdf = yMax - yNorm * (yMax - yMin)` (top-left normalised -> bottom-left PDF)
+   - `[xCss, yCss] = viewport.convertToViewportPoint(xPdf, yPdf)`
+
+3. Prove alignment at 100% (pack_01):
+   - One commitment page anchor + one survey anchor.
+   - Evidence: screenshot at 100% with HUD visible.
+
+4. Prove zoom invariance (50/100/150):
+   - For each case: screenshot at 50/100/150 with HUD visible.
+   - Compute overlay bbox (min/max x/y in CSS px) and assert:
+     - `bbox50 ~= bbox100 * 0.5` (within ~1–2 CSS px)
+     - `bbox150 ~= bbox100 * 1.5` (within ~1–2 CSS px)
+
+5. Prove rotation correctness (pack_07):
+   - Ensure page-intrinsic rotation (`page.rotate`) and user rotation are handled consistently.
+   - Evidence: screenshots at rotation=0 and rotation=90 (or whatever reproduces the pack_07 orientation).
+
+6. Prove fail-closed:
+   - Inject one deliberate bad anchor (out of `[0..1]`) and one wrong page number.
+   - Evidence: screenshot of explicit failure UI + logged safe error code.
 
 ### Artefacts
 Keep:
-- Transform notes + screenshot evidence
-- Minimal overlay component
+- Screenshots (50/100/150 + rotation + fail-closed) with HUD visible.
+- A small JSON log dump (bbox numbers + HUD values).
+- Notes on pitfalls encountered (DPR, rotation, `viewBox` origin, CSS transforms).
 
 Throw away:
 - Full citation UI integration
 
+### Evidence capture tooling (options)
+- Manual: Chrome DevTools node screenshots (fastest).
+- Automated: Playwright (preferred if already wired in repo).
+- `browser-use` (CLI, persistent session): good for scripted screenshots with a stable open->state->click/input loop.
+  - Workflow: `open` -> `state` -> act by index -> `screenshot` -> re-`state` after any navigation/submit.
+  - Sessions: use `--session rh2` so the browser persists across commands.
+  - Example (headful):
+    ```bash
+    browser-use --session rh2 --browser chromium --headed open http://localhost:3000/__spikes/rh2-overlay
+    browser-use --session rh2 state
+    browser-use --session rh2 screenshot
+    ```
+  - If `browser-use` is not on your PATH, you can run it one-off via `uvx`:
+    ```bash
+    UV_CACHE_DIR=/tmp/uv-cache uvx --from "browser-use[cli]" browser-use --help
+    ```
+- `agent-browser` (CLI): good for scripted screenshots if installable (snapshot + `@e1` refs). Requires npm install + a Chromium download; can also point at a system Chrome via an executable-path setting. Note: `agent-browser` is not currently installed and npm registry access may be blocked in this environment.
+
 ### Expected outcomes
 - If straight shot: proceed with overlay layer
-- If tangle: patch to bbox-only or limit zoom levels
-- If fog: re-scope to page-level highlights only
+- If tangle: cut to “highlight verified at 100% zoom only” (lock zoom while citation is active)
+- If fog: patch to “evidence crop card” (render-and-crop bbox instead of live overlay alignment)
 
-### Oracle pass (planned)
-Generate a bundle and run an oracle review focused on coordinate spaces, transform math, and test strategy.
+### Oracle pass
+- Bundle: `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
+- Response: `tmp-oracle/oracle_response_0001.md` (coordinate spaces + mapping + spike plan + pitfalls + fallbacks)
 
 ---
 
@@ -242,9 +292,10 @@ Throw away:
 
 ## Spike reports (pending)
 
-No spike reports yet. After each spike, add a report section and run an oracle pass.
+No spike reports yet (spikes not executed). After each spike, add a report section. Oracle pass is required per spike; RH2 oracle pass is already captured.
 
 ## Oracle bundles
-When you run an oracle pass, create a `--render` bundle in `tmp-oracle/` so it can be pasted into ChatGPT Pro.
+Keep oracle bundles/notes in `tmp-oracle/` so they are git-tracked and easy to re-run/review.
 
-- RH2 (highlight overlay transform): `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
+- RH2 bundle: `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
+- RH2 response: `tmp-oracle/oracle_response_0001.md`

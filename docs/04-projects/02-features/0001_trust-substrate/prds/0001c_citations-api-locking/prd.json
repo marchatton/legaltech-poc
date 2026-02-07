@@ -1,0 +1,32 @@
+{
+  "project": "0001c_citations-api-locking",
+  "branchName": "codex/0001c-citations-api-locking",
+  "description": "Locked citations contract and API: immutable citations with snippet + snippet_hash + geometry, plus canonical hashing util reused everywhere.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Fetch a locked citation by ID",
+      "description": "Fetch the locked citation payload required to render evidence and check integrity.",
+      "acceptanceCriteria": [
+        "AC-001 GET /citations/:id returns document_id, page_number, polygons, snippet, and snippet_hash.",
+        "AC-002 Errors use the standard error envelope with safe code/message and optional trace_id."
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "NO-GO until RH3 spike executed."
+    },
+    {
+      "id": "US-002",
+      "title": "Canonical snippet hashing is stable",
+      "description": "Implement normalise() once and ensure snippet_hash is stable across repeated runs.",
+      "acceptanceCriteria": [
+        "AC-003 normalise() is implemented once (e.g. packages/core) and reused everywhere.",
+        "AC-004 RH3 spike demonstrates stable snippet_hash across repeated runs for the same source snippet."
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Blocked by RH3."
+    }
+  ]
+}
+

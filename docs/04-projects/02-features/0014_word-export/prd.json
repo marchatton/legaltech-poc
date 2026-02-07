@@ -1,0 +1,42 @@
+{
+  "project": "0014_word-export",
+  "branchName": "codex/0014-word-export",
+  "description": "Export a single memo .docx from a completed run with strict gating, artefact persistence, and artefacts list/download via fresh signed URLs.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Export Memo Docx",
+      "description": "As a demo operator, I can export a Word memo from a completed run so I can share a narrative artefact outside the UI.",
+      "acceptanceCriteria": [
+        "From docs/08-example-data/pack_01_clean, operator can export memo.docx and download it successfully.",
+        "POST /export/docx supports kind=memo and validates the request; errors use the standard error envelope.",
+        "Export is deterministic in section ordering and basic formatting rules (no random ordering).",
+        "Export consumes structured export_payload (no prose parsing) and fails closed if export_payload is missing."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "See Not-Ready/Blocked States",
+      "description": "As a demo operator, I can see when Word export is not ready or blocked so I don’t create inconsistent artefacts.",
+      "acceptanceCriteria": [
+        "Export is disabled until runs.state=completed; if called anyway, API returns 409 with error.code=CONFLICT.",
+        "If any row is citation_failed, API returns error.code=EXPORT_BLOCKED and UI shows a blocked banner with counts and next action.",
+        "unsafe_override=true is rejected (no unsafe override supported in this PRD)."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-003",
+      "title": "View And Download Artefacts",
+      "description": "As a demo operator, I can see and download the exported memo artefact reliably from the matter.",
+      "acceptanceCriteria": [
+        "Export persists an artefact record with storage_key, source_run_id, kind=memo, filename, and a template version identifier.",
+        "GET /folders/:id/artefacts returns the artefact and includes a fresh signed download_url (not persisted).",
+        "Memo renders acceptably (basic 'not broken' sanity) in Word, Google Docs, and Preview for the representative sample."
+      ],
+      "priority": 3
+    }
+  ]
+}
+

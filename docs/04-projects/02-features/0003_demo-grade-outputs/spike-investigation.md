@@ -20,8 +20,16 @@ Is the CSV export format usable for a paralegal who needs to paste into an exist
 
 Proof looks like:
 
-- A paralegal says "yes, I can paste this into our tracker" with minimal cleanup.
-- Column names and ordering are judged acceptable (or we get a precise change list).
+- Practitioner can paste/import in **<5 minutes** of cleanup.
+- They explicitly sign off (or give a precise change list):
+  - required columns present
+  - column names acceptable
+  - column ordering acceptable
+- Output includes:
+  - row `status`
+  - citations rendered as `filename:page` (and optionally `citation_id` for audit/debug)
+- A decision is recorded on the export **source of truth**:
+  - PASS only if the CSV can be produced from structured `export_payload` (no prose parsing), or we explicitly cut “tracker-grade CSVs” until Initiative 002 provides structure.
 
 ## Timebox
 
@@ -41,9 +49,12 @@ Exclude:
 
 ## Approach
 
+- Step 0: Confirm Initiative 002 persists structured `export_payload` + `schema_version` for each artefact in a stable location (recommended: `report_rows.provenance_json.export_payload`).
 - Step 1: Generate 3 sample CSVs from `pack_01_clean`.
 - Step 2: Hand to a practitioner for a quick paste/import test.
-- Step 3: Capture feedback and lock (or revise) the column schema.
+- Step 3: Capture feedback and lock (or revise) the column schema:
+  - locked header list + ordering
+  - deterministic row ordering rule (sort keys)
 
 ## Artefacts
 
@@ -64,7 +75,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp-oracle/`).
+Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
 
 ---
 
@@ -89,6 +100,7 @@ Proof looks like:
 - A single crisp default that matches `docs/03-architecture/20_state_model.md`.
 - If override exists, it is strictly scoped (demo-only) and impossible to trigger accidentally.
 - UX copy is unambiguous about what is missing/excluded.
+- Export readiness is unambiguous: exports are only allowed when `runs.state = completed` (PoC default).
 
 ## Timebox
 
@@ -111,6 +123,7 @@ Exclude:
 - Step 1: Restate canonical rule from state model and API surface docs.
 - Step 2: Draft 2 options (block-only vs demo-only override) with a concrete UI + API shape.
 - Step 3: Choose and lock the perimeter.
+- Step 4 (micro contract-lock): update `docs/03-architecture/20_state_model.md` + `docs/03-architecture/50_api_surface.md` to match the decision (no ghost contracts).
 
 ## Artefacts
 
@@ -131,7 +144,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp-oracle/`).
+Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
 
 ---
 
@@ -151,8 +164,15 @@ Which single Word artefact is most compelling for the demo audience: memo or obj
 
 Proof looks like:
 
-- Stakeholder picks one template in 15 minutes.
-- We get 3-5 bullet requirements about what "must be in the Word export".
+- Stakeholder picks one template in 15 minutes (default assumption: memo).
+- We get 3-5 bullet requirements about what "must be in the Word export":
+  - section list + must-have fields
+  - how citations render (format)
+  - how `missing_input` rows appear
+- Feasibility proof: a minimal `.docx` renders acceptably (basic visual sanity, not pixel-perfect) in:
+  - Word
+  - Google Docs
+  - macOS Preview (or equivalent)
 
 ## Timebox
 
@@ -176,6 +196,8 @@ Exclude:
 - Step 1: Draft two 1-page outlines (memo vs objection letter).
 - Step 2: Ask stakeholder to choose (and say why).
 - Step 3: Lock the template choice and section list.
+- Step 4: Generate a minimal docx using the chosen approach and open it in Word + Google Docs + Preview (pass/fail = “not broken”).
+  - Optional automation: use `pnpm dlx agent-browser …` to script the Google Docs view + screenshot, if it materially saves time.
 
 ## Artefacts
 
@@ -196,7 +218,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp-oracle/`).
+Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
 
 ---
 
@@ -216,10 +238,14 @@ What 3-5 metrics are predictive enough for demo readiness without becoming a tim
 
 Proof looks like:
 
-- A small metric set maps directly to the trust UX:
-  - schema validity
-  - citation integrity
-  - expected failure journeys (missing docs, bad citations)
+- Metrics set includes the hard gates already defined in `docs/03-architecture/60_observability_and_evals.md`:
+  - schema validity (100%)
+  - citation integrity (100%)
+  - expected failure journeys (must fail in the expected way)
+- Runner produces:
+  - per-pack JSON report + per-pack Markdown summary
+  - a cross-pack summary table
+  - non-zero exit code when any hard gate fails (even if CI is report-only initially)
 - Metrics can be computed deterministically from fixtures without heavy model calls.
 
 ## Timebox
@@ -243,7 +269,7 @@ Exclude:
 
 - Step 1: Implement metric computation on `pack_01_clean`.
 - Step 2: Validate that it flags expected failures on `pack_02_missing_rea`.
-- Step 3: Add one deliberate bad-citation fixture and ensure it fails closed.
+- Step 3: Add `pack_03_bad_citation` and ensure it fails closed with the expected taxonomy.
 
 ## Artefacts
 
@@ -264,7 +290,7 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp-oracle/`).
+Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
 
 ---
 
@@ -284,11 +310,12 @@ Do we actually need demo mode, and if we do, what guardrails make reset provably
 
 Proof looks like:
 
-- A clear justification for demo mode (or a decision to cut it).
-- A reset design that cannot delete non-demo data:
-  - demo-only allowlist
-  - explicit confirmation flow
-  - obvious audit/logging output
+- First output is a binary decision: **demo mode required vs not required**.
+- If demo mode is required:
+  - pack loading behaviour is specified (what gets seeded, what gets returned, where packs live)
+- Reset semantics are explicit:
+  - preferred default: **no deletion via HTTP** in the PoC (reset = create a fresh demo matter from fixtures)
+  - if destructive reset is insisted on: guardrails + test plan must prove non-demo data cannot be touched
 
 ## Timebox
 
@@ -300,7 +327,7 @@ Proof looks like:
 Include:
 
 - Pack selector shape (loads fixture packs only).
-- Reset endpoints shape (demo-only).
+- Reset semantics decision (no-delete vs dev-only destructive tooling).
 
 Exclude:
 
@@ -310,8 +337,11 @@ Exclude:
 ## Approach
 
 - Step 1: Identify the minimum UI affordances needed for the operator.
-- Step 2: Draft reset guardrails (allowlist + confirmation).
-- Step 3: Decide "demo mode required?" and lock the perimeter.
+- Step 2: Decide "demo mode required?" and lock the perimeter.
+- Step 3: If reset is required:
+  - choose no-delete semantics (preferred), or
+  - draft guardrails (allowlist + confirmation) and a safety test plan
+- Step 4: If destructive reset endpoints remain in scope, add a security review step (even for PoC) to confirm the guard can’t be bypassed by naming/user input/query params.
 
 ## Artefacts
 
@@ -332,4 +362,4 @@ Throw away:
 
 ## Oracle pass
 
-Pending (bundle created after shaping; see `tmp-oracle/`).
+Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).

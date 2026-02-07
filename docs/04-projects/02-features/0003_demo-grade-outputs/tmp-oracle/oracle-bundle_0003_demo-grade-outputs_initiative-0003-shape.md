@@ -38,7 +38,7 @@ Constraints
 - `docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
 - `docs/00-strategy/initiatives/initiative-overview-001-002-003.md`
-- `docs/00-strategy/initiatives/003-polishing-for-demo-and-non-func-hardening`
+- `docs/00-strategy/initiatives/003-polishing-for-demo-and-non-func-hardening.md`
 - `docs/00-strategy/initiatives/prd-slicing-rules.md`
 - `docs/00-strategy/initiatives/001-003_handoff.md`
 - `docs/03-architecture/AGENTS.md`
@@ -170,7 +170,7 @@ Planned PRD dossiers (names from `docs/00-strategy/initiatives/001-003_handoff.m
   - Artefact storage model: `docs/03-architecture/30_data_model.md`
   - Evals posture and metrics: `docs/03-architecture/60_observability_and_evals.md`
 - Initiative 3 strategy and seams are documented:
-  - `docs/00-strategy/initiatives/003-polishing-for-demo-and-non-func-hardening`
+  - `docs/00-strategy/initiatives/003-polishing-for-demo-and-non-func-hardening.md`
   - `docs/00-strategy/initiatives/initiative-overview-001-002-003.md`
 
 ### Current flow (breadboard)
@@ -802,7 +802,7 @@ These are finishing moves that protect against context rot and brittle demos. Th
 - Export producing unusable junk that lawyers reject instantly
 ```
 
-## File: `docs/00-strategy/initiatives/003-polishing-for-demo-and-non-func-hardening`
+## File: `docs/00-strategy/initiatives/003-polishing-for-demo-and-non-func-hardening.md`
 ```md
 # Initiative 3: Demo-grade outputs and repeatability (exports, eval harness, regression safety)
 

@@ -1,0 +1,30 @@
+{
+  "project": "0002_quick-start-engine",
+  "branchName": "codex/0002-s2-row-payload-contract",
+  "description": "Initiative 0002 Slice 2: introduce a versioned list payload contract for artefact rows (B-I/B-II/issues), store it in report_rows.payload_json with payload_schema_version, expose via API, and render artefact tables in the UI from locked citations only.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Artefact rows have a versioned list payload",
+      "description": "B-I/B-II/issues rows carry a stable, versioned items[] payload with stable item_id and item-level citation_ids for claimed fields, without inventing new report-row statuses.",
+      "acceptanceCriteria": [
+        "Artefact rows include payload_schema_version='list_payload_v0' and payload_json.items[].",
+        "Each item has stable item_id and item-level citation_ids[] for claimed fields; unsupported fields are downgraded (no fabrication).",
+        "Item-level states (match_status, depicted/not_depicted/unknown) do not invent or reuse report-row statuses."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "UI renders artefact tables from payload and locked citations",
+      "description": "UI renders artefact tables from payload_json (not answer prose) and item-level citation chips jump to evidence using locked citations.",
+      "acceptanceCriteria": [
+        "UI renders artefact rows from payload_json only; it does not parse report_rows.answer prose for table rendering.",
+        "Clicking a citation uses GET /citations/:id and highlights evidence in the viewer (dependency: Initiative 0001).",
+        "If payload is missing/invalid, UI shows a safe error state using the standard error envelope and trace_id (no internal leak)."
+      ],
+      "priority": 2
+    }
+  ]
+}
+

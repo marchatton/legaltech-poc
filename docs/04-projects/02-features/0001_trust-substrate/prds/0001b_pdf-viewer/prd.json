@@ -1,0 +1,34 @@
+{
+  "project": "0001b_pdf-viewer",
+  "branchName": "codex/0001b-pdf-viewer",
+  "description": "pdf.js viewer with page navigation + zoom, using the signed render_url contract (GET /documents/:id/render?page=N) and proven usable on scanned/rotated packs.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Open and view a PDF",
+      "description": "Open a document viewer route from a Matter and render the PDF via pdf.js using the render_url contract.",
+      "acceptanceCriteria": [
+        "AC-001 From a Matter, I can open a document viewer route for a selected document.",
+        "AC-002 Viewer fetches render_url via GET /documents/:id/render?page=N (1-indexed page) and renders via pdf.js.",
+        "AC-003 Viewer shows an explicit error state if render_url is unavailable or the document is not found."
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "NO-GO until RH1 spike evidence is recorded."
+    },
+    {
+      "id": "US-002",
+      "title": "Page navigation and zoom stays responsive on scans",
+      "description": "Page jump and zoom remain usable on pack_07 scanned/rotated PDFs.",
+      "acceptanceCriteria": [
+        "AC-004 Page jump completes in <1s on a dev machine for pack_07 (per RH1 spike harness).",
+        "AC-005 Viewer remains responsive during rapid navigation (no long main-thread stalls).",
+        "AC-006 Zoom 50/100/150 re-renders consistently (no CSS-scaling drift)."
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "NO-GO until RH1 spike executed."
+    }
+  ]
+}
+

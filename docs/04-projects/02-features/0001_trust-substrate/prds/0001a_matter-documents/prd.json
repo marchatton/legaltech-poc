@@ -1,0 +1,35 @@
+{
+  "project": "0001a_matter-documents",
+  "branchName": "codex/0001a-matter-documents",
+  "description": "Folder (Matter) CRUD + document upload + ingest status surface (parse_status/ocr_status/extraction_quality/page_count) aligned to the state model and API surface.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create and open a Matter",
+      "description": "Create/list/open a Matter (Folder) to host a diligence pack.",
+      "acceptanceCriteria": [
+        "AC-001 POST /folders creates a folder with state=empty.",
+        "AC-002 GET /folders lists folders including state and latest_index_version.",
+        "AC-003 GET /folders/:id returns folder state and timestamps."
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Upload PDFs and observe ingest status",
+      "description": "Upload PDFs into a Matter and observe document ingest progress/failures via parse_status/ocr_status and derived folder state.",
+      "acceptanceCriteria": [
+        "AC-004 POST /folders/:id/documents returns a document record plus an upload target (signed URL + headers + storage_key).",
+        "AC-005 POST /documents/:id/complete enqueues ingest and document state progresses out of queued as work starts.",
+        "AC-006 GET /folders/:id/documents returns documents with parse_status, ocr_status, page_count (when parsed), and extraction_quality (when ocr done).",
+        "AC-007 Folder state transitions are monotonic and consistent with the state model (empty->ingesting->indexed->ready; failures -> failed)."
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
+

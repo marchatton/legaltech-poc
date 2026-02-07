@@ -473,7 +473,7 @@ Cuts / out of bounds:
 
 Use this during shaping to capture tail risks and choose mitigations (Cut / Patch / Spike / Out-of-bounds).
 
-Key rule (per `docs/00-strategy/initiatives/001-003_depedency_plan.md`):
+Key rule (per `docs/00-strategy/initiatives/001-003_dependency_plan.md`):
 - Breadboards + risk register + spikes come before PRDs.
 
 | ID | Risk (write as a question) | Type | Why its risky | Treatment | Next step | Status |
@@ -1014,7 +1014,7 @@ Implement the Quick Start run worker that executes the pipeline deterministicall
 4) PRD: Row upsert behaviour + provenance stamping
 ````
 
-### docs/00-strategy/initiatives/001-003_depedency_plan.md
+### docs/00-strategy/initiatives/001-003_dependency_plan.md
 
 ````md
 # Dependency graph and ordering recommendation

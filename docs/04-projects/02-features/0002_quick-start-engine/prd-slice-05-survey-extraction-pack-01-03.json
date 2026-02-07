@@ -1,0 +1,30 @@
+{
+  "project": "0002_quick-start-engine",
+  "branchName": "codex/0002-s5-survey-extraction-pack-01-03",
+  "description": "Initiative 0002 Slice 5: survey extraction baseline for pack_01_clean and pack_03_mismatch_and_cert_gap: extract certification parties and baseline callouts with locked citations, and surface missing lender certification as a structured issue code.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Extract certification parties with citations",
+      "description": "Extract survey certification parties into structured fields backed by lockable citations so the row can be verified and trusted.",
+      "acceptanceCriteria": [
+        "For pack_01_clean, certification parties extracted match truth key fields where truth supports them.",
+        "Each extracted party field has lockable citations; row is needs_review when verification passes.",
+        "Candidate citations are chunk IDs; citations are locked and immutable before verification (no free-text citations)."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Flag certification gap as structured issue code",
+      "description": "Surface missing lender certification as a machine-readable issue code with evidence on the cert gap pack, without fabricating missing data.",
+      "acceptanceCriteria": [
+        "For pack_03_mismatch_and_cert_gap, missing lender certification is surfaced as a structured issue code (e.g. CERT_MISSING_LENDER) with citation to the certification block.",
+        "No fabricated lender name is emitted when lender is missing; the field is absent/unknown.",
+        "If no citations can be locked due to low extraction quality, row falls back safely to missing_input with remediation checklist (no invented callouts)."
+      ],
+      "priority": 2
+    }
+  ]
+}
+

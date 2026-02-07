@@ -1,0 +1,80 @@
+{
+  "project": "0002_quick-start-engine",
+  "branchName": "codex/0002-quick-start-engine",
+  "description": "PRD spine for Initiative 0002 (Quick Start Engine): deterministic-ish WDK run that produces three evidence-backed artefacts (B-I tracker, B-II exceptions table, reconciliation issues list) under evidence-first + fail-closed invariants. Implementation proceeds via numbered slice PRDs in the dossier.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Run skeleton + version pinning + incremental progress surface",
+      "description": "Start a Quick Start run on indexed/ready folders, pin versions (index_version, agent_bundle_version, question_set_version), stream progress/rows via canonical APIs, and enforce strict row invariants.",
+      "acceptanceCriteria": [
+        "POST /folders/:id/runs enforces preconditions (folders.state in {indexed, ready}) and returns safe errors via the standard error envelope with trace_id.",
+        "Run records pin index_version, agent_bundle_version, and question_set_version; workflow/step boundaries follow WDK directives ('use workflow' / 'use step').",
+        "UI reads run progress via GET /runs/:id and rows via GET /folders/:id/report?run_id=... (no direct DB reads).",
+        "Unique (run_id, question_id) is enforced; restarts do not duplicate rows; step idempotency is via deterministic step_key."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "List payload contract + artefact table rendering",
+      "description": "Decide and implement a versioned list payload contract for B-I/B-II/issues with stable item_id and item-level citation_ids; UI renders artefact tables from structured payload without inventing new report-row statuses.",
+      "acceptanceCriteria": [
+        "Payload storage approach is explicit and versioned (payload_schema_version) and does not turn provenance_json into a product contract.",
+        "Items have stable item_id for diffing/idempotency and include item-level citation_ids for claimed fields; unsupported fields are downgraded (no fabrication).",
+        "Report-row statuses remain terminal-only: needs_review|reviewed|missing_input|citation_failed; item-level states do not reuse row statuses.",
+        "API exposes citation_ids and payload needed for UI rendering; UI renders from locked citations only (no chunk IDs)."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-003",
+      "title": "Commitment parsing baseline (pack_01_clean) for B-I and B-II",
+      "description": "Extract B-I requirements and B-II exceptions from the commitment for pack_01_clean and match truth key fields with lockable citations and zero false positives.",
+      "acceptanceCriteria": [
+        "For pack_01_clean, B-I payload matches truth/expected_requirements_tracker.csv on key fields (item count + item numbering at minimum).",
+        "For pack_01_clean, B-II payload matches truth/expected_exceptions_table.csv on key fields (item count + item numbering + normalised instrument refs where present).",
+        "Precision rule: 0 false positives (no extra items not present in truth by item number).",
+        "Candidate citations are chunk IDs; citations are locked and immutable; verification is fail-closed with taxonomy reason codes."
+      ],
+      "priority": 3
+    },
+    {
+      "id": "US-004",
+      "title": "Exception -> instrument matching baseline + missing-doc journey (pack_02_missing_rea)",
+      "description": "Match exception items to instrument PDFs deterministically, surface ambiguity and missing docs/attachments explicitly, and prevent silent auto-picks or fabricated summaries.",
+      "acceptanceCriteria": [
+        "For pack_01_clean, exception items with truth-linked instruments resolve to match_status=matched with citations supporting the match.",
+        "Ambiguous matches surface as match_status=ambiguous with candidates listed; no silent auto-pick; row remains needs_review.",
+        "For pack_02_missing_rea, missing exception doc is surfaced as match_status=missing_doc with an actionable missing-doc checklist.",
+        "Missing attachments are surfaced explicitly and do not result in fabricated exhibit summaries; the reference clause is cited."
+      ],
+      "priority": 4
+    },
+    {
+      "id": "US-005",
+      "title": "Survey extraction baseline + certification gap issue (pack_03_mismatch_and_cert_gap)",
+      "description": "Extract certification parties and baseline callouts with citations, and flag certification gaps as a structured issue code with evidence.",
+      "acceptanceCriteria": [
+        "Survey extraction yields structured certification parties and baseline callouts for pack_01_clean where truth supports them, each backed by lockable citations.",
+        "For pack_03_mismatch_and_cert_gap, missing lender is flagged as a machine-readable issue code with citation to the certification block.",
+        "On scan/low-quality behavior where no citations can be locked, the row is missing_input with the exact answer string, zero citations, and a remediation checklist.",
+        "Model calls (draft/verify/embed) go through AI SDK (gateway default) and step boundaries record telemetry metadata safely."
+      ],
+      "priority": 5
+    },
+    {
+      "id": "US-006",
+      "title": "Reconciliation issues list honesty policy (unknown bias)",
+      "description": "Generate reconciliation issues with an explicit evidence threshold policy that biases to unknown rather than incorrect not_depicted claims.",
+      "acceptanceCriteria": [
+        "Reconciliation items use item-level classification depicted|not_depicted|unknown; not_depicted requires positive evidence of absence (narrowly defined and cited).",
+        "When evidence is weak, items are downgraded to unknown and the report row remains needs_review (no hallucinations).",
+        "Issue drawer guidance explains what evidence is missing and what to do next; failure modes are explicit (no silent failures).",
+        "Verification is fail-closed and reason codes align with the failure taxonomy (e.g. ENTAILMENT_FAIL, CITATION_MISMATCH)."
+      ],
+      "priority": 6
+    }
+  ]
+}
+
