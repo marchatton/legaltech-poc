@@ -18,10 +18,10 @@ Make the PoC demoable and repeatable by adding constrained exports, fixture-driv
 
 ### Slice
 This is the initiative-level PRD spine. Implementation is split into thin PRD dossiers:
-- CSV exports + artefacts list: `docs/04-projects/02-features/0013_csv-export/prd.md`
-- Word export: `docs/04-projects/02-features/0014_word-export/prd.md`
-- Eval harness: `docs/04-projects/02-features/0015_eval-harness/prd.md`
-- Demo reliability pack: `docs/04-projects/02-features/0016_demo-reliability/prd.md`
+- CSV exports + artefacts list: `docs/04-projects/02-features/0004_csv-export/prd.md`
+- Word export: `docs/04-projects/02-features/0005_word-export/prd.md`
+- Eval harness: `docs/04-projects/02-features/0006_eval-harness/prd.md`
+- Demo reliability pack: `docs/04-projects/02-features/0007_demo-reliability/prd.md`
 
 ### Primary Observable Effect
 From fixture packs under `docs/08-example-data/`, a demo operator can run a demo twice in a row (no destructive reset via HTTP) and produce/export/download deterministic CSV + Word artefacts, while developers can run deterministic fixture evals that enforce hard trust gates.
@@ -57,7 +57,7 @@ As a demo operator, I want to export the 3 CSV artefacts and a single memo docx 
 - Exports fail closed by default when any row is `citation_failed` (blocked, with clear UX). Any override behavior is explicitly scoped and not shipped in the first slice unless proven safe.
 
 #### Verification
-- See PRDs: 0013 and 0014.
+- See PRDs: 0004 and 0005.
 
 ### US-002: Detect Regressions With Fixture Evals
 As a developer, I want a deterministic eval harness that runs against fixture packs and produces per-pack reports so I can catch regressions before demos.
@@ -73,7 +73,7 @@ As a developer, I want a deterministic eval harness that runs against fixture pa
   - expected failure journeys (missing docs -> `missing_input`, bad citation -> `citation_failed`)
 
 #### Verification
-- See PRD: 0015.
+- See PRD: 0006.
 
 ### US-003: Run Demos Twice Safely
 As a demo operator, I want to load known fixture packs and re-run the demo twice without manual cleanup and without any destructive reset endpoint that could delete non-demo data.
@@ -85,7 +85,7 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 - Demo checklist exists and matches the actual operator flow.
 
 #### Verification
-- See PRD: 0016.
+- See PRD: 0007.
 
 ## Functional Requirements
 
@@ -149,8 +149,8 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 - Risks: `docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md`
 - Spikes: `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
 - Child PRDs:
-  - `docs/04-projects/02-features/0013_csv-export/prd.md`
-  - `docs/04-projects/02-features/0014_word-export/prd.md`
-  - `docs/04-projects/02-features/0015_eval-harness/prd.md`
-  - `docs/04-projects/02-features/0016_demo-reliability/prd.md`
+  - `docs/04-projects/02-features/0004_csv-export/prd.md`
+  - `docs/04-projects/02-features/0005_word-export/prd.md`
+  - `docs/04-projects/02-features/0006_eval-harness/prd.md`
+  - `docs/04-projects/02-features/0007_demo-reliability/prd.md`
 

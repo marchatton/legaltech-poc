@@ -38,8 +38,8 @@ We need to export a defensible Word artefact without weakening the trust posture
 - Multiple templates, template editor UI, or per-firm customisation.
 - “Perfect” formatting; this is a demo artefact, not a final deliverable.
 - Any unsafe/demo-only override export path.
-- Eval harness and CI integration (handled in 0015).
-- Demo toolbar and reset tooling (handled in 0016 / future).
+- Eval harness and CI integration (handled in 0006).
+- Demo toolbar and reset tooling (handled in 0007 / future).
 
 ## Users
 

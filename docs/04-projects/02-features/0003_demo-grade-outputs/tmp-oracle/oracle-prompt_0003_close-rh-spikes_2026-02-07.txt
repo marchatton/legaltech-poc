@@ -6,7 +6,7 @@ Goal: help me CLOSE the rabbit-hole spikes (risk register RH* items with mitigat
 Context:
 - Repo is pnpm workspaces + TypeScript, but this request is mainly doc decisions and crisp contracts.
 - Canonical architecture contracts + ADRs live in docs/03-architecture/* and MUST WIN if anything conflicts.
-- PRDs for slices 0013–0016 exist but are explicitly "NO-GO until spikes close".
+- PRDs for slices 0004–0007 exist but are explicitly "NO-GO until spikes close".
 - No external web research is allowed inside runs (ADR-0007); base recommendations only on the attached docs.
 
 What I need from you:
@@ -26,10 +26,10 @@ What I need from you:
    Focus files:
    - docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md
    - docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md
-   - docs/04-projects/02-features/0013_csv-export/prd.md
-   - docs/04-projects/02-features/0014_word-export/prd.md
-   - docs/04-projects/02-features/0015_eval-harness/prd.md
-   - docs/04-projects/02-features/0016_demo-reliability/prd.md
+   - docs/04-projects/02-features/0004_csv-export/prd.md
+   - docs/04-projects/02-features/0005_word-export/prd.md
+   - docs/04-projects/02-features/0006_eval-harness/prd.md
+   - docs/04-projects/02-features/0007_demo-reliability/prd.md
 
    Specifically: update RH statuses (at least RH1/RH3/RH5/RH7) to "closed" or an explicit alternative state, with the closure decision recorded.
    If any spike cannot be closed without external input, propose the smallest next action to close it (timebox + who + artefact to capture).

@@ -172,7 +172,7 @@ Breadboard says the runner “runs or reads outputs”. That’s a fork:
 * reading existing outputs is smaller and still valuable
 
 **Why it matters**
-If you don’t lock this, PRD 0015 becomes a platform build by accident.
+If you don’t lock this, PRD 0006 becomes a platform build by accident.
 
 **Concrete patch**
 
@@ -379,7 +379,7 @@ And if appetite is higher, the only safe expansion for slice 1 is: add the other
 
 Below is a thin slicing plan that stays close to the breadboard (F#) and affordances (U#/N#). Names follow the existing handoff numbering, with suffixes to keep slices thin.
 
-### PRD 0013a: CSV export (requirements tracker) + artefact persistence + list
+### PRD 0004a: CSV export (requirements tracker) + artefact persistence + list
 
 **Maps to**: F1, F2, F4, F5
 **Affordances**: U1, U2 (requirements only), U4, U5
@@ -398,7 +398,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0013b: CSV exports (exceptions + survey issues)
+### PRD 0004b: CSV exports (exceptions + survey issues)
 
 **Maps to**: F2, F5 (and reuses F1/F4 already shipped)
 **Affordances**: U2 (remaining two buttons), U4, U5
@@ -416,7 +416,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0014: Word export (single memo template) + artefact list integration
+### PRD 0005: Word export (single memo template) + artefact list integration
 
 **Maps to**: F1, F3, F4, F5
 **Affordances**: U1, U3, U4, U5
@@ -433,7 +433,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0015a: Eval harness (hard gates + per-pack reports)
+### PRD 0006a: Eval harness (hard gates + per-pack reports)
 
 **Maps to**: F6
 **Affordances**: (no UI)
@@ -453,7 +453,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0015b: CI integration for eval reports (report-only first)
+### PRD 0006b: CI integration for eval reports (report-only first)
 
 **Maps to**: F7
 **Affordances**: (no UI)
@@ -469,7 +469,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0016: Demo reliability pack (dev-only) with pack loader + checklist (and safe reset decision)
+### PRD 0007: Demo reliability pack (dev-only) with pack loader + checklist (and safe reset decision)
 
 **Maps to**: F8, F9
 **Affordances**: U6, U7, (U8 optional per perimeter decision), U9

@@ -136,10 +136,10 @@ Out of scope (explicit cuts):
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
 
 Planned PRD dossiers (names from `docs/00-strategy/initiatives/001-003_handoff.md`):
-- `0013_csv-export`
-- `0014_word-export`
-- `0015_eval-harness`
-- `0016_demo-reliability`
+- `0004_csv-export`
+- `0005_word-export`
+- `0006_eval-harness`
+- `0007_demo-reliability`
 
 ## Shaping decision (GO/NO-GO)
 - GO when the listed spikes are completed (or cut), the perimeter is locked, and export gating is unambiguous.
@@ -987,10 +987,10 @@ Naming convention (breadboard dossiers):
 - `0010_survey-parsing`
 - `0011_title-survey-reconciliation`
 - `0012_run-orchestration`
-- `0013_csv-export`
-- `0014_word-export`
-- `0015_eval-harness`
-- `0016_demo-reliability`
+- `0004_csv-export`
+- `0005_word-export`
+- `0006_eval-harness`
+- `0007_demo-reliability`
 
 (Example sequence, not a commitment.)
 

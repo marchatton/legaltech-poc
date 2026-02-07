@@ -12,7 +12,7 @@ Goal: help me CLOSE the rabbit-hole spikes (risk register RH* items with mitigat
 Context:
 - Repo is pnpm workspaces + TypeScript, but this request is mainly doc decisions and crisp contracts.
 - Canonical architecture contracts + ADRs live in docs/03-architecture/* and MUST WIN if anything conflicts.
-- PRDs for slices 0013–0016 exist but are explicitly "NO-GO until spikes close".
+- PRDs for slices 0004–0007 exist but are explicitly "NO-GO until spikes close".
 - No external web research is allowed inside runs (ADR-0007); base recommendations only on the attached docs.
 
 What I need from you:
@@ -32,10 +32,10 @@ What I need from you:
    Focus files:
    - docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md
    - docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md
-   - docs/04-projects/02-features/0013_csv-export/prd.md
-   - docs/04-projects/02-features/0014_word-export/prd.md
-   - docs/04-projects/02-features/0015_eval-harness/prd.md
-   - docs/04-projects/02-features/0016_demo-reliability/prd.md
+   - docs/04-projects/02-features/0004_csv-export/prd.md
+   - docs/04-projects/02-features/0005_word-export/prd.md
+   - docs/04-projects/02-features/0006_eval-harness/prd.md
+   - docs/04-projects/02-features/0007_demo-reliability/prd.md
 
    Specifically: update RH statuses (at least RH1/RH3/RH5/RH7) to "closed" or an explicit alternative state, with the closure decision recorded.
    If any spike cannot be closed without external input, propose the smallest next action to close it (timebox + who + artefact to capture).
@@ -55,11 +55,11 @@ Output format:
 - `docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs/handoff_2026-02-07_01-05-10_0003-prd-dossiers.md`
-- `docs/04-projects/02-features/0013_csv-export/prd.md`
-- `docs/04-projects/02-features/0014_word-export/prd.md`
-- `docs/04-projects/02-features/0015_eval-harness/prd.md`
-- `docs/04-projects/02-features/0016_demo-reliability/prd.md`
-- `docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md`
+- `docs/04-projects/02-features/0004_csv-export/prd.md`
+- `docs/04-projects/02-features/0005_word-export/prd.md`
+- `docs/04-projects/02-features/0006_eval-harness/prd.md`
+- `docs/04-projects/02-features/0007_demo-reliability/prd.md`
+- `docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md`
 - `docs/00-strategy/initiatives/prd-slicing-rules.md`
 - `docs/03-architecture/DECISIONS.md`
 - `docs/03-architecture/20_state_model.md`
@@ -187,10 +187,10 @@ Out of scope (explicit cuts):
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
 
 PRD dossiers (drafted as DRAFT/NO-GO until spikes close; names from `docs/00-strategy/initiatives/001-003_handoff.md`):
-- `0013_csv-export` (`docs/04-projects/02-features/0013_csv-export/`)
-- `0014_word-export` (`docs/04-projects/02-features/0014_word-export/`)
-- `0015_eval-harness` (`docs/04-projects/02-features/0015_eval-harness/`)
-- `0016_demo-reliability` (`docs/04-projects/02-features/0016_demo-reliability/`)
+- `0004_csv-export` (`docs/04-projects/02-features/0004_csv-export/`)
+- `0005_word-export` (`docs/04-projects/02-features/0005_word-export/`)
+- `0006_eval-harness` (`docs/04-projects/02-features/0006_eval-harness/`)
+- `0007_demo-reliability` (`docs/04-projects/02-features/0007_demo-reliability/`)
 
 ## Glossary (canonical names)
 - **Folder**: API/DB container (UI term: “Matter”).
@@ -441,7 +441,7 @@ Use this during shaping to capture tail risks and choose mitigations.
 # Spike investigation — Initiative 0003: Demo-grade outputs and repeatability
 
 > Status: planned only. No spikes executed yet.
-> Note: Thin PRD dossiers (`0013`–`0016`) have been drafted as DRAFT/NO-GO to capture scope, but implementation should not start until these spikes close.
+> Note: Thin PRD dossiers (`0004`–`0007`) have been drafted as DRAFT/NO-GO to capture scope, but implementation should not start until these spikes close.
 
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: spikes come before PRDs.
 
@@ -819,17 +819,17 @@ Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs
     - `docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md`
     - `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
   - Created PRD dossiers (each has `prd.md` + `prd.json`):
-    - `docs/04-projects/02-features/0013_csv-export/`
-    - `docs/04-projects/02-features/0014_word-export/`
-    - `docs/04-projects/02-features/0015_eval-harness/`
-    - `docs/04-projects/02-features/0016_demo-reliability/`
+    - `docs/04-projects/02-features/0004_csv-export/`
+    - `docs/04-projects/02-features/0005_word-export/`
+    - `docs/04-projects/02-features/0006_eval-harness/`
+    - `docs/04-projects/02-features/0007_demo-reliability/`
   - Added a draft demo checklist:
-    - `docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md`
+    - `docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md`
   - `prd.json` validation: PASS for all four dossiers (validated against `docs/04-projects/_templates/json-prd.schema.json`).
   - Confirmed `agent-browser` works via `pnpm dlx` (no global install required) and supports `browseruse` provider.
 - Pending / blockers:
   - All spikes are still planned only (no practitioner/stakeholder spikes executed yet).
-  - `pack_03_bad_citation` fixture pack is referenced in PRD 0015 but not created yet.
+  - `pack_03_bad_citation` fixture pack is referenced in PRD 0006 but not created yet.
   - Dependency not proven: Initiative 002 must persist structured `export_payload` + `schema_version` (exports must not parse prose).
 
 2) Working tree
@@ -847,20 +847,20 @@ Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs
 
 5) Tests/checks
 - Ran JSON PRD schema validation via python `jsonschema`:
-  - `docs/04-projects/02-features/0013_csv-export/prd.json` PASS
-  - `docs/04-projects/02-features/0014_word-export/prd.json` PASS
-  - `docs/04-projects/02-features/0015_eval-harness/prd.json` PASS
-  - `docs/04-projects/02-features/0016_demo-reliability/prd.json` PASS
+  - `docs/04-projects/02-features/0004_csv-export/prd.json` PASS
+  - `docs/04-projects/02-features/0005_word-export/prd.json` PASS
+  - `docs/04-projects/02-features/0006_eval-harness/prd.json` PASS
+  - `docs/04-projects/02-features/0007_demo-reliability/prd.json` PASS
 - No code tests run (repo remains docs-first at this point).
 
 6) Next steps (do these in order)
 1. Run the Initiative 0003 spikes and write outcomes back into:
    - `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
 2. Update PRDs based on spike outcomes:
-   - CSV headers/order + deterministic row ordering rules (0013)
-   - Word template choice + section list + citation rendering format + docx viewer sanity notes (0014)
-   - Hard gate metric outputs + add `pack_03_bad_citation` (0015)
-   - Decide demo toolbar vs checklist-only; keep “no deletion via HTTP” unless explicitly proven safe (0016)
+   - CSV headers/order + deterministic row ordering rules (0004)
+   - Word template choice + section list + citation rendering format + docx viewer sanity notes (0005)
+   - Hard gate metric outputs + add `pack_03_bad_citation` (0006)
+   - Decide demo toolbar vs checklist-only; keep “no deletion via HTTP” unless explicitly proven safe (0007)
 3. If structured export payloads do not exist yet (Initiative 002 gap):
    - Add a thin 0002 slice that persists `report_rows.provenance_json.export_payload` (+ `schema_version`) so exports are deterministic and do not parse prose.
 
@@ -871,7 +871,7 @@ Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs
 - Demo “reset” is high-risk: default is no destructive HTTP reset in the first slice; if introduced later it needs provable guardrails + tests + ADR.
 ````
 
-## File: `docs/04-projects/02-features/0013_csv-export/prd.md`
+## File: `docs/04-projects/02-features/0004_csv-export/prd.md`
 ````md
 # PRD: CSV Exports + Artefacts List (Requirements / Exceptions / Survey Issues)
 
@@ -1051,7 +1051,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008)
 ````
 
-## File: `docs/04-projects/02-features/0014_word-export/prd.md`
+## File: `docs/04-projects/02-features/0005_word-export/prd.md`
 ````md
 # PRD: Word Export (.docx) Single Memo Template
 
@@ -1093,8 +1093,8 @@ We need to export a defensible Word artefact without weakening the trust posture
 - Multiple templates, template editor UI, or per-firm customisation.
 - “Perfect” formatting; this is a demo artefact, not a final deliverable.
 - Any unsafe/demo-only override export path.
-- Eval harness and CI integration (handled in 0015).
-- Demo toolbar and reset tooling (handled in 0016 / future).
+- Eval harness and CI integration (handled in 0006).
+- Demo toolbar and reset tooling (handled in 0007 / future).
 
 ## Users
 
@@ -1193,7 +1193,7 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 - `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008)
 ````
 
-## File: `docs/04-projects/02-features/0015_eval-harness/prd.md`
+## File: `docs/04-projects/02-features/0006_eval-harness/prd.md`
 ````md
 # PRD: Fixture-Driven Eval Harness (Hard Gates + Reports)
 
@@ -1330,7 +1330,7 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
 - `docs/03-architecture/DECISIONS.md` (ADR-0006)
 ````
 
-## File: `docs/04-projects/02-features/0016_demo-reliability/prd.md`
+## File: `docs/04-projects/02-features/0007_demo-reliability/prd.md`
 ````md
 # PRD: Demo Reliability Pack (Dev-Only) Pack Loader + Checklist
 
@@ -1423,7 +1423,7 @@ As a demo operator, I have a short checklist that makes the demo repeatable and 
 - AC-002: With demo flag enabled, operator can load `pack_01_clean`, and the system creates a fresh matter and navigates to it.
 - AC-003: Operator can load `pack_02_missing_rea`, and the system creates a fresh matter and navigates to it.
 - AC-004: Loading a pack twice creates two distinct matters; no deletion/reset is required to re-run.
-- AC-005: Demo checklist exists at `docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md` and matches the operator flow.
+- AC-005: Demo checklist exists at `docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md` and matches the operator flow.
 
 ## Verification Plan
 
@@ -1451,11 +1451,11 @@ As a demo operator, I have a short checklist that makes the demo repeatable and 
 - `docs/03-architecture/DECISIONS.md` (ADR-0007)
 ````
 
-## File: `docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md`
+## File: `docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md`
 ````md
 # Demo Checklist (Draft)
 
-> DRAFT. This checklist is owned by PRD `docs/04-projects/02-features/0016_demo-reliability/prd.md`.
+> DRAFT. This checklist is owned by PRD `docs/04-projects/02-features/0007_demo-reliability/prd.md`.
 
 ## Preconditions
 
@@ -3478,7 +3478,7 @@ Breadboard says the runner “runs or reads outputs”. That’s a fork:
 * reading existing outputs is smaller and still valuable
 
 **Why it matters**
-If you don’t lock this, PRD 0015 becomes a platform build by accident.
+If you don’t lock this, PRD 0006 becomes a platform build by accident.
 
 **Concrete patch**
 
@@ -3685,7 +3685,7 @@ And if appetite is higher, the only safe expansion for slice 1 is: add the other
 
 Below is a thin slicing plan that stays close to the breadboard (F#) and affordances (U#/N#). Names follow the existing handoff numbering, with suffixes to keep slices thin.
 
-### PRD 0013a: CSV export (requirements tracker) + artefact persistence + list
+### PRD 0004a: CSV export (requirements tracker) + artefact persistence + list
 
 **Maps to**: F1, F2, F4, F5
 **Affordances**: U1, U2 (requirements only), U4, U5
@@ -3704,7 +3704,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0013b: CSV exports (exceptions + survey issues)
+### PRD 0004b: CSV exports (exceptions + survey issues)
 
 **Maps to**: F2, F5 (and reuses F1/F4 already shipped)
 **Affordances**: U2 (remaining two buttons), U4, U5
@@ -3722,7 +3722,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0014: Word export (single memo template) + artefact list integration
+### PRD 0005: Word export (single memo template) + artefact list integration
 
 **Maps to**: F1, F3, F4, F5
 **Affordances**: U1, U3, U4, U5
@@ -3739,7 +3739,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0015a: Eval harness (hard gates + per-pack reports)
+### PRD 0006a: Eval harness (hard gates + per-pack reports)
 
 **Maps to**: F6
 **Affordances**: (no UI)
@@ -3759,7 +3759,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0015b: CI integration for eval reports (report-only first)
+### PRD 0006b: CI integration for eval reports (report-only first)
 
 **Maps to**: F7
 **Affordances**: (no UI)
@@ -3775,7 +3775,7 @@ Below is a thin slicing plan that stays close to the breadboard (F#) and afforda
 
 ---
 
-### PRD 0016: Demo reliability pack (dev-only) with pack loader + checklist (and safe reset decision)
+### PRD 0007: Demo reliability pack (dev-only) with pack loader + checklist (and safe reset decision)
 
 **Maps to**: F8, F9
 **Affordances**: U6, U7, (U8 optional per perimeter decision), U9

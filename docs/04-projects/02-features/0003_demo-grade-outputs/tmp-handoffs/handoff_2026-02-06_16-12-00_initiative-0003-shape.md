@@ -26,7 +26,7 @@ Saved handoff: docs/04-projects/02-features/0003_demo-grade-outputs/tmp-handoffs
      - minimal eval metrics
      - demo reset guardrails / demo mode necessity
   3) After spikes, create thin PRD dossiers (suggested names per initiative docs):
-     - `0013_csv-export`, `0014_word-export`, `0015_eval-harness`, `0016_demo-reliability`
+     - `0004_csv-export`, `0005_word-export`, `0006_eval-harness`, `0007_demo-reliability`
      - Each PRD should include `prd.md` + `prd.json` and map to breadboard parts (F#) and affordances (U#/N#).
 - Risks/gotchas:
   - Export gating and demo reset are trust/safety decisions; do not ship a path that silently drops `citation_failed` rows or can delete non-demo data.

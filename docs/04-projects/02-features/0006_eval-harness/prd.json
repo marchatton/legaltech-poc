@@ -1,6 +1,6 @@
 {
-  "project": "0015_eval-harness",
-  "branchName": "codex/0015-eval-harness",
+  "project": "0006_eval-harness",
+  "branchName": "codex/0006-eval-harness",
   "description": "Fixture-driven eval harness that produces per-pack JSON+MD reports and enforces hard trust gates (schema validity, citation integrity, failure journeys).",
   "userStories": [
     {

@@ -90,7 +90,7 @@
 | N4 | Viewer render contract | render URL + viewer state | call | `GET /documents/:id/render?page=N` returns `render_url`; viewer handles page nav + zoom |
 | N5 | Citations API | `GET /citations/:id` | call | locked citation payload `{document_id,page_number,polygons,snippet,snippet_hash}` |
 | N6 | Anchor fixture loader | map fixture anchor IDs to polygons | call | returns polygons for highlight scaffold |
-| N7 | Highlight renderer | anchor polygons → viewport CSS pixels | call | maps normalised anchors (`[0..1]`, origin top-left) → viewport CSS px via `viewBox` + `viewport.convertToViewportPoint()`; returns overlay geometry for rendering |
+| N7 | Highlight renderer | anchor polygons → viewport CSS pixels | call | Maps normalised anchors (`[0..1]`, origin top-left of page viewBox) → PDF points using `viewBox` (invert Y), then uses `viewport.convertToViewportPoint()` to get CSS px. Returns overlay geometry for rendering. |
 | N8 | Verification pipeline | code checks + (optional) entailment | call | returns verdict + failure reason code |
 | N9 | Row status machine | status invariants + export gate | write | sets row status + blocks export by default on `citation_failed` |
 | N10 | Failure logger | taxonomy + structured logs | write | emits safe failure events |

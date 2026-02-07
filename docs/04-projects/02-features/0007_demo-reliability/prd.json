@@ -1,6 +1,6 @@
 {
-  "project": "0016_demo-reliability",
-  "branchName": "codex/0016-demo-reliability",
+  "project": "0007_demo-reliability",
+  "branchName": "codex/0007-demo-reliability",
   "description": "Dev-only demo reliability pack: feature-flagged demo toolbar with pack loader for pack_01_clean and pack_02_missing_rea, plus a demo checklist. No deletion/reset via HTTP in slice 1.",
   "userStories": [
     {
@@ -29,7 +29,7 @@
       "title": "Follow A Demo Checklist",
       "description": "As a demo operator, I have a short checklist that makes the demo repeatable and reduces tribal knowledge.",
       "acceptanceCriteria": [
-        "Demo checklist exists at docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md.",
+        "Demo checklist exists at docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md.",
         "Checklist matches the operator flow for loading packs and running Quick Start."
       ],
       "priority": 3

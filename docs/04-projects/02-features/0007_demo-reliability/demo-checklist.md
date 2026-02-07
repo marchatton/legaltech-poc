@@ -1,6 +1,6 @@
 # Demo Checklist (Draft)
 
-> DRAFT. This checklist is owned by PRD `docs/04-projects/02-features/0016_demo-reliability/prd.md`.
+> DRAFT. This checklist is owned by PRD `docs/04-projects/02-features/0007_demo-reliability/prd.md`.
 
 ## Preconditions
 

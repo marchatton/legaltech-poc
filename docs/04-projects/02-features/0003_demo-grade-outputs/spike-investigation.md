@@ -1,7 +1,7 @@
 # Spike investigation — Initiative 0003: Demo-grade outputs and repeatability
 
 > Status: planned only. No spikes executed yet.
-> Note: Thin PRD dossiers (`0013`–`0016`) have been drafted as DRAFT/NO-GO to capture scope, but implementation should not start until these spikes close.
+> Note: Thin PRD dossiers (`0004`–`0007`) have been drafted as DRAFT/NO-GO to capture scope, but implementation should not start until these spikes close.
 
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: spikes come before PRDs.
 

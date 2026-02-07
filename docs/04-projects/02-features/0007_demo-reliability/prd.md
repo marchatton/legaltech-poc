@@ -89,7 +89,7 @@ As a demo operator, I have a short checklist that makes the demo repeatable and 
 - AC-002: With demo flag enabled, operator can load `pack_01_clean`, and the system creates a fresh matter and navigates to it.
 - AC-003: Operator can load `pack_02_missing_rea`, and the system creates a fresh matter and navigates to it.
 - AC-004: Loading a pack twice creates two distinct matters; no deletion/reset is required to re-run.
-- AC-005: Demo checklist exists at `docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md` and matches the operator flow.
+- AC-005: Demo checklist exists at `docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md` and matches the operator flow.
 
 ## Verification Plan
 

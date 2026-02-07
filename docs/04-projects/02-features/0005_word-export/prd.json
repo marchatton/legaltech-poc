@@ -1,6 +1,6 @@
 {
-  "project": "0014_word-export",
-  "branchName": "codex/0014-word-export",
+  "project": "0005_word-export",
+  "branchName": "codex/0005-word-export",
   "description": "Export a single memo .docx from a completed run with strict gating, artefact persistence, and artefacts list/download via fresh signed URLs.",
   "userStories": [
     {

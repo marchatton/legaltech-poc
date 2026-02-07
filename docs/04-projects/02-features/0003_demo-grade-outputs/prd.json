@@ -1,7 +1,7 @@
 {
   "project": "0003_demo-grade-outputs",
   "branchName": "codex/0003-demo-grade-outputs",
-  "description": "Initiative 0003 spine: demo-grade exports (CSV + memo docx), fixture-driven hard-gate evals, and safe demo repeatability controls aligned with canonical architecture + ADRs. Implementation is split into PRDs 0013-0016.",
+  "description": "Initiative 0003 spine: demo-grade exports (CSV + memo docx), fixture-driven hard-gate evals, and safe demo repeatability controls aligned with canonical architecture + ADRs. Implementation is split into PRDs 0004-0007.",
   "userStories": [
     {
       "id": "US-001",
@@ -35,7 +35,7 @@
         "Demo toolbar/pack loader is dev-only and feature-flagged; when the demo flag is off, the UI does not render and the server rejects pack load actions.",
         "Operator can load pack_01_clean and pack_02_missing_rea, each creating a fresh matter and navigating to it.",
         "Loading the same pack twice creates two distinct matters; no deletion/reset via HTTP is required or used.",
-        "Demo checklist exists at docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md and matches the actual operator flow."
+        "Demo checklist exists at docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md and matches the actual operator flow."
       ],
       "priority": 3
     }

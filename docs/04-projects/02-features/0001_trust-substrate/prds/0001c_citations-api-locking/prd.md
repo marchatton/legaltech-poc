@@ -27,7 +27,7 @@ Given a `citation_id`, the client can fetch a stable payload `{document_id,page_
   - store `snippet`, `snippet_hash`, `polygons`, `document_id`, `page_number`, `index_version`, optional `chunk_id`
   - treat citations as immutable after insert
 - Canonical hashing util:
-  - `snippet_hash = sha256(normalise(snippet))`
+  - `snippet_hash = "sha256:" + sha256_hex(normalise(snippet))` (lower-case hex)
   - `normalise`: trim; CRLF->LF; collapse whitespace runs to a single space
 - HTTP API:
   - `GET /citations/:id` response shape per `docs/03-architecture/50_api_surface.md`
@@ -103,7 +103,7 @@ As a developer, I want one canonical hashing implementation so that citation int
 - Fixture-driven: citations fetched for pack_01 and snippet_hash is stable (RH3 evidence).
 
 ## Open Questions
-- Polygon coordinate spec for locked citations: do we store normalized `[0..1]` polygons or absolute PDF points? (Pick one and enforce.)
+- None for this slice beyond implementation details. Polygon coordinate system is pinned in `docs/03-architecture/30_data_model.md`.
 
 ## Sources
 - Initiative shaping packet:
@@ -115,4 +115,3 @@ As a developer, I want one canonical hashing implementation so that citation int
   - `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0008)
   - `docs/03-architecture/30_data_model.md`
   - `docs/03-architecture/50_api_surface.md`
-
