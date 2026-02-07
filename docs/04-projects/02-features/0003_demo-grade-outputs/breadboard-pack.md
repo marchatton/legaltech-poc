@@ -140,38 +140,37 @@ graph LR
 | Part | Name | Mechanism | Touch points | Notes |
 |---|---|---|---|---|
 | F1 | Export endpoints | Implement `POST /export/csv` + `POST /export/docx` that read a run’s report rows, apply export gating, write an artefact, and return `artefact.download_url`. | Next.js route handlers; export service; object storage adapter; Zod boundary validation | Must support `kind` in request. Export only allowed for `run.state = completed`. Respect `EXPORT_BLOCKED` default when any row is `citation_failed`. Keep route handlers thin; if export generation is slow, run it as a WDK step (ADR-0005). |
-| F2 | CSV schemas + mappers | Define stable column schemas for 3 artefacts and map **structured `export_payload`** into those schemas. | `packages/core` export module; tests/fixtures | No prose parsing. Fail closed if `export_payload` missing. Spike required: practitioner "paste test" to lock headers + ordering. Add snapshot tests to prevent drift. |
-| F3 | Word renderer + template | Pick one fixed Word template and render a .docx from the report table + deal snapshot. | Template file in repo; docx renderer module | Spike: memo vs objection/cure letter choice. Patch by constraining formatting. |
+| F2 | CSV schemas + mappers | Define stable column schemas for 3 artefacts and map structured row payloads (`payload_schema_version` + `payload_json`) into those schemas. | `packages/core` export module; tests/fixtures | No prose parsing. Fail closed if row payload is missing. CSV schemas v1 (headers + ordering) + deterministic row ordering + citations format are locked (assumption-driven; practitioner paste test is the falsifier). Add snapshot tests to prevent drift. |
+| F3 | Word renderer + template | Pick one fixed Word template and render a .docx from the report table + deal snapshot. | Template file in repo; docx renderer module | Locked: memo v1 with deterministic section ordering + inline citation rendering. Patch by constraining formatting. |
 | F4 | Artefacts list | List previously exported artefacts for a folder and provide download links. | `GET /folders/:id/artefacts`; UI component | Generate fresh signed `download_url` on list (do not persist). Needed for demo repeatability and sharing. |
 | F5 | Export UI states | Export menu, blocked banner, loading/error states, and basic "what happened" copy. | Matter detail page UI | Must surface failure modes; never silent failures. |
-| F6 | Eval harness (fixtures) | Runner that computes minimal trust metrics vs `/truth` and emits JSON + Markdown summary artefacts per pack. | `fixture:eval` script; report writer | Phase 0: reads existing `folder_id/run_id` outputs + `/truth` (does not orchestrate runs in CI). Start report-only; later gate hard trust metrics. |
+| F6 | Eval harness (fixtures) | Runner that computes minimal trust metrics vs `/truth` and emits JSON + Markdown summary artefacts per pack. | `fixture:eval` script; report writer | Phase 0: reads pack snapshots under `/produced` + `/truth` (does not orchestrate runs in CI). Start report-only; later gate hard trust metrics. |
 | F7 | CI integration | Wire eval runner into CI, store artefacts, and publish a summary. | CI config; artifact upload | Keep it light; avoid long runtimes. |
-| F8 | Demo mode controls | Feature-flagged demo toolbar with pack selector (and optional reset decision later). | Demo-only UI; pack loader; (optional dev-only reset tooling) | Slice 1: no destructive reset via HTTP. Safety is non-negotiable; demo-only separation must be explicit. |
+| F8 | Demo mode controls | Feature-flagged demo toolbar with pack selector (and optional reset decision later). | Demo-only UI; pack loader; (optional dev-only reset tooling) | Slice 1: no destructive reset via HTTP. Pack loader is allowlisted and seeds documents only; no auto-start run by default. Safety is non-negotiable; demo-only separation must be explicit. |
 | F9 | Demo checklist | Human operator demo checklist markdown. | `docs/` markdown | Forces repeatability and reduces tribal knowledge. |
 
 ## Fit check: requirements x concept
 
 | Req | Requirement | Status | Fit | Notes |
 |---|---|---|---|---|
-| R1 | CSV export for 3 artefacts | core goal | ✅ | Direct mapping from structured export payloads to stable CSV schemas (no prose parsing). |
-| R2 | Word export (single template) | must-have | ⚠️ | Formatting and template choice are the main unknowns. |
-| R3 | Eval harness with minimal metrics | must-have | ⚠️ | Needs a tight metric set that correlates with demo readiness. |
-| R4 | Demo repeatability controls | must-have | ⚠️ | Slice 1 avoids deletion; demo mode boundaries and (optional) later reset guardrails still need proof. |
-| R5 | Export gating matches state model | core goal | ⚠️ | Slice 1: blocked on any `citation_failed` and no override. Later override decision is optional. |
+| R1 | CSV export for 3 artefacts | core goal | ✅ | Direct mapping from structured row payloads (`payload_json`) to stable CSV schemas (no prose parsing). |
+| R2 | Word export (single template) | must-have | ✅ | Template choice locked: memo. Remaining risk is docx formatting drift across viewers (RH4). |
+| R3 | Eval harness with minimal metrics | must-have | ✅ | Hard gates locked: schema validity, citation integrity, failure journeys, export truth match. Report shape locked (per-pack JSON+MD + cross-pack summary). |
+| R4 | Demo repeatability controls | must-have | ✅ | Toolbar + checklist locked. Slice 1: no deletion via HTTP. Pack loader seeds documents only; no auto-start run by default. |
+| R5 | Export gating matches state model | core goal | ✅ | Default block export when any row is `citation_failed`. Demo-only unsafe_override exists behind strict guardrails and labels artefacts UNSAFE. |
 | R6 | Artefact persistence + listing | must-have | ✅ | Aligns with data model and API surface docs. |
 
 ### Readout
 
-- Passes: 2
+- Passes: 6
 - Fails: 0
-- Undecided: 4
+- Undecided: 0
 
 ### Unsolved
 
-- R2: Which Word template (memo vs objection/cure letter) best serves the demo story?
-- R3: Which 3-5 metrics are predictive enough to catch demo regressions?
-- R4: Do we truly need demo mode UI (vs a fixture loader + checklist), and do we ever ship destructive reset endpoints?
-- R5: If we ever allow any export override, how is it scoped (demo-only) and surfaced (unsafe labelling + warnings)?
+- None on spike contracts (locked 2026-02-07).
+- Dependency: Initiative 002 must persist `payload_json` + `payload_schema_version` (exports fail closed until present).
+- Eval harness: `docs/08-example-data/pack_09_bad_citation/` added (minimal) for deterministic `citation_failed` journey enforcement.
 
 ## Rabbit holes, cuts, and no-gos
 

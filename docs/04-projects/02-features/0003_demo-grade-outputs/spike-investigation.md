@@ -117,7 +117,7 @@ Hard-gate metrics (locked):
 Report shape (locked):
 - per-pack JSON + per-pack Markdown summary + cross-pack summary table
 
-pack_03_bad_citation (locked minimum):
+pack_09_bad_citation (locked minimum):
 - pack folder contains /docs, /truth (expected failure journeys), and /produced snapshots with at least one citation_failed row.
 
 ### Demo repeatability controls and reset safety — CLOSED
@@ -154,7 +154,7 @@ Proof looks like:
   - row `status`
   - citations rendered as `filename:page` (and optionally `citation_id` for audit/debug)
 - A decision is recorded on the export **source of truth**:
-  - PASS only if the CSV can be produced from structured `export_payload` (no prose parsing), or we explicitly cut “tracker-grade CSVs” until Initiative 002 provides structure.
+  - PASS only if the CSV can be produced from structured row payloads (`payload_schema_version` + `payload_json`) (no prose parsing), or we explicitly cut “tracker-grade CSVs” until Initiative 002 provides structure.
 
 ## Timebox
 
@@ -174,7 +174,7 @@ Exclude:
 
 ## Approach
 
-- Step 0: Confirm Initiative 002 persists structured `export_payload` + `schema_version` for each artefact in a stable location (recommended: `report_rows.provenance_json.export_payload`).
+- Step 0: Confirm Initiative 002 persists structured `payload_json` + `payload_schema_version` for each artefact row (see `docs/03-architecture/50_api_surface.md`).
 - Step 1: Generate 3 sample CSVs from `pack_01_clean`.
 - Step 2: Hand to a practitioner for a quick paste/import test.
 - Step 3: Capture feedback and lock (or revise) the column schema:
@@ -203,4 +203,3 @@ Throw away:
 Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_response_0003_2.md`).
 
 ---
-

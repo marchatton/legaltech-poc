@@ -1,7 +1,7 @@
 # PRD: Fixture-Driven Eval Harness (Hard Gates + Reports)
 
 Owner: TBD
-Status: DRAFT (NO-GO until spikes close)
+Status: DRAFT (GO: spike outcomes locked; pack_09_bad_citation added)
 Date: 2026-02-07
 
 ## Summary
@@ -13,6 +13,7 @@ Create a lightweight, deterministic eval harness that:
   - schema validity
   - citation integrity
   - expected failure journeys
+  - export truth match (CSV outputs match `/truth`)
 
 Optionally wire a report-only CI job that uploads the reports as build artefacts.
 
@@ -25,12 +26,13 @@ The PoC’s trust posture depends on deterministic regression detection. Without
 - `fixture:eval` produces per-pack reports (JSON + Markdown) for:
   - `docs/08-example-data/pack_01_clean`
   - `docs/08-example-data/pack_02_missing_rea`
-  - negative case: `pack_01_clean` with a deliberately corrupted locked citation (forces `citation_failed`)
-- Hard gates align with `docs/03-architecture/60_observability_and_evals.md`:
-  - schema validity (100%)
-  - citation integrity (100%)
-  - expected failure journeys: missing docs -> `missing_input`, bad citation -> `citation_failed`
-- Runner exits non-zero when any hard gate fails (even if CI is report-only initially).
+  - `docs/08-example-data/pack_09_bad_citation`
+- Hard gates align with `docs/03-architecture/60_observability_and_evals.md` (plus export determinism for Initiative 0003):
+  1) schema validity (100%)
+  2) citation integrity (100%)
+  3) expected failure journeys (must fail in the expected way)
+  4) export truth match (CSV outputs match `/truth`)
+- Runner exits non-zero when any hard gate fails (relative to the pack’s expected outcomes).
 - Failure outputs use the canonical failure taxonomy codes.
 
 ## Non-goals
@@ -53,19 +55,27 @@ Implement the fixture-driven eval harness described in:
 Key design constraints:
 - Deterministic outputs for a given pack and produced run outputs.
 - Citation integrity uses the canonical `snippet_hash` normalization rule from `docs/03-architecture/30_data_model.md`.
+- PoC default: **snapshot-first**. For v1, `fixture:eval` reads file snapshots under each pack’s `/produced/` directory (no DB required). A DB-backed mode can be added later as an optional integration test.
 
 ## Scope
 
 In scope:
-- A deterministic negative case that deliberately corrupts one locked citation snippet/hash and produces `citation_failed` with `CITATION_MISMATCH`.
 - Implement `fixture:eval` (script/command name per repo conventions) that:
-  - reads produced outputs for a pack (at minimum: report rows + citations)
+  - reads produced outputs for a pack from `/produced` snapshots (at minimum: report rows + citations)
   - compares against `/truth`
   - emits:
     - per-pack JSON report
     - per-pack Markdown summary
     - cross-pack summary table
   - returns non-zero exit code when hard gates fail
+- Fixture pack `pack_09_bad_citation` under `docs/08-example-data/`:
+  - minimally:
+    - `/docs/` smallest PDF set required for the pack
+    - `/truth/expected_failure_journeys.json` identifying at least one `question_id` expected to be `citation_failed`
+    - `/truth/expected_*.csv` files as required by export truth match (can be minimal/empty but must exist)
+    - `/produced/report_rows.json` containing at least one row with `status="citation_failed"` and a safe failure reason code
+    - `/produced/documents.json` with filenames + page_count so citation checks can validate bounds
+    - `/produced/citations.json` if any produced rows reference citations
 - Metrics included in the report:
   - hard gates (pass/fail + counts)
   - failure taxonomy counts (aligned to `docs/03-architecture/60_observability_and_evals.md`)
@@ -87,7 +97,7 @@ From `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`:
 As a developer, I can run `fixture:eval` for a pack and get a deterministic report so I can catch regressions before demos.
 
 ### US-002 Enforce Hard Trust Gates
-As a developer, I get a clear pass/fail on schema validity, citation integrity, and failure journeys so we never ship a broken trust moment.
+As a developer, I get a clear pass/fail on schema validity, citation integrity, failure journeys, and export truth match so we never ship a broken trust moment.
 
 ### US-003 Publish Eval Reports In CI (Report-Only)
 As a developer, CI uploads eval reports so reviewers can see regressions without running the harness locally.
@@ -95,14 +105,15 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
 ## Acceptance Criteria
 
 - AC-001: `fixture:eval pack_01_clean` produces per-pack JSON + Markdown reports and a summary table.
-- AC-002: `fixture:eval pack_02_missing_rea` produces reports and confirms expected `missing_input` journeys.
-- AC-003: A corrupted-citation negative case fails the hard gate for expected failure journey and reports `citation_failed` taxonomy correctly.
-- AC-004: Citation integrity checks validate:
+- AC-002: `fixture:eval pack_02_missing_rea` produces reports and confirms expected `missing_input` journeys (answer must be exactly `Not found in provided documents.`).
+- AC-003: `fixture:eval pack_09_bad_citation` produces reports and confirms the expected `citation_failed` journey (including a safe failure reason code in provenance / report details).
+- AC-004: Citation integrity checks validate (at minimum):
   - cited page exists
   - polygons exist
   - `snippet_hash` matches canonical normalization rule
-- AC-005: Runner exits non-zero if any hard gate fails.
-- AC-006 (optional CI): CI job runs evals and uploads JSON/MD reports as build artefacts, but does not block merges beyond hard gates until explicitly enabled.
+- AC-005: Export truth match validates that generated CSV outputs match `/truth/expected_*.csv` (normalising line endings to LF), including locked header order and deterministic row ordering.
+- AC-006: Runner exits non-zero if any hard gate fails for any pack.
+- AC-007 (optional CI): CI job runs evals and uploads JSON/MD reports as build artefacts, but does not block merges beyond hard gates until explicitly enabled.
 
 ## Verification Plan
 
@@ -119,8 +130,8 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
 
 ## Open Questions
 
-- Where do the “produced outputs” live for eval reads (DB vs exported artefacts vs file snapshots)?
-- Do we need a minimal “truth seeding” path to run evals before the full pipeline exists?
+- None for slice 0006 (spike outcomes locked).
+- Remaining work: wire `fixture:eval` to read pack snapshots under `/produced` and assert failure journeys from `/truth/expected_failure_journeys.json`.
 
 ## Links
 

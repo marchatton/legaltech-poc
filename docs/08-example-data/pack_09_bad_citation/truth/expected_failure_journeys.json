@@ -1,0 +1,8 @@
+[
+  {
+    "question_id": "TS-03",
+    "expected_status": "citation_failed",
+    "expected_failure_code": "CITATION_MISMATCH"
+  }
+]
+

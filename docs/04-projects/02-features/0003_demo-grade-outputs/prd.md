@@ -1,7 +1,7 @@
 # PRD: Initiative 0003 (Spine) — Demo-Grade Outputs + Repeatability
 
 Owner: TBD
-Status: DRAFT (NO-GO until spikes close)
+Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)
 Date: 2026-02-07
 Slug: 0003-demo-grade-outputs
 
@@ -38,7 +38,7 @@ From fixture packs under `docs/08-example-data/`, a demo operator can run a demo
   - stable schemas + deterministic ordering
   - no silent exporting around `citation_failed` rows (ADR-0002)
 - Regression safety:
-  - fixture-driven hard gates for schema validity, citation integrity, and expected failure journeys
+  - fixture-driven hard gates for schema validity, citation integrity, expected failure journeys, and export truth match
 - Demo repeatability:
   - load known packs and run the demo twice with no manual cleanup and no risky deletion capability
 
@@ -54,7 +54,7 @@ As a demo operator, I want to export the 3 CSV artefacts and a single memo docx 
   - survey issues CSV
   - memo docx
 - Exports are only available when `runs.state = completed`.
-- Exports fail closed by default when any row is `citation_failed` (blocked, with clear UX). Any override behavior is explicitly scoped and not shipped in the first slice unless proven safe.
+- Exports fail closed by default when any row is `citation_failed` (blocked, with clear UX). Demo-only unsafe override exists behind strict guardrails and produces clearly labelled UNSAFE artefacts.
 
 #### Verification
 - See PRDs: 0004 and 0005.
@@ -66,11 +66,12 @@ As a developer, I want a deterministic eval harness that runs against fixture pa
 - `fixture:eval` produces per-pack JSON + Markdown reports for:
   - `docs/08-example-data/pack_01_clean`
   - `docs/08-example-data/pack_02_missing_rea`
-  - negative case: `pack_01_clean` with a deliberately corrupted locked citation (forces `citation_failed` / `CITATION_MISMATCH`)
+- `docs/08-example-data/pack_09_bad_citation`
 - Hard gates align with `docs/03-architecture/60_observability_and_evals.md`:
   - schema validity (100%)
   - citation integrity (100%)
   - expected failure journeys (missing docs -> `missing_input`, bad citation -> `citation_failed`)
+  - export truth match (CSV outputs match `/truth`)
 
 #### Verification
 - See PRD: 0006.
@@ -96,7 +97,7 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
   - `docs/03-architecture/60_observability_and_evals.md`
   - `docs/03-architecture/DECISIONS.md` (ADRs, especially ADR-0001/0002/0005/0006/0008)
 - FR-002: Exports must not parse prose from `report_rows.answer` to reconstruct structure.
-  - Exports consume a structured `export_payload` persisted by Initiative 002 (recommended: `report_rows.provenance_json.export_payload` + `schema_version`).
+  - Exports consume a structured row payload persisted by Initiative 002 via `report_rows.payload_schema_version` + `report_rows.payload_json` (see `docs/03-architecture/30_data_model.md`, `docs/03-architecture/50_api_surface.md`).
 - FR-003: No destructive reset/delete HTTP endpoints are shipped as part of the first demo repeatability slice.
 
 ## Non-Goals (Out of Scope)
@@ -117,7 +118,7 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 
 - Export attempts by `kind` + result (`success|blocked|conflict|fail`).
 - Fixture eval hard gate pass/fail per pack over time.
-- Demo pack load events (pack name, created folder_id/run_id).
+- Demo pack load events (pack name, created folder_id).
 
 ## Rollback / Disable Plan
 
@@ -126,8 +127,8 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 
 ## Risks & Dependencies
 
-- Dependency: Initiative 002 must persist structured `export_payload` + `schema_version`; otherwise exports must fail closed (or the “tracker-grade CSV” claim must be cut).
-- Spikes not executed yet: CSV header usability, Word template section list, minimal eval metrics, demo mode necessity.
+- Dependency: Initiative 002 must persist structured `payload_json` + `payload_schema_version`; otherwise exports must fail closed (or the “tracker-grade CSV” claim must be cut).
+- Spike outcomes are locked (assumption-driven where marked); practitioner/stakeholder time can still be used to falsify the assumptions.
 - Safety: any future destructive reset tooling must have provable guardrails and an ADR; do not ship casually.
 
 ## Success Metrics
@@ -138,9 +139,8 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 
 ## Open Questions
 
-- Do we ever allow `unsafe_override` exports? If yes, how are they demo-only and visibly unsafe?
-- Final CSV header lists + deterministic row ordering rules per kind.
-- Final memo template sections + citation rendering format.
+- None on spike contracts (locked 2026-02-07).
+- Remaining dependency: Initiative 002 must persist `payload_json` + `payload_schema_version` (exports fail closed until present).
 
 ## Sources
 

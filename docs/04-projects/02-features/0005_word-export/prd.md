@@ -1,7 +1,7 @@
 # PRD: Word Export (.docx) Single Memo Template
 
 Owner: TBD
-Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 export_payload persistence)
+Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)
 Date: 2026-02-07
 
 ## Summary
@@ -78,7 +78,7 @@ Viewer sanity constraints:
 Implement the canonical docx export contract from `docs/03-architecture/50_api_surface.md`:
 - `POST /export/docx` with `{ folder_id, run_id, kind: "memo", unsafe_override }`
 
-Renderer consumes structured export payloads (no prose parsing) plus locked citations and produces a single `.docx` byte stream, stored as an artefact in object storage with metadata in Postgres.
+Renderer consumes structured row payloads (`payload_schema_version` + `payload_json`) (no prose parsing) plus locked citations and produces a single `.docx` byte stream, stored as an artefact in object storage with metadata in Postgres.
 
 ## Scope
 
@@ -154,7 +154,7 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 ## Open Questions
 
 - None for slice 0005 (spike outcomes locked).
-- Dependency remains: Initiative 002 must persist structured `export_payload` + `schema_version` (no prose parsing).
+- Dependency remains: Initiative 002 must persist structured `payload_json` + `payload_schema_version` (no prose parsing).
 
 ## Links
 

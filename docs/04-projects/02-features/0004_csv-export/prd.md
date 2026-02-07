@@ -1,7 +1,7 @@
 # PRD: CSV Exports + Artefacts List (Requirements / Exceptions / Survey Issues)
 
 Owner: TBD
-Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 export_payload persistence)
+Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)
 Date: 2026-02-07
 
 ## Summary
@@ -96,7 +96,7 @@ survey_issues.csv headers (v1):
 - Eval harness + CI integration (handled in 0006).
 - Demo reset/delete UI (handled in 0007; slice 1 has no deletion via HTTP).
 - Excel formatting beyond CSV.
-- Any prose-parsing fallback if `export_payload` is missing (exports must fail closed).
+- Any prose-parsing fallback if `payload_json` is missing (exports must fail closed).
 
 ## Users
 
@@ -109,7 +109,7 @@ Add/implement the canonical export + artefact listing contract:
 - `POST /export/csv` with `kind=requirements_tracker|exceptions_table|survey_issues`
 - `GET /folders/:id/artefacts` to list/download previously exported artefacts
 
-Exports must not parse prose. CSV mapping consumes structured `export_payload` persisted by Initiative 002 (recommended: `report_rows.provenance_json.export_payload` with a `schema_version`).
+Exports must not parse prose. CSV mapping consumes structured row payloads persisted by Initiative 002 via `report_rows.payload_schema_version` + `report_rows.payload_json` (see `docs/03-architecture/30_data_model.md`, `docs/03-architecture/50_api_surface.md`).
 
 ## Scope
 
@@ -164,7 +164,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - FR-005: If `unsafe_override = true`:
   - when demo mode is not enabled (or `ALLOW_UNSAFE_EXPORTS` is not enabled), return `403` with `error.code = "UNAUTHORISED"`.
   - when allowed, export must label the artefact as unsafe (filename + metadata_json.unsafe_override=true).
-- FR-006: CSV mapper consumes structured `export_payload` (no prose parsing). If `export_payload` is missing, export fails closed with `409 CONFLICT` and a safe message pointing to the Initiative 002 dependency.
+- FR-006: CSV mapper consumes structured row payload (`payload_json` + `payload_schema_version`) (no prose parsing). If payload is missing, export fails closed with `409 CONFLICT` and a safe message pointing to the Initiative 002 dependency.
 - FR-007: CSV headers + ordering are locked (v1 schemas) and drift is prevented by snapshot tests against fixture packs.
 - FR-008: Deterministic row ordering is enforced in code (no DB ordering assumptions).
 - FR-009: Artefact metadata includes `kind`, `schema_version`, `filename`, `source_run_id`, `created_at`, and `unsafe_override` (when applicable).
@@ -183,7 +183,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - AC-005: From `docs/08-example-data/pack_02_missing_rea`, exports succeed (unless blocked by `citation_failed`) and include `missing_input` rows with the canonical answer preserved.
 - AC-006: Artefact is persisted and appears in `GET /folders/:id/artefacts` with a working (fresh) `download_url`.
 - AC-007: No signed URLs are persisted; only `storage_key` + metadata are stored.
-- AC-008: Export does not parse `report_rows.answer` prose; it uses structured `export_payload` and fails closed if missing.
+- AC-008: Export does not parse `report_rows.answer` prose; it uses structured row payload (`payload_json`) and fails closed if missing.
 - AC-009: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled, operator can export with `unsafe_override=true` and the resulting CSV filename is labelled `*.UNSAFE.csv`.
 
 ## Verification Plan
@@ -215,7 +215,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
     - Confirmation body: `This will export even though some rows failed citation verification. The file will be labelled UNSAFE and may contain unverified content. Do not share this outside internal demos.`
     - Confirm button: `I understand, export UNSAFE`
     - Cancel button: `Cancel`
-- Missing `export_payload`: show a hard error explaining the dependency on Initiative 002 (fail closed; no prose parsing fallback in this slice).
+- Missing `payload_json`: show a hard error explaining the dependency on Initiative 002 (fail closed; no prose parsing fallback in this slice).
 - Storage errors: safe user-facing error; log with `EXPORT_FAIL`.
 
 ## Metrics / Logging
@@ -229,14 +229,14 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 
 ## Risks + Dependencies
 
-- Requires structured `export_payload` persisted by Initiative 002 (see `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`).
+- Requires structured row payload (`payload_json` + `payload_schema_version`) persisted by Initiative 002 (see `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`).
 - CSV usability is spike-dependent (header list/order).
 - Artefacts list must generate fresh signed URLs (expiry handling).
 
 ## Open Questions
 
 - None for slice 0004 (spike outcomes locked).
-- Dependency remains: Initiative 002 must persist structured `export_payload` + `schema_version` for all three artefacts.
+- Dependency remains: Initiative 002 must persist structured `payload_json` + `payload_schema_version` for all three artefacts.
 
 ## Links (sources)
 

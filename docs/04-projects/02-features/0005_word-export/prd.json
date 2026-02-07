@@ -11,7 +11,7 @@
         "From docs/08-example-data/pack_01_clean, operator can export memo.docx and download it successfully.",
         "POST /export/docx supports kind=memo and validates the request; errors use the standard error envelope.",
         "Export is deterministic in section ordering and basic formatting rules (no random ordering).",
-        "Export consumes structured export_payload (no prose parsing) and fails closed if export_payload is missing."
+        "Export consumes structured row payload (payload_json + payload_schema_version) (no prose parsing) and fails closed if payload is missing."
       ],
       "priority": 1
     },
@@ -39,4 +39,3 @@
     }
   ]
 }
-

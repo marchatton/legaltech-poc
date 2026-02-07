@@ -1,7 +1,7 @@
 # PRD: Demo Reliability Pack (Dev-Only) Pack Loader + Checklist
 
 Owner: TBD
-Status: DRAFT (NO-GO until spikes close)
+Status: DRAFT (GO: spike outcomes locked)
 Date: 2026-02-07
 
 ## Summary
@@ -22,7 +22,7 @@ Running the same demo twice is currently brittle and depends on manual “operat
 - Operator can load:
   - `pack_01_clean` (happy path)
   - `pack_02_missing_rea` (missing-doc journey)
-- Each load creates a fresh folder (“matter”) and (optionally) starts a Quick Start run.
+- Each load creates a fresh folder (“matter”) seeded with documents only (operator clicks “Run Quick Start” to start a run).
 - Operator can run the demo twice in a row without manual cleanup and without deleting data via HTTP.
 - Demo checklist exists as Markdown and matches the actual UI flow.
 
@@ -39,11 +39,12 @@ Running the same demo twice is currently brittle and depends on manual “operat
 ## Solution
 
 Add a dev-only demo surface that is isolated and explicit:
-- A demo flag controls visibility and availability.
-- Pack loading reads fixture packs from the repo (`docs/08-example-data/`) and seeds the system deterministically.
-- The UI then navigates the operator to the created matter/run.
 
-Implementation can be a server action or dev-only endpoint, but it must not be reachable when demo mode is off.
+- Demo toolbar (dev-only) is controlled by a demo flag (PoC default: env var `DEMO_MODE=1`).
+- Pack loading reads fixture packs from `docs/08-example-data/` and seeds the system deterministically.
+- Pack loader is allowlisted to known pack IDs only.
+- Slice 1 reset semantics: no deletion via HTTP. Running the demo twice means loading the pack again, which creates a fresh matter each time.
+- Pack loader seeds documents only by default and does not auto-start runs (operator clicks “Run Quick Start”).
 
 ## Scope
 
@@ -52,11 +53,12 @@ In scope:
   - when off: demo toolbar does not render and any pack-load action is rejected
 - Demo toolbar UI:
   - pack selector for `pack_01_clean` and `pack_02_missing_rea`
-  - (optional) “start run” button if auto-run is too slow/fragile
 - Pack loader behaviour:
   - reads from `docs/08-example-data/<pack>/`
+  - pack_id must be allowlisted (no free-form filesystem paths; reject path traversal)
   - creates a new folder + documents for the selected pack
-  - returns `folder_id` (and optionally `run_id` if auto-run starts)
+  - creates a new folder name with a demo prefix (recommended): `DEMO: <pack_id> <timestamp>`
+  - returns `folder_id`
   - deterministic: same pack produces the same seeded state shape
 - Demo checklist markdown:
   - stored in this dossier as `demo-checklist.md`
@@ -105,8 +107,7 @@ As a demo operator, I have a short checklist that makes the demo repeatable and 
 
 ## Open Questions
 
-- Should pack load auto-start a run, or should it only seed documents and let the operator click “Run Quick Start”?
-- What is the minimal demo flag mechanism we standardise on (env var vs feature flag store)?
+- None for slice 0007 (spike outcomes locked).
 
 ## Links
 
@@ -115,4 +116,3 @@ As a demo operator, I have a short checklist that makes the demo repeatable and 
 - `docs/03-architecture/00_overview.md`
 - `docs/03-architecture/10_system_architecture.md`
 - `docs/03-architecture/DECISIONS.md` (ADR-0007)
-

@@ -11,7 +11,7 @@
         "From docs/08-example-data/pack_01_clean, operator can export requirements_tracker CSV, exceptions_table CSV, survey_issues CSV, and memo docx and download them successfully via the artefacts list.",
         "Exports are only allowed when runs.state=completed; otherwise export is disabled and the API returns 409 with error.code=CONFLICT if called anyway.",
         "If any row is citation_failed, export is blocked by default with error.code=EXPORT_BLOCKED and clear UX; no silent partial export is allowed in the first slice.",
-        "Exports must not parse report_rows.answer prose; they consume structured export_payload (+ schema_version) persisted by Initiative 002 and fail closed if missing."
+        "Exports must not parse report_rows.answer prose; they consume structured row payload (payload_json + payload_schema_version) persisted by Initiative 002 and fail closed if missing."
       ],
       "priority": 1
     },

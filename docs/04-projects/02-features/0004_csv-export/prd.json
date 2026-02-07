@@ -11,7 +11,7 @@
         "From docs/08-example-data/pack_01_clean, operator can export all 3 CSV kinds (requirements_tracker, exceptions_table, survey_issues) and download them successfully.",
         "POST /export/csv supports kind=requirements_tracker|exceptions_table|survey_issues and validates the request; errors use the standard error envelope.",
         "Exports are deterministic: locked headers/order and deterministic row ordering; snapshot-tested against fixture packs.",
-        "Export consumes structured export_payload (no prose parsing) and fails closed if export_payload is missing."
+        "Export consumes structured row payload (payload_json + payload_schema_version) (no prose parsing) and fails closed if payload is missing."
       ],
       "priority": 1
     },

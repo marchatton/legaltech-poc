@@ -1,0 +1,24 @@
+{
+  "pack_id": "pack_09_bad_citation",
+  "schema_version": "fixture_pack_v1",
+  "default_run_type": "quick_start_title_survey",
+  "expected_question_set_version": "qs:quick_start_title_survey:v1",
+  "documents": [
+    {
+      "filename": "TitleCommitment.pdf",
+      "role": "title_commitment",
+      "layout_file": "layout/TitleCommitment.layout.json",
+      "anchors_file": "layout/TitleCommitment.anchors.json"
+    }
+  ],
+  "layout": {
+    "polygon_space": "page_viewbox_norm_v1"
+  },
+  "truth": {
+    "requirements_tracker_csv": "truth/expected_requirements_tracker.csv",
+    "exceptions_table_csv": "truth/expected_exceptions_table.csv",
+    "survey_issues_csv": "truth/expected_survey_issues.csv",
+    "golden_questions_json": "truth/golden_questions.json",
+    "expected_failure_journeys_json": "truth/expected_failure_journeys.json"
+  }
+}

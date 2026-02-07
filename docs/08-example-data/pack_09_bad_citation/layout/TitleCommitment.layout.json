@@ -1,0 +1,358 @@
+{
+  "title": "Title Commitment - 18 West 18th Street, New York, NY 10011",
+  "pages": [
+    {
+      "page": 1,
+      "lines": [
+        {
+          "text": "COMMITMENT FOR TITLE INSURANCE",
+          "bbox": [
+            0.08823529411764706,
+            0.06666666666666665,
+            0.5733333333333334,
+            0.09090909090909094
+          ],
+          "anchor": "COMMITMENT_HEADER"
+        },
+        {
+          "text": "Commitment Date: January 12, 2026",
+          "bbox": [
+            0.08823529411764706,
+            0.10303030303030303,
+            0.35522875816993466,
+            0.11818181818181817
+          ],
+          "anchor": "COMMITMENT_DATE"
+        },
+        {
+          "text": "Order No.: OW-an-5568",
+          "bbox": [
+            0.5,
+            0.10303030303030303,
+            0.6743464052287581,
+            0.11818181818181817
+          ],
+          "anchor": "ORDER_NO"
+        },
+        {
+          "text": "Company: ABC Title Insurance Company (SYNTHETIC)",
+          "bbox": [
+            0.08823529411764706,
+            0.12121212121212122,
+            0.495016339869281,
+            0.13636363636363635
+          ],
+          "anchor": "COMPANY_LINE"
+        },
+        {
+          "text": "Property: 18 West 18th Street, New York, NY 10011",
+          "bbox": [
+            0.08823529411764706,
+            0.1393939393939394,
+            0.4651307189542483,
+            0.15454545454545454
+          ],
+          "anchor": "PROPERTY_LINE"
+        },
+        {
+          "text": "County/State: New York County, NY",
+          "bbox": [
+            0.08823529411764706,
+            0.15303030303030296,
+            0.35068627450980394,
+            0.1681818181818181
+          ],
+          "anchor": "COUNTY_STATE"
+        },
+        {
+          "text": "This is a synthetic demo document for testing an AI diligence workflow. Not real.",
+          "bbox": [
+            0.08823529411764706,
+            0.1863636363636364,
+            0.6088676470588236,
+            0.19999999999999996
+          ],
+          "anchor": "SYNTHETIC_NOTE"
+        },
+        {
+          "text": "SCHEDULE A",
+          "bbox": [
+            0.08823529411764706,
+            0.2272727272727273,
+            0.21568627450980393,
+            0.24545454545454548
+          ],
+          "anchor": "SCHEDULE_A_HEADER"
+        },
+        {
+          "text": "1. Proposed Insured: 18W18 Acquisition LLC",
+          "bbox": [
+            0.08823529411764706,
+            0.25303030303030305,
+            0.41428104575163405,
+            0.2681818181818182
+          ],
+          "anchor": "SCHED_A_PROPOSED_INSURED"
+        },
+        {
+          "text": "2. Policy Amount: $75,000,000",
+          "bbox": [
+            0.08823529411764706,
+            0.2712121212121211,
+            0.31076797385620913,
+            0.28636363636363626
+          ],
+          "anchor": "SCHED_A_POLICY_AMOUNT"
+        },
+        {
+          "text": "3. Insured Estate: Fee Simple",
+          "bbox": [
+            0.08823529411764706,
+            0.2893939393939393,
+            0.30348039215686273,
+            0.30454545454545445
+          ],
+          "anchor": "SCHED_A_INSURED_ESTATE"
+        },
+        {
+          "text": "4. Vested Owner: 18W18 Owner LLC",
+          "bbox": [
+            0.08823529411764706,
+            0.3075757575757575,
+            0.35795751633986933,
+            0.32272727272727264
+          ],
+          "anchor": "SCHED_A_VESTED_OWNER"
+        },
+        {
+          "text": "5. Land: 18 West 18th Street, New York, NY 10011 (see Exhibit A)",
+          "bbox": [
+            0.08823529411764706,
+            0.3257575757575756,
+            0.5686764705882353,
+            0.3409090909090907
+          ],
+          "anchor": "SCHED_A_LAND_DESC"
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "lines": [
+        {
+          "text": "SCHEDULE B - PART I (REQUIREMENTS)",
+          "bbox": [
+            0.08823529411764706,
+            0.07272727272727275,
+            0.4738627450980393,
+            0.09090909090909094
+          ],
+          "anchor": "SCHEDULE_BI_HEADER"
+        },
+        {
+          "text": "1. Payment of the full consideration to the Company for the policy(ies) to be issued and all applicable premiums and charges.",
+          "bbox": [
+            0.08823529411764706,
+            0.09848484848484851,
+            0.9909640522875818,
+            0.11363636363636365
+          ],
+          "anchor": "BI_REQ_01"
+        },
+        {
+          "text": "2. Satisfactory evidence that all real property taxes and assessments due and payable as of July 15, 2027 have been paid.",
+          "bbox": [
+            0.08823529411764706,
+            0.11848484848484853,
+            0.9737908496732026,
+            0.13363636363636366
+          ],
+          "anchor": "BI_REQ_02"
+        },
+        {
+          "text": "3. Execution and delivery of a Warranty Deed from the vested owner to the Proposed Insured in recordable form.",
+          "bbox": [
+            0.08823529411764706,
+            0.13848484848484854,
+            0.902875816993464,
+            0.15363636363636368
+          ],
+          "anchor": "BI_REQ_03"
+        },
+        {
+          "text": "4. Payoff and release of Deed of Trust recorded as Instrument No. 2019-345678 (or such other evidence as the Company may require).",
+          "bbox": [
+            0.08823529411764706,
+            0.15848484848484856,
+            1.0,
+            0.1736363636363638
+          ],
+          "anchor": "BI_REQ_04"
+        },
+        {
+          "text": "5. Affidavit and Indemnity Agreement (gap affidavit) in form acceptable to the Company.",
+          "bbox": [
+            0.08823529411764706,
+            0.1784848484848487,
+            0.722156862745098,
+            0.19363636363636383
+          ],
+          "anchor": "BI_REQ_05"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "lines": [
+        {
+          "text": "SCHEDULE B - PART II (EXCEPTIONS)",
+          "bbox": [
+            0.08823529411764706,
+            0.07272727272727275,
+            0.44774509803921564,
+            0.09090909090909094
+          ],
+          "anchor": "SCHEDULE_BII_HEADER"
+        },
+        {
+          "text": "12. Utility Easement. Instrument No. 2018-195028. Recorded January 01, 2018.",
+          "bbox": [
+            0.08823529411764706,
+            0.09848484848484851,
+            0.6658660130718954,
+            0.11363636363636365
+          ],
+          "anchor": "BII_EX_12"
+        },
+        {
+          "text": "13. Ingress/Egress Easement. Instrument No. 2019-202947. Recorded April 08, 2019.",
+          "bbox": [
+            0.08823529411764706,
+            0.11848484848484853,
+            0.7094607843137255,
+            0.13363636363636366
+          ],
+          "anchor": "BII_EX_13"
+        },
+        {
+          "text": "14. Declaration of CC&Rs. Instrument No. 2020-210866. Recorded July 15, 2020.",
+          "bbox": [
+            0.08823529411764706,
+            0.13848484848484854,
+            0.678562091503268,
+            0.15363636363636368
+          ],
+          "anchor": "BII_EX_14"
+        },
+        {
+          "text": "15. Reciprocal Easement Agreement (REA). Instrument No. 2021-218785. Recorded October 22, 2021.",
+          "bbox": [
+            0.08823529411764706,
+            0.15848484848484856,
+            0.8365849673202614,
+            0.1736363636363638
+          ],
+          "anchor": "BII_EX_15"
+        },
+        {
+          "text": "16. Memorandum of Lease. Instrument No. 2022-226704. Recorded January 01, 2022.",
+          "bbox": [
+            0.08823529411764706,
+            0.1784848484848487,
+            0.7158333333333333,
+            0.19363636363636383
+          ],
+          "anchor": "BII_EX_16"
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "lines": [
+        {
+          "text": "EXHIBIT A - LEGAL DESCRIPTION",
+          "bbox": [
+            0.08823529411764706,
+            0.07272727272727275,
+            0.4085294117647059,
+            0.09090909090909094
+          ],
+          "anchor": "EXHIBIT_A_HEADER"
+        },
+        {
+          "text": "LEGAL DESCRIPTION:",
+          "bbox": [
+            0.08823529411764706,
+            0.10454545454545461,
+            0.24432352941176472,
+            0.11818181818181817
+          ],
+          "anchor": "EXHIBIT_A_LINE_01"
+        },
+        {
+          "text": "BEGINNING at a point on the southerly line of the adjoining right-of-way;",
+          "bbox": [
+            0.08823529411764706,
+            0.12090909090909108,
+            0.5598529411764706,
+            0.13454545454545463
+          ]
+        },
+        {
+          "text": "thence N 89\u00b045'12\" E, a distance of 158.00 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.13727272727272744,
+            0.40136764705882355,
+            0.150909090909091
+          ]
+        },
+        {
+          "text": "thence S 0\u00b014'48\" E, a distance of 98.50 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.1536363636363639,
+            0.3842058823529412,
+            0.16727272727272746
+          ]
+        },
+        {
+          "text": "thence S 89\u00b045'12\" W, a distance of 158.00 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.17000000000000026,
+            0.40463235294117644,
+            0.18363636363636382
+          ]
+        },
+        {
+          "text": "thence N 0\u00b014'48\" W, a distance of 98.50 feet;",
+          "bbox": [
+            0.08823529411764706,
+            0.18636363636363673,
+            0.3890882352941177,
+            0.2000000000000003
+          ]
+        },
+        {
+          "text": "to the POINT OF BEGINNING.",
+          "bbox": [
+            0.08823529411764706,
+            0.2027272727272731,
+            0.2892794117647059,
+            0.21636363636363665
+          ]
+        },
+        {
+          "text": "Together with any and all appurtenant rights, if any.",
+          "bbox": [
+            0.08823529411764706,
+            0.21909090909090945,
+            0.42255882352941176,
+            0.23272727272727312
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "pack_id": "pack_09_bad_citation",
+    "run_id": "run_fixture",
+    "index_version": "v1",
+    "agent_bundle_version": "git:unknown",
+    "question_set_version": "qs:quick_start_title_survey:v1",
+    "generated_at": "2026-02-07T00:00:00Z"
+  },
+  "rows": [
+    {
+      "question_id": "TS-03",
+      "question": "List Schedule B-I requirements.",
+      "answer": "Citation verification failed.",
+      "status": "citation_failed",
+      "citation_ids": [],
+      "notes": null,
+      "payload_schema_version": null,
+      "payload_json": null,
+      "provenance_json": {
+        "reason_code": "CITATION_MISMATCH"
+      }
+    }
+  ],
+  "citations": {}
+}

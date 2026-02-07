@@ -77,7 +77,8 @@ Out of scope (explicit cuts):
 - This initiative assumes Initiatives 001 and 002 exist in some form:
   - report rows with `status` and locked citations
   - fixture packs + `/truth` exist (or will be created as part of eval harness work)
-- **Load-bearing dependency for exports:** Initiative 002 must persist **structured export payloads** for the 3 artefacts (validated by Zod) in a stable location (recommended: `report_rows.provenance_json.export_payload` with a `schema_version`) so Initiative 003 exports are deterministic and do not parse prose.
+- **Load-bearing dependency for exports:** Initiative 002 must persist a versioned, structured row payload for the 3 list-shaped artefact rows via `report_rows.payload_schema_version` + `report_rows.payload_json` (see `docs/03-architecture/30_data_model.md`, `docs/03-architecture/50_api_surface.md`). Initiative 003 exports must map from this payload and must not parse `report_rows.answer` prose.
+  - Terminology note: the oracle bundle used `export_payload` as a generic term for “structured row payload used for exports”. In this repo, that concept is already named/located as `payload_json` + `payload_schema_version`, so `export_payload` is treated as terminology drift rather than a contract to implement.
 
 ## Success (done means)
 - From a fixture pack, a demo operator can:
@@ -85,33 +86,29 @@ Out of scope (explicit cuts):
   - see exported artefacts listed for the matter and download them
 - `fixture:eval` (or equivalent) produces:
   - JSON report + Markdown summary per pack
-  - at minimum: schema validity + citation integrity + expected failure journeys
+  - at minimum: schema validity + citation integrity + expected failure journeys + export truth match
 - The demo can be run twice in a row without manual cleanup and without risk to non-demo data.
 
 ## Top risks / unknowns (with treatment)
 | Risk / unknown | Why it matters | Treatment |
 |---|---|---|
-| CSV column schema usability | First practitioner reaction can kill the export story | Spike (practitioner paste test) |
-| Word template choice (memo vs objection/cure letter) | Storytelling impact for demo audience | Spike (15-minute stakeholder choice) |
-| Export behaviour when any row is `citation_failed` | Trust posture vs demo usefulness; needs a crisp default | Patch (follow state model default) + Spike (decide if demo-only override exists) |
+| CSV column schema usability | First practitioner reaction can kill the export story | CLOSED (ASSUMPTION): lock CSV schemas v1 (headers + ordering) + deterministic row ordering + citations format. Falsifier: practitioner paste/import test cannot be done in <5 minutes or requests column/order changes. |
+| Word template choice (memo vs objection/cure letter) | Storytelling impact for demo audience | CLOSED (ASSUMPTION): ship single Word artefact = memo with fixed section list + deterministic ordering + inline citation rendering. Falsifier: stakeholder insists on letter format and provides must-have requirements. |
+| Export behaviour when any row is `citation_failed` | Trust posture vs demo usefulness; needs a crisp default | CLOSED: default block export when any row is `citation_failed`. Demo-only unsafe_override exists behind `DEMO_MODE` + `ALLOW_UNSAFE_EXPORTS` and produces clearly labelled UNSAFE artefacts. |
 | Docx formatting fragility | “Looks broken” erodes trust fast | Patch (keep template simple, constrain layout) |
-| Minimal metrics that actually predict demo readiness | Avoid false confidence without building a full eval platform | Spike (3–5 metrics only) |
-| Demo reset semantics (no-delete vs destructive tooling) | Accidental deletion is unacceptable | Spike (decide no-delete vs dev-only reset with provable guardrails) |
-| Missing structured export payloads (forced prose parsing) | Export work becomes brittle and contaminates workflow logic | Patch dependency into Initiative 002; fail closed until payload exists |
+| Minimal metrics that actually predict demo readiness | Avoid false confidence without building a full eval platform | CLOSED: hard gates = schema validity, citation integrity, failure journeys, export truth match. |
+| Demo reset semantics (no-delete vs destructive tooling) | Accidental deletion is unacceptable | CLOSED: toolbar + checklist. No deletion via HTTP. Reset = load pack again to create a fresh matter. Pack loader seeds documents only and does not auto-start runs by default. |
+| Missing structured row payloads (forced prose parsing) | Export work becomes brittle and contaminates workflow logic | Patch dependency into Initiative 002; fail closed until payload exists |
 
 ## Open questions
-- Export gating UX: if export is blocked (`EXPORT_BLOCKED`), what is the operator path (fix vs override)?
-- Export override: do we allow *any* demo-only unsafe override?
-  - Slice 1 default: **no override**. If override exists later, it must be demo-only and must label the artefact as unsafe.
-- Fixture packs: **in-repo filesystem** for PoC + CI determinism (use `docs/08-example-data/`). Object storage only if needed later.
-- Reset semantics: do we ever ship HTTP deletion in the PoC?
-  - Slice 1 default: **no deletion via HTTP** (reset = create a fresh demo matter from fixtures).
-- What’s the target appetite/timebox for each slice (CSV vs Word vs eval vs demo mode)?
+- None on spike contracts (locked 2026-02-07).
+- Remaining dependency: Initiative 002 must persist structured `payload_json` + `payload_schema_version` (exports fail closed until present).
+- `docs/08-example-data/pack_09_bad_citation/` added (minimal) for deterministic `citation_failed` failure journeys in eval harness.
 
 ## PRD slicing plan (after spikes)
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: PRDs come after brief + breadboard + risk register + spikes.
 
-PRD dossiers (drafted as DRAFT/NO-GO until spikes close; names from `docs/00-strategy/initiatives/001-003_handoff.md`):
+PRD dossiers (drafted as DRAFT; spike outcomes locked 2026-02-07; remaining dependency is Initiative 002 structured row payload persistence: `payload_json` + `payload_schema_version`):
 - `0004_csv-export` (`docs/04-projects/02-features/0004_csv-export/`)
 - `0005_word-export` (`docs/04-projects/02-features/0005_word-export/`)
 - `0006_eval-harness` (`docs/04-projects/02-features/0006_eval-harness/`)
