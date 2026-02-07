@@ -9,6 +9,7 @@ These scripts are intentionally dependency-light and should run locally.
 Run with Node's TypeScript stripping:
 
 ```bash
+node --experimental-strip-types scripts/fixtures/seed.ts pack_01_clean
 node --experimental-strip-types scripts/fixtures/verify_pack_names.ts
 node --experimental-strip-types scripts/fixtures/assert_row_invariants.ts --snapshot <snapshot.json>
 node --experimental-strip-types scripts/fixtures/compare_truth.ts --snapshot <snapshot.json>
@@ -50,6 +51,7 @@ These tools assume a snapshot JSON file shaped like:
       "document_filename": "TitleCommitment.pdf",
       "page_number": 2,
       "polygons": [[[0.1, 0.2], [0.2, 0.2], [0.2, 0.3], [0.1, 0.3]]],
+      "snippet": "…",
       "snippet_hash": "sha256:..."
     }
   }

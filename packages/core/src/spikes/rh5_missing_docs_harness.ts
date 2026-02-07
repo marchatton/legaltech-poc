@@ -48,7 +48,7 @@ function loadJson<T>(p: string): T {
 function pickTitleCommitment(manifest: z.infer<typeof ManifestSchema>) {
   const doc =
     manifest.documents.find((d) => d.role === "title_commitment") ??
-    manifest.documents.find((d) => /TitleCommitment\\.pdf$/i.test(d.filename));
+    manifest.documents.find((d) => /TitleCommitment\.pdf$/i.test(d.filename));
   if (!doc) throw new Error(`Could not find TitleCommitment.pdf in manifest for ${manifest.pack_id}`);
   return doc;
 }
@@ -77,7 +77,7 @@ async function main() {
     const pageNumber = getScheduleBiiPageFromAnchors(packRoot, title.anchors_file);
     const text = await extractPageText(titlePdfPath, pageNumber);
 
-    const providedFilenames = manifest.documents.map((d) => d.filename).filter((f) => /\\.pdf$/i.test(f));
+    const providedFilenames = manifest.documents.map((d) => d.filename).filter((f) => /\.pdf$/i.test(f));
 
     perPack.push(
       detectMissingDocs({

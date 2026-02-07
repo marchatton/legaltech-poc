@@ -8,6 +8,7 @@
 dist/
 **/dist/
 coverage/
+*.tsbuildinfo
 
 # Env files (never commit secrets)
 .env
@@ -23,6 +24,7 @@ docs/04-projects/**/throwaway/
 **.parallel/
 **.probe/
 /.agents/skills/00-product-sense/
+tmp/fixture-seed/
 
 # macOS
 .DS_Store

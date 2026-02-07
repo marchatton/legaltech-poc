@@ -26,6 +26,7 @@ export type SnapshotCitation = {
   document_filename: string;
   page_number: number;
   polygons: NormPolygons;
+  snippet: string;
   snippet_hash: string;
 };
 

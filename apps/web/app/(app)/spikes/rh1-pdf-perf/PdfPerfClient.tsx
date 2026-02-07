@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { PdfPerfRun } from "@orbital-poc/core";
@@ -65,7 +67,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
 
   const pdfUrl = useMemo(() => {
     const params = new URLSearchParams({ pack: doc.pack, filename: doc.filename });
-    return `/__spikes/local-pdf?${params.toString()}`;
+    return `/spikes/local-pdf?${params.toString()}`;
   }, [doc]);
 
   // Long-task / stall monitor
@@ -402,7 +404,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     const href = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = href;
-    a.download = `rh1_${doc.filename.replace(/\\.pdf$/i, "")}_${zoomPercent}_${lastRun.test.type}.json`;
+    a.download = `rh1_${doc.filename.replace(/\.pdf$/i, "")}_${zoomPercent}_${lastRun.test.type}.json`;
     a.click();
     URL.revokeObjectURL(href);
   }

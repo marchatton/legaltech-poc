@@ -15,16 +15,19 @@ function pdfFilenameFor(pack: string, docKey: "TitleCommitment" | "ALTA_Survey")
   return `${docKey}.pdf`;
 }
 
-export default function Rh2OverlayPage(props: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function Rh2OverlayPage(props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   assertDevOnly();
 
-  const parsed = SearchSchema.safeParse(props.searchParams);
+  const searchParams = (await props.searchParams) ?? {};
+  const parsed = SearchSchema.safeParse(searchParams);
   const pack = parsed.success ? parsed.data.pack ?? "pack_01_clean" : "pack_01_clean";
   const docKey = parsed.success ? parsed.data.doc ?? "TitleCommitment" : "TitleCommitment";
 
   const { anchorIds, anchors } = loadAnchorsFromFixture({ pack, docKey });
   const pdfFilename = pdfFilenameFor(pack, docKey);
-  const pdfUrl = `/__spikes/local-pdf?${new URLSearchParams({ pack, filename: pdfFilename }).toString()}`;
+  const pdfUrl = `/spikes/local-pdf?${new URLSearchParams({ pack, filename: pdfFilename }).toString()}`;
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -46,4 +49,3 @@ export default function Rh2OverlayPage(props: { searchParams: Record<string, str
     </main>
   );
 }
-

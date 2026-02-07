@@ -11,8 +11,7 @@ export const VerifyCitationSchema = z.object({
         .array(z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)]).readonly())
         .min(3),
     )
-    .min(1)
-    .optional(),
+    .min(1),
 });
 
 export type VerifyCitation = z.infer<typeof VerifyCitationSchema>;

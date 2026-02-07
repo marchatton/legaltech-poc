@@ -4,11 +4,11 @@ export const LocalPdfQuerySchema = z.object({
   pack: z
     .string()
     .min(1)
-    .regex(/^pack_\\d{2}_[a-z0-9_]+$/i, "Invalid pack id"),
+    .regex(/^pack_\d{2}_[a-z0-9_]+$/i, "Invalid pack id"),
   filename: z
     .string()
     .min(1)
-    .regex(/^[A-Za-z0-9_.-]+\\.pdf$/i, "Invalid filename"),
+    .regex(/^[A-Za-z0-9_.-]+\.pdf$/i, "Invalid filename"),
 });
 
 export type LocalPdfQuery = z.infer<typeof LocalPdfQuerySchema>;
@@ -77,4 +77,3 @@ export const PdfPerfRunSchema = z.object({
 });
 
 export type PdfPerfRun = z.infer<typeof PdfPerfRunSchema>;
-

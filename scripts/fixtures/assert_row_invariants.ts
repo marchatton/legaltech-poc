@@ -69,16 +69,13 @@ async function main() {
 
   const allowedStatuses = new Set(["needs_review", "reviewed", "missing_input", "citation_failed"]);
   const strictReasonCodes = new Set([
-    // Baseline taxonomy (docs/03-architecture/60_observability_and_evals.md)
-    "OCR_FAIL",
-    "LAYOUT_FAIL",
-    "CHUNKING_FAIL",
-    "RETRIEVAL_MISS",
-    "RERANK_BAD",
+    // Row-level taxonomy (docs/03-architecture/60_observability_and_evals.md)
+    "VALIDATION_ERROR",
+    "NO_CITATIONS",
+    "MISSING_INPUT_INVARIANT",
     "CITATION_MISMATCH",
-    "ENTAILMENT_FAIL",
-    "VERIFICATION_FALSE_PASS",
-    "EXPORT_FAIL",
+    "NO_ANCHORS_FILE",
+    "ANCHOR_NOT_FOUND",
   ]);
   const enforceStrictReasonCodes = Boolean(args["strict-reason-codes"]);
 

@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -54,7 +56,6 @@ export function Rh2OverlayClient(props: Props) {
 
   const [pdfjs, setPdfjs] = useState<PdfJsModule | null>(null);
   const [pdf, setPdf] = useState<any>(null);
-  const [pdfPageCount, setPdfPageCount] = useState<number | null>(null);
 
   const [hud, setHud] = useState<{
     page: number | null;
@@ -103,7 +104,7 @@ export function Rh2OverlayClient(props: Props) {
   useEffect(() => {
     if (pack === props.pack && docKey === props.docKey) return;
     const params = new URLSearchParams({ pack, doc: docKey });
-    router.push(`/__spikes/rh2-overlay?${params.toString()}`);
+    router.push(`/spikes/rh2-overlay?${params.toString()}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack, docKey]);
 
@@ -113,7 +114,6 @@ export function Rh2OverlayClient(props: Props) {
 
     async function run() {
       setPdf(null);
-      setPdfPageCount(null);
       setHud((h) => ({ ...h, errorCode: null }));
 
       const mod: any = await import("pdfjs-dist/build/pdf.mjs");
@@ -132,7 +132,6 @@ export function Rh2OverlayClient(props: Props) {
 
       setPdfjs(m);
       setPdf(loadedPdf);
-      setPdfPageCount(Number(loadedPdf.numPages ?? null));
     }
 
     run().catch((err) => {
