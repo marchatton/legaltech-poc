@@ -62,6 +62,7 @@ As a user, I can see rows appear in the report table as they finish, and every r
 - AC-005: `completed` runs have exactly one row per `question_id` for the run’s `question_set_version`.
 - AC-006: If a row is `missing_input`, `answer` is exactly `Not found in provided documents.`, citations are empty, and `notes` (or provenance) includes an actionable checklist.
 - AC-007: If a row is `citation_failed`, provenance includes a safe taxonomy reason code (e.g. `CITATION_MISMATCH`, `ENTAILMENT_FAIL`).
+- AC-008: Row-level failures do not crash the run: if a question yields `citation_failed`, the workflow continues and the run can still reach `completed` after writing terminal rows for all questions (exports remain blocked by default).
 
 #### Verification
 - Packs: `pack_01_clean`, `pack_02_missing_rea`
@@ -85,6 +86,7 @@ As a user, I can see rows appear in the report table as they finish, and every r
 
 - Folder not runnable (`empty|ingesting|failed`): disable CTA + show safe error reason (no stack traces).
 - Run step failure: run becomes `partial` with a visible failure banner; completed rows remain inspectable.
+- Row failure: write a terminal `citation_failed` row with reason code and continue to the next question; run may still reach `completed`.
 
 ## Metrics / Logging
 

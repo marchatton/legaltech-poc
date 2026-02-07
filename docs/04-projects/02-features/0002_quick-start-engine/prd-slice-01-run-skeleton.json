@@ -22,10 +22,10 @@
         "UI reads rows via GET /folders/:id/report?run_id=... (no direct DB reads).",
         "completed runs have exactly one row per question_id for the run's question_set_version.",
         "missing_input rows use the exact answer string, have zero citations, and include an actionable checklist in notes/provenance.",
-        "citation_failed rows include a safe taxonomy reason code in provenance (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL)."
+        "citation_failed rows include a safe taxonomy reason code in provenance (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL).",
+        "Row-level failures do not crash the run: if a question yields citation_failed, the workflow continues and the run can still reach completed after writing terminal rows for all questions (exports remain blocked by default)."
       ],
       "priority": 2
     }
   ]
 }
-
