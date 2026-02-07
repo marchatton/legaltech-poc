@@ -21,7 +21,7 @@
       "description": "Render highlight overlay that stays aligned across zoom and rotation, and fail closed when invariants break.",
       "acceptanceCriteria": [
         "AC-003 Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).",
-        "AC-004 Highlight remains aligned at 50/100/150% zoom (or an explicit cut is enforced: verified at 100% only).",
+        "AC-004 Highlight remains aligned at 50/100/150% zoom and bbox scales with zoom (within ±2% OR ±3 CSS px vs bbox100*scale) (or an explicit cut is enforced: verified at 100% only).",
         "AC-005 Highlight remains aligned on at least one rotated/scanned page (pack_07) (or an explicit cut/patch is enforced).",
         "AC-006 Fail-closed: invalid polygon or wrong page yields explicit failure UI and no overlay."
       ],
@@ -31,4 +31,3 @@
     }
   ]
 }
-

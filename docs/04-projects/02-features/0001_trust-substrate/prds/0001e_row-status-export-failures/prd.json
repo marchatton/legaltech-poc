@@ -9,8 +9,8 @@
       "description": "Missing evidence resolves to missing_input with an actionable missing-doc checklist and strict invariants.",
       "acceptanceCriteria": [
         "AC-001 Rows with no supporting evidence resolve to missing_input.",
-        "AC-002 missing_input rows have answer exactly Not found in provided documents., zero citations, and notes/provenance contains a missing-doc checklist.",
-        "AC-003 pack_02_missing_rea produces missing_input rows with a visible checklist."
+        "AC-002 missing_input rows have answer exactly Not found in provided documents., zero citations, and notes/provenance contains a missing-doc checklist with {label, confidence, signals[]}; only show candidates with confidence >= 0.8 by default.",
+        "AC-003 Missing-doc detection flags REA.pdf in pack_02_missing_rea and produces no missing-doc flags in pack_01_clean (FP=0)."
       ],
       "priority": 1,
       "passes": false,
@@ -22,6 +22,7 @@
       "description": "Evidence failures yield citation_failed and exports are blocked by default per API contract.",
       "acceptanceCriteria": [
         "AC-004 Deliberate bad citation yields citation_failed.",
+        "AC-004a Verification is precision-first: deterministic integrity checks short-circuit; any UNSURE entailment verdict is treated as FAIL (fail-closed).",
         "AC-005 POST /export/csv returns error.code=EXPORT_BLOCKED when any row is citation_failed (default).",
         "AC-006 unsafe_override=true is demo-only: when not enabled return 403 UNAUTHORISED; if enabled, artefact is visibly labeled unsafe and metadata records override."
       ],
@@ -43,4 +44,3 @@
     }
   ]
 }
-

@@ -59,16 +59,20 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 
 #### Acceptance Criteria
 - AC-003: Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).
-- AC-004: Highlight remains aligned at 50/100/150% zoom (or an explicit cut is enforced: "highlights verified at 100% only").
+- AC-004: Highlight remains aligned at 50/100/150% zoom and bbox scales with zoom (within ±2% OR ±3 CSS px vs `bbox100 * scale`) (or an explicit cut is enforced: "highlights verified at 100% only").
 - AC-005: Highlight remains aligned on at least one rotated/scanned page (pack_07) (or an explicit cut/patch is enforced).
 - AC-006: Fail-closed: deliberate invalid polygon or wrong page yields explicit failure UI and no overlay.
 
 #### Verification
+- Use the dev-only RH2 harness route (`/__spikes/rh2-overlay`) (loads fixture anchors and PDFs via `/__spikes/local-pdf`).
 - Fixture-backed mini-eval per RH2 spike plan:
+  - pack_01 anchors:
+    - TitleCommitment: `SCHED_A_PROPOSED_INSURED` (page 1)
+    - ALTA_Survey: `SURVEY_CERT_PARTIES` (page 3)
   - screenshots at 50/100/150 with a debug HUD visible
-  - bbox logs prove scaling invariance (within ~1-2 CSS px)
-  - rotation screenshots for pack_07
-  - fail-closed screenshot + safe error code
+  - bbox logs prove scaling invariance (±2% OR ±3 CSS px)
+  - rotation screenshots for pack_07 (rotation 0 and 90; include `page.rotate` in `totalRotation`)
+  - fail-closed screenshot + safe error code (invalid polygon injection + wrong page)
 - Evidence capture: prefer `browser-use` scripted screenshots (or manual DevTools if faster).
 
 ## Functional Requirements
@@ -120,4 +124,3 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 - Canonical architecture/contracts:
   - `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002)
   - `docs/03-architecture/50_api_surface.md`
-

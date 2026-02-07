@@ -73,12 +73,12 @@ As a reviewer, I want a reliable PDF viewer with page navigation and zoom so tha
 
 #### Acceptance Criteria
 - AC-005: Viewer renders the correct PDF and can navigate to any page.
-- AC-006: Zoom controls re-render consistently (no CSS-scaling drift) and the viewer stays responsive on `pack_07` scans.
+- AC-006: Viewer stays responsive on `pack_07` scans and meets RH1 thresholds (Range support required; serial N=20 @100%: `p95(totalMs) < 1000ms` and `max(totalMs) < 1500ms`; spam N=30 @200ms: `maxLongTaskMs < 250ms` and final page completes `< 1500ms` after request). Zoom re-renders (no CSS-scaling drift).
 - AC-007: Viewer obtains `render_url` via `GET /documents/:id/render?page=N` (server contract, 1-indexed `page`) rather than hardcoding storage paths.
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_07_scans_rotated_low_quality/`
-- Manual checks: rapidly page-jump; confirm UI remains responsive and render time is acceptable (see RH1).
+- Manual checks: use the dev-only RH1 harness route (`/__spikes/rh1-pdf-perf`) to run serial + spam tests, download results JSON, and record summary stats in the RH1 spike report.
 
 ### US-004: Locked citation object + hashing contract
 As a reviewer, I want each citation to be a locked object with a snippet + `snippet_hash` so that evidence is immutable and verifiable.
@@ -89,6 +89,7 @@ As a reviewer, I want each citation to be a locked object with a snippet + `snip
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_01_clean/`
+- Script/harness: `packages/core/src/spikes/rh3_snippet_hash_harness.ts` (RH3)
 - Manual checks: open a citation in UI; confirm snippet and hash are displayed and match API payload.
 
 ### US-005: Citation chip -> jump-to-highlight (anchors-first, fail-closed)
@@ -102,7 +103,7 @@ As a reviewer, I want to click a citation chip and see the referenced clause hig
 
 #### Verification
 - Pack/fixture/script: anchors from `docs/08-example-data/*/layout/*.anchors.json`
-- Manual checks: use the RH2 spike harness plan; capture screenshots at 50/100/150 with HUD visible.
+- Manual checks: use the dev-only RH2 harness route (`/__spikes/rh2-overlay`); capture screenshots at 50/100/150 with HUD visible.
 
 ### US-006: Row status machine + export gate (fail closed)
 As a reviewer, I want report rows to have terminal statuses and exports to be blocked when evidence fails so that we never ship untrusted output.
@@ -119,7 +120,7 @@ As a reviewer, I want report rows to have terminal statuses and exports to be bl
 As a reviewer, I want missing-doc and quality failures to be actionable, and as a developer I want a trace export so that failures can be debugged without guesswork.
 
 #### Acceptance Criteria
-- AC-016: In `pack_02_missing_rea`, rows that depend on missing docs are `missing_input` and show an actionable missing-doc checklist.
+- AC-016: In `pack_02_missing_rea`, rows that depend on missing docs are `missing_input` and show an actionable missing-doc checklist with concrete evidence signals (`{label, confidence, signals[]}`); no false missing-doc flags in `pack_01_clean` (FP=0).
 - AC-016a: `missing_input` rows use the exact answer string `Not found in provided documents.` and have zero citations (state model invariant).
 - AC-017: The UI can export a minimal run trace JSON (developer-facing) with safe redaction defaults (opaque IDs + hashes, no raw provider payloads).
 - AC-018: "Flag citation wrong" action logs a safe feedback event with citation_id + reason code.
@@ -184,8 +185,10 @@ No silent failures. Examples:
   - RH1 pdf.js perf on scans
   - RH2 highlight overlay transforms across zoom/rotation
   - RH3 snippet normalisation/hash stability
-  - RH4 verifier precision (0 false passes target) vs latency/cost
-  - RH5 missing-doc heuristics false positives
+  - RH4 verifier precision vs latency/cost:
+    - Dataset: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` (>=20 bad examples)
+    - Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`; `p95 <= 8s` per row on dev machine
+  - RH5 missing-doc heuristics false positives (FP=0 on pack_01; flags `REA.pdf` on pack_02; candidates backed by concrete signals)
 - Security/design: provenance volume + PII risk (RH6).
 - Contract choice: signed render URLs vs proxy (RH7).
 

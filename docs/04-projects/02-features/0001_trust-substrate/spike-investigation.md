@@ -15,8 +15,10 @@ Can pdf.js render and page-jump on scanned/rotated PDFs (e.g. `docs/08-example-d
 
 ### Success criteria
 Proof looks like:
-- Page jump completes in <1s per jump on dev machine
-- Viewer remains responsive during rapid navigation
+- PDFs are served with Range support (`Accept-Ranges: bytes` + `206 Partial Content`). Without this, pdf.js perf numbers are invalid.
+- Define `totalMs` as: time from "request page N" to `renderTask.promise` resolve (exclude initial PDF load).
+- Serial test (N=20, 100% zoom): `p95(totalMs) < 1000ms` and `max(totalMs) < 1500ms`.
+- Spam test (N=30 @ 200ms): viewer remains responsive (no visible freezes; max long task < 250ms) and final requested page completes < 1500ms after its request timestamp.
 
 ### Timebox
 - Start: TBD
@@ -205,8 +207,9 @@ Can we achieve zero false passes on 20 hand-curated bad examples at acceptable l
 
 ### Success criteria
 Proof looks like:
-- 0 false passes on curated bad set
-- Latency per row within acceptable budget (TBD)
+- 0 false passes on curated bad set (N>=20). `UNSURE` counts as `FAIL` (precision-first).
+- Latency budget: `p95 <= 8s` per row on dev machine (record p50/p95/max).
+- Dataset location: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json`
 
 ### Timebox
 - Start: TBD
@@ -255,6 +258,8 @@ Can we reliably detect “referenced but missing” docs in `pack_02_missing_rea
 Proof looks like:
 - Missing docs identified in `pack_02_missing_rea`
 - No false missing-doc flags in `pack_01_clean`
+ - Heuristic output includes: `{label, confidence, signals[]}` (signals are concrete, showable evidence).
+ - Evaluation criteria: FP=0 on `pack_01_clean`; FN=0 for `REA.pdf` on `pack_02_missing_rea` (confidence >= 0.8 to mark missing).
 
 ### Timebox
 - Start: TBD

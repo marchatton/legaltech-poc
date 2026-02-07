@@ -78,8 +78,8 @@ See `risk-register.md`. Biggest rabbit holes:
 - Verification v1: code checks only, or include an entailment model from day one?
 - Minimum trace schema: what is required vs nice-to-have?
 
-## PRD slices (to create only *after* spikes)
-Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, we will slice PRDs from the breadboard parts once spikes are closed:
+## PRD slices (drafted; implement after spikes)
+Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slice PRDs are drafted under `prds/`, but implementation should start only once spikes are executed and the perimeter is re-locked:
 1) Folder (matter) CRUD + upload + document list (baseline UI)
 2) PDF viewer (page nav + zoom) + render URL endpoint
 3) Citation chip UI + jump-to-page + highlight overlay (anchors-first)
@@ -88,7 +88,6 @@ Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, we will slice PRDs from
 6) Provenance + run trace export (developer-facing)
 
 Note:
-- A draft `prd.md`/`prd.json` spine may exist in this dossier for handoff, but implementation should happen via thin slice PRDs once spikes are closed and the perimeter is re-locked.
 - Slice PRDs for 0001 live under `prds/` (see `prds/README.md`).
 
 ## Shaping decision (GO/NO-GO)

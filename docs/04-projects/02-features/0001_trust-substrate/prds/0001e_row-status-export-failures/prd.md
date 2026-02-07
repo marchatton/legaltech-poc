@@ -49,18 +49,21 @@ As a reviewer, I want missing inputs to be explicit and actionable so that I can
 - AC-002: `missing_input` rows must have:
   - answer exactly `Not found in provided documents.`
   - zero citations
-  - `notes` (or provenance) containing a missing-doc checklist
-- AC-003: In `pack_02_missing_rea`, expected missing-doc rows are `missing_input` and the checklist is visible.
+  - `notes` (or provenance) containing a missing-doc checklist with concrete evidence signals (`{label, confidence, signals[]}`)
+  - only show high-confidence candidates by default (`confidence >= 0.8`); do not surface low-confidence guesses as "missing"
+- AC-003: Missing-doc detection flags `REA.pdf` in `pack_02_missing_rea` and produces no missing-doc flags in `pack_01_clean` (FP=0).
 
 #### Verification
-- Pack/fixture/script: `docs/08-example-data/pack_02_missing_rea/`
-- Manual checks: open report table and confirm missing-doc checklist.
+- Pack/fixture/script: `docs/08-example-data/pack_02_missing_rea/`, `docs/08-example-data/pack_01_clean/`
+- Script/harness: `packages/core/src/spikes/rh5_missing_docs_harness.ts`
+- Manual checks: open report table and confirm missing-doc checklist is visible and actionable.
 
 ### US-002: Bad evidence yields citation_failed and blocks export
 As a reviewer, I want evidence failures to block export so that we don't ship untrusted outputs.
 
 #### Acceptance Criteria
 - AC-004: A deliberate bad citation (`snippet_hash` mismatch, invalid polygons, or verification fail) yields `citation_failed`.
+- AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any `UNSURE` entailment verdict is treated as `FAIL` (fail-closed).
 - AC-005: Export is blocked by default when any row is `citation_failed`:
   - `POST /export/csv` returns non-2xx with `error.code = EXPORT_BLOCKED`
 - AC-006: Unsafe override:
@@ -69,6 +72,8 @@ As a reviewer, I want evidence failures to block export so that we don't ship un
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_01_clean/` with one deliberately corrupted citation fixture.
+- Dataset (RH4): `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json`
+- Script/harness: `packages/core/src/spikes/rh4_verification_harness.ts`
 - Manual checks: attempt export; confirm blocked state and API error code.
 
 ### US-003: needs_review -> reviewed is explicit and persisted
@@ -112,7 +117,9 @@ As a reviewer, I want to mark a row as reviewed so that the table reflects what 
 
 ## Risks & Dependencies
 - Blocked by:
-  - RH4 verification precision (false passes)
+  - RH4 verification precision (false passes) and latency budget:
+    - Dataset: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` (>=20 bad examples)
+    - Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`; `p95 <= 8s` per row on dev machine
   - RH5 missing-doc detection heuristics
 - Dependencies:
   - citations are lockable and immutable (ADR-0001)
@@ -136,4 +143,3 @@ As a reviewer, I want to mark a row as reviewed so that the table reflects what 
   - `docs/03-architecture/20_state_model.md`
   - `docs/03-architecture/50_api_surface.md`
   - `docs/03-architecture/60_observability_and_evals.md`
-

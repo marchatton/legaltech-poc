@@ -59,12 +59,13 @@ As a reviewer, I want to fetch a citation payload so that I can inspect evidence
 As a developer, I want one canonical hashing implementation so that citation integrity checks are reliable.
 
 #### Acceptance Criteria
-- AC-003: `normalise()` is implemented once (e.g. `packages/core/citations`) and reused everywhere.
-- AC-004: RH3 spike demonstrates stable hashes across repeated runs for the same source snippet.
+- AC-003: `normaliseSnippet()` + `hashSnippet()` are implemented once in `packages/core` and reused everywhere (no duplicate implementations); unit tests cover whitespace invariance per the canonical rule.
+- AC-004: RH3 harness (`packages/core/src/spikes/rh3_snippet_hash_harness.ts`) produces identical hashes across two runs (run1 vs run2) using snippets extracted from `docs/08-example-data/pack_01_clean/docs/`.
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_01_clean/` (RH3 spike plan).
-- Evidence: RH3 spike report with a stability table.
+- Script/harness: `packages/core/src/spikes/rh3_snippet_hash_harness.ts`
+- Evidence: RH3 spike report with a stability table (hashes identical run-to-run).
 
 ## Functional Requirements
 - FR-001: Citations are immutable once created; "fixing" a citation creates a new citation and updates the owning row to reference the new id (data model rule).

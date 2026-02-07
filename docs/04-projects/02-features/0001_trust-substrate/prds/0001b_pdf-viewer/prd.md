@@ -57,20 +57,23 @@ As a reviewer, I want to open a PDF so that I can inspect evidence.
 As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspect evidence in low-quality packs.
 
 #### Acceptance Criteria
-- AC-004: Page jump completes in <1s on a dev machine for `pack_07` (RH1 spike defines the measurement harness).
-- AC-005: Viewer remains responsive during rapid navigation (no long main-thread stalls).
-- AC-006: Zoom 50/100/150 re-renders consistently (no CSS-scaling drift).
+- AC-004: PDFs served to pdf.js support Range requests (`Accept-Ranges: bytes`; `Range: bytes=...` returns `206 Partial Content`). Without this, RH1 perf numbers are invalid.
+- AC-005: Define `totalMs` as: time from "request page N" to `renderTask.promise` resolve (exclude initial PDF load). Serial test (N=20, 100% zoom): `p95(totalMs) < 1000ms` and `max(totalMs) < 1500ms`.
+- AC-006: Spam test (N=30 @ 200ms): viewer remains responsive (no visible freezes; `maxLongTaskMs < 250ms`) and final requested page completes `< 1500ms` after its request timestamp; intermediate renders are cancelled (>=70% cancellation rate).
+- AC-007: Zoom 50/100/150 re-renders consistently (no CSS-scaling drift).
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_07_scans_rotated_low_quality/docs/`
-- Manual checks: rapid next/prev + jump; zoom in/out; confirm usability.
-- Evidence: timing table + screenshots per RH1 spike report.
+- Manual checks: use the dev-only RH1 harness route (`/__spikes/rh1-pdf-perf`) to run serial + spam tests and download results JSON; capture screenshots with HUD visible.
+- Evidence: summary + decision recorded in `docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md` (RH1 report section).
 
 ## Functional Requirements
 - FR-001: Viewer is a client component; server components fetch data (render_url) server-first.
 - FR-002: Use viewport CSS pixels (`viewport.width/height`) for layout; keep canvas backing store scaled by `devicePixelRatio` for crispness.
 - FR-003: Handle rotation safely: either omit explicit `rotation` and let pdf.js apply `page.rotate`, or compute `totalRotation` including `page.rotate`.
 - FR-004: Use the API error envelope for failures (ADR-0008); never leak internals.
+- FR-005: Cancel in-flight render tasks on navigation and avoid piling up render work during rapid page jumps.
+- FR-006: Render a single page at a time in this slice (no continuous scroll).
 
 ## Non-Goals (Out of Scope)
 - Highlight overlays and citation UX.
@@ -115,4 +118,3 @@ As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspec
   - `docs/03-architecture/DECISIONS.md` (ADR-0008)
   - `docs/03-architecture/50_api_surface.md`
   - `docs/03-architecture/20_state_model.md`
-

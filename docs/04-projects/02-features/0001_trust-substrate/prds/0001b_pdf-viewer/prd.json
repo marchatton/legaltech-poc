@@ -21,9 +21,10 @@
       "title": "Page navigation and zoom stays responsive on scans",
       "description": "Page jump and zoom remain usable on pack_07 scanned/rotated PDFs.",
       "acceptanceCriteria": [
-        "AC-004 Page jump completes in <1s on a dev machine for pack_07 (per RH1 spike harness).",
-        "AC-005 Viewer remains responsive during rapid navigation (no long main-thread stalls).",
-        "AC-006 Zoom 50/100/150 re-renders consistently (no CSS-scaling drift)."
+        "AC-004 PDFs served to pdf.js support Range requests (Accept-Ranges: bytes; Range returns 206 Partial Content).",
+        "AC-005 Define totalMs as request page N -> renderTask.promise resolve (exclude initial PDF load). Serial N=20 @100%: p95(totalMs) < 1000ms and max(totalMs) < 1500ms.",
+        "AC-006 Spam N=30 @200ms: maxLongTaskMs < 250ms and final page completes < 1500ms after request; >=70% intermediate renders cancelled.",
+        "AC-007 Zoom 50/100/150 re-renders consistently (no CSS-scaling drift)."
       ],
       "priority": 2,
       "passes": false,
@@ -31,4 +32,3 @@
     }
   ]
 }
-

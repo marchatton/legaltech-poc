@@ -1,0 +1,437 @@
+[
+  {
+    "case_id": "good_01",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_02",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_03",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_04",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_05",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_06",
+    "question_id": "TS-05",
+    "question": "Who is the survey certified to?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "ALTA_Survey.pdf",
+        "page_number": 3,
+        "snippet": "This survey is certified to: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_07",
+    "question_id": "TS-05",
+    "question": "Who is the survey certified to?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "ALTA_Survey.pdf",
+        "page_number": 3,
+        "snippet": "This survey is certified to: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_08",
+    "question_id": "TS-05",
+    "question": "Who is the survey certified to?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "ALTA_Survey.pdf",
+        "page_number": 3,
+        "snippet": "This survey is certified to: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_09",
+    "question_id": "TS-05",
+    "question": "Who is the survey certified to?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "ALTA_Survey.pdf",
+        "page_number": 3,
+        "snippet": "This survey is certified to: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "good_10",
+    "question_id": "TS-05",
+    "question": "Who is the survey certified to?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "ALTA_Survey.pdf",
+        "page_number": 3,
+        "snippet": "This survey is certified to: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
+      }
+    ],
+    "expected": "pass"
+  },
+  {
+    "case_id": "bad_hash_01",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "CITATION_MISMATCH"
+  },
+  {
+    "case_id": "bad_hash_02",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "CITATION_MISMATCH"
+  },
+  {
+    "case_id": "bad_hash_03",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "CITATION_MISMATCH"
+  },
+  {
+    "case_id": "bad_hash_04",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "CITATION_MISMATCH"
+  },
+  {
+    "case_id": "bad_hash_05",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "CITATION_MISMATCH"
+  },
+  {
+    "case_id": "bad_nocit_01",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [],
+    "expected": "fail",
+    "expected_reason_code": "NO_CITATIONS"
+  },
+  {
+    "case_id": "bad_nocit_02",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [],
+    "expected": "fail",
+    "expected_reason_code": "NO_CITATIONS"
+  },
+  {
+    "case_id": "bad_nocit_03",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [],
+    "expected": "fail",
+    "expected_reason_code": "NO_CITATIONS"
+  },
+  {
+    "case_id": "bad_nocit_04",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [],
+    "expected": "fail",
+    "expected_reason_code": "NO_CITATIONS"
+  },
+  {
+    "case_id": "bad_nocit_05",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "18W18 Acquisition LLC",
+    "citations": [],
+    "expected": "fail",
+    "expected_reason_code": "NO_CITATIONS"
+  },
+  {
+    "case_id": "bad_missing_input_01",
+    "question_id": "TS-99",
+    "question": "What is the lender name?",
+    "answer": "Not found in provided documents.",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Lender: Example Bank",
+        "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "MISSING_INPUT_INVARIANT"
+  },
+  {
+    "case_id": "bad_missing_input_02",
+    "question_id": "TS-99",
+    "question": "What is the lender name?",
+    "answer": "Not found in provided documents.",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Lender: Example Bank",
+        "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "MISSING_INPUT_INVARIANT"
+  },
+  {
+    "case_id": "bad_missing_input_03",
+    "question_id": "TS-99",
+    "question": "What is the lender name?",
+    "answer": "Not found in provided documents.",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Lender: Example Bank",
+        "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "MISSING_INPUT_INVARIANT"
+  },
+  {
+    "case_id": "bad_missing_input_04",
+    "question_id": "TS-99",
+    "question": "What is the lender name?",
+    "answer": "Not found in provided documents.",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Lender: Example Bank",
+        "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "MISSING_INPUT_INVARIANT"
+  },
+  {
+    "case_id": "bad_missing_input_05",
+    "question_id": "TS-99",
+    "question": "What is the lender name?",
+    "answer": "Not found in provided documents.",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Lender: Example Bank",
+        "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "MISSING_INPUT_INVARIANT"
+  },
+  {
+    "case_id": "bad_semantic_01",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "ACME Holdings LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "ENTAILMENT_FAIL"
+  },
+  {
+    "case_id": "bad_semantic_02",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "ACME Holdings LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "ENTAILMENT_FAIL"
+  },
+  {
+    "case_id": "bad_semantic_03",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "ACME Holdings LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "ENTAILMENT_FAIL"
+  },
+  {
+    "case_id": "bad_semantic_04",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "ACME Holdings LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "ENTAILMENT_FAIL"
+  },
+  {
+    "case_id": "bad_semantic_05",
+    "question_id": "TS-01",
+    "question": "Who is the Proposed Insured?",
+    "answer": "ACME Holdings LLC",
+    "citations": [
+      {
+        "document_id": "TitleCommitment.pdf",
+        "page_number": 1,
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
+      }
+    ],
+    "expected": "fail",
+    "expected_reason_code": "ENTAILMENT_FAIL"
+  }
+]

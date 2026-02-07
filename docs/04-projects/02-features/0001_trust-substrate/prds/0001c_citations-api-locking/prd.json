@@ -20,8 +20,8 @@
       "title": "Canonical snippet hashing is stable",
       "description": "Implement normalise() once and ensure snippet_hash is stable across repeated runs.",
       "acceptanceCriteria": [
-        "AC-003 normalise() is implemented once (e.g. packages/core) and reused everywhere.",
-        "AC-004 RH3 spike demonstrates stable snippet_hash across repeated runs for the same source snippet."
+        "AC-003 normaliseSnippet() + hashSnippet() are implemented once in packages/core and reused everywhere; unit tests cover whitespace invariance per the canonical rule.",
+        "AC-004 RH3 harness (packages/core/src/spikes/rh3_snippet_hash_harness.ts) produces identical hashes across two runs using snippets extracted from pack_01_clean PDFs."
       ],
       "priority": 2,
       "passes": false,
@@ -29,4 +29,3 @@
     }
   ]
 }
-
