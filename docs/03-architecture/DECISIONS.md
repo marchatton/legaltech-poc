@@ -1,6 +1,7 @@
 # Architecture decisions (ADRs)
 
 Append-only log of architecture decisions for Orbital Copilot PoC. Add new ADRs at the end and link the PR.
+Doc-sync rule: when an ADR is added or changed, update the relevant downstream docs in the same PR (or add a dated note in `docs/03-architecture/INVESTIGATION.md` describing the drift and owner).
 
 ## ADR format (minimal)
 
@@ -517,3 +518,46 @@ Links
 - Related docs:
   - `docs/04-projects/02-features/0001_trust-substrate/prd-overall.md`
   - `docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md`
+
+
+## ADR-0021: Data handling posture (storage, provider boundaries, and redaction defaults)
+- Status: proposed
+- Date: 2026-02-07
+
+Context
+- We need explicit, shared rules for where data lives, what leaves the system, and how we avoid accidental leakage in logs/telemetry.
+
+Decision
+- Storage boundaries (PoC v1):
+  - Postgres holds product state + auditability primitives: folders, runs, questions, report rows, citations, errors (sanitized), and metadata.
+  - Postgres also stores extracted document text (e.g. `document_pages.text`, `chunks.text`, `citations.snippet`) and must be treated as sensitive.
+  - Object storage holds raw PDFs and exported artefacts; we do not store signed URLs.
+  - Provider request/response payloads are not persisted by default.
+- Provider boundaries (data leaving the system):
+  - OCR/layout provider receives PDF bytes and returns text + geometry; we do not transmit customer exports or run traces.
+  - LLM/embedding providers receive only the minimum required text for the current step (question text + candidate chunk text + limited system instructions).
+  - Object storage providers (S3-compatible) only see object bytes and keys.
+- Telemetry/logging redaction defaults:
+  - Never log raw PDFs, full extracted document text, or full provider payloads.
+  - Log only opaque IDs, hashes, counts, timings, and failure codes.
+  - Admin tokens and signed URLs are treated as secrets and must never be logged.
+- Signed URL posture:
+  - Signed URLs are generated on demand with a short TTL (target 5–15 minutes) and are never persisted.
+  - Logs may include `storage_key` and expiry metadata, but must not include the signed URL.
+- Encryption + backups:
+  - Encrypt object storage and database volumes at rest where possible.
+  - Backups (DB dumps, object snapshots) are sensitive and must be protected like primary data.
+- Admin token handling:
+  - `ORBITAL_ADMIN_TOKEN` is env-only, never stored in DB, never returned in responses, and never logged.
+  - Token checks gate admin-only endpoints (e.g., trace export) per ADR-0018/0019.
+
+Consequences
+- Forces minimal data exposure to providers and logs.
+- Requires explicit redaction discipline in logging and telemetry paths.
+
+Links
+- PR:
+- Related docs:
+  - `docs/03-architecture/50_api_surface.md`
+  - `docs/03-architecture/60_observability_and_evals.md`
+  - `docs/03-architecture/30_data_model.md`

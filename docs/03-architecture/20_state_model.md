@@ -14,6 +14,7 @@ This doc defines the state machines and invariants for the PoC. Keep this as the
 - A **Report row** is the persisted output for a `(run_id, question_id)` pair.
 - A **Citation** is an immutable, locked evidence object (snippet + hash + geometry) referenced by `citation_id` (ADR-0001).
 - States are stored on rows for convenience, but must remain consistent with the invariants below.
+- If stored state and derived state disagree, derived state wins (treat stored state as stale and recompute).
 
 ## Version pinning (cross-cutting invariants)
 Runs must pin the versions they executed with (see `docs/03-architecture/30_data_model.md`):
@@ -79,6 +80,17 @@ Invariants (must hold):
 - If `ocr_status` is `done` then `document_pages` must exist for every page with `text` and `layout_json`.
 - `extraction_quality` is only meaningful when `ocr_status = done` (else set NULL or 0 and do not use it for decisions).
 
+### extraction_quality (PoC definition)
+`documents.extraction_quality` is a normalised 0..1 score derived from OCR/layout output.
+
+PoC default (until pinned):
+- provider mean line confidence (or equivalent), clamped to [0..1]
+
+Rules:
+- Only set when `ocr_status = done`.
+- Record `extraction_quality_method` (string) in document metadata so we can re-run and compare scores across changes.
+- If the method changes, bump `index_version` (ADR-0015) and treat as a fixture-breaking change.
+
 ## Run state
 Runs are the execution record for a single Quick Start attempt. Runs must pin the versions they executed with (see `docs/03-architecture/30_data_model.md`).
 
@@ -137,7 +149,8 @@ Invariants (must hold):
   - `notes` (or provenance) must include an actionable missing-doc checklist
 - `citation_failed`
   - citations may exist, but the row is non-exportable by default
-  - store a safe failure reason code in provenance (e.g. `CITATION_MISMATCH`, `ENTAILMENT_FAIL`)
+  - store a safe failure reason code in provenance (e.g. `CITATION_MISMATCH`, `VALIDATION_ERROR`, `NO_CITATIONS`)
+  - Note (PoC v1): reason codes are integrity-only (ADR-0017). Entailment codes are reserved for a later, gated version.
 
 User-driven transitions:
 - `needs_review` → `reviewed` (only via explicit user action)

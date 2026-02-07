@@ -2,6 +2,8 @@
 
 This doc is the canonical HTTP contract for the PoC. Keep it small, but explicit.
 
+Important: This is the **target** API surface. During development we may ship dev-only spike endpoints, but they must live under `/spikes/*`, be gated to dev-only environments, and return `404` outside dev.
+
 See also:
 - State machines + invariants: `docs/03-architecture/20_state_model.md`
 - Persistence + hashing rules: `docs/03-architecture/30_data_model.md`
@@ -11,6 +13,7 @@ See also:
 - IDs are opaque strings.
 - Timestamps are ISO 8601.
 - For POST endpoints that create work, support an optional `Idempotency-Key` header.
+  - Spike endpoints must live under `/spikes/*` and are never part of the target contract.
 
 ### Versioning (PoC)
 For now, paths are unversioned. Treat this document as "v1". If we need breaking changes later, introduce `/v2` explicitly.
@@ -21,6 +24,11 @@ Auth is an open decision (`docs/03-architecture/00_overview.md`). The contract s
 - `UNAUTHORISED`: authenticated but not allowed
 
 PoC default assumption: single-tenant; environments may run without auth in local/dev, but production-minded deployments should turn auth on.
+
+Non-negotiable rules for shared/demo environments:
+- No unauthenticated access to PDFs or extracted text.
+- All download/render URLs must be signed with a short TTL.
+- Never log auth tokens or signed URLs (server logs, traces, analytics, or error reports).
 
 ### Admin token (PoC)
 Some developer-facing endpoints are "admin-only" even in a no-auth PoC environment. PoC v1 contract:
@@ -53,6 +61,20 @@ Minimum error codes (PoC):
 - `RATE_LIMITED`
 - `EXPORT_BLOCKED` (default when any row is `citation_failed`)
 - `INTERNAL`
+
+Internal vs external errors:
+- External errors are safe for clients and must map to a stable `error.code` above with a human-readable `message`.
+- Internal errors (unexpected exceptions, provider failures, stack traces) must be mapped to `error.code = "INTERNAL"` with a safe message. Log the internal detail server-side only (never return it to the client).
+
+HTTP status mapping (PoC default):
+- `VALIDATION_ERROR` -> `400`
+- `UNAUTHENTICATED` -> `401`
+- `UNAUTHORISED` -> `403`
+- `NOT_FOUND` -> `404`
+- `CONFLICT` -> `409`
+- `RATE_LIMITED` -> `429`
+- `EXPORT_BLOCKED` -> `409`
+- `INTERNAL` -> `500`
 
 ## Folder + documents
 
@@ -387,6 +409,7 @@ Notes:
   - `requirements_tracker`
   - `exceptions_table`
   - `survey_issues`
+- Naming collision: there is a current dev-only exporter using `/export/csv`. Prefer to keep this as the target path and move the dev-only exporter under `/spikes/export/csv` (or similar), with dev-only gating and `404` outside dev.
 - `unsafe_override` is reserved for demo-only "unsafe" exports:
   - Allowed only when `DEMO_MODE=1` and `ALLOW_UNSAFE_EXPORTS=1` and the request includes a valid admin token (see Admin token (PoC) above).
   - Otherwise return `403` with `error.code = "UNAUTHORISED"`.

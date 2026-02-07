@@ -3,7 +3,7 @@
 This is the canonical DB shape for the PoC “trust spine”: ingest → retrieve → draft → verify → report rows with locked citations.
 
 Design rules (PoC)
-- Postgres is the source of truth for state and auditability (ADR-0011 proposed).
+- Postgres is the source of truth for state and auditability (ADR-0011 accepted).
 - Prefer append-only records for "what happened" (runs, steps, report_rows, citations, artefacts).
 - Citations are immutable once created (ADR-0001).
 - Retrieval substrate is versioned. A new ingest/re-index bumps `folders.latest_index_version` and produces new `chunks` rows for that version.
@@ -28,6 +28,16 @@ erDiagram
 - Timestamps are `timestamptz` in UTC.
 - JSON columns are `jsonb` and must be "safe": no provider payload dumps, no stack traces, no raw PDF bytes.
 - Arrays should be explicit JSON arrays; avoid comma-separated strings.
+
+## Data sensitivity (explicit)
+This system stores extracted document text in Postgres (e.g. `document_pages.text`, `chunks.text`, `citations.snippet`) and raw PDFs in object storage.
+Treat both as confidential customer data.
+
+Minimum PoC posture:
+- Encrypt storage and database volumes at rest where possible.
+- Backups are sensitive (DB dumps contain extracted text).
+- Do not log raw extracted text or raw PDF bytes.
+- Provider calls (OCR/LLM/embeddings) may transmit document content externally; disclose and gate by config.
 
 ## Trust spine tables (minimum viable)
 
@@ -124,6 +134,7 @@ Recommended constraints:
 - FK `citations.report_row_id -> report_rows.id`.
 - FK `citations.document_id -> documents.id`.
 - `snippet_hash` is required and must be computed with the canonical rule below.
+- **Invariant:** exportable citations MUST include valid `polygons`. Missing/invalid polygons fail closed and must set `citation_failed`.
 
 #### Citation polygon coordinate system (polygons)
 `citations.polygons` is a list of polygons. Each polygon is a list of points `[x, y]`.
@@ -146,7 +157,7 @@ Viewer mapping (pdf.js):
 Validation (fail-closed):
 - Every point must be within `[0..1]`.
 - Polygons must be non-empty.
-- If any validation fails, treat the citation as invalid and fail closed (`citation_failed`).
+- If any validation fails (including missing polygons), treat the citation as invalid and fail closed (`citation_failed`).
 
 ### `artefacts`
 - `id`, `folder_id`, `type`, `storage_key`
@@ -199,10 +210,11 @@ We use `snippet_hash` to detect citation drift.
 PoC rule:
 - `snippet_hash = "sha256:" + sha256_hex(normalise(snippet))`
 - `sha256_hex(...)` is lower-case hex.
+- Input must be UTF-8 text; hashing is performed on UTF-8 bytes after normalisation.
 - `normalise()` must:
   - trim leading/trailing whitespace
   - convert CRLF → LF
-  - collapse all whitespace runs to a single space
+  - collapse all whitespace (including newlines/tabs) to a single space
 
 This rule must be implemented once (e.g. in `packages/core/citations`) and reused everywhere.
 

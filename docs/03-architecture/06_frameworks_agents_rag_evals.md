@@ -70,7 +70,7 @@ We keep the 4-agent mental model as a product narrative, but implement it as con
 
 ### Verification agent (citation QA)
 - Implemented as a step: `verify_row_step(row_json, locked_citations)`
-- Output: pass/fail + corrected answer if needed
+- Output: pass/fail + reason codes (integrity-only in v1)
 - Fail-closed is the default
 
 Research agent:
@@ -90,11 +90,12 @@ RAG is the engine inside Quick Start. It spans ingestion and runtime.
   - semantic search via pgvector embeddings
 
 ### Runtime (per question)
-1) Retrieve: hybrid search + rerank returns chunk IDs
-2) Draft: generate row JSON using only retrieved evidence
-3) Lock citations: resolve chunk IDs → authoritative snippet + hash + geometry
-4) Verify: hash checks + entailment check
-5) Write: store report row + citations + status
+1) Retrieve: hybrid search + rerank returns chunk IDs (IDs-only contract)
+2) Hydrate: resolve chunk IDs → authoritative snippet + hash + geometry
+3) Draft: generate row JSON using only hydrated evidence (no free-text citations)
+4) Lock citations: map draft citations → locked citation IDs + hashes
+5) Verify: deterministic integrity checks (hash + geometry + invariants) (ADR-0017)
+6) Write: store report row + citations + status
 
 Key invariant:
 - if we cannot retrieve evidence, the system must output “Not found in provided documents.” and set `missing_input`
@@ -118,7 +119,7 @@ Evals are first-class because trust is the product. The synthetic packs allow re
   - cited page exists
   - polygons exist
   - snippet_hash matches canonical snippet
-- Judge checks (optional but recommended):
+- Judge checks (eval-only, not part of runtime verification):
   - entailment: snippet supports claim, conservative rubric
 
 4) Failure journeys

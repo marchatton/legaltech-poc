@@ -12,6 +12,10 @@
 - Client-only must not import server-only (and vice versa).
 - Validate at boundaries with Zod.
 - Never leak internal errors/details to clients.
+- Safe error envelope only. Never return provider payloads or stack traces.
+- Never log secrets, admin tokens, signed URLs, or raw PDFs.
+- Avoid logging full extracted text.
+- Render/download URLs must be authenticated; in shared environments use short-TTL signed URLs.
 
 ## Middleware / API security shape (typical)
 - Pipeline is usually: rateLimit → cors → sanitise → auth → logging (confirm actual order in code).

@@ -4,22 +4,17 @@ Last updated: 2026-02-07
 
 Use this when setting up a new machine, or when onboarding someone new to this repo.
 
-## 0) Repo reality check (do this first)
-- [ ] Confirm whether this repo currently contains runnable code.
-- [ ] Expected (when implemented): `pnpm-workspace.yaml`, root `package.json`, `apps/web/package.json`, `packages/core/package.json`.
-- [ ] If those files are missing, this repo is currently docs-first: you can still contribute to docs/architecture, but you will not be able to run the app yet.
-
 ## 1) Accounts and access
 - [ ] GitHub access to the repo (SSH recommended).
-- [ ] Confirm deployment posture (ADR-0009, proposed): Hetzner-first (single VM) until proven otherwise; Vercel optional for previews/later.
-- [ ] Hetzner account + SSH access (if deploying to Hetzner; ADR-0009, proposed).
-- [ ] Vercel account (optional; preview deploys and/or later; ADR-0009, proposed).
-- [ ] Local Postgres available (Docker Compose or Supabase local; ADR-0011, proposed).
-- [ ] Deployment Postgres plan confirmed (self-host on VM unless explicitly choosing managed; ADR-0011, proposed).
-- [ ] Local object storage ready: MinIO (or local filesystem for ultra-simple early dev) (ADR-0010, proposed).
-- [ ] Deployment object storage ready: managed S3-compatible storage unless explicitly "single VM only" (ADR-0010, proposed).
-- [ ] OCR/layout provider credentials ready (OCR/layout is required for PDFs; ADR-0003 accepted; provider default Azure Document Intelligence Layout per ADR-0012, proposed).
-- [ ] AI SDK gateway access/keys ready (ADR-0013, proposed). Default is Vercel AI Gateway; direct provider keys only with explicit reason.
+- [ ] Confirm deployment posture (ADR-0009, accepted): Hetzner-first (single VM) until proven otherwise; Vercel optional for previews/later.
+- [ ] Hetzner account + SSH access (if deploying to Hetzner; ADR-0009, accepted).
+- [ ] Vercel account (optional; preview deploys and/or later; ADR-0009, accepted).
+- [ ] Local Postgres available (Docker Compose or Supabase local; ADR-0011, accepted).
+- [ ] Deployment Postgres plan confirmed (self-host on VM unless explicitly choosing managed; ADR-0011, accepted).
+- [ ] Local object storage ready: MinIO (or local filesystem for ultra-simple early dev) (ADR-0010, accepted).
+- [ ] Deployment object storage ready: managed S3-compatible storage unless explicitly "single VM only" (ADR-0010, accepted).
+- [ ] OCR/layout provider credentials ready (OCR/layout is required for PDFs; ADR-0003 accepted; provider default Azure Document Intelligence Layout per ADR-0012, accepted).
+- [ ] AI SDK gateway access/keys ready (ADR-0013, accepted). Default is Vercel AI Gateway; direct provider keys only with explicit reason.
 
 ## 2) Local tooling
 - [ ] Node.js installed (LTS recommended). If `.nvmrc` / `.node-version` appears in the repo later, follow it.
@@ -70,8 +65,13 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] Confirm no secrets use the `NEXT_PUBLIC_` prefix.
 
 ## 6) Run locally (when code is present)
-- [ ] Install deps: `pnpm install`
-- [ ] Start the dev server (see root `package.json` scripts once scaffolded).
+- [ ] Fast local smoke test (ADR-0020, ADR-0014):
+- [ ] `pnpm install`
+- [ ] `docker compose up -d`
+- [ ] `pnpm fixture:seed pack_01_clean`
+- [ ] `pnpm dev`
+- [ ] Open `http://localhost:3000/matters`
+- [ ] Open the seeded matter, click a citation chip, and confirm the highlight overlay renders at 100% zoom (ADR-0020).
 - [ ] Smoke test the happy path:
 - [ ] Upload a synthetic pack from `docs/08-example-data/`.
 - [ ] Run “Quick Start: Title + Survey”.
@@ -104,17 +104,17 @@ What it must prove:
 - [ ] Fail-closed viewer: deliberately bad/invalid citations show an explicit error state and render no overlay.
 - [ ] Export is blocked when any row is `citation_failed` (API surface `EXPORT_BLOCKED`).
 
-## 7) Deploy (Hetzner-first is proposed; Vercel optional)
-- [ ] Confirm deployment target (ADR-0009, proposed).
+## 7) Deploy (Hetzner-first is accepted; Vercel optional)
+- [ ] Confirm deployment target (ADR-0009, accepted).
 - [ ] Hetzner: SSH access to the VM.
-- [ ] Hetzner: Postgres backups + basic monitoring are in place (ADR-0011, proposed).
-- [ ] Hetzner: S3-compatible storage is available (managed preferred; ADR-0010, proposed).
+- [ ] Hetzner: Postgres backups + basic monitoring are in place (ADR-0011, accepted).
+- [ ] Hetzner: S3-compatible storage is available (managed preferred; ADR-0010, accepted).
 - [ ] Hetzner: runtime shape (web server + workflow worker) is running under process supervision (ADR-0005).
 - [ ] Vercel (optional): Create a new Vercel project from this Git repo.
 - [ ] Vercel (optional): Set Vercel “Root Directory” to `apps/web` (monorepo setup).
 - [ ] Vercel (optional): Configure environment variables for Preview and Production (match local env).
 - [ ] Vercel (optional): Connect Postgres (Vercel Postgres or external).
-- [ ] Vercel (optional): Connect storage (S3-compatible baseline; ADR-0010, proposed).
+- [ ] Vercel (optional): Connect storage (S3-compatible baseline; ADR-0010, accepted).
 - [ ] Vercel (optional): Deploy a Preview build and verify core flows work end-to-end.
 
 ## 8) Verification (when code is present)

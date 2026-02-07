@@ -33,9 +33,12 @@ Every material claim must have citations or “Not found in provided documents.�
 - Fail-closed verification: citation mismatch → row is `citation_failed`
 - Artefacts-first UX: report table is the centre of gravity
 - OCR/layout for all PDFs (PoC default): consistent geometry for highlights
+- Deterministic page-bounded chunking + `index_version` bump rules (ADR-0015)
+- File-backed, immutable question sets with run pinning (ADR-0016)
 - Hybrid retrieval (RAG): lexical + vector search, rerank, then draft from evidence
 - Deterministic-ish orchestration: explicit step machine, not free-running agents
 - Fixture-driven reliability: synthetic packs + truth files used in CI-style evals
+- Verification v1 is integrity-only (no entailment model) (ADR-0017)
 
 Canonical ADRs for these defaults live in `docs/03-architecture/DECISIONS.md` (append-only).
 
@@ -44,7 +47,7 @@ RAG is the engine inside Quick Start:
 - Ingestion creates canonical page text + geometry, then chunks + indexes
 - Retrieval returns chunk IDs (hybrid lexical + vector)
 - Drafting uses only retrieved evidence
-- Verification locks citations and fails closed when evidence does not support the claim
+- Verification locks citations and fails closed on integrity/invariant failures. Semantic correctness is a reviewer responsibility in v1 (ADR-0017).
 
 ## Where evals fit
 Evals are first-class because trust is the product:
@@ -57,9 +60,14 @@ See:
 - `docs/03-architecture/05_tech_stack_and_dev_workflow.md` for stack, dev workflow, and fixtures
 - `docs/03-architecture/06_frameworks_agents_rag_evals.md` for framework options and why we chose Workflow DevKit
 
+## Security and data handling (PoC, explicit)
+- Raw PDFs are stored in object storage; extracted text + geometry are stored in Postgres (sensitive).
+- OCR/LLM/embeddings calls may transmit document content to third-party providers; this must be disclosed and gated by config.
+- Client responses never include provider payloads or stack traces (safe error envelope).
+- Internal logs should include `trace_id` + stack traces for unexpected failures, but must not include raw PDFs or full extracted text. Prefer IDs + hashes.
+
 ## Open decisions to pin (before implementation)
 These should become explicit (ideally as ADRs) before we build the relevant slices:
-- Chunking strategy: target chunk size/overlap, boundary rules, and what makes a chunk citable.
 - Embeddings: model + dimension (and index parameters) to treat as the default for fixtures/evals.
-- Question set v1 storage: file vs DB, version pinning, and edit workflow.
 - Auth posture for the PoC: what is (and is not) protected in demo environments.
+- Data handling posture: retention, provider data policies, telemetry redaction defaults.

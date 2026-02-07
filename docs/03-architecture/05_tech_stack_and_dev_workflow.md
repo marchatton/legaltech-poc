@@ -18,6 +18,8 @@ This doc pins the stack and how we build, run, debug, and regression-test the Po
 - Tailwind for styling
 - TanStack Table for report table
 - pdf.js for PDF rendering + custom highlight overlay layer
+  - PDF source must support byte-range requests (Range/Accept-Ranges) for fast page rendering.
+  - Signed URLs must allow Range headers and have short TTL. Default to a privacy-first cache posture (e.g. `Cache-Control: private, no-store`) unless we explicitly choose otherwise.
 
 ### Backend and orchestration
 - Next.js route handlers for HTTP APIs (PoC convenience)
@@ -37,6 +39,8 @@ This doc pins the stack and how we build, run, debug, and regression-test the Po
   - lexical search using tsvector
   - embeddings via pgvector
 - Object storage for raw PDFs + exported artefacts
+  - Must support Range requests for pdf.js rendering.
+  - Signed URL + caching posture must be deliberate (sensitive documents). If we enable caching for performance, prefer `private` and keep TTLs short.
 
 ### OCR/layout extraction
 PoC default: OCR everything for consistent geometry
@@ -48,7 +52,7 @@ PoC default: OCR everything for consistent geometry
 - Simple model router (env/config driven):
   - Drafting: fast model
   - Rerank: fast model (or skip early)
-  - Verification: stronger model (fail-closed)
+  - Verification: integrity-only checks (no verify model in PoC v1; ADR-0017)
   - Vision fallback: only for bad pages if needed
 - Model selection is env-driven (eg `LLM_MODEL_CHAT`, `LLM_MODEL_SUMMARY`, `EMBED_MODEL`)
 - Prompt versioning stored in git and stamped into runs (`agent_bundle_version`)
@@ -252,7 +256,15 @@ availableModels.models.forEach(m => console.log(m.id));
   - or MinIO as an S3-compatible local bucket
 
 ### Core commands (fixture-driven)
-Synthetic packs are first-class fixtures. Expect scripts like:
+Synthetic packs are first-class fixtures. Current scripts:
+
+- `pnpm fixture:seed pack_01_clean`
+- `pnpm fixtures:verify-pack-names`
+- `pnpm fixtures:assert-row-invariants -- --snapshot <snapshot.json>`
+- `pnpm fixtures:compare-truth -- --snapshot <snapshot.json>` (auto mode compares datasets present in the snapshot)
+- `pnpm verify` (runs `scripts/verify.sh`)
+
+Planned commands (not wired yet):
 
 - `pnpm fixture:ingest pack_01_clean`
 - `pnpm fixture:run pack_01_clean`
@@ -294,6 +306,6 @@ Synthetic packs are first-class fixtures. Expect scripts like:
 ## Guardrails (must exist)
 - Schema validation on every drafted row JSON (hard gate)
 - Citation locking (chunk_id → snippet/hash/geometry) before verification
-- Verification fail-closed by default
+- Integrity checks fail-closed by default (ADR-0017; no verify model in PoC v1)
 - Row statuses persisted and visible (no silent failures)
 - “Not found in provided documents.” is a valid output, tracked as `missing_input`

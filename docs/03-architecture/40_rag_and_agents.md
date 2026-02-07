@@ -30,7 +30,7 @@ PoC default: OCR everything for consistent geometry
   - semantic (pgvector)
 
 Implementation notes:
-- OCR/layout is abstracted behind one adapter interface (ADR-0012 proposed).
+- OCR/layout is abstracted behind one adapter interface (ADR-0012; accepted).
 - Chunking must be deterministic for a given `(document_id, index_version)`; if you change chunking logic, bump the folder `index_version`.
 
 ## Chunking (what makes a chunk citable)
@@ -65,9 +65,20 @@ Hard rules:
 - Include scores for observability/evals (Recall@K and debug).
 - Cap K for cost and stability (eg K=10 by default; pin per fixture suite).
 
-## Drafting (from evidence only)
+## Hydration (IDs -> evidence)
+Retrieval produces IDs only. Hydration resolves those IDs into evidence payloads for drafting.
+
 Contract:
-- Input: `{ question_id, question_text, evidence: [{chunk_id, snippet, ...}] }`
+- Input: `{ index_version, hits: [{chunk_id, score}] }`
+- Output: `evidence: [{ chunk_id, document_id, page_start, page_end, snippet, polygons, snippet_hash? }]`
+
+Hard rules:
+- Hydration is read-only and deterministic for a given `index_version`.
+- The hydrated `snippet` must come from the canonical chunk store (not an LLM).
+
+## Drafting (from hydrated evidence only)
+Contract:
+- Input: `{ question_id, question_text, evidence: HydratedEvidence[] }`
 - Output: structured row JSON:
   - `answer` (string or structured JSON-as-string; decide per artefact)
   - `notes` (optional)
@@ -97,17 +108,16 @@ Failure modes:
 - `RETRIEVAL_MISS`: candidate chunk IDs do not exist for this `index_version`.
 
 ## Verification (fail-closed)
-Verification is two layers:
-1) Deterministic integrity checks
-  - row JSON validates against the Zod schema (hard gate)
-  - every `citation_id` resolves and has polygons + snippet_hash
-2) Entailment judgement (conservative)
-  - cited snippet supports the claim in the answer
+PoC v1 verification is integrity-only (ADR-0017). No entailment model or runtime verifier is called.
+
+Deterministic integrity checks (runtime):
+- row JSON validates against the Zod schema (hard gate)
+- every `citation_id` resolves and has polygons + snippet_hash
 
 Output mapping (see `docs/03-architecture/20_state_model.md`):
-- `needs_review`: integrity checks pass and entailment passes.
+- `needs_review`: integrity checks pass.
 - `missing_input`: answer is exactly `Not found in provided documents.` and there are zero citations.
-- `citation_failed`: anything else that fails (hash mismatch, missing polygons, entailment fail, schema fail).
+- `citation_failed`: anything else that fails (hash mismatch, missing polygons, schema fail).
 
 Reason codes should align with the failure taxonomy in `docs/03-architecture/60_observability_and_evals.md`.
 

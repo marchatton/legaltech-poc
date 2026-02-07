@@ -62,7 +62,7 @@ raw PDFs + exports"]
     OCR["OCR/layout provider
 (Azure DI or Textract)"]
     LLM["LLM calls (AI SDK)
-draft + verify"]
+draft only (no verify model v1)"]
     EMB["Embeddings (AI SDK)"]
   end
 
@@ -85,7 +85,47 @@ draft + verify"]
 Notes:
 - WDK owns durability, retries, resumability, and step-level progress events (ADR-0005).
 - Domain logic should live outside the WDK integration layer (eg `packages/core`) and be called from steps.
-- This repo is currently docs-first; once code exists, keep the same conceptual boundaries even if directories differ.
+- This repo started docs-first; keep the same conceptual boundaries even if directories differ.
+
+## Data flow + trust boundaries
+
+```mermaid
+flowchart LR
+  subgraph TB1["Trust boundary: Browser"]
+    UI["Browser UI"]
+  end
+
+  subgraph TB2["Trust boundary: App servers"]
+    API["Next.js API"]
+    WF["WDK workflow/steps"]
+  end
+
+  subgraph TB3["Trust boundary: Data plane"]
+    PG["Postgres"]
+    OBJ["Object storage"]
+  end
+
+  subgraph TB4["Trust boundary: External providers"]
+    OCR["OCR/layout"]
+    LLM["LLM (draft only)"]
+    EMB["Embeddings"]
+  end
+
+  UI --> API
+  API --> PG
+  API --> OBJ
+  API --> WF
+  WF --> PG
+  WF --> OBJ
+  WF --> OCR
+  WF --> LLM
+  WF --> EMB
+```
+
+Safety notes:
+- Provider calls are adapted and mediated; persist only canonical outputs, never raw provider payloads.
+- Signed URLs are short-lived; only storage keys and stable metadata are persisted.
+- Export is gated on locked citations + fail-closed verification (ADR-0001/0002).
 
 ## Ownership and boundaries
 
@@ -119,15 +159,16 @@ Responsibilities:
 ### Data plane (Postgres + object storage)
 Responsibilities:
 - Postgres is the source of truth for state: folders, documents, chunks, runs, steps, report rows, citations, artefacts (`docs/03-architecture/30_data_model.md`).
-- Object storage holds raw PDFs and exported artefacts (ADR-0010 proposed).
+- Object storage holds raw PDFs and exported artefacts (ADR-0010).
 
 Invariant:
 - A claim is only "exportable" when its citations are locked and verification passes (ADR-0001/0002).
 
 ### External providers
 Responsibilities:
-- OCR/layout provider produces canonical per-page text + geometry (ADR-0003; ADR-0012 proposed).
-- LLM + embeddings calls go through AI SDK and are routed/configured via env (ADR-0013 proposed).
+- OCR/layout provider produces canonical per-page text + geometry (ADR-0003; ADR-0012).
+- LLM + embeddings calls go through AI SDK and are routed/configured via env (ADR-0013).
+- Verification v1 is integrity-only (no entailment model); do not call a "verify" model in PoC v1 (ADR-0017).
 
 ## Key sequences
 
@@ -194,10 +235,10 @@ Export is a step-driven process (can be immediate or async):
 ### Local dev (expected once scaffold exists)
 - Web server: Next.js dev server.
 - Worker: WDK worker process.
-- Postgres: docker compose or Supabase local (ADR-0011 proposed).
-- Object storage: local filesystem (ultra-simple) or MinIO for S3 parity (ADR-0010 proposed).
+- Postgres: docker compose or Supabase local (ADR-0011).
+- Object storage: local filesystem (ultra-simple) or MinIO for S3 parity (ADR-0010).
 
-### Single VM (Hetzner-first; ADR-0009 proposed)
+### Single VM (Hetzner-first; ADR-0009)
 Baseline deployment shape:
 - One VM running:
   - Next.js server (web/API)
@@ -220,6 +261,6 @@ If/when we move web/API to Vercel:
 - Consistency: the UI should always render from persisted state; do not show "draft" answers without locked citations.
 
 ## Open questions to pin (candidate ADRs)
-- Chunking strategy: what makes a chunk citable and stable over time (`docs/03-architecture/00_overview.md`).
-- Question set storage + versioning and how it is pinned per run (`docs/03-architecture/20_state_model.md`).
+- Embeddings posture: model choice, dimension standardization, and re-embed triggers (`docs/03-architecture/00_overview.md`).
 - Auth posture for the PoC (what is protected in demo environments) (`docs/03-architecture/00_overview.md`).
+- Data handling posture: retention windows, export redaction defaults, and log/snapshot hygiene (`docs/03-architecture/00_overview.md`).

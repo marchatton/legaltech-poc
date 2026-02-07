@@ -46,6 +46,18 @@ LLM calls:
 - For debugging, prefer stable identifiers (`chunk_id`, `citation_id`, `snippet_hash`) over raw content.
 - `error_json` must be safe to show to a user when needed (no stack traces, no provider payload dumps).
 
+### Telemetry redaction defaults
+Default to redacting or hashing all user content and model I/O in logs, traces, and exports.
+- Always redact: raw document text, extracted OCR text, model prompts, model responses, embeddings, provider headers, auth tokens, file paths, and any user PII.
+- Prefer: stable identifiers, snippet hashes, page numbers, and aggregate metrics.
+- If a snippet is required for debugging, include the minimum excerpt and attach a `snippet_hash` so it can be verified offline.
+
+### Trace export redaction rules
+Trace exports are shareable artifacts and must be safe-by-default.
+- Redaction profile: `default` (no raw content, no prompts, no model outputs).
+- Allowed fields: ids (`trace_id`, `run_id`, `step_key`, `question_id`), timings, counts, code enums (`failure_code`, `reason_code`), and hashes.
+- Optional “debug” profile (explicitly gated): allow short snippets only if a reviewer opts in and the export is stored in a restricted location.
+
 ### Structured log shape (suggested)
 Use JSON logs with consistent keys:
 ```json
@@ -62,20 +74,30 @@ Use JSON logs with consistent keys:
 }
 ```
 
-## Failure taxonomy
-Use these codes in:
-- `runs.error_json` / `run_steps.error_json` (safe, human-readable)
-- eval reports (`fixture:eval`)
-- UI summaries
+## Failure taxonomy (tiers + code sources)
+We track two tiers to avoid mixing step failures with row verification outcomes.
 
-Baseline codes:
-- OCR_FAIL, LAYOUT_FAIL, CHUNKING_FAIL
-- RETRIEVAL_MISS, RERANK_BAD
-- CITATION_MISMATCH, ENTAILMENT_FAIL, VERIFICATION_FALSE_PASS
-- EXPORT_FAIL
+Tier 1: step-level `failure_code`
+- Scope: `run_steps.error_json` + run-level counters.
+- Meaning: a step execution failed or produced unusable output.
+- Examples (current): `OCR_FAIL`, `LAYOUT_FAIL`, `CHUNKING_FAIL`, `RETRIEVAL_MISS`, `RERANK_BAD`, `EXPORT_FAIL`.
+
+Tier 2: row-level `reason_code`
+- Scope: `report_rows.provenance_json.reason_code` when `row_status=citation_failed`.
+- Meaning: deterministic verification failed for that row (safe for UI + exports).
+- Current verifier/fixture codes (v1):
+  - `VALIDATION_ERROR` (bad input or malformed row payloads)
+  - `MISSING_INPUT_INVARIANT` (missing_input answers must have zero citations)
+  - `NO_CITATIONS` (row has no evidence)
+  - `CITATION_MISMATCH` (snippet/hash mismatch or wrong snippet)
+  - `NO_ANCHORS_FILE` (fixture anchor list missing)
+  - `ANCHOR_NOT_FOUND` (fixture anchor missing)
+
+Reserved (not baseline; future use only):
+- Entailment codes (`ENTAILMENT_*`) are explicitly reserved for a future semantic verifier and should not be used as baseline fixtures or dashboards.
+- `VERIFICATION_FALSE_PASS` is eval-only and should never appear in row provenance.
 
 Notes:
-- `VERIFICATION_FALSE_PASS` is an eval-only "red flag" for cases where verification passes but the golden truth says it should not.
 - Prefer adding new codes over reusing an existing code with broader meaning; taxonomy drift makes dashboards useless.
 
 ## Baseline metrics + thresholds (PoC defaults)
@@ -149,6 +171,24 @@ Example shape (not a strict schema yet):
   }
 }
 ```
+
+## Alignment checklist (docs + scripts)
+These references should match the tiered taxonomy and v1 reason codes above:
+- `packages/core/src/verify/verifier.ts`
+- `packages/core/src/verify/verifier.schemas.ts`
+- `scripts/fixtures/assert_row_invariants.ts`
+- `scripts/fixtures/seed.ts`
+- `docs/03-architecture/20_state_model.md`
+- `docs/03-architecture/30_data_model.md`
+- `docs/03-architecture/40_rag_and_agents.md`
+- `docs/03-architecture/50_api_surface.md`
+- `docs/04-projects/02-features/0002_quick-start-engine/specs/failure_ux_copy_v0.md`
+- `docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md`
+- `docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md`
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md`
+- `docs/04-projects/02-features/0003_demo-grade-outputs/prd.md`
+- `docs/04-projects/02-features/0004_csv-export/prd.md`
+- `docs/08-example-data/pack_09_bad_citation/truth/expected_failure_journeys.json`
 
 ## Debug playbook (fast path)
 When a run fails or export is blocked, prefer a deterministic investigation:
