@@ -3,25 +3,33 @@
 ## Suggested lane + dossier naming
 Lane: `docs/04-projects/02-features/`
 
-Naming convention (breadboard dossiers):
-- `0001_trust-viewer-basics`
-- `0002_citations-click-to-highlight`
-- `0003_citation-model-and-api`
-- `0004_verification-gate`
-- `0005_failure-journeys`
-- `0006_provenance-traceability`
-- `0007_qset-and-report-schema`
-- `0008_commitment-parsing`
-- `0009_exception-instrument-matching`
-- `0010_survey-parsing`
-- `0011_title-survey-reconciliation`
-- `0012_run-orchestration`
-- `0013_csv-export`
-- `0014_word-export`
-- `0015_eval-harness`
-- `0016_demo-reliability`
+Naming convention:
+- Dossiers live under `docs/04-projects/<lane>/<id>_<slug>/`.
+- `<id>` is a 4-digit, sequential number within the lane.
+- Don’t reserve/skip IDs; take the next available number so the folder list stays scannable.
 
-(Example sequence, not a commitment.)
+Current feature dossiers (as of 2026-02-07):
+- `0001_trust-substrate`
+- `0002_quick-start-engine`
+- `0003_demo-grade-outputs`
+- `0004_csv-export`
+- `0005_word-export`
+- `0006_eval-harness`
+- `0007_demo-reliability`
+
+Example conceptual backlog (slugs only; IDs TBD):
+- `trust-viewer-basics`
+- `citations-click-to-highlight`
+- `citation-model-and-api`
+- `verification-gate`
+- `failure-journeys`
+- `provenance-traceability`
+- `qset-and-report-schema`
+- `commitment-parsing`
+- `exception-instrument-matching`
+- `survey-parsing`
+- `title-survey-reconciliation`
+- `run-orchestration`
 
 ---
 
