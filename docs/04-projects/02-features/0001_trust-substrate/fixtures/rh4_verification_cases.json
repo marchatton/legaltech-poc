@@ -8,6 +8,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
@@ -23,6 +24,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
@@ -38,6 +40,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
@@ -53,6 +56,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
@@ -68,6 +72,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
@@ -83,6 +88,7 @@
       {
         "document_id": "ALTA_Survey.pdf",
         "page_number": 3,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "This survey is certified to: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
       }
@@ -98,6 +104,7 @@
       {
         "document_id": "ALTA_Survey.pdf",
         "page_number": 3,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "This survey is certified to: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
       }
@@ -113,6 +120,7 @@
       {
         "document_id": "ALTA_Survey.pdf",
         "page_number": 3,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "This survey is certified to: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
       }
@@ -128,6 +136,7 @@
       {
         "document_id": "ALTA_Survey.pdf",
         "page_number": 3,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "This survey is certified to: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
       }
@@ -143,6 +152,7 @@
       {
         "document_id": "ALTA_Survey.pdf",
         "page_number": 3,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "This survey is certified to: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:ec687a168f1c42bc586c34aecdc8c65ad080289000e42c57202ffb6d4710894f"
       }
@@ -158,6 +168,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
       }
@@ -174,6 +185,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
       }
@@ -190,6 +202,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
       }
@@ -206,6 +219,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
       }
@@ -222,6 +236,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed00"
       }
@@ -283,6 +298,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Lender: Example Bank",
         "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
       }
@@ -299,6 +315,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Lender: Example Bank",
         "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
       }
@@ -315,6 +332,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Lender: Example Bank",
         "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
       }
@@ -331,6 +349,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Lender: Example Bank",
         "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
       }
@@ -347,6 +366,7 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Lender: Example Bank",
         "snippet_hash": "sha256:9ac8157377dc975de37f929e241ad86f43e2ac338e4b20f31ccb896806f45809"
       }
@@ -363,12 +383,12 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
     ],
-    "expected": "fail",
-    "expected_reason_code": "ENTAILMENT_FAIL"
+    "expected": "pass"
   },
   {
     "case_id": "bad_semantic_02",
@@ -379,12 +399,12 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
     ],
-    "expected": "fail",
-    "expected_reason_code": "ENTAILMENT_FAIL"
+    "expected": "pass"
   },
   {
     "case_id": "bad_semantic_03",
@@ -395,12 +415,12 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
     ],
-    "expected": "fail",
-    "expected_reason_code": "ENTAILMENT_FAIL"
+    "expected": "pass"
   },
   {
     "case_id": "bad_semantic_04",
@@ -411,12 +431,12 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
     ],
-    "expected": "fail",
-    "expected_reason_code": "ENTAILMENT_FAIL"
+    "expected": "pass"
   },
   {
     "case_id": "bad_semantic_05",
@@ -427,11 +447,11 @@
       {
         "document_id": "TitleCommitment.pdf",
         "page_number": 1,
+        "polygons": [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
         "snippet": "Proposed Insured: 18W18 Acquisition LLC",
         "snippet_hash": "sha256:5b5c20cf0e7881d25896ed50d7591f527f82790a087d2ae07cd41f00d3d9ed0d"
       }
     ],
-    "expected": "fail",
-    "expected_reason_code": "ENTAILMENT_FAIL"
+    "expected": "pass"
   }
 ]

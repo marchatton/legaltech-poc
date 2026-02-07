@@ -1,31 +1,171 @@
 {
-  "project": "0001c_citations-api-locking",
-  "branchName": "codex/0001c-citations-api-locking",
-  "description": "Locked citations contract and API: immutable citations with snippet + snippet_hash + geometry, plus canonical hashing util reused everywhere.",
-  "userStories": [
+  "version": 1,
+  "project": "0001c-citations-api-locking",
+  "overview": "Implement the locked, immutable citation object contract (snippet + snippet_hash + geometry) and a GET /citations/:id API so clients can render evidence without recomputing it.",
+  "goals": [
+    "Citation payload is sufficient for highlighting and integrity checks.",
+    "Hashing is stable and implemented once (no drift between caller sites)."
+  ],
+  "nonGoals": [
+    "Viewer UI and highlight overlays.",
+    "Verification/entailment.",
+    "Creating citations from chunk IDs via the durable lock step before Quick Start exists (fixture seeding is acceptable for early UI scaffold)."
+  ],
+  "successMetrics": [
+    "Fixture-driven: citations can be fetched for pack_01_clean and snippet_hash is stable across repeated runs (RH3 evidence)."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 route handlers + packages/core domain logic (TypeScript)",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/citations/:id",
+      "name": "Citations API",
+      "purpose": "Fetch a locked citation payload {document_id,page_number,polygons,snippet,snippet_hash} (immutable) for viewer rendering and integrity checks."
+    }
+  ],
+  "uiNotes": [
+    "This slice is API/contract focused; UI consumers (viewer, citation chips) rely on citation_id references only.",
+    "Do not return signed URLs or transient provider URLs from citation endpoints; only stable IDs and metadata."
+  ],
+  "dataModel": [
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "polygons",
+        "snippet",
+        "snippet_hash",
+        "index_version",
+        "chunk_id (optional)",
+        "created_at"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Citations may be seeded from fixture packs for early UI scaffold; durable creation from chunk IDs belongs to the workflow lock step.",
+    "example": {
+      "citation": {
+        "document_id": "doc_123",
+        "page_number": 1,
+        "polygons": [
+          [
+            [0.1, 0.2],
+            [0.4, 0.2],
+            [0.4, 0.3],
+            [0.1, 0.3]
+          ]
+        ],
+        "snippet": "Proposed Insured: 18W18 Acquisition LLC",
+        "snippet_hash": "sha256:<lowercase-hex>"
+      }
+    }
+  },
+  "rules": [
+    "Citations are immutable after insert; fixing a citation creates a new citation and updates the owning row to reference the new id.",
+    "snippet_hash uses the canonical rule: sha256: + sha256_hex(normalise(snippet)) (lowercase hex).",
+    "normalise(snippet): trim; CRLF->LF; collapse whitespace runs to a single space.",
+    "Boundary validation with Zod and safe error envelope (ADR-0008).",
+    "Never return signed URLs or transient provider URLs from citation endpoints."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Fetch a locked citation by ID",
-      "description": "Fetch the locked citation payload required to render evidence and check integrity.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to fetch a citation payload so that I can inspect evidence reliably.",
       "acceptanceCriteria": [
-        "AC-001 GET /citations/:id returns document_id, page_number, polygons, snippet, and snippet_hash.",
-        "AC-002 Errors use the standard error envelope with safe code/message and optional trace_id."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": "NO-GO until RH3 spike executed."
+        "AC-001: GET /citations/:id returns document_id, page_number, polygons, snippet, and snippet_hash.",
+        "AC-002: Errors use the standard error envelope with safe code and message (no leaks).",
+        "Example: Fetch a known seeded citation_id from pack_01_clean and confirm the response contains snippet + snippet_hash and geometry.",
+        "Negative case: Unknown citation id returns 404 NOT_FOUND using the standard error envelope.",
+        "Negative case: Invalid id format returns VALIDATION_ERROR using the standard error envelope."
+      ]
     },
     {
       "id": "US-002",
       "title": "Canonical snippet hashing is stable",
-      "description": "Implement normalise() once and ensure snippet_hash is stable across repeated runs.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want one canonical hashing implementation so that citation integrity checks are reliable.",
       "acceptanceCriteria": [
-        "AC-003 normaliseSnippet() + hashSnippet() are implemented once in packages/core and reused everywhere; unit tests cover whitespace invariance per the canonical rule.",
-        "AC-004 RH3 harness (packages/core/src/spikes/rh3_snippet_hash_harness.ts) produces identical hashes across two runs using snippets extracted from pack_01_clean PDFs."
-      ],
-      "priority": 2,
-      "passes": false,
-      "notes": "Blocked by RH3."
+        "AC-003: normaliseSnippet() + hashSnippet() are implemented once in packages/core and reused everywhere (no duplicate implementations); unit tests cover whitespace invariance per the canonical rule.",
+        "AC-004: RH3 harness (packages/core/src/spikes/rh3_snippet_hash_harness.ts) produces identical hashes across two runs (run1 vs run2) using snippets extracted from docs/08-example-data/pack_01_clean/docs/.",
+        "Example: A snippet with CRLF newlines and multiple whitespace runs hashes identically to the normalized LF + single-space form.",
+        "Negative case: Attempting to introduce a second hashing implementation is blocked by tests or code review (single source of truth)."
+      ]
     }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (NO-GO until RH3 spike executed)",
+    "date": "2026-02-07",
+    "slug": "0001c-citations-api-locking",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md"
+  },
+  "primaryObservableEffect": "Given a citation_id, the client can fetch a stable payload {document_id,page_number,polygons,snippet,snippet_hash} and render evidence without recomputing it.",
+  "inScope": [
+    "Data model for citations (docs/03-architecture/30_data_model.md): store snippet, snippet_hash, polygons, document_id, page_number, index_version, optional chunk_id; treat citations as immutable after insert.",
+    "Canonical hashing util in packages/core: snippet_hash = sha256: + sha256_hex(normalise(snippet)) (lowercase hex).",
+    "HTTP API: GET /citations/:id response shape per docs/03-architecture/50_api_surface.md.",
+    "Safety: boundary validation with Zod and safe error envelope (ADR-0008)."
+  ],
+  "functionalRequirements": [
+    "FR-001: Citations are immutable once created; fixing creates a new citation and updates the owning row to reference the new id.",
+    "FR-002: snippet_hash must use the canonical rule and be persisted on the citation.",
+    "FR-003: Store enough geometry to highlight evidence without re-running retrieval or OCR.",
+    "FR-004: Never return signed URLs or transient provider URLs from citation endpoints; only stable IDs and metadata."
+  ],
+  "failureStatesUx": [
+    "Citation not found: 404 NOT_FOUND.",
+    "Invalid id format: VALIDATION_ERROR.",
+    "Unsafe internal failures: INTERNAL with trace_id."
+  ],
+  "metricsLogging": {
+    "events": [
+      "citation.fetched",
+      "citation.fetch_failed"
+    ],
+    "metrics": [
+      "p50/p95 latency for GET /citations/:id",
+      "Hash integrity checks pass/fail counts (in evals later)"
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_CITATIONS_API (default off until RH3 spike evidence is recorded).",
+    "Safe fallback: citation chips/links are hidden and UI explains citations are not enabled."
+  ],
+  "risksDependencies": {
+    "blockedBy": [
+      "RH3 snippet normalisation + hash stability"
+    ],
+    "dependencies": [
+      "Postgres schema for citations.",
+      "Document/page identity model (document_id, page_number) must be stable."
+    ],
+    "risks": [
+      "Hash drift if canonical normalization is not truly single-sourced.",
+      "Geometry schema mismatches could break highlighting consumers."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/03-architecture/DECISIONS.md",
+    "docs/03-architecture/30_data_model.md",
+    "docs/03-architecture/50_api_surface.md"
   ]
 }

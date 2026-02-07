@@ -94,7 +94,7 @@
     "Exports are allowed only when runs.state = completed (PoC default).",
     "Unsafe override is demo-only; when disallowed, return 403 UNAUTHORISED; when allowed, artefact is visibly labelled unsafe and metadata records the override.",
     "All errors use the standard envelope and include trace_id for debugging.",
-    "Verification is fail-closed: deterministic integrity checks short-circuit; any UNSURE entailment verdict is treated as FAIL."
+    "Verification is fail-closed: deterministic integrity checks short-circuit; any integrity failure yields citation_failed."
   ],
   "qualityGates": [
     "pnpm verify",
@@ -125,7 +125,7 @@
       "description": "As a reviewer, I want evidence failures to block export so that we don't ship untrusted outputs.",
       "acceptanceCriteria": [
         "AC-004: A deliberate bad citation (snippet_hash mismatch, invalid polygons, or verification fail) yields citation_failed.",
-        "AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any UNSURE entailment verdict is treated as FAIL (fail-closed).",
+        "AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any integrity failure yields citation_failed (fail-closed).",
         "AC-005: Export is blocked by default when any row is citation_failed: POST /export/csv returns non-2xx with error.code=EXPORT_BLOCKED.",
         "AC-006: Unsafe override: when unsafe_override=true is provided and demo mode is not enabled, return 403 UNAUTHORISED; if demo mode allows unsafe export, the artefact is visibly labelled unsafe and metadata records the override.",
         "Example: On pack_01_clean with one deliberately corrupted citation fixture, attempt export and confirm the API returns EXPORT_BLOCKED and UI shows a blocked state.",
@@ -163,7 +163,7 @@
   ],
   "functionalRequirements": [
     "FR-001: Status values are constrained to the state model; do not invent new statuses.",
-    "FR-002: Reason codes recorded in provenance align with the failure taxonomy in docs/03-architecture/60_observability_and_evals.md where possible (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL).",
+    "FR-002: Reason codes recorded in provenance align with the failure taxonomy in docs/03-architecture/60_observability_and_evals.md where possible (e.g. CITATION_MISMATCH, NO_CITATIONS).",
     "FR-003: Export gating must be implemented at the API boundary (server-enforced), not just UI.",
     "FR-004: All errors use the standard envelope and include trace_id for debugging."
   ],

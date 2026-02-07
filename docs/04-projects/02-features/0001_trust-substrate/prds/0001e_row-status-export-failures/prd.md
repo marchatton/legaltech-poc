@@ -63,7 +63,7 @@ As a reviewer, I want evidence failures to block export so that we don't ship un
 
 #### Acceptance Criteria
 - AC-004: A deliberate bad citation (`snippet_hash` mismatch, invalid polygons, or verification fail) yields `citation_failed`.
-- AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any `UNSURE` entailment verdict is treated as `FAIL` (fail-closed).
+- AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any integrity failure yields `citation_failed` (fail-closed).
 - AC-005: Export is blocked by default when any row is `citation_failed`:
   - `POST /export/csv` returns non-2xx with `error.code = EXPORT_BLOCKED`
 - AC-006: Unsafe override:
@@ -89,7 +89,7 @@ As a reviewer, I want to mark a row as reviewed so that the table reflects what 
 
 ## Functional Requirements
 - FR-001: Status values are constrained to the state model; do not invent new statuses.
-- FR-002: Reason codes recorded in provenance align with the failure taxonomy in `docs/03-architecture/60_observability_and_evals.md` where possible (e.g. `CITATION_MISMATCH`, `ENTAILMENT_FAIL`).
+- FR-002: Reason codes recorded in provenance align with the failure taxonomy in `docs/03-architecture/60_observability_and_evals.md` where possible (e.g. `CITATION_MISMATCH`, `NO_CITATIONS`).
 - FR-003: Export gating must be implemented at the API boundary (server-enforced), not just UI.
 - FR-004: All errors use the standard envelope and include `trace_id` for debugging.
 

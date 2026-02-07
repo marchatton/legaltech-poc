@@ -75,7 +75,7 @@ See `risk-register.md`. Biggest rabbit holes:
 ## Open questions
 - Appetite/timebox: are we shaping the full trust substrate perimeter above, or do we want to cut to “trust moment only” (viewer + click-to-highlight) first?
 - Storage access pattern for pdf.js: signed URLs vs proxy endpoint?
-- Verification v1: code checks only, or include an entailment model from day one?
+- DECIDED: Verification v1 is integrity-only (ADR-0017). (Future: entailment verifier gated + fixture-eval’d.)
 - Minimum trace schema: what is required vs nice-to-have?
 
 ## PRD slices (drafted; implement after spikes)
