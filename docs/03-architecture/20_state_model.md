@@ -88,7 +88,7 @@ PoC default (until pinned):
 
 Rules:
 - Only set when `ocr_status = done`.
-- Record `extraction_quality_method` (string) in document metadata so we can re-run and compare scores across changes.
+- Record `extraction_quality_method` (string) in `documents.metadata_json.extraction_quality_method` so we can re-run and compare scores across changes.
 - If the method changes, bump `index_version` (ADR-0015) and treat as a fixture-breaking change.
 
 ## Run state

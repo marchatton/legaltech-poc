@@ -2,7 +2,7 @@
 
 This doc is the canonical HTTP contract for the PoC. Keep it small, but explicit.
 
-Important: This is the **target** API surface. During development we may ship dev-only spike endpoints, but they must live under `/spikes/*`, be gated to dev-only environments, and return `404` outside dev.
+Important: This is the **target** API surface. During development we may ship dev-only spike endpoints, but they must live under `/spikes/*`, be gated behind `SPIKES_ENABLED=1`, and return `404` unless spikes are explicitly enabled.
 
 See also:
 - State machines + invariants: `docs/03-architecture/20_state_model.md`
@@ -36,7 +36,7 @@ Some developer-facing endpoints are "admin-only" even in a no-auth PoC environme
 - If missing/mismatched, return `403` with `error.code = "UNAUTHORISED"` (standard error envelope).
 
 ### Correlation and tracing
-- The server should generate/propagate a `trace_id` per request and include it in the error envelope (and optionally as a response header).
+- The server should generate/propagate a `trace_id` per request and include it in the error envelope and as an `X-Trace-Id` response header.
 - Workflow runs should record the `trace_id` that created them in `runs`/`run_steps` metadata (implementation detail, but required for debugging).
 
 ## Error envelope (required)
@@ -329,7 +329,7 @@ Response (shape only; exact contents may evolve but must remain safe):
       {
         "step_key": "retrieve",
         "step_type": "workflow_step",
-        "state": "completed",
+        "state": "succeeded",
         "attempt": 1,
         "duration_ms": 123,
         "metrics_json": {},

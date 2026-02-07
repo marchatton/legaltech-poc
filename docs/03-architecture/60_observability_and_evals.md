@@ -93,6 +93,10 @@ Tier 2: row-level `reason_code`
   - `NO_ANCHORS_FILE` (fixture anchor list missing)
   - `ANCHOR_NOT_FOUND` (fixture anchor missing)
 
+Mapping rules (to prevent drift):
+- `failure_code` is for step execution failures (Tier 1). It must never be stored in row provenance.
+- `reason_code` is for row-level verification outcomes (Tier 2). It must never be used as a step failure counter.
+
 Reserved (not baseline; future use only):
 - Entailment codes (`ENTAILMENT_*`) are explicitly reserved for a future semantic verifier and should not be used as baseline fixtures or dashboards.
 - `VERIFICATION_FALSE_PASS` is eval-only and should never appear in row provenance.

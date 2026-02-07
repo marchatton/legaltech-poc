@@ -52,11 +52,14 @@ Recommended constraints:
 - `id`, `folder_id`, `filename`, `mime`, `bytes`
 - `sha256` (dedupe), `storage_key`, `page_count`
 - `parse_status`, `ocr_status`, `extraction_quality`
+- `metadata_json` (jsonb; safe document metadata for provenance and evals)
 - `error_json` (safe ingest failure details)
 
 Recommended constraints:
 - FK `documents.folder_id -> folders.id` (ON DELETE CASCADE or RESTRICT; choose intentionally).
 - Unique `(documents.folder_id, documents.sha256)` to avoid duplicates within a matter.
+  - Recommended `documents.metadata_json` fields (PoC):
+    - `extraction_quality_method` (string; versioned name of the quality scoring method used)
 
 ### `document_pages`
 - `id`, `document_id`, `page_number`
