@@ -34,15 +34,21 @@ Implementation notes:
 - Chunking must be deterministic for a given `(document_id, index_version)`; if you change chunking logic, bump the folder `index_version`.
 
 ## Chunking (what makes a chunk citable)
-Chunking is an open decision we should pin, but the baseline requirements are:
+Chunking strategy is pinned in ADR-0015. Baseline requirements still apply:
 - A chunk must map back to a document page range (`page_start`, `page_end`) and stable evidence geometry.
 - A chunk must be retrievable by ID alone (no dependency on an LLM re-run).
 - Chunk metadata must be sufficient for filtering/rerank later (doc type, section hints, etc).
 
-Minimum metadata (suggested):
-- `document_id`, `page_start`, `page_end`, `chunk_index`
-- optional `doc_type` (title commitment, survey, instrument, other)
-- optional section anchors (eg "Schedule B-II")
+PoC defaults (ADR-0015):
+- Page-bounded chunks only (`page_start = page_end = page_number`).
+- Chunk sizing: `max_lines = 20` OR `max_chars = 1500` (whichever comes first), with `overlap_lines = 4` (within a page only).
+- Boundary rules: never split inside an OCR line; prefer splitting on blank lines; treat section headers as hard boundaries.
+- Required metadata (store on the chunk row, e.g. `chunks.metadata_json`):
+  - `chunker_id` (e.g. `line_window_v1`)
+  - `chunk_params` (max_lines/max_chars/overlap_lines + header regex version)
+  - `page_number`
+  - `line_start` / `line_end` (inclusive line indices in the canonical OCR line list)
+  - optional `doc_type`, `section_hint`
 
 ## Retrieval (per question)
 Contract:
@@ -120,6 +126,5 @@ Because WDK can replay/retry, each step must be safely repeatable:
 - Any "randomness" (sampling temperature, top_p) should be pinned/recorded in provenance.
 
 ## Open decisions to pin (candidate ADRs)
-- Chunk sizing/overlap and what counts as a "citable unit".
 - Whether rerank is enabled by default and what model it uses.
 - What the report row payload schemas are for each artefact type (CSV vs JSON vs hybrid).

@@ -166,7 +166,13 @@ Response:
 ```
 
 ### GET /documents/:id/render?page=N
-Return a signed URL suitable for pdf.js to render page `N` (1-indexed).
+Return a signed URL suitable for pdf.js to render the PDF.
+
+Note (PoC v1 semantics):
+- `render_url` is a signed URL to the **whole PDF** (what pdf.js loads).
+- The `page` query param is **1-indexed** and is used for initial viewer state (and optional validation).
+- This endpoint does not rasterise pages server-side.
+- If we ever add server-rendered images, introduce a new endpoint (e.g. `/documents/:id/pages/:n.png`) rather than changing this contract.
 
 Response:
 ```json
@@ -201,7 +207,7 @@ Response:
     "state": "running",
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:v1"
+    "question_set_version": "qs:quick_start_title_survey:v1"
   }
 }
 ```
@@ -215,7 +221,7 @@ Response:
     "state": "running",
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:v1",
+    "question_set_version": "qs:quick_start_title_survey:v1",
     "progress": { "questions_total": 42, "questions_done": 11 },
     "failure_counts": { "RETRIEVAL_MISS": 2, "CITATION_MISMATCH": 1 }
   }
@@ -233,7 +239,7 @@ Response:
     "state": "completed",
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:v1"
+    "question_set_version": "qs:quick_start_title_survey:v1"
   },
   "rows": [
     {

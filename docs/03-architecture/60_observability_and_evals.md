@@ -106,6 +106,7 @@ The goal is to move as little as possible into gating until the fixture suite is
 
 ## Evals (fixture-driven)
 Inputs:
+- fixture pack manifest at `docs/08-example-data/<pack_id>/manifest.json` (required; eval runners must read manifests, not infer)
 - synthetic packs with `/docs`, `/truth`, `/layout`
 - golden questions JSON per pack
 
@@ -130,7 +131,7 @@ Example shape (not a strict schema yet):
   "versions": {
     "index_version": "v1",
     "agent_bundle_version": "git:abc123",
-    "question_set_version": "qs:v1"
+    "question_set_version": "qs:quick_start_title_survey:v1"
   },
   "hard_gates": {
     "schema_validity": { "pass": true, "failures": 0 },

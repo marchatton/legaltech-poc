@@ -295,3 +295,107 @@ Consequences
 
 Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`, `docs/03-architecture/06_frameworks_agents_rag_evals.md`
+
+
+## ADR-0015: Deterministic page-bounded chunking (line window v1) + index_version bump rules
+- Status: proposed
+- Date: 2026-02-07
+
+Context
+- Retrieval returns chunk IDs (ADR-0004) and drafting cites candidate chunk IDs (ADR-0001).
+- Click-to-highlight UX requires that chunks map cleanly to page geometry (ADR-0003).
+- Without a pinned chunking strategy, “what is a citable unit?” and “when do we bump index_version?” will drift and break evals.
+
+Decision
+- Citable unit:
+  - Retrieval returns `chunk_id`s only.
+  - Drafting outputs `candidate_citation_chunk_ids: string[]` only.
+  - Citation locking resolves `chunk_id` -> immutable `citation_id` (ADR-0001).
+- Chunk scope (PoC default):
+  - Chunks are **page-bounded**: `page_start = page_end = page_number`.
+  - A chunk never spans multiple pages.
+- Chunk sizing defaults (PoC):
+  - Build chunks from OCR/layout “lines” in `document_pages.layout_json`.
+  - Hard limits:
+    - `max_lines = 20`
+    - `max_chars = 1500`
+    - `overlap_lines = 4` (overlap is within a page only)
+- Boundary rules:
+  - Never split inside an OCR line.
+  - Prefer splitting on blank lines.
+  - Treat section headers as hard boundaries (e.g. lines matching: `/^(SCHEDULE|EXHIBIT|SECTION)\b/i`, or ALL-CAPS lines above a minimum length).
+- Chunk metadata (required fields in `chunks.metadata_json`):
+  - `chunker_id`: `line_window_v1`
+  - `chunk_params`: `{ max_lines, max_chars, overlap_lines, header_regexes_version }`
+  - `page_number`
+  - `line_start` / `line_end` (inclusive line indices in the canonical OCR line list)
+  - Optional: `doc_type`, `section_hint`
+- Index version bumping:
+  - `index_version` identifies the retrieval substrate for a folder (chunks + indices).
+  - We MUST bump `folders.latest_index_version` when ANY of the following changes:
+    - OCR canonicalisation schema or adapter version (ADR-0012)
+    - chunker_id or chunk_params
+    - lexical indexing config (tsvector build rules)
+    - embedding model ID or embedding dimension
+  - Fail-closed safety:
+    - Each chunk row stores the `chunker_id` + `chunk_params` used to build it.
+    - The ingestion/indexing pipeline must refuse to write chunks for an existing `index_version` if the current chunker_id/params do not match the stored metadata (failure code: `CHUNKING_FAIL`).
+
+Consequences
+- Highlight overlays become straightforward because a citation’s polygons are always on a single page.
+- Chunk IDs remain stable within an `index_version`, and drift is handled by versioning rather than mutation.
+- Trade-off: cross-page clauses require retrieving multiple chunks; we accept this for PoC simplicity.
+
+Links
+- PR:
+- Related docs:
+  - `docs/03-architecture/40_rag_and_agents.md`
+  - `docs/03-architecture/30_data_model.md`
+  - `docs/03-architecture/20_state_model.md`
+
+
+## ADR-0016: File-backed, immutable question sets with run pinning and completed invariants
+- Status: proposed
+- Date: 2026-02-07
+
+Context
+- Runs must pin `question_set_version` so we can replay and evaluate outputs deterministically (`docs/03-architecture/20_state_model.md`, `docs/03-architecture/30_data_model.md`).
+- If question sets are editable in-place, “completed” becomes ambiguous and fixture truth comparisons drift.
+- PoC constraint: single-tenant, minimal infra. We want determinism and code review over dynamic configurability.
+
+Decision
+- Storage (v1):
+  - Question sets live in-repo as JSON files (source of truth), not in the database.
+  - Each version is an immutable file. Do not edit an existing version file; create a new version file.
+  - Suggested location:
+    - `packages/core/question-sets/<question_set_id>/qs_<version>.json`
+- File schema (required fields):
+  - `question_set_id` (e.g. `quick_start_title_survey`)
+  - `question_set_version` (e.g. `qs:quick_start_title_survey:v1`)
+  - `created_at` (ISO date)
+  - `questions[]` with:
+    - `question_id` (stable identifier, e.g. `BII-01`)
+    - `question` (string)
+    - optional `artefact_kind` (`requirements_tracker|exceptions_table|survey_issues`)
+    - optional `row_schema_id` (pins the row payload schema)
+- Run pinning:
+  - At run creation, the server selects a question set version for the run type and persists:
+    - `runs.question_set_version` = the selected version string
+  - `runs.question_set_version` MUST NOT change after creation.
+- Completed invariants (mechanics):
+  - A run can only enter `runs.state = completed` when:
+    - For the pinned `question_set_version`, there is exactly one `report_rows` record per `question_id` in that set.
+    - Every `report_rows.status` is terminal (`needs_review|reviewed|missing_input|citation_failed`).
+  - Any mismatch (missing question IDs, extra rows, or duplicate rows) is a fail-closed run failure (failure code: `INVARIANT_FAIL`).
+
+Consequences
+- Deterministic replays: “what questions did we run?” is answerable from the run record.
+- Fixtures and eval truth files can stabilise against explicit question IDs.
+- Trade-off: no UI-editable question sets in v1. That is intentional.
+
+Links
+- PR:
+- Related docs:
+  - `docs/03-architecture/20_state_model.md`
+  - `docs/03-architecture/30_data_model.md`
+  - `docs/03-architecture/50_api_surface.md`

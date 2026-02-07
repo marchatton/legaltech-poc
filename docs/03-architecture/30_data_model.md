@@ -62,11 +62,13 @@ Recommended constraints:
 - `index_version` (string; matches `folders.latest_index_version` at time of build)
 - `page_start`, `page_end`, `chunk_index`
 - `text`, `metadata_json`, `tsv`, `embedding`
-- `snippet_hash` (see “Hashing rule” below)
+- `text_hash` (hash of `chunks.text` using the canonical hashing rule below)
 
 Notes:
 - `tsv` is the lexical index (tsvector). Consider a generated column if you want to avoid drift.
 - `embedding` is a pgvector column. It must match the chosen embedding model dimension (open decision; pin in fixtures/evals).
+- In PoC v1, citation locking uses `chunks.text` as the citation snippet by default, so `citations.snippet_hash` will usually equal `chunks.text_hash`.
+- Chunking rules and required metadata fields are pinned in ADR-0015.
 
 Recommended constraints:
 - FK `chunks.document_id -> documents.id`.
@@ -121,6 +123,29 @@ Recommended constraints:
 - FK `citations.document_id -> documents.id`.
 - `snippet_hash` is required and must be computed with the canonical rule below.
 
+#### Citation polygon coordinate system (polygons)
+`citations.polygons` is a list of polygons. Each polygon is a list of points `[x, y]`.
+
+Canonical coordinate space (PoC v1):
+- Points are **normalised floats** in the range `[0..1]`.
+- Origin is **top-left** of the PDF page’s **viewBox**.
+- `x` increases to the right, `y` increases down.
+- Points are ordered clockwise (recommended; not required for rendering).
+- This coordinate space is independent of zoom. Rendering applies the current pdf.js viewport transform.
+
+Viewer mapping (pdf.js):
+- Let `viewBox = [xMin, yMin, xMax, yMax]` from the pdf.js page.
+- Convert a point `[xNorm, yNorm]` to PDF points:
+  - `xPdf = xMin + xNorm * (xMax - xMin)`
+  - `yPdf = yMax - yNorm * (yMax - yMin)` (invert Y because `yNorm` is top-left origin)
+- Convert to viewport pixels:
+  - `[xPx, yPx] = viewport.convertToViewportPoint(xPdf, yPdf)`
+
+Validation (fail-closed):
+- Every point must be within `[0..1]`.
+- Polygons must be non-empty.
+- If any validation fails, treat the citation as invalid and fail closed (`citation_failed`).
+
 ### `artefacts`
 - `id`, `folder_id`, `type`, `storage_key`
 - `source_run_id`, `metadata_json`
@@ -170,7 +195,8 @@ Minimal example (shape only; evolve as needed):
 We use `snippet_hash` to detect citation drift.
 
 PoC rule:
-- `snippet_hash = sha256(normalise(snippet))`
+- `snippet_hash = "sha256:" + sha256_hex(normalise(snippet))`
+- `sha256_hex(...)` is lower-case hex.
 - `normalise()` must:
   - trim leading/trailing whitespace
   - convert CRLF → LF
