@@ -25,7 +25,7 @@ The PoC’s trust posture depends on deterministic regression detection. Without
 - `fixture:eval` produces per-pack reports (JSON + Markdown) for:
   - `docs/08-example-data/pack_01_clean`
   - `docs/08-example-data/pack_02_missing_rea`
-  - `docs/08-example-data/pack_03_bad_citation` (to be added)
+  - negative case: `pack_01_clean` with a deliberately corrupted locked citation (forces `citation_failed`)
 - Hard gates align with `docs/03-architecture/60_observability_and_evals.md`:
   - schema validity (100%)
   - citation integrity (100%)
@@ -57,8 +57,7 @@ Key design constraints:
 ## Scope
 
 In scope:
-- Add fixture pack `pack_03_bad_citation` under `docs/08-example-data/`:
-  - minimally: `/docs`, `/truth`, and the smallest pack needed to reliably create a `citation_failed` row.
+- A deterministic negative case that deliberately corrupts one locked citation snippet/hash and produces `citation_failed` with `CITATION_MISMATCH`.
 - Implement `fixture:eval` (script/command name per repo conventions) that:
   - reads produced outputs for a pack (at minimum: report rows + citations)
   - compares against `/truth`
@@ -97,7 +96,7 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
 
 - AC-001: `fixture:eval pack_01_clean` produces per-pack JSON + Markdown reports and a summary table.
 - AC-002: `fixture:eval pack_02_missing_rea` produces reports and confirms expected `missing_input` journeys.
-- AC-003: `fixture:eval pack_03_bad_citation` fails the hard gate for expected failure journey and reports `citation_failed` taxonomy correctly.
+- AC-003: A corrupted-citation negative case fails the hard gate for expected failure journey and reports `citation_failed` taxonomy correctly.
 - AC-004: Citation integrity checks validate:
   - cited page exists
   - polygons exist
@@ -131,4 +130,3 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
 - `docs/03-architecture/60_observability_and_evals.md`
 - `docs/03-architecture/06_frameworks_agents_rag_evals.md`
 - `docs/03-architecture/DECISIONS.md` (ADR-0006)
-

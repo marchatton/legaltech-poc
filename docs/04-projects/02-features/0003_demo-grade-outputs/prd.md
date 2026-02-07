@@ -66,7 +66,7 @@ As a developer, I want a deterministic eval harness that runs against fixture pa
 - `fixture:eval` produces per-pack JSON + Markdown reports for:
   - `docs/08-example-data/pack_01_clean`
   - `docs/08-example-data/pack_02_missing_rea`
-  - `docs/08-example-data/pack_03_bad_citation` (added as part of this initiative)
+  - negative case: `pack_01_clean` with a deliberately corrupted locked citation (forces `citation_failed` / `CITATION_MISMATCH`)
 - Hard gates align with `docs/03-architecture/60_observability_and_evals.md`:
   - schema validity (100%)
   - citation integrity (100%)
@@ -134,7 +134,7 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 
 - Demo operator can run the same demo twice in a row without manual cleanup and without any risky delete capability.
 - Export + download path works end-to-end for fixture packs and is deterministic.
-- Fixture hard gates catch at least one intentional regression (via `pack_03_bad_citation`) before demo day.
+- Fixture hard gates catch at least one intentional regression via a corrupted-citation negative case before demo day.
 
 ## Open Questions
 
@@ -153,4 +153,3 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
   - `docs/04-projects/02-features/0005_word-export/prd.md`
   - `docs/04-projects/02-features/0006_eval-harness/prd.md`
   - `docs/04-projects/02-features/0007_demo-reliability/prd.md`
-

@@ -11,6 +11,10 @@ Truth sources:
 - `docs/08-example-data/<pack>/truth/*.csv`
 - `docs/08-example-data/<pack>/layout/*.anchors.json`
 
+Tooling:
+- Comparator CLI: `scripts/fixtures/compare_truth.ts`
+- Row invariant audit CLI: `scripts/fixtures/assert_row_invariants.ts`
+
 ## Input artefact: Spike snapshot JSON (shape)
 
 Every spike that claims a truth match must emit a snapshot JSON containing, at minimum:

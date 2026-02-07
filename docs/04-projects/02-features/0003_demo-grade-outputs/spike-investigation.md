@@ -270,7 +270,7 @@ Exclude:
 
 - Step 1: Implement metric computation on `pack_01_clean`.
 - Step 2: Validate that it flags expected failures on `pack_02_missing_rea`.
-- Step 3: Add `pack_03_bad_citation` and ensure it fails closed with the expected taxonomy.
+- Step 3: Add a negative eval case that deliberately corrupts one locked citation and ensure it fails closed with the expected taxonomy.
 
 ## Artefacts
 

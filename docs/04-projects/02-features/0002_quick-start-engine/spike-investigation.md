@@ -42,6 +42,10 @@ Any spike that claims a truth match must produce these artefacts:
 - Row invariant audit output (SP-2.9).
 - Comparator PASS/FAIL result plus deterministic diff artefact (JSON), per `comparator_spec_v0.md`.
 
+Tooling:
+- `scripts/fixtures/assert_row_invariants.ts`
+- `scripts/fixtures/compare_truth.ts`
+
 ## Proof capture tooling (optional, but recommended)
 
 To avoid Playwright/Chrome DevTools for quick UI automation and screenshots, prefer `agent-browser`:
