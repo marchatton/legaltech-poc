@@ -1,0 +1,12 @@
+RH-2.10 pack name audit (canonical packs_summary)
+Date: 2026-02-07
+
+Command:
+  rg -n "pack_04_multi_parcel_complex|pack_06_noisy_scans_rotated_page|pack_05_duplicate_instrument_exhibit_missing" docs --glob '!**/tmp-oracle/**'
+
+Result:
+  No matches.
+
+Notes:
+  - `docs/04-projects/02-features/0002_quick-start-engine/tmp-oracle/` contains historical oracle bundles and may include non-canonical pack names. Exclude it from audits.
+
