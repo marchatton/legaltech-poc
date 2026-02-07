@@ -1,0 +1,51 @@
+{
+  "pack_id": "pack_04_multi_parcel",
+  "schema_version": "fixture_pack_v1",
+  "default_run_type": "quick_start_title_survey",
+  "expected_question_set_version": "qs:quick_start_title_survey:v1",
+  "documents": [
+    {
+      "filename": "Access_Easement_Parcel2.pdf",
+      "role": "access_easement_parcel2",
+      "layout_file": "layout/Access_Easement_Parcel2.layout.json",
+      "anchors_file": "layout/Access_Easement_Parcel2.anchors.json"
+    },
+    {
+      "filename": "ALTA_Survey.pdf",
+      "role": "alta_survey",
+      "layout_file": "layout/ALTA_Survey.layout.json",
+      "anchors_file": "layout/ALTA_Survey.anchors.json"
+    },
+    {
+      "filename": "Legal_Description.docx",
+      "role": "legal_description"
+    },
+    {
+      "filename": "Plat_Map.pdf",
+      "role": "plat_map",
+      "layout_file": "layout/Plat_Map.layout.json",
+      "anchors_file": "layout/Plat_Map.anchors.json"
+    },
+    {
+      "filename": "TitleCommitment.pdf",
+      "role": "title_commitment",
+      "layout_file": "layout/TitleCommitment.layout.json",
+      "anchors_file": "layout/TitleCommitment.anchors.json"
+    },
+    {
+      "filename": "Utility_Easement_Parcel1.pdf",
+      "role": "utility_easement_parcel1",
+      "layout_file": "layout/Utility_Easement_Parcel1.layout.json",
+      "anchors_file": "layout/Utility_Easement_Parcel1.anchors.json"
+    }
+  ],
+  "layout": {
+    "polygon_space": "page_viewbox_norm_v1"
+  },
+  "truth": {
+    "requirements_tracker_csv": "truth/expected_requirements_tracker.csv",
+    "exceptions_table_csv": "truth/expected_exceptions_table.csv",
+    "survey_issues_csv": "truth/expected_survey_issues.csv",
+    "golden_questions_json": "truth/golden_questions.json"
+  }
+}

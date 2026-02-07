@@ -1,0 +1,51 @@
+{
+  "pack_id": "pack_02_missing_rea",
+  "schema_version": "fixture_pack_v1",
+  "default_run_type": "quick_start_title_survey",
+  "expected_question_set_version": "qs:quick_start_title_survey:v1",
+  "documents": [
+    {
+      "filename": "ALTA_Survey.pdf",
+      "role": "alta_survey",
+      "layout_file": "layout/ALTA_Survey.layout.json",
+      "anchors_file": "layout/ALTA_Survey.anchors.json"
+    },
+    {
+      "filename": "CCRs.pdf",
+      "role": "ccrs",
+      "layout_file": "layout/CCRs.layout.json",
+      "anchors_file": "layout/CCRs.anchors.json"
+    },
+    {
+      "filename": "Legal_Description.docx",
+      "role": "legal_description"
+    },
+    {
+      "filename": "Mechanics_Lien.pdf",
+      "role": "mechanics_lien",
+      "layout_file": "layout/Mechanics_Lien.layout.json",
+      "anchors_file": "layout/Mechanics_Lien.anchors.json"
+    },
+    {
+      "filename": "TitleCommitment.pdf",
+      "role": "title_commitment",
+      "layout_file": "layout/TitleCommitment.layout.json",
+      "anchors_file": "layout/TitleCommitment.anchors.json"
+    },
+    {
+      "filename": "Utility_Easement.pdf",
+      "role": "utility_easement",
+      "layout_file": "layout/Utility_Easement.layout.json",
+      "anchors_file": "layout/Utility_Easement.anchors.json"
+    }
+  ],
+  "layout": {
+    "polygon_space": "page_viewbox_norm_v1"
+  },
+  "truth": {
+    "requirements_tracker_csv": "truth/expected_requirements_tracker.csv",
+    "exceptions_table_csv": "truth/expected_exceptions_table.csv",
+    "survey_issues_csv": "truth/expected_survey_issues.csv",
+    "golden_questions_json": "truth/golden_questions.json"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "pack_id": "pack_08_defined_terms_and_cross_refs",
+  "schema_version": "fixture_pack_v1",
+  "default_run_type": "quick_start_title_survey",
+  "expected_question_set_version": "qs:quick_start_title_survey:v1",
+  "documents": [
+    {
+      "filename": "ALTA_Survey.pdf",
+      "role": "alta_survey",
+      "layout_file": "layout/ALTA_Survey.layout.json",
+      "anchors_file": "layout/ALTA_Survey.anchors.json"
+    },
+    {
+      "filename": "CCRs_DefinedTerms.pdf",
+      "role": "ccrs_definedterms",
+      "layout_file": "layout/CCRs_DefinedTerms.layout.json",
+      "anchors_file": "layout/CCRs_DefinedTerms.anchors.json"
+    },
+    {
+      "filename": "Legal_Description.docx",
+      "role": "legal_description"
+    },
+    {
+      "filename": "REA_CrossRefs.pdf",
+      "role": "rea_crossrefs",
+      "layout_file": "layout/REA_CrossRefs.layout.json",
+      "anchors_file": "layout/REA_CrossRefs.anchors.json"
+    },
+    {
+      "filename": "REA_ExhibitC_SitePlan.pdf",
+      "role": "rea_exhibitc_siteplan",
+      "layout_file": "layout/REA_ExhibitC_SitePlan.layout.json",
+      "anchors_file": "layout/REA_ExhibitC_SitePlan.anchors.json"
+    },
+    {
+      "filename": "TitleCommitment.pdf",
+      "role": "title_commitment",
+      "layout_file": "layout/TitleCommitment.layout.json",
+      "anchors_file": "layout/TitleCommitment.anchors.json"
+    }
+  ],
+  "layout": {
+    "polygon_space": "page_viewbox_norm_v1"
+  },
+  "truth": {
+    "requirements_tracker_csv": "truth/expected_requirements_tracker.csv",
+    "exceptions_table_csv": "truth/expected_exceptions_table.csv",
+    "survey_issues_csv": "truth/expected_survey_issues.csv",
+    "golden_questions_json": "truth/golden_questions.json"
+  }
+}

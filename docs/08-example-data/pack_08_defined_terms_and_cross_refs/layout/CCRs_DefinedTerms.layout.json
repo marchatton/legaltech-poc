@@ -8,9 +8,9 @@
           "text": "CCRs DefinedTerms",
           "bbox": [
             0.08823529411764706,
-            0.9090909090909091,
+            0.0696969696969697,
             0.3093986928104575,
-            0.9303030303030303
+            0.09090909090909094
           ],
           "anchor": "DOC_TITLE"
         },
@@ -18,9 +18,9 @@
           "text": "SYNTHETIC DOCUMENT FOR DEMO/TESTING ONLY.",
           "bbox": [
             0.08823529411764706,
-            0.8818181818181818,
+            0.10303030303030303,
             0.5013071895424837,
-            0.896969696969697
+            0.11818181818181817
           ],
           "anchor": "DOC_SYNTHETIC"
         },
@@ -28,9 +28,9 @@
           "text": "Recording Information",
           "bbox": [
             0.08823529411764706,
-            0.8454545454545455,
+            0.13787878787878782,
             0.28096895424836604,
-            0.8621212121212122
+            0.15454545454545454
           ],
           "anchor": "SECTION_RECORDING_INFORMATION"
         },
@@ -38,9 +38,9 @@
           "text": "Instrument No.: 2024-277742 | Recorded: July 15, 2020 | County/State: King County, WA",
           "bbox": [
             0.08823529411764706,
-            0.8254545454545454,
+            0.16015151515151516,
             0.7002867647058824,
-            0.8398484848484848
+            0.17454545454545456
           ],
           "anchor": "REC_INFO"
         },
@@ -48,9 +48,9 @@
           "text": "Article I - Definitions",
           "bbox": [
             0.08823529411764706,
-            0.7909090909090909,
+            0.1924242424242424,
             0.26301307189542483,
-            0.8075757575757576
+            0.2090909090909091
           ],
           "anchor": "SECTION_ARTICLE_I_DEFINITIONS"
         },
@@ -58,9 +58,9 @@
           "text": "\"Easement Area\" means the areas designated as easements on the Site Plan attached as Exhibit C.",
           "bbox": [
             0.08823529411764706,
-            0.7709090909090909,
+            0.21469696969696983,
             0.7765816993464053,
-            0.7853030303030302
+            0.22909090909090912
           ],
           "anchor": "DEF_EASEMENT_AREA"
         },
@@ -68,9 +68,9 @@
           "text": "\"Approved Plans\" means the plans approved by the Architectural Committee pursuant to Section 4.3.",
           "bbox": [
             0.08823529411764706,
-            0.7545454545454544,
+            0.2310606060606062,
             0.7808660130718954,
-            0.7689393939393938
+            0.2454545454545456
           ],
           "anchor": "DEF_APPROVED_PLANS"
         },
@@ -78,9 +78,9 @@
           "text": "\"Declarant\" means Pine Street Retail Owner LLC and its successors and assigns.",
           "bbox": [
             0.08823529411764706,
-            0.738181818181818,
+            0.24742424242424266,
             0.6479436274509804,
-            0.7525757575757573
+            0.26181818181818195
           ],
           "anchor": "DEF_DECLARANT"
         },
@@ -88,9 +88,9 @@
           "text": "Article IV - Use Restrictions",
           "bbox": [
             0.08823529411764706,
-            0.7036363636363635,
+            0.2796969696969698,
             0.32396241830065364,
-            0.7203030303030302
+            0.2963636363636365
           ],
           "anchor": "SECTION_ARTICLE_IV_USE_RESTRICTIONS"
         },
@@ -98,9 +98,9 @@
           "text": "No Building shall be constructed within the Easement Area, except as expressly permitted under",
           "bbox": [
             0.08823529411764706,
-            0.6836363636363634,
+            0.3019696969696972,
             0.7491062091503268,
-            0.6980303030303028
+            0.3163636363636366
           ],
           "anchor": "USE_RESTRICTION"
         },
@@ -108,18 +108,18 @@
           "text": "Section 5.2.",
           "bbox": [
             0.08823529411764706,
-            0.667272727272727,
+            0.3183333333333336,
             0.17021160130718954,
-            0.6816666666666664
+            0.332727272727273
           ]
         },
         {
           "text": "Retail use is permitted; industrial use is prohibited.",
           "bbox": [
             0.08823529411764706,
-            0.6509090909090905,
+            0.33469696969697005,
             0.43417810457516337,
-            0.66530303030303
+            0.34909090909090945
           ],
           "anchor": "USE_PROHIBITED"
         },
@@ -127,18 +127,18 @@
           "text": "Any exterior signage is subject to approval under the Approved Plans process.",
           "bbox": [
             0.08823529411764706,
-            0.6345454545454543,
+            0.3510606060606063,
             0.6266151960784313,
-            0.6489393939393937
+            0.3654545454545457
           ]
         },
         {
           "text": "Section 4.3 - Architectural Control",
           "bbox": [
             0.08823529411764706,
-            0.5999999999999998,
+            0.3833333333333335,
             0.3788725490196079,
-            0.6166666666666665
+            0.40000000000000024
           ],
           "anchor": "SECTION_SECTION_4_3_ARCHITECTURAL_CONT"
         },
@@ -146,9 +146,9 @@
           "text": "All exterior alterations require prior written approval of the Architectural Committee.",
           "bbox": [
             0.08823529411764706,
-            0.5799999999999998,
+            0.40560606060606086,
             0.6567295751633987,
-            0.5943939393939391
+            0.42000000000000015
           ],
           "anchor": "ARCH_APPROVAL"
         },
@@ -156,9 +156,9 @@
           "text": "Exhibit C Reference",
           "bbox": [
             0.08823529411764706,
-            0.5454545454545453,
+            0.4378787878787881,
             0.25803431372549024,
-            0.5621212121212119
+            0.4545454545454547
           ],
           "anchor": "SECTION_EXHIBIT_C_REFERENCE"
         },
@@ -166,9 +166,9 @@
           "text": "See Exhibit C for the Site Plan depicting the Easement Area and Common Access Drive.",
           "bbox": [
             0.08823529411764706,
-            0.5254545454545454,
+            0.4601515151515153,
             0.6973374183006537,
-            0.5398484848484847
+            0.4745454545454546
           ],
           "anchor": "EXHIBIT_C_REF"
         }
