@@ -18,7 +18,7 @@ Create a matter (folder) and upload/view PDFs reliably. This is the baseline sur
 - Storage access patterns (signed URLs vs proxy): **Patch**.  
 
 **Suggested spikes**  
-- “Can we render and jump pages reliably on `pack_06_noisy_scans_rotated_page/docs/01_Title_Commitment_SCANNED.pdf` without UI freezing?” Pass if navigation is <1s per jump on dev machine.
+- “Can we render and jump pages reliably on `pack_07_scans_rotated_low_quality/docs/TitleCommitment_SCANNED_ROTATED.pdf` without UI freezing?” Pass if navigation is <1s per jump on dev machine.
 
 **Natural PRD seams (2–6 PRDs)**  
 1) PRD: Matter CRUD + empty state UI  
@@ -118,7 +118,7 @@ Make failures explicit and actionable. Users should see what’s missing and wha
 
 **Done means**  
 - `pack_02_missing_rea` produces rows tagged `missing_input` with a clear “missing referenced docs” list.  
-- `pack_06_noisy_scans_rotated_page` surfaces extraction/OCR quality warnings at doc level (even if simulated early).  
+- `pack_07_scans_rotated_low_quality` surfaces extraction/OCR quality warnings at doc level (even if simulated early).  
 - Citation mismatch shows a visible error and a user action: “flag citation wrong”.
 
 **Cut-lines / de-scopes**  
