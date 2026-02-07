@@ -1,0 +1,44 @@
+You are reviewing a docs-first shaping packet for Initiative 0003 ("demo-grade outputs and repeatability") in the repo "orbital-poc".
+
+Goal: help me CLOSE the rabbit-hole spikes (risk register RH* items with mitigation = spike) for:
+- docs/04-projects/02-features/0003_demo-grade-outputs/
+
+Context:
+- Repo is pnpm workspaces + TypeScript, but this request is mainly doc decisions and crisp contracts.
+- Canonical architecture contracts + ADRs live in docs/03-architecture/* and MUST WIN if anything conflicts.
+- PRDs for slices 0013–0016 exist but are explicitly "NO-GO until spikes close".
+- No external web research is allowed inside runs (ADR-0007); base recommendations only on the attached docs.
+
+What I need from you:
+1) "Spike closures" (primary output)
+   For each spike plan in spike-investigation.md (CSV usability, export gating, Word artefact choice, eval metrics, demo controls/reset safety):
+   - Decide/lock the outcome (or explicitly state what cannot be decided without a human stakeholder/practitioner).
+   - If you propose an assumption to close the spike, label it "ASSUMPTION" and list what would falsify it.
+   - Produce crisp deliverables that close the loop:
+     - CSV: propose v1 header list + ordering for each kind (requirements_tracker, exceptions_table, survey_issues) and a deterministic row ordering rule.
+     - Export gating: default rule + whether any unsafe_override exists; if it exists, specify exact guardrails + exact UX copy requirements.
+     - Word: confirm artefact choice (memo) or justify a change; propose minimal section list + deterministic ordering + citation rendering format.
+     - Evals: propose 3-5 hard-gate metrics (aligned to observability/evals docs) + report shape; specify what pack_03_bad_citation minimally contains.
+     - Demo controls: decide "toolbar vs checklist-only", and lock reset semantics for slice 1 (prefer no deletion via HTTP).
+
+2) "Doc patch list" (concrete edits)
+   Give a file-by-file patch plan (tight, minimal). For each file, list exact edits to make.
+   Focus files:
+   - docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md
+   - docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md
+   - docs/04-projects/02-features/0013_csv-export/prd.md
+   - docs/04-projects/02-features/0014_word-export/prd.md
+   - docs/04-projects/02-features/0015_eval-harness/prd.md
+   - docs/04-projects/02-features/0016_demo-reliability/prd.md
+
+   Specifically: update RH statuses (at least RH1/RH3/RH5/RH7) to "closed" or an explicit alternative state, with the closure decision recorded.
+   If any spike cannot be closed without external input, propose the smallest next action to close it (timebox + who + artefact to capture).
+
+3) "Sanity check" (brief)
+   Call out any contradictions you notice across the brief/breadboard/risk register/spikes/PRDs and the canonical architecture docs that would prevent a GO decision.
+
+Output format:
+- Use headings.
+- Prefer tables and bullet lists.
+- When proposing doc text changes, include the exact replacement text in fenced code blocks and cite the target file path above the block.
+
