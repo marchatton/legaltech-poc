@@ -1,6 +1,13 @@
 # Onboarding defaults
 /node_modules/
 
+# Build outputs
+.next/
+**/.next/
+dist/
+**/dist/
+coverage/
+
 # Env files (never commit secrets)
 .env
 .env.*

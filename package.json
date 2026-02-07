@@ -1,0 +1,17 @@
+{
+  "name": "orbital-poc",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @orbital-poc/web dev",
+    "start": "pnpm --filter @orbital-poc/web start",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "verify": "bash scripts/verify.sh",
+    "fixtures:verify-pack-names": "node --experimental-strip-types scripts/fixtures/verify_pack_names.ts",
+    "fixtures:assert-row-invariants": "node --experimental-strip-types scripts/fixtures/assert_row_invariants.ts",
+    "fixtures:compare-truth": "node --experimental-strip-types scripts/fixtures/compare_truth.ts"
+  }
+}
