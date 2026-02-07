@@ -1,0 +1,44 @@
+{
+  "project": "0003_demo-grade-outputs",
+  "branchName": "codex/0003-demo-grade-outputs",
+  "description": "Initiative 0003 spine: demo-grade exports (CSV + memo docx), fixture-driven hard-gate evals, and safe demo repeatability controls aligned with canonical architecture + ADRs. Implementation is split into PRDs 0013-0016.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Export Demo-Grade Artefacts",
+      "description": "As a demo operator, I want to export the 3 CSV artefacts and a single memo docx from a completed run so I can share outputs outside the UI.",
+      "acceptanceCriteria": [
+        "From docs/08-example-data/pack_01_clean, operator can export requirements_tracker CSV, exceptions_table CSV, survey_issues CSV, and memo docx and download them successfully via the artefacts list.",
+        "Exports are only allowed when runs.state=completed; otherwise export is disabled and the API returns 409 with error.code=CONFLICT if called anyway.",
+        "If any row is citation_failed, export is blocked by default with error.code=EXPORT_BLOCKED and clear UX; no silent partial export is allowed in the first slice.",
+        "Exports must not parse report_rows.answer prose; they consume structured export_payload (+ schema_version) persisted by Initiative 002 and fail closed if missing."
+      ],
+      "priority": 1
+    },
+    {
+      "id": "US-002",
+      "title": "Detect Regressions With Fixture Evals",
+      "description": "As a developer, I want a deterministic eval harness that runs against fixture packs and produces per-pack reports so I can catch regressions before demos.",
+      "acceptanceCriteria": [
+        "fixture:eval produces per-pack JSON + Markdown reports and a cross-pack summary for docs/08-example-data/pack_01_clean and docs/08-example-data/pack_02_missing_rea.",
+        "A pack_03_bad_citation fixture pack exists under docs/08-example-data/ and fixture:eval reports the expected citation_failed journey for it.",
+        "Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), expected failure journeys.",
+        "Runner exits non-zero when any hard gate fails, and outputs are deterministic for the same pack inputs (no flaky ordering/randomness)."
+      ],
+      "priority": 2
+    },
+    {
+      "id": "US-003",
+      "title": "Run Demos Twice Safely",
+      "description": "As a demo operator, I want to load known fixture packs and re-run the demo twice without manual cleanup and without any destructive reset endpoint that could delete non-demo data.",
+      "acceptanceCriteria": [
+        "Demo toolbar/pack loader is dev-only and feature-flagged; when the demo flag is off, the UI does not render and the server rejects pack load actions.",
+        "Operator can load pack_01_clean and pack_02_missing_rea, each creating a fresh matter and navigating to it.",
+        "Loading the same pack twice creates two distinct matters; no deletion/reset via HTTP is required or used.",
+        "Demo checklist exists at docs/04-projects/02-features/0016_demo-reliability/demo-checklist.md and matches the actual operator flow."
+      ],
+      "priority": 3
+    }
+  ]
+}
+
