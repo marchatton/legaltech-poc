@@ -1,6 +1,7 @@
 # Spike investigation — Initiative 0003: Demo-grade outputs and repeatability
 
 > Status: planned only. No spikes executed yet.
+> Note: Thin PRD dossiers (`0013`–`0016`) have been drafted as DRAFT/NO-GO to capture scope, but implementation should not start until these spikes close.
 
 Per `docs/00-strategy/initiatives/prd-slicing-rules.md`: spikes come before PRDs.
 
@@ -197,7 +198,7 @@ Exclude:
 - Step 2: Ask stakeholder to choose (and say why).
 - Step 3: Lock the template choice and section list.
 - Step 4: Generate a minimal docx using the chosen approach and open it in Word + Google Docs + Preview (pass/fail = “not broken”).
-  - Optional automation: use `pnpm dlx agent-browser …` to script the Google Docs view + screenshot, if it materially saves time.
+  - Optional automation: use `pnpm dlx agent-browser …` (snapshot/refs) or `browser-use …` (persistent session) to script the Google Docs view + screenshot, if it materially saves time.
 
 ## Artefacts
 
