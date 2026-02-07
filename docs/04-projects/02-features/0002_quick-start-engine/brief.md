@@ -70,6 +70,7 @@ Use fixture packs under `docs/08-example-data/` as the acceptance anchor (see `d
 - Legal advice, negotiation posture, or "materiality" decisions.
 - Universal coverage of all title company formats or survey styles.
 - Geometry overlays for easements (we link to evidence; we do not render corridors).
+- Human-in-the-loop ambiguity resolution / selection persistence (v1 shows candidates only; no "choose correct doc" flow).
 
 ## Perimeter (in/out)
 
@@ -111,7 +112,21 @@ Biggest items to resolve before PRDs:
 ## Shaping decision
 
 - Decision: NO-GO for implementation (pending spikes; `prd.md`/`prd.json` exist as draft scaffolding only)
-- GO when:
-  - We have a credible question set v1
-  - We have a clear artefact representation decision (rows vs tables)
-  - We can pass the fixture-driven spikes on parsing/matching/survey extraction/idempotency
+- GO when (all must be true):
+
+Contracts frozen:
+- [ ] Question set v1 frozen: `docs/04-projects/02-features/0002_quick-start-engine/question_set_v1.json` committed, `<=25`, exactly 3 list-shaped rows (`TS-03`, `TS-04`, `TS-09`), practitioner review captured.
+- [ ] Payload storage decision frozen: SP-2.7 selects Option 4; `docs/04-projects/02-features/0002_quick-start-engine/list_payload_v0.schema.md` committed; canonical architecture docs updated (`docs/03-architecture/30_data_model.md`, `docs/03-architecture/50_api_surface.md`).
+- [ ] Comparator spec v0 exists and all spikes reference it: `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`.
+
+Fixture-verifiable spikes passed (proof artefacts committed):
+- [ ] SP-2.8 Retrieval Recall@K baseline on `pack_01_clean` is measured, misses logged, and there is an explicit decision (patch vs accept).
+- [ ] SP-2.2A Commitment parsing on `pack_01_clean` passes CSV comparators for requirements + exceptions with 0 false positives.
+- [ ] SP-2.3A Exception matching passes on `pack_01_clean` and missing-doc journey passes on `pack_02_missing_rea` (checklist includes `REA.pdf`).
+- [ ] SP-2.4A Survey extraction passes on `pack_01_clean` + `pack_03_mismatch_and_cert_gap` (cert gap issue code + citation).
+- [ ] SP-2.5 Reconciliation honesty policy is written + tested; `not_depicted` rule is safe (or cut to `depicted|unknown` and documented).
+- [ ] SP-2.6 Idempotency + snippet_hash stability passes, including the negative test proving workflow continues and run can reach `completed` with one `citation_failed` row.
+- [ ] SP-2.11 List verification semantics are pinned (policy doc committed) and consistent with fail-closed + immutable citations.
+
+Explicit cuts / deferrals recorded:
+- [ ] RH-2.16 (human-in-loop ambiguity resolution) is marked cut for v1 in this brief and in `docs/04-projects/02-features/0002_quick-start-engine/risk-register.md`.

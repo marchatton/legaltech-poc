@@ -86,7 +86,7 @@ Freeze question set v1 (<=25) and a stable row shell schema so we can build dete
 | U1 | Setup | Question set version label (pinned per run) | render | - | run record + question set registry |
 | U2 | Setup | "Start run" CTA | click | create run | folder state |
 | U3 | Table | Row status badge | render | - | report rows |
-| U4 | Drawer | Citation list + click-to-jump | click | - | citations |
+| U4 | Drawer | Citation list + click-to-jump + failure guidance (reason code -> next action) | click/render | - | citations + row provenance |
 | U5 | Drawer | Mark as reviewed | click | row status -> reviewed | row |
 
 ## Code affordances

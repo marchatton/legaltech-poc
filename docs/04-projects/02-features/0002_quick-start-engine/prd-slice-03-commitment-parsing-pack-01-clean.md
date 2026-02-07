@@ -53,7 +53,7 @@ As a user, I can see a B-I requirements tracker table derived from the commitmen
 
 #### Verification
 - Pack: `docs/08-example-data/pack_01_clean`
-- Automated: comparator script diffs payload vs `truth/expected_requirements_tracker.csv`; row invariant audit; citation integrity checks.
+- Automated: comparator script diffs payload vs `truth/expected_requirements_tracker.csv` (rules single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`); row invariant audit; citation integrity checks.
 
 ### US-002: Extract B-II exceptions table (clean pack)
 As a user, I can see a B-II exceptions table derived from the commitment and backed by evidence.
@@ -66,7 +66,7 @@ As a user, I can see a B-II exceptions table derived from the commitment and bac
 
 #### Verification
 - Pack: `pack_01_clean`
-- Automated: comparator script diffs payload vs `truth/expected_exceptions_table.csv`; citation integrity checks.
+- Automated: comparator script diffs payload vs `truth/expected_exceptions_table.csv` (rules single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`); citation integrity checks.
 
 ## Functional Requirements
 
@@ -101,3 +101,4 @@ As a user, I can see a B-II exceptions table derived from the commitment and bac
 
 - Architecture: `docs/03-architecture/40_rag_and_agents.md`, `docs/03-architecture/20_state_model.md`, `docs/03-architecture/60_observability_and_evals.md`
 - Dossier spikes: SP-2.2A in `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md`
+- Comparator spec: `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`

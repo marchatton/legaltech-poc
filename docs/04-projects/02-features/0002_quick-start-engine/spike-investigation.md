@@ -11,6 +11,8 @@ Fixture sources:
 - Pack list (canonical): `docs/08-example-data/packs_summary.md`
 - Truth comparators: `docs/08-example-data/<pack>/truth/*`
 - Viewer anchors: `docs/08-example-data/<pack>/layout/*.anchors.json`
+- Comparator spec (canonical): `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`
+- Spike proof artefacts: `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/`
 
 ## Proof contract (apply to every spike)
 
@@ -32,6 +34,13 @@ Observability expectations (for spike proof capture):
 - Correlate failures using `{trace_id, run_id, step_key, question_id}` (see `docs/03-architecture/60_observability_and_evals.md`).
 - Retrieval provenance includes retrieved `chunk_id`s + scores and (where safe) `docs_searched` (see `docs/03-architecture/40_rag_and_agents.md`).
 - Step inputs/outputs are JSON-serialisable and validated with Zod at the step boundary (see `docs/03-architecture/06_frameworks_agents_rag_evals.md`).
+
+## Execution harness + comparator (required)
+
+Any spike that claims a truth match must produce these artefacts:
+- Snapshot JSON for `{pack_id, run_id}` containing pinned versions `{index_version, agent_bundle_version, question_set_version}`, the relevant report rows (`payload_schema_version`, `payload_json`, `status`, `citation_ids`, `provenance_json`), and a citation materialisation map `{citation_id -> {document_filename,page_number,polygons,snippet_hash}}`.
+- Row invariant audit output (SP-2.9).
+- Comparator PASS/FAIL result plus deterministic diff artefact (JSON), per `comparator_spec_v0.md`.
 
 ## Proof capture tooling (optional, but recommended)
 
@@ -72,6 +81,7 @@ If question set v1 is wrong, Initiative 002 can "work" while producing the wrong
 ## Deliverable
 - A committed artefact capturing the frozen question set:
   - `docs/04-projects/02-features/0002_quick-start-engine/question_set_v1.json` (preferred)
+  - `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.1_practitioner_review.md`
   - plus a short note of cuts/changes in this spike report stub
 
 ## Timebox
@@ -153,6 +163,15 @@ Can we extract Schedule A facts, B-I requirements, and B-II exceptions matching 
 2. Record failures precisely (item numbering drift, date formats, instrument ref parsing).
 3. Decide: Patch normalisers vs Cut formats.
 
+## Proof artefacts (to commit)
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.2A_pack_01_clean.snapshot.json`
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.2A_pack_01_clean.result.json`
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.2A_pack_01_clean.diff.json`
+
+Notes:
+- Snapshot must include rows for `TS-03` (B-I) and `TS-04` (B-II).
+- Comparator rules are single-sourced in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`.
+
 ## Oracle notes
 - Pending.
 
@@ -210,6 +229,13 @@ Either:
 And:
 - Record a single threshold decision that triggers (1) vs (2) (no new statuses).
 
+## Proof artefacts (to commit)
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.2C_pack_07_scans.snapshot.json`
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.2C_pack_07_scans.policy.json`
+
+Notes:
+- Threshold decision should be recorded as a constant in `SP-2.2C_pack_07_scans.policy.json` (not just prose).
+
 ## Timebox
 - <= 0.5 day
 
@@ -244,6 +270,13 @@ Can we avoid false matches and surface missing-doc behaviour explicitly?
 
 ## Timebox
 - <= 0.5 day
+
+## Proof artefacts (to commit)
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.3A_pack_01_02_matching.snapshot.json`
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.3A_pack_01_02_matching.result.json`
+
+Notes:
+- Missing-doc checklist must include the literal filename `REA.pdf` for `pack_02_missing_rea`.
 
 ## Oracle notes
 - Pending.
@@ -416,6 +449,13 @@ On restart/retry, do we avoid duplicate rows and keep stable citation `snippet_h
   - workflow continues processing remaining questions
   - run can still reach `completed` (exports remain blocked by default)
 
+## Proof artefacts (to commit)
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.6_idempotency_pack_01.json`
+- `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.6_negative_test.json`
+
+Notes:
+- Record the exact normalisation function used as `normalise_row_for_idempotency_v0()` (defined in `docs/04-projects/02-features/0002_quick-start-engine/comparator_spec_v0.md`).
+
 ## Timebox
 - <= 0.5 day
 
@@ -425,7 +465,7 @@ On restart/retry, do we avoid duplicate rows and keep stable citation `snippet_h
 ## Report (fill after running)
 - Outcome:
 - Proof links:
-- Normalisation function used:
+- Normalisation function used (expected: `normalise_row_for_idempotency_v0()`):
 - Idempotency keys:
 
 ---
@@ -452,6 +492,10 @@ Notes:
 3. Introduce first-class artefact tables and keep report rows as summaries.
 4. Add `report_rows.payload_json` (JSONB) + `payload_schema_version` columns (keep `answer` human-readable and provenance debug-only).
 
+## Current decision (doc-level)
+- Chosen: Option 4 (`report_rows.payload_json` + `report_rows.payload_schema_version`).
+- Schema: `docs/04-projects/02-features/0002_quick-start-engine/list_payload_v0.schema.md` (`payload_schema_version = list_payload_v0`).
+
 ## Success criteria (proof)
 - Can represent truth comparators faithfully (key fields + item numbering) for the chosen packs.
 - Payload supports:
@@ -470,6 +514,7 @@ Notes:
 - Decision:
 - Why:
 - Schema/UX implications:
+- Proof note: `docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.7_decision.md`
 
 ---
 
