@@ -87,7 +87,7 @@ Exclude:
 
 ### Approach (fixture-backed mini-eval)
 1. Build a dev-only spike harness route:
-   - `app/(app)/__spikes/rh2-overlay/page.tsx`
+   - `apps/web/app/(app)/spikes/rh2-overlay/page.tsx`
    - Controls: pack selector (`pack_01_clean`, `pack_07_scans_rotated_low_quality`), doc selector, page number (1-indexed), anchor id, zoom 50/100/150, rotation 0/90/180/270.
    - Debug HUD: pack/doc/page/anchor, `scale`, `totalRotation`, `viewport.width/height`, `canvas.width/height` and CSS size, `devicePixelRatio`.
 
@@ -131,7 +131,7 @@ Throw away:
   - Sessions: use `--session rh2` so the browser persists across commands.
   - Example (headful):
     ```bash
-    browser-use --session rh2 --browser chromium --headed open http://localhost:3000/__spikes/rh2-overlay
+    browser-use --session rh2 --browser chromium --headed open http://localhost:3000/spikes/rh2-overlay
     browser-use --session rh2 state
     browser-use --session rh2 screenshot
     ```

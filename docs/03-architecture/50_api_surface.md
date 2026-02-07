@@ -22,6 +22,11 @@ Auth is an open decision (`docs/03-architecture/00_overview.md`). The contract s
 
 PoC default assumption: single-tenant; environments may run without auth in local/dev, but production-minded deployments should turn auth on.
 
+### Admin token (PoC)
+Some developer-facing endpoints are "admin-only" even in a no-auth PoC environment. PoC v1 contract:
+- Require `X-Orbital-Admin-Token` header to match env `ORBITAL_ADMIN_TOKEN`.
+- If missing/mismatched, return `403` with `error.code = "UNAUTHORISED"` (standard error envelope).
+
 ### Correlation and tracing
 - The server should generate/propagate a `trace_id` per request and include it in the error envelope (and optionally as a response header).
 - Workflow runs should record the `trace_id` that created them in `runs`/`run_steps` metadata (implementation detail, but required for debugging).
@@ -274,6 +279,53 @@ Response:
 }
 ```
 
+### GET /runs/:id/trace (admin)
+Return a minimal, safe-by-default run trace JSON for debugging.
+
+Access control (PoC v1):
+- Requires `X-Orbital-Admin-Token` header matching env `ORBITAL_ADMIN_TOKEN` (see Admin token (PoC) above).
+
+Safety:
+- No raw PDF bytes.
+- Avoid full extracted document text.
+- No raw provider payload dumps.
+- Prefer opaque IDs + hashes.
+
+Response (shape only; exact contents may evolve but must remain safe):
+```json
+{
+  "trace": {
+    "run": {
+      "id": "run_123",
+      "folder_id": "fld_123",
+      "state": "completed",
+      "index_version": "v1",
+      "agent_bundle_version": "git:abc123",
+      "question_set_version": "qs:0002:v1.0:sha256:..."
+    },
+    "steps": [
+      {
+        "step_key": "retrieve",
+        "step_type": "workflow_step",
+        "state": "completed",
+        "attempt": 1,
+        "duration_ms": 123,
+        "metrics_json": {},
+        "error_json": null
+      }
+    ],
+    "rows": [
+      {
+        "question_id": "TS-04",
+        "status": "needs_review",
+        "citation_ids": ["cit_123"],
+        "provenance_json": {}
+      }
+    ]
+  }
+}
+```
+
 ## Citations
 
 ### GET /citations/:id
@@ -335,7 +387,9 @@ Notes:
   - `requirements_tracker`
   - `exceptions_table`
   - `survey_issues`
-- `unsafe_override` is reserved for demo-only “unsafe” exports. If `unsafe_override=true` is provided when demo mode is not enabled, return `403` with `error.code = "UNAUTHORISED"`.
+- `unsafe_override` is reserved for demo-only "unsafe" exports:
+  - Allowed only when `DEMO_MODE=1` and `ALLOW_UNSAFE_EXPORTS=1` and the request includes a valid admin token (see Admin token (PoC) above).
+  - Otherwise return `403` with `error.code = "UNAUTHORISED"`.
 - If an unsafe export is ever allowed, it must be visibly labelled and recorded in artefact metadata (see `docs/03-architecture/20_state_model.md` + `docs/03-architecture/30_data_model.md`).
 
 ### POST /export/docx
@@ -370,6 +424,9 @@ Response:
   }
 }
 ```
+
+Notes:
+- `unsafe_override` semantics match `POST /export/csv` (demo-only, gated behind `DEMO_MODE=1` + `ALLOW_UNSAFE_EXPORTS=1` + admin token).
 
 ### GET /folders/:id/artefacts
 List exported artefacts for a folder.

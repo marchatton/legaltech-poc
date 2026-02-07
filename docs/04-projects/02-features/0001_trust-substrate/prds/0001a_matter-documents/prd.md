@@ -74,7 +74,7 @@ As a reviewer, I want to upload PDFs into a Matter so that the system can ingest
 
 ## Functional Requirements
 - FR-001: Validate all route params and JSON bodies with Zod; return the standard error envelope (ADR-0008).
-- FR-002: Store raw PDFs in S3-compatible storage (ADR-0010 proposed) and persist `storage_key` on the document record.
+- FR-002: Store raw PDFs in S3-compatible storage (ADR-0010) and persist `storage_key` on the document record.
 - FR-003: Ingest enqueues parse + OCR/layout extraction and persists per-page records (`document_pages`) when OCR completes (ADR-0003, data model).
 - FR-004: Never leak provider payloads/stack traces; store safe `error_json` fields for documents and use safe error envelopes for clients.
 
@@ -106,7 +106,7 @@ As a reviewer, I want to upload PDFs into a Matter so that the system can ingest
 - Dependencies:
   - Postgres schema/migrations (data model).
   - Object storage contract (signed URLs).
-  - OCR/layout provider adapter (ADR-0012 proposed).
+  - OCR/layout provider adapter (ADR-0012).
 - Risks:
   - ingest cost/latency on scanned packs; keep work queued and observable.
 
@@ -114,8 +114,7 @@ As a reviewer, I want to upload PDFs into a Matter so that the system can ingest
 - A fresh Matter can ingest `pack_01_clean` and `pack_07_scans_rotated_low_quality` PDFs with clear progress and failure visibility.
 
 ## Open Questions
-- OCR provider choice (Azure DI vs Textract) and local dev story for credentials.
-- Local storage contract: MinIO vs filesystem for earliest dev (ADR-0010).
+- Local dev story for Azure Document Intelligence credentials (env vars, secret management).
 
 ## Sources
 - Initiative shaping packet:
@@ -128,4 +127,3 @@ As a reviewer, I want to upload PDFs into a Matter so that the system can ingest
   - `docs/03-architecture/20_state_model.md`
   - `docs/03-architecture/30_data_model.md`
   - `docs/03-architecture/50_api_surface.md`
-

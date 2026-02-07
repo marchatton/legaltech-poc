@@ -1,21 +1,159 @@
 {
-  "project": "0001f_provenance-trace-export",
-  "branchName": "codex/0001f-provenance-trace-export",
-  "description": "Minimal provenance capture and a downloadable run trace JSON that ties together trace_id, run_id, step_key, question_id, and citation_id safely.",
-  "userStories": [
+  "version": 1,
+  "project": "0001f-provenance-trace-export",
+  "overview": "Implement minimal provenance capture and a downloadable run trace JSON so failures (blocked export, citation_failed, missing_input) can be debugged deterministically without rerunning workflows.",
+  "goals": [
+    "Make failures debuggable without re-running the workflow.",
+    "Keep logs/traces safe (prefer IDs + hashes over raw content)."
+  ],
+  "nonGoals": [
+    "Any monitoring dashboard UI.",
+    "Storing raw prompts/document text in trace exports by default."
+  ],
+  "successMetrics": [
+    "A blocked export or failed run can be debugged using only the trace JSON + DB IDs."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 route handlers + React 19 UI (TypeScript)",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Expose an Export trace button for a selected run_id (developer-facing)."
+    },
+    {
+      "path": "/runs/:id/trace",
+      "name": "Trace Export API",
+      "purpose": "Return a safe JSON trace for a selected run_id (admin-only); must use the standard error envelope on failures."
+    }
+  ],
+  "uiNotes": [
+    "Developer-facing trace export only (no dashboards).",
+    "UI button on Matter detail (or admin panel) downloads a JSON trace for the selected run_id.",
+    "Trace export must be safe: no raw PDF bytes, avoid full extracted document text, no provider payload dumps.",
+    "Admin-only by default: requires X-Orbital-Admin-Token (PoC contract).",
+    "All failures include trace_id in the standard error envelope.",
+    "Feature-flagged rollout: FEATURE_TRACE_EXPORT default off."
+  ],
+  "dataModel": [
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "run_id",
+        "question_id",
+        "status",
+        "provenance_json (retrieval chunk ids + scores, model ids + prompt hashes, verification verdict + reason codes, citation_ids[])"
+      ]
+    },
+    {
+      "entity": "RunStep",
+      "fields": [
+        "run_id",
+        "step_key",
+        "step_type",
+        "state",
+        "attempt",
+        "duration_ms",
+        "metrics_json (timings, token/cost usage, chunk counts)",
+        "error_json (safe; no stack traces/provider payloads)"
+      ]
+    },
+    {
+      "entity": "Artefact (download)",
+      "fields": [
+        "storage_key (persisted)",
+        "fresh signed URL generated on demand (never persisted)"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Not applicable (this slice exports internal provenance/traces).",
+    "example": {}
+  },
+  "rules": [
+    "Use consistent identifiers across trace/provenance: trace_id, folder_id, run_id, step_key, question_id, citation_id.",
+    "Reason codes align with the failure taxonomy in docs/03-architecture/60_observability_and_evals.md.",
+    "Never persist signed download URLs; persist storage keys and generate fresh signed URLs as needed.",
+    "Trace exports must be safe by default (no raw PDFs, avoid full doc text, no provider payload dumps)."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Download run trace JSON",
-      "description": "Download a safe JSON trace for a run to debug failures deterministically.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want to download a run trace so that I can debug failures deterministically.",
       "acceptanceCriteria": [
-        "AC-001 Trace export includes run metadata, step records (step_key/state/attempt/metrics/error_json), and per-row provenance (retrieval chunk_ids, verification verdict, citation_ids).",
-        "AC-002 Trace export is safe: no raw PDF bytes, avoid full extracted text, no provider payload dumps.",
-        "AC-003 Failures return the standard error envelope with trace_id."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": ""
+        "AC-001: Trace export includes run metadata (run_id, folder_id, state, index_version, agent_bundle_version, question_set_version), step records (step_key, step_type, state, attempt, duration_ms, safe error_json), and per-row provenance (question_id, retrieved {chunk_id, score} list, verification verdict + reason codes, citation_ids).",
+        "AC-002: Trace export is safe: no raw PDF bytes, avoid full extracted document text, and no provider payload dumps.",
+        "AC-003: Failures return the standard error envelope with trace_id.",
+        "Example: Download a trace JSON for a known run_id and spot-check that required keys exist and safety rules hold.",
+        "Negative case: Request trace export for an unknown run_id returns NOT_FOUND (safe envelope) and the UI surfaces the trace_id."
+      ]
     }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft",
+    "date": "2026-02-07",
+    "slug": "0001f-provenance-trace-export",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.md"
+  },
+  "primaryObservableEffect": "A reviewer/dev can click 'Export trace' and download a safe JSON file that ties together trace_id, run_id, step_key, question_id, and citation_id.",
+  "inScope": [
+    "Provenance fields per data model: report_rows.provenance_json includes retrieval chunk IDs + scores, model ids + prompt hashes, verification verdict + reason codes, and locked citation IDs.",
+    "run_steps.metrics_json includes timings, token/cost usage, chunk counts (no raw PDF text).",
+    "run_steps.error_json is safe (no stack traces, no provider payloads).",
+    "Correlation identifiers and safety rules per docs/03-architecture/60_observability_and_evals.md.",
+    "Trace export affordance: UI button downloads a JSON trace for selected run_id; API path defined during implementation; must use the standard error envelope on failures."
+  ],
+  "functionalRequirements": [
+    "FR-001: Use consistent identifiers across trace/provenance: trace_id, folder_id, run_id, step_key, question_id, citation_id.",
+    "FR-002: Reason codes align with the failure taxonomy in docs/03-architecture/60_observability_and_evals.md.",
+    "FR-003: Never persist signed download URLs; persist storage keys and generate fresh signed URLs as needed."
+  ],
+  "failureStatesUx": [
+    "Trace export unavailable: show safe error message and the trace_id.",
+    "Permission/auth (if enabled): return UNAUTHENTICATED/UNAUTHORISED per API conventions."
+  ],
+  "metricsLogging": {
+    "events": [
+      "trace_export.requested",
+      "trace_export.succeeded",
+      "trace_export.failed"
+    ],
+    "metrics": [
+      "Trace export size (bytes) and latency."
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_TRACE_EXPORT (default off).",
+    "Safe fallback: hide the button; keep debug via DB inspection."
+  ],
+  "risksDependencies": {
+    "dependencies": [
+      "Persisted runs, run_steps, and report_rows with provenance fields.",
+      "Failure taxonomy doc for reason codes."
+    ],
+    "risks": [
+      "Accidental PII leakage; enforce safety rules and review trace shape carefully."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/03-architecture/30_data_model.md",
+    "docs/03-architecture/50_api_surface.md",
+    "docs/03-architecture/60_observability_and_evals.md"
   ]
 }
-

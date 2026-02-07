@@ -170,7 +170,7 @@ Links
 - Related docs: `docs/03-architecture/50_api_surface.md`, `docs/03-architecture/AGENTS.md`
 
 ## ADR-0009: Deployment posture is Hetzner-first (single VM) until proven otherwise
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-06
 
 Context
@@ -179,7 +179,8 @@ Context
 
 Decision
 - Default deployment target is a Hetzner VM running the Next.js server + WDK worker + Postgres (and optionally MinIO).
-- Vercel stays optional for later (e.g. preview deploys) once the runtime shape is stable.
+- Vercel stays optional for later once the runtime shape is stable.
+- We may deploy the web app (`apps/web`) to Vercel in the future (including preview deployments), while keeping worker + Postgres on the VM.
 
 Consequences
 - Faster path to a stable demo and simpler debugging.
@@ -190,7 +191,7 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/deployment.md`
 
 ## ADR-0010: Use S3-compatible object storage as the baseline
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-06
 
 Context
@@ -211,7 +212,7 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/storage.md`
 
 ## ADR-0011: Postgres is the primary datastore (local compose; Hetzner in deploy)
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-06
 
 Context
@@ -230,7 +231,7 @@ Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`, `docs/03-architecture/30_data_model.md`
 
 ## ADR-0012: OCR/layout extraction is abstracted behind a single provider adapter
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-06
 
 Context
@@ -250,7 +251,7 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/ocr.md`
 
 ## ADR-0013: LLM + embeddings calls go through AI SDK; gateway is default
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-06
 
 Context
@@ -276,7 +277,7 @@ Links
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/llm-gateways.md`
 
 ## ADR-0014: Create a minimal runnable scaffold to validate the architecture
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-06
 
 Context
@@ -298,7 +299,7 @@ Links
 
 
 ## ADR-0015: Deterministic page-bounded chunking (line window v1) + index_version bump rules
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-07
 
 Context
@@ -355,7 +356,7 @@ Links
 
 
 ## ADR-0016: File-backed, immutable question sets with run pinning and completed invariants
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-07
 
 Context
@@ -399,3 +400,120 @@ Links
   - `docs/03-architecture/20_state_model.md`
   - `docs/03-architecture/30_data_model.md`
   - `docs/03-architecture/50_api_surface.md`
+
+
+## ADR-0017: Verification v1 is integrity-only (no entailment model)
+- Status: accepted
+- Date: 2026-02-07
+
+Context
+- We must fail closed on trust breaks (ADR-0002), but "verification" can mean different things:
+  - integrity/invariants (deterministic checks)
+  - semantic entailment (model-based "does evidence support the claim?")
+- Introducing entailment early expands the failure surface (false blocks / false passes) without fixture-eval confidence.
+
+Decision
+- Verification v1 is integrity-only:
+  - citation lock integrity (locked `citation_id`s exist and match `snippet_hash` rules)
+  - geometry sanity (page bounds, normalised polygon ranges, page identity)
+  - row/run invariants required for export gating (ADR-0002)
+- We do **not** include an entailment/verifier model in v1.
+  - If we add entailment later, it must be fixture-eval'd and introduced behind explicit gates.
+
+Consequences
+- Deterministic, cheap verification with clear debug paths.
+- Does not catch "valid evidence, wrong interpretation" errors; reviewer inspection remains the semantic backstop.
+
+Links
+- PR:
+- Related docs:
+  - `docs/03-architecture/20_state_model.md`
+  - `docs/03-architecture/30_data_model.md`
+  - `docs/03-architecture/60_observability_and_evals.md`
+
+
+## ADR-0018: Run trace export is `GET /runs/:id/trace` and is admin-token gated
+- Status: accepted
+- Date: 2026-02-07
+
+Context
+- When exports are blocked or rows fail closed, we need a deterministic, debuggable trace without re-running workflows.
+- PoC environments may run without full auth; trace export must be treated as admin-only by default.
+
+Decision
+- Add a developer-facing trace export endpoint:
+  - `GET /runs/:id/trace` returns a JSON trace for the run (minimal + safe by default).
+- Access control (PoC v1):
+  - Require `X-Orbital-Admin-Token` header to match env `ORBITAL_ADMIN_TOKEN`.
+  - Missing/mismatched token returns `403` with the standard error envelope (ADR-0008).
+- Safety:
+  - No raw PDF bytes.
+  - Avoid full extracted document text.
+  - No raw provider payload dumps.
+  - Prefer opaque IDs + hashes.
+
+Consequences
+- Debugging is faster and more repeatable (trace + IDs is enough).
+- Operators must manage an admin token even in “no auth” PoC environments.
+
+Links
+- PR:
+- Related docs:
+  - `docs/03-architecture/50_api_surface.md`
+  - `docs/03-architecture/60_observability_and_evals.md`
+
+
+## ADR-0019: Unsafe export override is API-only and gated behind demo flags + admin token
+- Status: accepted
+- Date: 2026-02-07
+
+Context
+- Default posture is fail-closed export blocking when trust breaks (ADR-0002).
+- Demos sometimes need an explicit "unsafe export" bypass to show the shape of outputs.
+
+Decision
+- `unsafe_override=true` is allowed only when ALL are true:
+  - `DEMO_MODE=1`
+  - `ALLOW_UNSAFE_EXPORTS=1`
+  - `X-Orbital-Admin-Token` matches env `ORBITAL_ADMIN_TOKEN` (ADR-0018)
+- UI policy (PoC v1):
+  - No unsafe override affordance in the Trust Substrate UI; unsafe override is API-only.
+- Unsafe export labelling:
+  - Artefacts created via unsafe override must be visibly labelled (eg filename suffix `.UNSAFE`) and recorded in artefact metadata.
+
+Consequences
+- Preserves default trust posture while enabling controlled demo escape hatches.
+- Slightly more flag complexity, but failures remain explicit and safe by default.
+
+Links
+- PR:
+- Related docs:
+  - `docs/03-architecture/50_api_surface.md`
+  - `docs/03-architecture/20_state_model.md`
+
+
+## ADR-0020: RH2 overlay is "verified at 100% zoom only" in PoC v1; regression proof is artifact-based
+- Status: accepted
+- Date: 2026-02-07
+
+Context
+- Misaligned highlight overlays are trust leakage (they look "precise" while being wrong).
+- Overlay alignment across zoom/rotation/scanned packs can be gnarly; we need an honest fallback.
+
+Decision
+- PoC v1 overlay posture:
+  - Highlight overlays are treated as verified only at `zoom=100%`.
+  - If zoom is not 100%, we do not render the overlay and show an explicit, honest message explaining the constraint.
+- Regression posture:
+  - Capture proof artifacts (screenshots + bbox/HUD logs) for fixture packs.
+  - Automation may be used to produce artifacts, but v1 does not require automated pixel-diff assertions.
+
+Consequences
+- Protects the trust moment while keeping RH2 scope bounded.
+- Adds some reviewer friction (must go to 100% to inspect the overlay).
+
+Links
+- PR:
+- Related docs:
+  - `docs/04-projects/02-features/0001_trust-substrate/prd-overall.md`
+  - `docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md`

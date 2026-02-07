@@ -64,7 +64,7 @@ As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspec
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_07_scans_rotated_low_quality/docs/`
-- Manual checks: use the dev-only RH1 harness route (`/__spikes/rh1-pdf-perf`) to run serial + spam tests and download results JSON; capture screenshots with HUD visible.
+- Manual checks: use the dev-only RH1 harness route (`/spikes/rh1-pdf-perf`) to run serial + spam tests and download results JSON; capture screenshots with HUD visible.
 - Evidence: summary + decision recorded in `docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md` (RH1 report section).
 
 ## Functional Requirements
@@ -105,8 +105,7 @@ As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspec
 - `pack_07_scans_rotated_low_quality` is usable: page-jump + zoom without UI freezing; timing evidence recorded.
 
 ## Open Questions
-- Do we need progressive rendering/skeletons for long pages in `pack_07`?
-- Do we standardize on a single zoom strategy (rerender-only) for the PoC?
+- None. Viewer v1 uses basic loading/skeleton states; zoom is rerender-only (no CSS scaling).
 
 ## Sources
 - Initiative shaping packet:

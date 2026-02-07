@@ -130,7 +130,7 @@ As a reviewer, I want to mark a row as reviewed so that the table reflects what 
 - `pack_01_clean`: deliberate bad citation -> `citation_failed`; export blocked with `EXPORT_BLOCKED`.
 
 ## Open Questions
-- Do we allow unsafe override at all in the PoC UI, or only via API in a demo-only mode?
+- None. Unsafe override is API-only and gated behind demo flags + admin token; no UI affordance (ADR-0019).
 
 ## Sources
 - Initiative shaping packet:

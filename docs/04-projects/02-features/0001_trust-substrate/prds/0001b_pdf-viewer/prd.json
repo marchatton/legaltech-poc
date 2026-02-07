@@ -1,34 +1,181 @@
 {
-  "project": "0001b_pdf-viewer",
-  "branchName": "codex/0001b-pdf-viewer",
-  "description": "pdf.js viewer with page navigation + zoom, using the signed render_url contract (GET /documents/:id/render?page=N) and proven usable on scanned/rotated packs.",
-  "userStories": [
+  "version": 1,
+  "project": "0001b-pdf-viewer",
+  "overview": "Implement a reliable pdf.js viewer with page navigation and zoom that uses the render_url contract (GET /documents/:id/render?page=N) and remains responsive on scanned/rotated PDFs.",
+  "goals": [
+    "Viewer works for pack_01_clean and remains usable for pack_07_scans_rotated_low_quality.",
+    "Zoom is crisp and stable (no devicePixelRatio drift)."
+  ],
+  "nonGoals": [
+    "Highlight overlays and citation UX.",
+    "OCR/layout rendering layers (text selection, annotations) unless needed for baseline usability."
+  ],
+  "successMetrics": [
+    "pack_07_scans_rotated_low_quality is usable: page-jump + zoom without UI freezing; timing evidence recorded (RH1)."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript)",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Open a document into the viewer."
+    },
+    {
+      "path": "/viewer/:documentId",
+      "name": "Document Viewer",
+      "purpose": "Render a single PDF page via pdf.js with page nav + zoom; accepts searchParams (page, optional citation, optional zoom)."
+    },
+    {
+      "path": "/spikes/rh1-pdf-perf",
+      "name": "RH1 PDF Perf Harness (Dev-Only)",
+      "purpose": "Run serial/spam page-jump tests and download results JSON for pack_07 scans."
+    }
+  ],
+  "uiNotes": [
+    "Viewer renders PDFs via pdf.js and supports page navigation (jump + next/prev) and zoom 50/100/150.",
+    "Zoom must re-render (no CSS-scale drift).",
+    "Use server-first fetch of render_url (no client-side fetch-by-default).",
+    "Failure UI must be explicit and safe (no stack traces).",
+    "Feature-flagged rollout: FEATURE_PDF_VIEWER default off until RH1 evidence is recorded."
+  ],
+  "dataModel": [
+    {
+      "entity": "Document",
+      "fields": [
+        "id",
+        "folder_id",
+        "filename",
+        "page_count",
+        "storage_key"
+      ]
+    },
+    {
+      "entity": "RenderContract",
+      "fields": [
+        "GET /documents/:id/render?page=N returns render_url",
+        "page is 1-indexed and used for initial viewer state/validation"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture PDFs live under docs/08-example-data/<pack>/docs/ and are used to validate viewer usability and performance.",
+    "example": {
+      "pack": "pack_07_scans_rotated_low_quality",
+      "docsDir": "docs/08-example-data/pack_07_scans_rotated_low_quality/docs/",
+      "examplePdf": "TitleCommitment_SCANNED_ROTATED.pdf"
+    }
+  },
+  "rules": [
+    "Viewer is a client component; server components fetch render_url server-first.",
+    "render_url contract is GET /documents/:id/render?page=N where page is 1-indexed.",
+    "PDFs served to pdf.js must support Range requests (Accept-Ranges: bytes and 206 Partial Content).",
+    "Cancel in-flight render tasks on navigation to avoid piling up work.",
+    "All errors use the standard API error envelope; never leak internals."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Open and view a PDF",
-      "description": "Open a document viewer route from a Matter and render the PDF via pdf.js using the render_url contract.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to open a PDF so that I can inspect evidence.",
       "acceptanceCriteria": [
-        "AC-001 From a Matter, I can open a document viewer route for a selected document.",
-        "AC-002 Viewer fetches render_url via GET /documents/:id/render?page=N (1-indexed page) and renders via pdf.js.",
-        "AC-003 Viewer shows an explicit error state if render_url is unavailable or the document is not found."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": "NO-GO until RH1 spike evidence is recorded."
+        "AC-001: From a Matter, I can open a document viewer route for a selected document.",
+        "AC-002: Viewer fetches render_url via GET /documents/:id/render?page=N (1-indexed page) and renders via pdf.js.",
+        "AC-003: Viewer shows an explicit error state if render_url is unavailable or the document is not found.",
+        "Example: Open commitment and survey PDFs from pack_01_clean and confirm they render in the viewer.",
+        "Negative case: Unknown document id returns NOT_FOUND (safe envelope) and the UI shows an explicit error + retry/back affordance."
+      ]
     },
     {
       "id": "US-002",
       "title": "Page navigation and zoom stays responsive on scans",
-      "description": "Page jump and zoom remain usable on pack_07 scanned/rotated PDFs.",
-      "acceptanceCriteria": [
-        "AC-004 PDFs served to pdf.js support Range requests (Accept-Ranges: bytes; Range returns 206 Partial Content).",
-        "AC-005 Define totalMs as request page N -> renderTask.promise resolve (exclude initial PDF load). Serial N=20 @100%: p95(totalMs) < 1000ms and max(totalMs) < 1500ms.",
-        "AC-006 Spam N=30 @200ms: maxLongTaskMs < 250ms and final page completes < 1500ms after request; >=70% intermediate renders cancelled.",
-        "AC-007 Zoom 50/100/150 re-renders consistently (no CSS-scaling drift)."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2,
-      "passes": false,
-      "notes": "NO-GO until RH1 spike executed."
+      "description": "As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspect evidence in low-quality packs.",
+      "acceptanceCriteria": [
+        "AC-004: PDFs served to pdf.js support Range requests (Accept-Ranges: bytes; Range: bytes=... returns 206 Partial Content). Without this, RH1 perf numbers are invalid.",
+        "AC-005: Define totalMs as time from request page N to renderTask.promise resolve (exclude initial PDF load). Serial test (N=20, 100% zoom): p95(totalMs) < 1000ms and max(totalMs) < 1500ms.",
+        "AC-006: Spam test (N=30 @ 200ms): viewer remains responsive (maxLongTaskMs < 250ms) and final requested page completes < 1500ms after its request timestamp; intermediate renders are cancelled (>=70% cancellation rate).",
+        "AC-007: Zoom 50/100/150 re-renders consistently (no CSS-scaling drift).",
+        "Example: Run the RH1 harness on /spikes/rh1-pdf-perf against pack_07 and record a results JSON + summary in spike-investigation.md.",
+        "Negative case: If Range support is missing (no Accept-Ranges or Range does not return 206), the harness reports the precondition failure and RH1 is NO-GO."
+      ]
     }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (NO-GO until RH1 spike executed)",
+    "date": "2026-02-07",
+    "slug": "0001b-pdf-viewer",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.md"
+  },
+  "primaryObservableEffect": "A user can open a document from a Matter and navigate/zoom without the UI freezing.",
+  "inScope": [
+    "Viewer route and minimal UI wiring: from Matter detail, open a document in the viewer; server-first fetch of render_url.",
+    "API: GET /documents/:id/render?page=N returns {render_url} where page is 1-indexed.",
+    "Viewer behaviors: page navigation (jump + next/prev), zoom 50/100/150 (re-render), rotation handling (respect page intrinsic rotation).",
+    "Explicit failure UI (safe error codes; no stack traces)."
+  ],
+  "functionalRequirements": [
+    "FR-001: Viewer is a client component; server components fetch data (render_url) server-first.",
+    "FR-002: Use viewport CSS pixels (viewport.width/height) for layout; keep canvas backing store scaled by devicePixelRatio for crispness.",
+    "FR-003: Handle rotation safely: either omit explicit rotation and let pdf.js apply page.rotate, or compute totalRotation including page.rotate.",
+    "FR-004: Use the API error envelope for failures (ADR-0008); never leak internals.",
+    "FR-005: Cancel in-flight render tasks on navigation and avoid piling up render work during rapid page jumps.",
+    "FR-006: Render a single page at a time in this slice (no continuous scroll)."
+  ],
+  "failureStatesUx": [
+    "Render URL fetch fails: show safe error + retry.",
+    "Page out of range: show safe error (VALIDATION_ERROR or equivalent) and allow navigation to a valid page.",
+    "pdf.js render error: show safe error and a reload action."
+  ],
+  "metricsLogging": {
+    "events": [
+      "viewer.opened",
+      "viewer.page.rendered",
+      "viewer.page.render_failed"
+    ],
+    "metrics": [
+      "viewer_page_render_ms (p50/p95 per pack)",
+      "viewer_page_jump_ms"
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_PDF_VIEWER (default off until RH1 spike evidence is recorded).",
+    "Safe fallback: disable viewer links and show a message that viewer is not enabled."
+  ],
+  "risksDependencies": {
+    "blockedBy": [
+      "RH1 pdf.js performance on scanned/rotated PDFs"
+    ],
+    "dependencies": [
+      "Storage render URL contract (signed URLs, S3-compatible storage).",
+      "Document ingest provides correct page_count to validate page bounds."
+    ],
+    "risks": [
+      "Performance regressions on scanned packs if Range support or render cancellation is incorrect."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/03-architecture/DECISIONS.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/50_api_surface.md"
   ]
 }

@@ -87,7 +87,7 @@ As a developer, I want to download a run trace so that I can debug failures dete
 - A blocked export or failed run can be debugged using only the trace JSON + DB IDs.
 
 ## Open Questions
-- What is the minimal trace export API path, and should it be considered "admin-only"?
+- None. Endpoint is `GET /runs/:id/trace` and is admin-token gated (ADR-0018).
 
 ## Sources
 - Initiative shaping packet:
@@ -97,4 +97,3 @@ As a developer, I want to download a run trace so that I can debug failures dete
   - `docs/03-architecture/30_data_model.md` (provenance_json, immutability, URLs)
   - `docs/03-architecture/50_api_surface.md` (error envelope, trace_id)
   - `docs/03-architecture/60_observability_and_evals.md`
-

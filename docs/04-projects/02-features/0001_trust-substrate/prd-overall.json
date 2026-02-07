@@ -1,96 +1,378 @@
 {
-  "project": "0001_trust-substrate",
-  "branchName": "codex/0001-trust-substrate",
-  "description": "Fixture-driven trust substrate: Matters (Folders), PDF viewer, locked citations, click-to-highlight evidence, fail-closed export gating, and minimal provenance export.",
-  "userStories": [
+  "version": 1,
+  "project": "0001-trust-substrate",
+  "overview": "Establish Orbital's evidence-first trust moment: Matter (Folder) -> citation chip -> PDF viewer -> verified highlight overlay + snippet/hash, with explicit fail-closed behavior and export gating, proven on fixture packs.",
+  "goals": [
+    "Establish a credible trust moment in fixture packs (pack_01_clean, pack_02_missing_rea, pack_07_scans_rotated_low_quality).",
+    "Make trust failures explicit and actionable (no silent failure, no best-effort highlights).",
+    "Keep server/client boundaries clean (server-first fetching; viewer is client-only)."
+  ],
+  "nonGoals": [
+    "Auth/RBAC, sharing, multi-tenant admin.",
+    "External web research inside runs.",
+    "Full Quick Start generation (Initiative 0002).",
+    "Legal/materiality judgement.",
+    "Requiring perfect OCR-derived highlight geometry before we can prove the trust UX (use fixture anchors first, then swap to OCR-derived geometry behind the same contracts)."
+  ],
+  "successMetrics": [
+    "pack_01_clean: citation click-to-highlight works; a deliberate bad citation blocks export.",
+    "pack_02_missing_rea: missing-doc checklist shown; missing_input rows use the exact answer string and have zero citations; export behavior is consistent.",
+    "pack_07_scans_rotated_low_quality: viewer remains usable on scanned/rotated PDFs; highlight behavior is honest (aligned or explicitly cut/patch)."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript) + pdf.js",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matter List",
+      "purpose": "Create and open Matters (Folders)."
+    },
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Upload documents, view doc list/status, view seeded report rows, click citation chips, view export gate and failure journeys."
+    },
+    {
+      "path": "/viewer/:documentId",
+      "name": "Document Viewer",
+      "purpose": "Render PDF via render_url contract; page nav + zoom; highlight overlay + snippet/hash; fail closed on invariant failures."
+    },
+    {
+      "path": "/spikes/rh1-pdf-perf",
+      "name": "RH1 PDF Perf Harness (Dev-Only)",
+      "purpose": "Measure page render performance on pack_07 scans (serial + spam tests)."
+    },
+    {
+      "path": "/spikes/rh2-overlay",
+      "name": "RH2 Overlay Harness (Dev-Only)",
+      "purpose": "Fixture-backed mini-eval for overlay alignment across zoom/rotation + fail-closed cases."
+    }
+  ],
+  "uiNotes": [
+    "Terminology: UI calls it a Matter; API/DB calls it a Folder.",
+    "Evidence-first: citations are locked objects referenced by citation_id only (ADR-0001).",
+    "Fail closed: if any citation invariant fails, render no overlay and show explicit citation_failed UI.",
+    "Export is blocked by default when any row is citation_failed.",
+    "Accessibility: citation chips must be keyboard navigable; viewer controls accessible; error states readable (no color-only).",
+    "Feature flag: FEATURE_TRUST_SUBSTRATE default off until spikes are closed and fixture demos pass."
+  ],
+  "dataModel": [
+    {
+      "entity": "Folder (Matter)",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "latest_index_version"
+      ]
+    },
+    {
+      "entity": "Document",
+      "fields": [
+        "id",
+        "folder_id",
+        "filename",
+        "storage_key",
+        "parse_status",
+        "ocr_status",
+        "page_count",
+        "extraction_quality"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "polygons (normalized [0..1])",
+        "snippet",
+        "snippet_hash"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "folder_id",
+        "run_id",
+        "question_id",
+        "answer",
+        "status (needs_review|reviewed|missing_input|citation_failed)",
+        "citation_ids[]",
+        "provenance_json"
+      ]
+    },
+    {
+      "entity": "Run + RunStep",
+      "fields": [
+        "runs.state (running|completed|failed)",
+        "run_steps.step_key",
+        "run_steps.metrics_json",
+        "run_steps.error_json",
+        "trace_id"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "folder_id",
+        "kind",
+        "schema_version",
+        "filename",
+        "storage_key",
+        "metadata_json"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture-driven packs live under docs/08-example-data/<pack>/ (PDFs under docs/, anchors under layout/*.anchors.json) and are the single source of truth for deterministic trust UX verification.",
+    "example": {
+      "packs": [
+        "pack_01_clean",
+        "pack_02_missing_rea",
+        "pack_07_scans_rotated_low_quality"
+      ],
+      "anchorsGlob": "docs/08-example-data/*/layout/*.anchors.json"
+    }
+  },
+  "rules": [
+    "Validate all external inputs at route/API boundaries with Zod and return the standard safe error envelope (no internal leak).",
+    "Viewer is client-only; server components fetch render_url and citation payloads server-first.",
+    "Citations are immutable locked objects and are fetched via GET /citations/:id.",
+    "Canonical polygon spec: store polygons as normalized [0..1] coords (origin top-left, relative to unrotated page viewBox); map to viewport CSS px via viewBox -> viewport.convertToViewportPoint(); render overlay in viewport CSS pixel space.",
+    "Fail-closed highlight: if any citation invariants fail (doc mismatch, invalid polygons, wrong page, snippet_hash mismatch), render no overlay and show explicit citation_failed state.",
+    "Row status machine blocks export by default when any row is citation_failed; exports are only allowed when runs.state = completed (PoC default).",
+    "missing_input invariant: answer is exactly 'Not found in provided documents.' and citations are empty."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Matter baseline (Folder CRUD + detail surface)",
-      "description": "Create and open a Matter (Folder) to review evidence: Matter list/detail with document list and seeded report table.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to create and open a Matter so that I can review evidence for a specific deal.",
       "acceptanceCriteria": [
-        "AC-001 I can create a Matter (folder) and see it in a Matter list.",
-        "AC-002 I can open a Matter detail page that shows a document list and a seeded report table."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": ""
+        "AC-001: I can create a Matter (API/DB: folder) and see it in a Matter list.",
+        "AC-002: I can open a Matter detail page that shows a document list and a seeded report table.",
+        "Example: Using pack_01_clean, create a Matter and open /matters/:folderId; seeded report rows render.",
+        "Negative case: Opening a non-existent folder id returns NOT_FOUND (safe envelope) and the UI renders an explicit error state."
+      ]
     },
     {
       "id": "US-002",
       "title": "Upload PDFs and show ingest status",
-      "description": "Upload PDFs into a Matter and show them in a document list with ingest status and basic quality metadata fields (even if stubbed).",
-      "acceptanceCriteria": [
-        "AC-003 I can upload a PDF into a Matter and see it appear in the document list.",
-        "AC-004 The document list shows ingest status and basic quality metadata fields (even if stubbed)."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want to upload PDFs into a Matter so that the evidence is available in the viewer.",
+      "acceptanceCriteria": [
+        "AC-003: I can upload a PDF into a Matter and see it appear in the document list.",
+        "AC-004: The document list shows ingest status and basic quality metadata fields (even if stubbed).",
+        "Example: Upload a clean PDF (pack_01) and a scanned/rotated PDF (pack_07) and confirm both appear and are viewable.",
+        "Negative case: Uploading a non-PDF (wrong mime/type) is rejected with VALIDATION_ERROR (safe envelope)."
+      ]
     },
     {
       "id": "US-003",
       "title": "View a PDF (page nav + zoom) via render contract",
-      "description": "Provide a reliable PDF viewer with page navigation and zoom that fetches a render_url via GET /documents/:id/render?page=N.",
-      "acceptanceCriteria": [
-        "AC-005 Viewer renders the correct PDF and can navigate to any page.",
-        "AC-006 Viewer stays responsive on pack_07 scans and meets RH1 thresholds (Range required; serial N=20 @100%: p95(totalMs) < 1000ms and max(totalMs) < 1500ms; spam N=30 @200ms: maxLongTaskMs < 250ms and final page < 1500ms after request). Zoom re-renders (no CSS-scaling drift).",
-        "AC-007 Viewer obtains render_url via GET /documents/:id/render?page=N (server contract, 1-indexed page) rather than hardcoding storage paths."
+      "status": "open",
+      "dependsOn": [
+        "US-002"
       ],
-      "priority": 3,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want a reliable PDF viewer with page navigation and zoom so that I can inspect the underlying evidence.",
+      "acceptanceCriteria": [
+        "AC-005: Viewer renders the correct PDF and can navigate to any page.",
+        "AC-006: Viewer stays responsive on pack_07 scans and meets RH1 thresholds (Range support required; serial N=20 @100%: p95(totalMs) < 1000ms and max(totalMs) < 1500ms; spam N=30 @200ms: maxLongTaskMs < 250ms and final page completes < 1500ms after request). Zoom re-renders (no CSS-scaling drift).",
+        "AC-007: Viewer obtains render_url via GET /documents/:id/render?page=N (server contract, 1-indexed page) rather than hardcoding storage paths.",
+        "Example: Run /spikes/rh1-pdf-perf against pack_07 and record results JSON + summary stats in spike-investigation.md.",
+        "Negative case: If Range support is missing (no Accept-Ranges or Range does not return 206), RH1 is NO-GO and the harness reports the precondition failure."
+      ]
     },
     {
       "id": "US-004",
       "title": "Locked citation object + hashing contract",
-      "description": "Treat citations as immutable, locked objects addressable by citation_id with snippet + snippet_hash and polygons; ensure snippet_hash is stable via canonical normalization.",
-      "acceptanceCriteria": [
-        "AC-008 GET /citations/:id returns locked payload {document_id,page_number,polygons,snippet,snippet_hash}.",
-        "AC-009 snippet_hash uses canonical normalisation rules (single implementation reused everywhere) and is stable across repeated processing."
+      "status": "open",
+      "dependsOn": [
+        "US-003"
       ],
-      "priority": 4,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want each citation to be a locked object with a snippet + snippet_hash so that evidence is immutable and verifiable.",
+      "acceptanceCriteria": [
+        "AC-008: GET /citations/:id returns locked payload {document_id,page_number,polygons,snippet,snippet_hash}.",
+        "AC-009: snippet_hash uses canonical normalisation rules (single implementation reused everywhere) and is stable across repeated processing (RH3).",
+        "Example: Open a citation in the UI and confirm snippet + snippet_hash are displayed and match the API payload.",
+        "Negative case: If snippet_hash invariants fail (mismatch), the UI renders citation_failed and does not show a highlight overlay."
+      ]
     },
     {
       "id": "US-005",
       "title": "Citation chip -> jump-to-highlight (anchors-first, fail-closed)",
-      "description": "Clicking a citation chip opens the viewer at the correct document/page and renders a verified highlight overlay (anchors-first) with explicit fail-closed behavior.",
-      "acceptanceCriteria": [
-        "AC-010 Clicking a citation chip opens the viewer at the correct document + page.",
-        "AC-011 Highlight overlay maps locked polygons to viewport CSS pixels correctly at 50/100/150% zoom (or the UI explicitly enforces the chosen honest fallback).",
-        "AC-012 On rotated/scanned pages (pack_07), highlight remains aligned (or the UI explicitly enforces the chosen honest fallback).",
-        "AC-013 If citation invariants fail (doc mismatch, invalid polygons, wrong page, snippet_hash mismatch), the UI renders no overlay and shows explicit citation_failed details."
+      "status": "open",
+      "dependsOn": [
+        "US-004"
       ],
-      "priority": 5,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want to click a citation chip and see the referenced clause highlighted so that I can trust the report row.",
+      "acceptanceCriteria": [
+        "AC-010: Clicking a citation chip opens the viewer at the correct document + page.",
+        "AC-011: Highlight overlay maps locked polygons to viewport CSS pixels correctly at 50/100/150% zoom (or the UI explicitly enforces the chosen honest fallback).",
+        "AC-012: On rotated/scanned pages (pack_07), highlight remains aligned (or the UI explicitly enforces the chosen honest fallback).",
+        "AC-013: If citation invariants fail (doc mismatch, invalid polygons, wrong page, snippet_hash mismatch), the UI renders no overlay and shows explicit citation_failed details.",
+        "Example: Use /spikes/rh2-overlay to capture screenshots at 50/100/150 with HUD visible for at least two pack_01 anchors.",
+        "Negative case: Deliberately inject an invalid polygon or wrong page and confirm fail-closed behavior (no overlay + explicit failure UI)."
+      ]
     },
     {
       "id": "US-006",
       "title": "Row status machine + export gate (fail closed)",
-      "description": "Report rows have terminal statuses and exports are blocked when evidence fails so we never ship untrusted output.",
-      "acceptanceCriteria": [
-        "AC-014 Rows can be in terminal statuses: needs_review|reviewed|missing_input|citation_failed and statuses are visible in the report table.",
-        "AC-015 One deliberate bad citation produces citation_failed and export is blocked by default when any row is citation_failed."
+      "status": "open",
+      "dependsOn": [
+        "US-005"
       ],
-      "priority": 6,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want report rows to have terminal statuses and exports to be blocked when evidence fails so that we never ship untrusted output.",
+      "acceptanceCriteria": [
+        "AC-014: Rows can be in terminal statuses: needs_review|reviewed|missing_input|citation_failed and statuses are visible in the report table.",
+        "AC-015: One deliberate bad citation produces citation_failed and export is blocked by default when any row is citation_failed.",
+        "Example: In pack_01_clean, a deliberate bad citation yields citation_failed and export attempts return EXPORT_BLOCKED.",
+        "Negative case: Exports are not allowed when runs.state != completed (return CONFLICT) and the UI shows not-ready state."
+      ]
     },
     {
       "id": "US-007",
       "title": "Failure journeys + provenance export",
-      "description": "Missing-doc and citation failure states are actionable, and a minimal run trace JSON can be exported for debugging with safe redaction defaults.",
-      "acceptanceCriteria": [
-        "AC-016 In pack_02_missing_rea, rows that depend on missing docs are missing_input and show an actionable missing-doc checklist with concrete signals ({label, confidence, signals[]}); no false missing-doc flags in pack_01_clean (FP=0).",
-        "AC-016a missing_input rows use the exact answer string Not found in provided documents. and have zero citations.",
-        "AC-017 The UI can export a minimal run trace JSON (developer-facing) with safe redaction defaults (opaque IDs + hashes, no raw provider payloads).",
-        "AC-018 Flag citation wrong action logs a safe feedback event with citation_id + reason code."
+      "status": "open",
+      "dependsOn": [
+        "US-006"
       ],
-      "priority": 7,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want missing-doc and quality failures to be actionable, and as a developer I want a trace export so that failures can be debugged without guesswork.",
+      "acceptanceCriteria": [
+        "AC-016: In pack_02_missing_rea, rows that depend on missing docs are missing_input and show an actionable missing-doc checklist with concrete evidence signals ({label, confidence, signals[]}); no false missing-doc flags in pack_01_clean (FP=0).",
+        "AC-016a: missing_input rows use the exact answer string 'Not found in provided documents.' and have zero citations (state model invariant).",
+        "AC-017: The UI can export a minimal run trace JSON (developer-facing) with safe redaction defaults (opaque IDs + hashes, no raw provider payloads).",
+        "AC-018: Flag citation wrong action logs a safe feedback event with citation_id + reason code.",
+        "Example: In pack_02_missing_rea, verify the missing-doc checklist appears and trace export downloads a safe JSON file.",
+        "Negative case: Trace exports never include raw PDF bytes or full extracted document text; unsafe leakage is treated as a blocker."
+      ]
     }
-  ]
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (Blocked by RH1-RH5 spikes)",
+    "date": "2026-02-07",
+    "slug": "0001-trust-substrate",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prd-overall.md"
+  },
+  "dossierContext": {
+    "constraints": [
+      "No auth/RBAC (local/dev can run without auth).",
+      "No external web research (ADR-0007).",
+      "Evidence-first + citation locking (ADR-0001) and fail-closed verification (ADR-0002).",
+      "API error envelope; do not leak internals (ADR-0008)."
+    ],
+    "rabbitHoles": [
+      "RH1 pdf.js perf on scans",
+      "RH2 overlay transforms across zoom/rotation",
+      "RH3 snippet hash stability",
+      "RH4 verifier precision vs latency/cost",
+      "RH5 missing-doc heuristics"
+    ]
+  },
+  "primaryObservableEffect": "Reviewers can open a Matter, inspect documents, click citations to see highlighted evidence, and observe explicit fail-closed states that gate export by default.",
+  "inScope": [
+    "Matter baseline: create folder, upload PDFs, list docs, open viewer.",
+    "PDF viewer: page navigation + zoom (pdf.js).",
+    "Citation contract: locked citation object + GET /citations/:id with polygons + snippet + snippet_hash.",
+    "Click-to-highlight UX scaffold: seeded report rows + citation chips that jump to viewer and render highlight using fixture anchors.",
+    "Row statuses + export gate: export blocked by default when any row is citation_failed.",
+    "Failure journeys: missing-doc checklist, citation mismatch details, flag citation wrong.",
+    "Provenance: minimal run trace export (developer-facing)."
+  ],
+  "functionalRequirements": [
+    "FR-001: UI calls it a Matter; API/DB remains Folder (folder_id).",
+    "FR-002: Validate all external inputs with Zod and return safe error envelope.",
+    "FR-003: Viewer is client-only; server components fetch render_url and citation payloads server-first.",
+    "FR-004: Store citation polygons as normalized [0..1] page coords (origin top-left, relative to unrotated viewBox); map to viewport CSS px via viewBox -> viewport.convertToViewportPoint().",
+    "FR-005: Render highlight overlay in viewport CSS px space (viewport.width/height), not canvas backing store pixels.",
+    "FR-006: Fail-closed highlight: if any citation invariants fail, render no overlay and show explicit citation_failed.",
+    "FR-007: Row status machine blocks export by default when any row is citation_failed.",
+    "FR-007a: Export is only allowed when runs.state = completed (PoC default) and returns EXPORT_BLOCKED when any row is citation_failed unless an explicit demo-only override is enabled.",
+    "FR-008: Failure journeys are user-visible (missing docs, citation mismatch details, doc quality warnings).",
+    "FR-009: Provenance trace export is minimal and safe (redact by default; hashes/IDs preferred)."
+  ],
+  "failureStatesUx": [
+    "Missing doc(s): row missing_input -> show checklist -> allow upload/retry.",
+    "Citation invariant failure (snippet_hash mismatch, invalid polygons, wrong page): row citation_failed -> show details + flag action -> block export by default.",
+    "Viewer render failure (render_url unavailable): show explicit error panel with safe error code + retry."
+  ],
+  "metricsLogging": {
+    "successSignals": [
+      "citation_click_to_highlight_success_rate (target: 100% on fixture packs)",
+      "export_block_rate_due_to_citation_failed (matches deliberate bad fixtures; no false positives on clean fixtures)"
+    ],
+    "debugSignals": [
+      "structured logs for citation_overlay_rendered and citation_overlay_failed (reason code)",
+      "viewer_page_render_ms",
+      "export_blocked"
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_TRUST_SUBSTRATE (default off until spikes closed).",
+    "Safe fallback: when disabled, hide export and citation highlight features (no partial trust UX)."
+  ],
+  "risksDependencies": {
+    "blockedBy": [
+      "RH1 (pdf.js perf on scans)",
+      "RH2 (overlay transforms)",
+      "RH3 (snippet hash stability)",
+      "RH4 (verifier precision/latency)",
+      "RH5 (missing-doc heuristics)"
+    ],
+    "dependencies": [
+      "Fixture packs under docs/08-example-data.",
+      "API surface contracts under docs/03-architecture/50_api_surface.md.",
+      "State model invariants under docs/03-architecture/20_state_model.md."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle_response_0001.md",
+    "docs/03-architecture/DECISIONS.md",
+    "docs/03-architecture/10_system_architecture.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/30_data_model.md",
+    "docs/03-architecture/50_api_surface.md"
+  ],
+  "appendix": {
+    "rh2MappingSummary": [
+      "Store polygons as normalized [0..1] coords (origin top-left).",
+      "Convert to PDF points using page viewBox and invert Y into PDF bottom-left origin.",
+      "Convert to viewport CSS pixels using viewport.convertToViewportPoint().",
+      "Render overlay in viewport CSS pixel space (viewport.width/height), not canvas backing pixels."
+    ],
+    "rh2HonestFallbacks": [
+      "Cut: lock citation highlight to 100% zoom (verified at 100% only).",
+      "Patch: evidence crop card (render page offscreen and crop bbox) instead of live overlay alignment."
+    ],
+    "slicePrds": [
+      "docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.md",
+      "docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.md",
+      "docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md",
+      "docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md",
+      "docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.md",
+      "docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.md"
+    ]
+  }
 }

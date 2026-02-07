@@ -1,35 +1,196 @@
 {
-  "project": "0001a_matter-documents",
-  "branchName": "codex/0001a-matter-documents",
-  "description": "Folder (Matter) CRUD + document upload + ingest status surface (parse_status/ocr_status/extraction_quality/page_count) aligned to the state model and API surface.",
-  "userStories": [
+  "version": 1,
+  "project": "0001a-matter-documents",
+  "overview": "Build a stable Matter workspace foundation: create/list/open a Matter (Folder), upload PDFs, and observe ingest status so later trust UX can land on real state.",
+  "goals": [
+    "Folder and document state machines are monotonic and consistent with invariants.",
+    "Failures are visible and actionable (no silent stuck states)."
+  ],
+  "nonGoals": [
+    "PDF viewer UX.",
+    "Citation locking + verification.",
+    "Quick Start runs/workflows.",
+    "Export."
+  ],
+  "successMetrics": [
+    "A fresh Matter can ingest pack_01_clean and pack_07_scans_rotated_low_quality PDFs with clear progress and failure visibility."
+  ],
+  "openQuestions": [
+    "Local dev story for Azure Document Intelligence credentials (env vars, secret management)."
+  ],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript)",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matter List",
+      "purpose": "List and create Matters (Folders)."
+    },
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Upload documents and observe ingest status in a document list."
+    }
+  ],
+  "uiNotes": [
+    "Minimal UI (server-first) to exercise Folder/Document APIs: Matter list + Matter detail with upload + document list.",
+    "Terminology: UI calls it a Matter; API/DB calls it a Folder.",
+    "Feature-flagged rollout: FEATURE_MATTERS default off until end-to-end smoke passes."
+  ],
+  "dataModel": [
+    {
+      "entity": "Folder (Matter)",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "latest_index_version",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "entity": "Document",
+      "fields": [
+        "id",
+        "folder_id",
+        "filename",
+        "storage_key",
+        "parse_status",
+        "ocr_status",
+        "page_count",
+        "extraction_quality",
+        "error_json"
+      ]
+    },
+    {
+      "entity": "DocumentPage",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "text",
+        "layout_json"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture PDFs live under docs/08-example-data/<pack>/docs/ and are used for deterministic smoke testing of upload + ingest status.",
+    "example": {
+      "pack": "pack_01_clean",
+      "docsDir": "docs/08-example-data/pack_01_clean/docs/"
+    }
+  },
+  "rules": [
+    "Validate all external inputs at route boundaries with Zod and return the standard safe error envelope.",
+    "Never leak provider payloads/stack traces to clients; persist only safe error_json fields.",
+    "Folder state transitions are monotonic and consistent with the state model (empty -> ingesting -> indexed -> ready; failures -> failed)."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Create and open a Matter",
-      "description": "Create/list/open a Matter (Folder) to host a diligence pack.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to create and open a Matter so that I can review a diligence pack.",
       "acceptanceCriteria": [
-        "AC-001 POST /folders creates a folder with state=empty.",
-        "AC-002 GET /folders lists folders including state and latest_index_version.",
-        "AC-003 GET /folders/:id returns folder state and timestamps."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": ""
+        "AC-001: POST /folders creates a folder with state=empty.",
+        "AC-002: GET /folders lists folders including state and latest_index_version.",
+        "AC-003: GET /folders/:id returns folder state and timestamps.",
+        "Example: Create a Matter named 'Pack 01 Clean' and verify it appears in /matters and in GET /folders.",
+        "Negative case: POST /folders with missing/empty name returns VALIDATION_ERROR using the standard error envelope.",
+        "Verification: Manual smoke: create a Matter, confirm it appears in the list, and open its detail page."
+      ]
     },
     {
       "id": "US-002",
       "title": "Upload PDFs and observe ingest status",
-      "description": "Upload PDFs into a Matter and observe document ingest progress/failures via parse_status/ocr_status and derived folder state.",
-      "acceptanceCriteria": [
-        "AC-004 POST /folders/:id/documents returns a document record plus an upload target (signed URL + headers + storage_key).",
-        "AC-005 POST /documents/:id/complete enqueues ingest and document state progresses out of queued as work starts.",
-        "AC-006 GET /folders/:id/documents returns documents with parse_status, ocr_status, page_count (when parsed), and extraction_quality (when ocr done).",
-        "AC-007 Folder state transitions are monotonic and consistent with the state model (empty->ingesting->indexed->ready; failures -> failed)."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want to upload PDFs into a Matter so that the system can ingest them for later evidence workflows.",
+      "acceptanceCriteria": [
+        "AC-004: POST /folders/:id/documents returns a document record plus an upload target (signed URL + headers + storage_key).",
+        "AC-005: POST /documents/:id/complete enqueues ingest and transitions document state out of queued as work starts.",
+        "AC-006: GET /folders/:id/documents returns documents with parse_status, ocr_status, page_count (when parsed), and extraction_quality (when ocr done).",
+        "AC-007: Folder state transitions are derivable and consistent: empty -> ingesting once first upload completes; ingesting -> indexed once all docs reach terminal ingest state and indexing is built; indexed -> ready once health checks pass; any terminal ingest failure can transition folder to failed.",
+        "Example: Upload TitleCommitment.pdf from pack_01_clean and observe parse_status and ocr_status progress to terminal states and page_count/extraction_quality fields populate when ready.",
+        "Negative case: POST /documents/:id/complete with wrong/missing storage_key returns VALIDATION_ERROR.",
+        "Verification: Upload 2+ PDFs from pack_01_clean and pack_07_scans_rotated_low_quality; confirm statuses progress and failures show a safe error code/message."
+      ]
     }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (Ready to implement; no open spikes required)",
+    "date": "2026-02-07",
+    "slug": "0001a-matter-documents",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.md"
+  },
+  "primaryObservableEffect": "A user can create a Matter and upload PDFs, then watch ingest progress and failures per document.",
+  "inScope": [
+    "HTTP API endpoints (docs/03-architecture/50_api_surface.md): GET /folders, POST /folders, GET /folders/:id, POST /folders/:id/documents (init upload), POST /documents/:id/complete, GET /folders/:id/documents.",
+    "Persist and expose folder/document states per docs/03-architecture/20_state_model.md.",
+    "OCR/layout extraction is enqueued as part of ingest (ADR-0003).",
+    "Minimal UI (server-first): Matter list + Matter detail with document upload + list."
+  ],
+  "functionalRequirements": [
+    "FR-001: Validate all route params and JSON bodies with Zod; return the standard error envelope (ADR-0008).",
+    "FR-002: Store raw PDFs in S3-compatible storage and persist storage_key on the document record.",
+    "FR-003: Ingest enqueues parse + OCR/layout extraction and persists per-page records (document_pages) when OCR completes (ADR-0003, data model).",
+    "FR-004: Never leak provider payloads/stack traces; store safe error_json fields for documents and use safe error envelopes for clients."
+  ],
+  "failureStatesUx": [
+    "Upload init fails: show error envelope INTERNAL or VALIDATION_ERROR (as appropriate) and allow retry.",
+    "Upload complete called with wrong/missing storage_key: return VALIDATION_ERROR.",
+    "OCR/layout fails: set documents.ocr_status=failed, persist safe error_json, and reflect folder state failed where required by invariants."
+  ],
+  "metricsLogging": {
+    "events": [
+      "folder.created",
+      "document.upload.initiated",
+      "document.upload.completed",
+      "document.ingest.started",
+      "document.ingest.completed",
+      "document.ingest.failed"
+    ],
+    "metrics": [
+      "Ingest duration per document (p50/p95).",
+      "extraction_quality distribution per pack.",
+      "Failure taxonomy counts: OCR_FAIL, LAYOUT_FAIL, CHUNKING_FAIL."
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_MATTERS (default off until end-to-end smoke passes).",
+    "Safe fallback: hide upload UI and prevent ingest endpoints from enqueueing work."
+  ],
+  "risksDependencies": {
+    "dependencies": [
+      "Postgres schema/migrations (data model).",
+      "Object storage contract (signed URLs).",
+      "OCR/layout provider adapter."
+    ],
+    "risks": [
+      "Ingest cost/latency on scanned packs; keep work queued and observable."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/03-architecture/DECISIONS.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/30_data_model.md",
+    "docs/03-architecture/50_api_surface.md"
   ]
 }
-

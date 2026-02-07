@@ -1,46 +1,216 @@
 {
-  "project": "0001e_row-status-export-failures",
-  "branchName": "codex/0001e-row-status-export-failures",
-  "description": "Report row terminal statuses + fail-closed export gating + explicit failure journeys (missing_input, citation_failed) aligned to the state model and API surface.",
-  "userStories": [
+  "version": 1,
+  "project": "0001e-row-status-export-failures",
+  "overview": "Implement report row terminal statuses and explicit failure journeys, plus server-enforced export gating (block on citation_failed by default) so we never export untrusted outputs.",
+  "goals": [
+    "Make failure states explicit, actionable, and safe.",
+    "Never silently export untrusted rows by default."
+  ],
+  "nonGoals": [
+    "Full entailment verifier tuning (beyond the spike and conservative v1 rubric).",
+    "Building the entire Quick Start workflow controller (handled in Initiative 0002)."
+  ],
+  "successMetrics": [
+    "pack_02_missing_rea: missing docs -> missing_input with checklist and exact answer string.",
+    "pack_01_clean: deliberate bad citation -> citation_failed; export blocked with EXPORT_BLOCKED."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript)",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Render report table with status badges, missing-doc checklist, and export button with gating reasons."
+    },
+    {
+      "path": "/export/csv",
+      "name": "CSV Export API",
+      "purpose": "Server-enforced export gating: block when any row is citation_failed unless an explicit demo-only unsafe override is enabled."
+    }
+  ],
+  "uiNotes": [
+    "Report table shows terminal status badges: needs_review, reviewed, missing_input, citation_failed.",
+    "Missing-doc journey: missing_input rows show an actionable checklist with concrete evidence signals.",
+    "Citation failure journey: citation_failed rows show explicit safe reason codes and are non-exportable by default.",
+    "Export button shows blocked state and why; links to failing rows.",
+    "Flag citation wrong action records a safe feedback event."
+  ],
+  "dataModel": [
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "folder_id",
+        "run_id",
+        "question_id",
+        "answer",
+        "status (needs_review|reviewed|missing_input|citation_failed)",
+        "citation_ids[]",
+        "provenance_json / notes (missing-doc checklist, reason codes)"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "folder_id",
+        "state (running|completed|failed)",
+        "trace_id"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "folder_id",
+        "run_id",
+        "kind",
+        "schema_version",
+        "filename",
+        "storage_key",
+        "metadata_json (unsafe_override, reason codes)",
+        "created_at"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture packs under docs/08-example-data/ are used to deterministically validate missing-doc and bad-citation journeys.",
+    "example": {
+      "packs": [
+        "pack_01_clean",
+        "pack_02_missing_rea"
+      ]
+    }
+  },
+  "rules": [
+    "Status values are constrained to the state model; do not invent new statuses.",
+    "missing_input invariant: answer must be exactly 'Not found in provided documents.' and citations must be empty.",
+    "Export gating is server-enforced: block export when any row is citation_failed by default (EXPORT_BLOCKED).",
+    "Exports are allowed only when runs.state = completed (PoC default).",
+    "Unsafe override is demo-only; when disallowed, return 403 UNAUTHORISED; when allowed, artefact is visibly labelled unsafe and metadata records the override.",
+    "All errors use the standard envelope and include trace_id for debugging.",
+    "Verification is fail-closed: deterministic integrity checks short-circuit; any UNSURE entailment verdict is treated as FAIL."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Missing docs yields missing_input with checklist",
-      "description": "Missing evidence resolves to missing_input with an actionable missing-doc checklist and strict invariants.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want missing inputs to be explicit and actionable so that I can upload the right documents.",
       "acceptanceCriteria": [
-        "AC-001 Rows with no supporting evidence resolve to missing_input.",
-        "AC-002 missing_input rows have answer exactly Not found in provided documents., zero citations, and notes/provenance contains a missing-doc checklist with {label, confidence, signals[]}; only show candidates with confidence >= 0.8 by default.",
-        "AC-003 Missing-doc detection flags REA.pdf in pack_02_missing_rea and produces no missing-doc flags in pack_01_clean (FP=0)."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": "Blocked by RH5."
+        "AC-001: Rows with no supporting evidence resolve to missing_input.",
+        "AC-002: missing_input rows must have answer exactly 'Not found in provided documents.', zero citations, and provenance/notes containing a missing-doc checklist with concrete evidence signals ({label, confidence, signals[]}); only show high-confidence candidates by default (confidence >= 0.8).",
+        "AC-003: Missing-doc detection flags REA.pdf in pack_02_missing_rea and produces no missing-doc flags in pack_01_clean (FP=0).",
+        "Example: On pack_02_missing_rea, open the report table and confirm the missing-doc checklist is visible and actionable for the missing instrument.",
+        "Negative case: On pack_01_clean, no rows are marked missing_input due to false missing-doc detection (FP=0)."
+      ]
     },
     {
       "id": "US-002",
       "title": "Bad evidence yields citation_failed and blocks export",
-      "description": "Evidence failures yield citation_failed and exports are blocked by default per API contract.",
-      "acceptanceCriteria": [
-        "AC-004 Deliberate bad citation yields citation_failed.",
-        "AC-004a Verification is precision-first: deterministic integrity checks short-circuit; any UNSURE entailment verdict is treated as FAIL (fail-closed).",
-        "AC-005 POST /export/csv returns error.code=EXPORT_BLOCKED when any row is citation_failed (default).",
-        "AC-006 unsafe_override=true is demo-only: when not enabled return 403 UNAUTHORISED; if enabled, artefact is visibly labeled unsafe and metadata records override."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2,
-      "passes": false,
-      "notes": "Blocked by RH4."
+      "description": "As a reviewer, I want evidence failures to block export so that we don't ship untrusted outputs.",
+      "acceptanceCriteria": [
+        "AC-004: A deliberate bad citation (snippet_hash mismatch, invalid polygons, or verification fail) yields citation_failed.",
+        "AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any UNSURE entailment verdict is treated as FAIL (fail-closed).",
+        "AC-005: Export is blocked by default when any row is citation_failed: POST /export/csv returns non-2xx with error.code=EXPORT_BLOCKED.",
+        "AC-006: Unsafe override: when unsafe_override=true is provided and demo mode is not enabled, return 403 UNAUTHORISED; if demo mode allows unsafe export, the artefact is visibly labelled unsafe and metadata records the override.",
+        "Example: On pack_01_clean with one deliberately corrupted citation fixture, attempt export and confirm the API returns EXPORT_BLOCKED and UI shows a blocked state.",
+        "Negative case: Call POST /export/csv with unsafe_override=true when demo mode is off and confirm 403 UNAUTHORISED (safe envelope)."
+      ]
     },
     {
       "id": "US-003",
       "title": "needs_review -> reviewed is explicit and persisted",
-      "description": "Reviewer can mark a needs_review row as reviewed; status invariants hold.",
-      "acceptanceCriteria": [
-        "AC-007 Rows can transition needs_review -> reviewed only via explicit user action.",
-        "AC-008 needs_review|reviewed rows have >=1 locked citation."
+      "status": "open",
+      "dependsOn": [
+        "US-002"
       ],
-      "priority": 3,
-      "passes": false,
-      "notes": ""
+      "description": "As a reviewer, I want to mark a row as reviewed so that the table reflects what I've checked.",
+      "acceptanceCriteria": [
+        "AC-007: Rows can transition needs_review -> reviewed only via explicit user action.",
+        "AC-008: Status invariants hold: needs_review and reviewed rows have >=1 locked citation (ADR-0001).",
+        "Example: Click 'Mark reviewed' on a needs_review row and confirm the status persists after refresh.",
+        "Negative case: Attempt to mark reviewed on a row with zero citations is rejected and the UI shows an explicit safe reason."
+      ]
     }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (NO-GO until RH4/RH5 spikes executed)",
+    "date": "2026-02-07",
+    "slug": "0001e-row-status-export-failures",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.md"
+  },
+  "primaryObservableEffect": "On fixture packs, missing docs produce missing_input with an actionable checklist, and a deliberate bad citation produces citation_failed and blocks export with EXPORT_BLOCKED.",
+  "inScope": [
+    "Status model and invariants per docs/03-architecture/20_state_model.md.",
+    "Export contract per docs/03-architecture/50_api_surface.md: exports allowed only when runs.state=completed; block export when any row is citation_failed unless demo-only override is enabled.",
+    "UI surfaces: report table shows status badges and gating reasons; Export button shows blocked state; Flag citation wrong records a safe feedback event."
+  ],
+  "functionalRequirements": [
+    "FR-001: Status values are constrained to the state model; do not invent new statuses.",
+    "FR-002: Reason codes recorded in provenance align with the failure taxonomy in docs/03-architecture/60_observability_and_evals.md where possible (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL).",
+    "FR-003: Export gating must be implemented at the API boundary (server-enforced), not just UI.",
+    "FR-004: All errors use the standard envelope and include trace_id for debugging."
+  ],
+  "failureStatesUx": [
+    "Export blocked: show clear blocked state, list count of citation_failed rows, and link to the failing rows.",
+    "Unsafe export disallowed: show message that unsafe override is demo-only.",
+    "Verification/citation failure: show explicit citation_failed reason and a Flag citation wrong affordance."
+  ],
+  "metricsLogging": {
+    "events": [
+      "row.status_changed (from/to + actor)",
+      "export.blocked (counts + reason codes)",
+      "export.unsafe_override_requested",
+      "export.unsafe_override_denied"
+    ],
+    "metrics": [
+      "Blocked export rate (by reason code).",
+      "Counts of missing_input and citation_failed per pack."
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_EXPORTS (default off).",
+    "Safe fallback: hide export buttons; keep report table read-only."
+  ],
+  "risksDependencies": {
+    "blockedBy": [
+      "RH4 verification precision (false passes) and latency budget",
+      "RH5 missing-doc detection heuristics"
+    ],
+    "dependencies": [
+      "Citations are lockable and immutable (ADR-0001).",
+      "Report rows persisted per run (runs.state used for export preconditions).",
+      "Verification harness dataset: docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json"
+    ],
+    "risks": [
+      "False passes undermine trust; treat UNSURE as FAIL and prefer more citation_failed rows.",
+      "Missing-doc false positives create user confusion; enforce FP=0 on pack_01_clean."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/03-architecture/DECISIONS.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/50_api_surface.md",
+    "docs/03-architecture/60_observability_and_evals.md"
   ]
 }

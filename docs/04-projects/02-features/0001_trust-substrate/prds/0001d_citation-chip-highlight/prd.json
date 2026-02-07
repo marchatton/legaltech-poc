@@ -1,33 +1,187 @@
 {
-  "project": "0001d_citation-chip-highlight",
-  "branchName": "codex/0001d-citation-chip-highlight",
-  "description": "Citation chip UX scaffold: click citation -> open viewer at cited page -> render fail-closed highlight overlay using locked citation polygons (anchors-first for RH2).",
-  "userStories": [
+  "version": 1,
+  "project": "0001d-citation-chip-highlight",
+  "overview": "Ship the core trust affordance scaffold: click a citation chip and see the exact clause highlighted in the PDF viewer (anchors-first), with explicit fail-closed behavior (no best-effort highlights).",
+  "goals": [
+    "Prove the trust moment on fixture packs with evidence capture (screenshots + bbox logs).",
+    "Avoid accidental trust leakage (fail-closed overlay)."
+  ],
+  "nonGoals": [
+    "Quick Start runs and workflow orchestration.",
+    "Entailment verification (beyond deterministic integrity/fail-closed checks).",
+    "Export gating and run completion requirements (handled in 0001e)."
+  ],
+  "successMetrics": [
+    "Evidence captured for RH2: pack_01 + pack_07 screenshots and bbox logs; fail-closed case proven."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript) + pdf.js",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Render seeded report rows and citation chips (derived from citation_id only)."
+    },
+    {
+      "path": "/viewer/:documentId",
+      "name": "Document Viewer",
+      "purpose": "Accepts searchParams (page, optional citation); fetches citation payload and renders overlay + snippet/hash."
+    },
+    {
+      "path": "/spikes/rh2-overlay",
+      "name": "RH2 Overlay Harness (Dev-Only)",
+      "purpose": "Fixture-backed mini-eval for highlight alignment at 50/100/150% zoom + rotation + fail-closed cases."
+    },
+    {
+      "path": "/spikes/local-pdf",
+      "name": "Local PDF Fixture Route (Dev-Only)",
+      "purpose": "Serve fixture PDFs to the RH2 harness for deterministic testing (implementation detail)."
+    }
+  ],
+  "uiNotes": [
+    "Report rows render citation chips derived from citation_id values only (no free-text citations).",
+    "Clicking a chip navigates to the viewer with document_id and page (1-indexed) and optional citation query.",
+    "Viewer overlays locked citation polygon(s) and shows snippet + snippet_hash.",
+    "Fail closed: if any invariant fails (doc mismatch, page out of range, invalid polygons, render_url missing), render no overlay and show explicit failure UI.",
+    "Honest fallback is allowed if needed: highlights verified at 100% only (cut) or evidence crop card (patch)."
+  ],
+  "dataModel": [
+    {
+      "entity": "ReportRow (fixture-backed scaffold)",
+      "fields": [
+        "id",
+        "folder_id",
+        "question_id",
+        "answer",
+        "citation_ids[]"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "polygons (normalized [0..1])",
+        "snippet",
+        "snippet_hash"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Anchor fixtures live under docs/08-example-data/*/layout/*.anchors.json and are used to validate overlay mapping math before OCR-derived geometry is wired.",
+    "example": {
+      "pack": "pack_01_clean",
+      "anchorsGlob": "docs/08-example-data/pack_01_clean/layout/*.anchors.json",
+      "exampleAnchorId": "SCHED_A_PROPOSED_INSURED"
+    }
+  },
+  "rules": [
+    "Store polygons as normalized [0..1] page coordinates, origin top-left, relative to unrotated page viewBox.",
+    "Map to viewport CSS pixels via page viewBox -> viewport.convertToViewportPoint(); render overlay sized to viewport.width/height CSS px.",
+    "Overlay uses viewport CSS px (not canvas backing store px); do not mix in devicePixelRatio.",
+    "Handle rotation correctly; do not override page.rotate accidentally.",
+    "Fail-closed overlay: if any invariants fail, render no overlay and show explicit citation_failed UI state."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Click citation chip -> open viewer at cited evidence",
-      "description": "Render citation chips from citation_ids and navigate to the viewer at the correct document_id and page.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to click a citation chip and jump to the cited PDF page so that I can inspect evidence quickly.",
       "acceptanceCriteria": [
-        "AC-001 Report rows render citation chips derived from citation_ids only (no free-text citations).",
-        "AC-002 Clicking a chip navigates to the viewer with the correct document_id and page (1-indexed)."
-      ],
-      "priority": 1,
-      "passes": false,
-      "notes": "Depends on viewer + citations API."
+        "AC-001: Report rows render citation chips derived from citation_id values (no free-text citations).",
+        "AC-002: Clicking a chip navigates to the viewer with the correct document_id and page (1-indexed).",
+        "Example: On pack_01_clean, click chips across at least two documents (commitment + survey) and confirm the viewer opens at the correct page.",
+        "Negative case: If a row has no citation_ids, no chips render and the UI does not invent citations."
+      ]
     },
     {
       "id": "US-002",
       "title": "Evidence highlights align across zoom + rotation",
-      "description": "Render highlight overlay that stays aligned across zoom and rotation, and fail closed when invariants break.",
-      "acceptanceCriteria": [
-        "AC-003 Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).",
-        "AC-004 Highlight remains aligned at 50/100/150% zoom and bbox scales with zoom (within ±2% OR ±3 CSS px vs bbox100*scale) (or an explicit cut is enforced: verified at 100% only).",
-        "AC-005 Highlight remains aligned on at least one rotated/scanned page (pack_07) (or an explicit cut/patch is enforced).",
-        "AC-006 Fail-closed: invalid polygon or wrong page yields explicit failure UI and no overlay."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2,
-      "passes": false,
-      "notes": "NO-GO until RH2 spike executed."
+      "description": "As a reviewer, I want the highlight to stay glued to the clause across zoom and rotation so that I can trust what I am seeing.",
+      "acceptanceCriteria": [
+        "AC-003: Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).",
+        "AC-004: Highlight remains aligned at 50/100/150% zoom and bbox scales with zoom (within ±2% OR ±3 CSS px vs bbox100 * scale) (or an explicit cut is enforced: highlights verified at 100% only).",
+        "AC-005: Highlight remains aligned on at least one rotated/scanned page (pack_07) (or an explicit cut/patch is enforced).",
+        "AC-006: Fail-closed: deliberate invalid polygon or wrong page yields explicit failure UI and no overlay.",
+        "Example: Use /spikes/rh2-overlay to capture screenshots at 50/100/150 with HUD visible for pack_01 anchors and record bbox logs that prove scaling invariance.",
+        "Negative case: Inject an out-of-range polygon ([0..1] violated) and confirm the viewer shows citation_failed and renders no overlay."
+      ]
     }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (NO-GO until RH2 spike executed)",
+    "date": "2026-02-07",
+    "slug": "0001d-citation-chip-highlight",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md"
+  },
+  "primaryObservableEffect": "On pack_01_clean, a reviewer can click a citation chip and see the correct clause highlighted, including at 50/100/150% zoom (or an honest fallback is enforced).",
+  "inScope": [
+    "Matter detail UI: seeded report rows table (fixture-backed) and citation chips rendered from citation_id values only (ADR-0001).",
+    "Viewer behavior (builds on 0001b): accept searchParams (page, optional citation), fetch GET /citations/:id, and render overlay + snippet/hash.",
+    "Highlight overlay mapping: store polygons normalized [0..1], origin top-left; map to viewport CSS pixels via viewBox -> viewport.convertToViewportPoint(); overlay sized to viewport.width/height CSS px.",
+    "Fail-closed behavior: if any invariant fails (doc mismatch, page out of range, invalid polygons, render_url missing), render no overlay and show explicit failure UI."
+  ],
+  "functionalRequirements": [
+    "FR-001: Highlight renderer is a pure mapping util (unit-testable) and is reused in viewer overlay rendering.",
+    "FR-002: Overlay uses viewport CSS px (not canvas backing store px); do not mix in devicePixelRatio.",
+    "FR-003: Handle page rotation correctly (do not override page.rotate accidentally).",
+    "FR-004: All failures render explicit user-visible states and log safe reason codes (align with failure taxonomy where possible)."
+  ],
+  "failureStatesUx": [
+    "Invalid citation payload: show citation_failed panel with safe reason code.",
+    "Overlay mapping failure: show citation_failed panel and log safe reason codes.",
+    "Viewer render failure: show safe error and a retry action."
+  ],
+  "metricsLogging": {
+    "events": [
+      "citation_chip.clicked",
+      "highlight_overlay.rendered",
+      "highlight_overlay.failed (reason_code)"
+    ],
+    "metrics": [
+      "Citation click-to-highlight success rate on fixture packs (target: 100% on pack_01)."
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_CITATION_HIGHLIGHTS (default off until RH2 evidence is recorded).",
+    "Safe fallback: citation chips still navigate to the page but show snippet/hash without overlay (honest highlight not available state)."
+  ],
+  "risksDependencies": {
+    "blockedBy": [
+      "RH2 overlay transform across zoom/rotation"
+    ],
+    "dependencies": [
+      "0001b PDF viewer (render URL contract + pdf.js render).",
+      "0001c citations API (locked citation payload)."
+    ],
+    "risks": [
+      "Coordinate transform drift across devicePixelRatio/rotation/zoom leading to false trust if not fail-closed."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/brief.md",
+    "docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle_response_0001.md",
+    "docs/03-architecture/DECISIONS.md",
+    "docs/03-architecture/50_api_surface.md"
   ]
 }

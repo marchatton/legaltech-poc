@@ -64,7 +64,7 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 - AC-006: Fail-closed: deliberate invalid polygon or wrong page yields explicit failure UI and no overlay.
 
 #### Verification
-- Use the dev-only RH2 harness route (`/__spikes/rh2-overlay`) (loads fixture anchors and PDFs via `/__spikes/local-pdf`).
+- Use the dev-only RH2 harness route (`/spikes/rh2-overlay`) (loads fixture anchors and PDFs via `/spikes/local-pdf`).
 - Fixture-backed mini-eval per RH2 spike plan:
   - pack_01 anchors:
     - TitleCommitment: `SCHED_A_PROPOSED_INSURED` (page 1)
@@ -112,7 +112,7 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 - Evidence captured for RH2: pack_01 + pack_07 screenshots and bbox logs; fail-closed case proven.
 
 ## Open Questions
-- If RH2 is too gnarly, do we cut to "verified at 100% only" or patch to an "evidence crop card"?
+- None. Fallback is "verified at 100% zoom only" (ADR-0020).
 
 ## Sources
 - Initiative shaping packet:

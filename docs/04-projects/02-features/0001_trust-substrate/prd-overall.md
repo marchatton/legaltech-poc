@@ -78,7 +78,7 @@ As a reviewer, I want a reliable PDF viewer with page navigation and zoom so tha
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_07_scans_rotated_low_quality/`
-- Manual checks: use the dev-only RH1 harness route (`/__spikes/rh1-pdf-perf`) to run serial + spam tests, download results JSON, and record summary stats in the RH1 spike report.
+- Manual checks: use the dev-only RH1 harness route (`/spikes/rh1-pdf-perf`) to run serial + spam tests, download results JSON, and record summary stats in the RH1 spike report.
 
 ### US-004: Locked citation object + hashing contract
 As a reviewer, I want each citation to be a locked object with a snippet + `snippet_hash` so that evidence is immutable and verifiable.
@@ -103,7 +103,7 @@ As a reviewer, I want to click a citation chip and see the referenced clause hig
 
 #### Verification
 - Pack/fixture/script: anchors from `docs/08-example-data/*/layout/*.anchors.json`
-- Manual checks: use the dev-only RH2 harness route (`/__spikes/rh2-overlay`); capture screenshots at 50/100/150 with HUD visible.
+- Manual checks: use the dev-only RH2 harness route (`/spikes/rh2-overlay`); capture screenshots at 50/100/150 with HUD visible.
 
 ### US-006: Row status machine + export gate (fail closed)
 As a reviewer, I want report rows to have terminal statuses and exports to be blocked when evidence fails so that we never ship untrusted output.
@@ -190,7 +190,7 @@ No silent failures. Examples:
     - Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`; `p95 <= 8s` per row on dev machine
   - RH5 missing-doc heuristics false positives (FP=0 on pack_01; flags `REA.pdf` on pack_02; candidates backed by concrete signals)
 - Security/design: provenance volume + PII risk (RH6).
-- Contract choice: signed render URLs vs proxy (RH7).
+- Contract: signed render URLs via `GET /documents/:id/render?page=N` (`docs/03-architecture/50_api_surface.md`).
 
 ## Success Metrics
 - Fixture-driven demo passes:
@@ -199,10 +199,10 @@ No silent failures. Examples:
   - `pack_07_scans_rotated_low_quality`: viewer remains usable; evidence is inspectable; highlight is honest (aligned or explicitly cut/patch).
 
 ## Open Questions
-- Appetite/timebox: full perimeter now vs cut to "trust moment only" first?
-- Storage access pattern for pdf.js: signed URLs vs proxy endpoint?
-- Verification v1: code checks only, or include entailment model from day one?
-- Canonical evidence capture approach for RH2 regression: manual screenshots vs automated harness (Playwright/agent-browser/etc)?
+- DECIDED: Cut to the "trust moment" first (thin slices; fixture-driven).
+- DECIDED: pdf.js loads PDFs via signed render URLs (`GET /documents/:id/render?page=N`) (see `docs/03-architecture/50_api_surface.md`).
+- DECIDED: Verification v1 is integrity/invariant checks only (no entailment model) (ADR-0017).
+- DECIDED: RH2 regression proof is artifact-based (screenshots + bbox/HUD logs) with manual review; overlay is "verified at 100% zoom only" (ADR-0020).
 
 ## Sources
 - `docs/04-projects/02-features/0001_trust-substrate/brief.md`
