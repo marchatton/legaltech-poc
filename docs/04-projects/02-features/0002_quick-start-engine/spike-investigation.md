@@ -43,6 +43,13 @@ pnpm dlx agent-browser snapshot -i
 pnpm dlx agent-browser screenshot --full docs/04-projects/02-features/0002_quick-start-engine/tmp/run.png
 ```
 
+Alternative (persistent sessions, index-based): `browser-use`:
+```bash
+uvx "browser-use[cli]" open http://localhost:3000
+uvx "browser-use[cli]" state
+uvx "browser-use[cli]" screenshot
+```
+
 ---
 
 # SP-2.1 Practitioner question set review

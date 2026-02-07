@@ -68,6 +68,7 @@ As a user, when an issue is “unknown”, I see what evidence is missing and wh
 - FR-003: Cross-evidence citations (instrument clause + survey callout) are required for “depicted” classifications when the claim spans both sources; if either can’t be locked, downgrade to `unknown`.
 - FR-004: Verification is fail-closed and uses taxonomy reason codes (e.g. `ENTAILMENT_FAIL`, `CITATION_MISMATCH`).
 - FR-005: On low-quality scan behavior where no citations can be locked, row must fall back safely to `missing_input` with remediation checklist.
+- FR-006: If any model fallback is used, it must run via AI SDK (gateway default) with strict schemas and safe telemetry; determinism-first rules remain the default.
 
 ## Non-Goals (Out of Scope)
 
