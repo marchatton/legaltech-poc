@@ -1,0 +1,21 @@
+{
+  "project": "0001f_provenance-trace-export",
+  "branchName": "codex/0001f-provenance-trace-export",
+  "description": "Minimal provenance capture and a downloadable run trace JSON that ties together trace_id, run_id, step_key, question_id, and citation_id safely.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Download run trace JSON",
+      "description": "Download a safe JSON trace for a run to debug failures deterministically.",
+      "acceptanceCriteria": [
+        "AC-001 Trace export includes run metadata, step records (step_key/state/attempt/metrics/error_json), and per-row provenance (retrieval chunk_ids, verification verdict, citation_ids).",
+        "AC-002 Trace export is safe: no raw PDF bytes, avoid full extracted text, no provider payload dumps.",
+        "AC-003 Failures return the standard error envelope with trace_id."
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
+
