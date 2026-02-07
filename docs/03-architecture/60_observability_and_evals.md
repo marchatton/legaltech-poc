@@ -96,6 +96,7 @@ Tier 2: row-level `reason_code`
 Mapping rules (to prevent drift):
 - `failure_code` is for step execution failures (Tier 1). It must never be stored in row provenance.
 - `reason_code` is for row-level verification outcomes (Tier 2). It must never be used as a step failure counter.
+- If a CSV export schema uses a header named `failure_code`, that column must still carry the Tier 2 row `reason_code` (not Tier 1 step failure codes).
 
 Reserved (not baseline; future use only):
 - Entailment codes (`ENTAILMENT_*`) are explicitly reserved for a future semantic verifier and should not be used as baseline fixtures or dashboards.
@@ -116,6 +117,7 @@ Hard gates (must be 100% for a demo pack to pass):
 - **Failure journeys:** fixture packs designed to fail must fail in the expected way:
   - missing docs → `missing_input`
   - bad citation → `citation_failed`
+- **Export truth match (Initiative 0003 only):** when export features are in scope, generated CSV outputs must match `/truth` exactly (deterministic headers + row ordering).
 
 Report-only (track, don’t gate yet):
 - **Retrieval Recall@K** on golden questions (start at K=10). Suggested initial target: `>= 0.85` per pack.
@@ -126,6 +128,7 @@ Report-only (track, don’t gate yet):
 ## How metrics are used
 - Phase 0 (default): `fixture:eval` always produces a JSON report + summary table. CI posts the summary (report-only).
 - Phase 1: CI gates on the “hard gates” above (schema + citation integrity + failure journeys).
+- Phase 1 (Initiative 0003): include export truth match in hard gating when export features are in scope.
 - Phase 2: CI additionally gates on retrieval Recall@K thresholds once packs and chunking stabilise.
 
 The goal is to move as little as possible into gating until the fixture suite is stable, but never compromise on citation integrity.
@@ -135,6 +138,8 @@ Inputs:
 - fixture pack manifest at `docs/08-example-data/<pack_id>/manifest.json` (required; eval runners must read manifests, not infer)
 - synthetic packs with `/docs`, `/truth`, `/layout`
 - golden questions JSON per pack
+Callout:
+- Any demo pack loader must also be manifest-driven (read manifest, fail if missing, no inference).
 
 Minimum checks:
 1) extraction correctness vs `/truth`
@@ -143,6 +148,7 @@ Minimum checks:
 4) failure journeys:
    - missing docs → `missing_input`
    - bad citation → `citation_failed`
+5) export truth match (Initiative 0003 only): generated CSV outputs match `/truth` exactly (deterministic headers + row ordering)
 
 Outputs:
 - per-pack eval report JSON
@@ -162,7 +168,8 @@ Example shape (not a strict schema yet):
   "hard_gates": {
     "schema_validity": { "pass": true, "failures": 0 },
     "citation_integrity": { "pass": true, "failures": 0 },
-    "failure_journeys": { "pass": true, "failures": 0 }
+    "failure_journeys": { "pass": true, "failures": 0 },
+    "export_truth_match": { "pass": true, "failures": 0 }
   },
   "metrics": {
     "retrieval_recall_at_k": { "k": 10, "value": 0.9 },

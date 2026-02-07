@@ -95,7 +95,7 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
   - `docs/03-architecture/30_data_model.md`
   - `docs/03-architecture/50_api_surface.md`
   - `docs/03-architecture/60_observability_and_evals.md`
-  - `docs/03-architecture/DECISIONS.md` (ADRs, especially ADR-0001/0002/0005/0006/0008)
+  - `docs/03-architecture/DECISIONS.md` (ADRs, especially ADR-0001/0002/0005/0006/0008/0019)
 - FR-002: Exports must not parse prose from `report_rows.answer` to reconstruct structure.
   - Exports consume a structured row payload persisted by Initiative 002 via `report_rows.payload_schema_version` + `report_rows.payload_json` (see `docs/03-architecture/30_data_model.md`, `docs/03-architecture/50_api_surface.md`).
 - FR-003: No destructive reset/delete HTTP endpoints are shipped as part of the first demo repeatability slice.

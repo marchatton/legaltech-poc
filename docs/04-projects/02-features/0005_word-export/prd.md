@@ -8,7 +8,7 @@ Date: 2026-02-07
 
 Generate one demo-grade Word artefact from a completed Quick Start run:
 - `POST /export/docx` with `kind=memo`
-- strict export gating (fail-closed on `citation_failed`, with demo-only unsafe override behind guardrails)
+- strict export gating (fail-closed on `citation_failed`, with demo-only unsafe override behind guardrails: DEMO_MODE + ALLOW_UNSAFE_EXPORTS + admin token; API-only per ADR-0019)
 - artefact persistence + artefacts list/download (fresh signed URLs)
 - minimal docx viewer sanity check across Word + Google Docs + Preview
 
@@ -165,4 +165,4 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 - `docs/03-architecture/20_state_model.md`
 - `docs/03-architecture/30_data_model.md`
 - `docs/03-architecture/50_api_surface.md`
-- `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008)
+- `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008, ADR-0019)

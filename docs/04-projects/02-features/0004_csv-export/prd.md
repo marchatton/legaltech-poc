@@ -248,4 +248,4 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - `docs/03-architecture/20_state_model.md`
 - `docs/03-architecture/30_data_model.md`
 - `docs/03-architecture/50_api_surface.md`
-- `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008)
+- `docs/03-architecture/DECISIONS.md` (ADR-0001, ADR-0002, ADR-0008, ADR-0019)
