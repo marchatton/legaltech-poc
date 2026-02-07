@@ -35,7 +35,7 @@
     {
       "path": "/spikes/rh2-overlay",
       "name": "RH2 Overlay Harness (Dev-Only)",
-      "purpose": "Fixture-backed mini-eval for highlight alignment at 50/100/150% zoom + rotation + fail-closed cases."
+      "purpose": "Fixture-backed mini-eval for highlight alignment at 100% zoom only (cut) + rotation + fail-closed cases."
     },
     {
       "path": "/spikes/local-pdf",
@@ -52,12 +52,14 @@
   ],
   "dataModel": [
     {
-      "entity": "ReportRow (fixture-backed scaffold)",
+      "entity": "ReportRow (fixture-backed scaffold, still run-scoped)",
       "fields": [
         "id",
         "folder_id",
+        "run_id",
         "question_id",
         "answer",
+        "status (needs_review|reviewed|missing_input|citation_failed)",
         "citation_ids[]"
       ]
     },
@@ -116,10 +118,10 @@
       "description": "As a reviewer, I want the highlight to stay glued to the clause across zoom and rotation so that I can trust what I am seeing.",
       "acceptanceCriteria": [
         "AC-003: Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).",
-        "AC-004: Highlight remains aligned at 50/100/150% zoom and bbox scales with zoom (within ±2% OR ±3 CSS px vs bbox100 * scale) (or an explicit cut is enforced: highlights verified at 100% only).",
+        "AC-004: Highlight overlay is verified at 100% zoom only (cut). Viewer enforces this by snapping to 100% and disabling zoom while highlight is active OR requiring a one-click reset to 100% before overlay renders.",
         "AC-005: Highlight remains aligned on at least one rotated/scanned page (pack_07) (or an explicit cut/patch is enforced).",
         "AC-006: Fail-closed: deliberate invalid polygon or wrong page yields explicit failure UI and no overlay.",
-        "Example: Use /spikes/rh2-overlay to capture screenshots at 50/100/150 with HUD visible for pack_01 anchors and record bbox logs that prove scaling invariance.",
+        "Example: Use /spikes/rh2-overlay to capture screenshots at 100% with HUD visible for pack_01 anchors.",
         "Negative case: Inject an out-of-range polygon ([0..1] violated) and confirm the viewer shows citation_failed and renders no overlay."
       ]
     }
@@ -131,7 +133,7 @@
     "slug": "0001d-citation-chip-highlight",
     "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md"
   },
-  "primaryObservableEffect": "On pack_01_clean, a reviewer can click a citation chip and see the correct clause highlighted, including at 50/100/150% zoom (or an honest fallback is enforced).",
+  "primaryObservableEffect": "On pack_01_clean, a reviewer can click a citation chip and see the correct clause highlighted (verified at 100% zoom only; cut).",
   "inScope": [
     "Matter detail UI: seeded report rows table (fixture-backed) and citation chips rendered from citation_id values only (ADR-0001).",
     "Viewer behavior (builds on 0001b): accept searchParams (page, optional citation), fetch GET /citations/:id, and render overlay + snippet/hash.",

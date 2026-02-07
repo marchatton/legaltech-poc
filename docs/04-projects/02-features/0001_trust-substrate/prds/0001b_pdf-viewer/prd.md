@@ -28,7 +28,7 @@ A user can open a document from a Matter and navigate/zoom without the UI freezi
   - From Matter detail, open a document in the viewer.
   - Server-first fetch of `render_url` (no client-side fetch-by-default).
 - API:
-  - `GET /documents/:id/render?page=N` returns `{ render_url }` where `page` is 1-indexed (API surface).
+  - `GET /documents/:id/render?page=N` returns `{ document_id, page, render_url }` where `page` is 1-indexed (API surface).
 - Viewer behaviors:
   - page navigation (jump + next/prev)
   - zoom 50/100/150 (re-render, not CSS-scale)

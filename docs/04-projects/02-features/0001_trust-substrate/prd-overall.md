@@ -27,13 +27,13 @@ Slice PRDs (implementation-ready):
 
 ### Primary Observable Effect
 - Reviewers can open a Matter, navigate its documents, and inspect evidence.
-- Clicking a citation opens the right document/page and overlays a highlight that stays aligned across zoom/rotation (or we explicitly cut/patch with an honest fallback).
+- Clicking a citation opens the right document/page and overlays a highlight that is verified at 100% zoom only (cut) and stays aligned across rotation; the viewer enforces 100% zoom while a highlight is active.
 - When citation invariants fail, the UI shows `citation_failed`, renders no overlay, and blocks export by default.
 
 ### In Scope
 - Matter (Folder) baseline: create folder, upload PDFs, list docs, open viewer.
 - PDF viewer: page navigation + zoom (pdf.js).
-- Citation contract: locked citation object + `GET /citations/:id` with polygons + snippet + `snippet_hash`.
+- Citation contract: locked citation object + `GET /citations/:id` returns `{ "citation": { ... } }` (polygons + snippet + `snippet_hash`).
 - Click-to-highlight UX scaffold: seeded report rows + citation chips that jump to viewer and render highlight using fixture anchors (`docs/08-example-data/*/layout/*.anchors.json`).
 - Row statuses + export gate: export blocked by default when any row is `citation_failed`.
 - Failure journeys: missing-doc checklist, citation mismatch details, "flag citation wrong".
@@ -74,7 +74,7 @@ As a reviewer, I want a reliable PDF viewer with page navigation and zoom so tha
 #### Acceptance Criteria
 - AC-005: Viewer renders the correct PDF and can navigate to any page.
 - AC-006: Viewer stays responsive on `pack_07` scans and meets RH1 thresholds (Range support required; serial N=20 @100%: `p95(totalMs) < 1000ms` and `max(totalMs) < 1500ms`; spam N=30 @200ms: `maxLongTaskMs < 250ms` and final page completes `< 1500ms` after request). Zoom re-renders (no CSS-scaling drift).
-- AC-007: Viewer obtains `render_url` via `GET /documents/:id/render?page=N` (server contract, 1-indexed `page`) rather than hardcoding storage paths.
+- AC-007: Viewer obtains `render_url` via `GET /documents/:id/render?page=N` (server contract, 1-indexed `page`) which returns `{ document_id, page, render_url }`, rather than hardcoding storage paths.
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_07_scans_rotated_low_quality/`
@@ -84,7 +84,7 @@ As a reviewer, I want a reliable PDF viewer with page navigation and zoom so tha
 As a reviewer, I want each citation to be a locked object with a snippet + `snippet_hash` so that evidence is immutable and verifiable.
 
 #### Acceptance Criteria
-- AC-008: `GET /citations/:id` returns locked payload `{document_id,page_number,polygons,snippet,snippet_hash}`.
+- AC-008: `GET /citations/:id` returns `{ "citation": { id, document_id, page_number, polygons, snippet, snippet_hash } }` (locked, immutable object).
 - AC-009: `snippet_hash` uses canonical normalisation rules (single implementation reused everywhere) and is stable across repeated processing (see RH3).
 
 #### Verification
@@ -97,13 +97,15 @@ As a reviewer, I want to click a citation chip and see the referenced clause hig
 
 #### Acceptance Criteria
 - AC-010: Clicking a citation chip opens the viewer at the correct document + page.
-- AC-011: Highlight overlay maps locked polygons to viewport CSS pixels correctly at 50/100/150% zoom (or the UI explicitly enforces the chosen honest fallback).
-- AC-012: On rotated/scanned pages (`pack_07`), highlight remains aligned (or the UI explicitly enforces the chosen honest fallback).
+- AC-011: Highlight overlay is verified at 100% zoom only (cut). The viewer enforces this by:
+  - snapping to 100% and disabling zoom while a citation highlight is active, OR
+  - showing "Highlight verified at 100% zoom only" and requiring a one-click reset to 100% before overlay renders.
+- AC-012: On rotated/scanned pages (`pack_07`), highlight remains aligned at 100% zoom.
 - AC-013: If citation invariants fail (doc mismatch, invalid polygons, wrong page, `snippet_hash` mismatch), the UI renders no overlay and shows explicit `citation_failed` details.
 
 #### Verification
 - Pack/fixture/script: anchors from `docs/08-example-data/*/layout/*.anchors.json`
-- Manual checks: use the dev-only RH2 harness route (`/spikes/rh2-overlay`); capture screenshots at 50/100/150 with HUD visible.
+- Manual checks: use the dev-only RH2 harness route (`/spikes/rh2-overlay`); capture screenshots at 100% with HUD visible.
 
 ### US-006: Row status machine + export gate (fail closed)
 As a reviewer, I want report rows to have terminal statuses and exports to be blocked when evidence fails so that we never ship untrusted output.
@@ -187,7 +189,7 @@ No silent failures. Examples:
   - RH3 snippet normalisation/hash stability
   - RH4 verifier precision vs latency/cost:
     - Dataset: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` (>=20 bad examples)
-    - Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`; `p95 <= 8s` per row on dev machine
+    - Pass criteria (integrity-only): `false_passes = 0`; `p95 <= 8s` per row on dev machine
   - RH5 missing-doc heuristics false positives (FP=0 on pack_01; flags `REA.pdf` on pack_02; candidates backed by concrete signals)
 - Security/design: provenance volume + PII risk (RH6).
 - Contract: signed render URLs via `GET /documents/:id/render?page=N` (`docs/03-architecture/50_api_surface.md`).

@@ -88,7 +88,7 @@ Exclude:
 ### Approach (fixture-backed mini-eval)
 1. Build a dev-only spike harness route:
    - `apps/web/app/(app)/spikes/rh2-overlay/page.tsx`
-   - Controls: pack selector (`pack_01_clean`, `pack_07_scans_rotated_low_quality`), doc selector, page number (1-indexed), anchor id, zoom 50/100/150, rotation 0/90/180/270.
+   - Controls: pack selector (`pack_01_clean`, `pack_07_scans_rotated_low_quality`), doc selector, page number (1-indexed), anchor id, zoom (overlay verified at 100% only; cut), rotation 0/90/180/270.
    - Debug HUD: pack/doc/page/anchor, `scale`, `totalRotation`, `viewport.width/height`, `canvas.width/height` and CSS size, `devicePixelRatio`.
 
 2. Implement the pure mapping util (unit-testable):
@@ -100,23 +100,17 @@ Exclude:
    - One commitment page anchor + one survey anchor.
    - Evidence: screenshot at 100% with HUD visible.
 
-4. Prove zoom invariance (50/100/150):
-   - For each case: screenshot at 50/100/150 with HUD visible.
-   - Compute overlay bbox (min/max x/y in CSS px) and assert:
-     - `bbox50 ~= bbox100 * 0.5` (within ~1–2 CSS px)
-     - `bbox150 ~= bbox100 * 1.5` (within ~1–2 CSS px)
-
-5. Prove rotation correctness (pack_07):
+4. Prove rotation correctness (pack_07):
    - Ensure page-intrinsic rotation (`page.rotate`) and user rotation are handled consistently.
    - Evidence: screenshots at rotation=0 and rotation=90 (or whatever reproduces the pack_07 orientation).
 
-6. Prove fail-closed:
+5. Prove fail-closed:
    - Inject one deliberate bad anchor (out of `[0..1]`) and one wrong page number.
    - Evidence: screenshot of explicit failure UI + logged safe error code.
 
 ### Artefacts
 Keep:
-- Screenshots (50/100/150 + rotation + fail-closed) with HUD visible.
+- Screenshots (100% + rotation + fail-closed) with HUD visible.
 - A small JSON log dump (bbox numbers + HUD values).
 - Notes on pitfalls encountered (DPR, rotation, `viewBox` origin, CSS transforms).
 
@@ -208,7 +202,7 @@ Can we achieve zero false passes on 20 hand-curated bad examples at acceptable l
 
 ### Success criteria
 Proof looks like:
-- 0 false passes on curated bad set (N>=20). `UNSURE` counts as `FAIL` (precision-first).
+- 0 false passes on curated bad set (N>=20) in deterministic (integrity-only) mode.
 - Latency budget: `p95 <= 8s` per row on dev machine (record p50/p95/max).
 - Dataset location: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json`
 

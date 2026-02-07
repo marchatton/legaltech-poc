@@ -88,7 +88,8 @@
   "rules": [
     "Validate all external inputs at route boundaries with Zod and return the standard safe error envelope.",
     "Never leak provider payloads/stack traces to clients; persist only safe error_json fields.",
-    "Folder state transitions are monotonic and consistent with the state model (empty -> ingesting -> indexed -> ready; failures -> failed)."
+    "Folder state transitions are monotonic and consistent with the state model (empty -> ingesting -> indexed -> ready; failures -> failed).",
+    "Explicit enums (PoC): folders.state in {empty, ingesting, indexed, ready, failed}; documents.parse_status in {queued, parsing, parsed, failed}; documents.ocr_status in {queued, running, done, failed}."
   ],
   "qualityGates": [
     "pnpm verify",

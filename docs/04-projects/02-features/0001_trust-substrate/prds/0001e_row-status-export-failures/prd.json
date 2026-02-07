@@ -92,9 +92,10 @@
     "missing_input invariant: answer must be exactly 'Not found in provided documents.' and citations must be empty.",
     "Export gating is server-enforced: block export when any row is citation_failed by default (EXPORT_BLOCKED).",
     "Exports are allowed only when runs.state = completed (PoC default).",
+    "Fixture convention: fixtures may reference documents by filename (e.g. TitleCommitment.pdf); the fixture seeder maps filename -> documents.id and citations persist documents.id in citations.document_id (never persist filename in citations.document_id).",
     "Unsafe override is demo-only; when disallowed, return 403 UNAUTHORISED; when allowed, artefact is visibly labelled unsafe and metadata records the override.",
     "All errors use the standard envelope and include trace_id for debugging.",
-    "Verification is fail-closed: deterministic integrity checks short-circuit; any integrity failure yields citation_failed."
+    "Integrity checks are fail-closed: deterministic invariant failures yield citation_failed with safe reason_code. No entailment model is used in 0001."
   ],
   "qualityGates": [
     "pnpm verify",
@@ -125,8 +126,9 @@
       "description": "As a reviewer, I want evidence failures to block export so that we don't ship untrusted outputs.",
       "acceptanceCriteria": [
         "AC-004: A deliberate bad citation (snippet_hash mismatch, invalid polygons, or verification fail) yields citation_failed.",
-        "AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any integrity failure yields citation_failed (fail-closed).",
+        "AC-004a: Integrity checks are fail-closed: any invariant failure yields citation_failed with a safe reason_code. No entailment model is used in 0001.",
         "AC-005: Export is blocked by default when any row is citation_failed: POST /export/csv returns non-2xx with error.code=EXPORT_BLOCKED.",
+        "AC-005a: POST /export/csv request matches API surface: { folder_id, run_id, kind, unsafe_override } and success returns { artefact: { id, kind, filename, storage_key, download_url, created_at } }.",
         "AC-006: Unsafe override: when unsafe_override=true is provided and demo mode is not enabled, return 403 UNAUTHORISED; if demo mode allows unsafe export, the artefact is visibly labelled unsafe and metadata records the override.",
         "Example: On pack_01_clean with one deliberately corrupted citation fixture, attempt export and confirm the API returns EXPORT_BLOCKED and UI shows a blocked state.",
         "Negative case: Call POST /export/csv with unsafe_override=true when demo mode is off and confirm 403 UNAUTHORISED (safe envelope)."
@@ -199,7 +201,7 @@
       "Verification harness dataset: docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json"
     ],
     "risks": [
-      "False passes undermine trust; treat UNSURE as FAIL and prefer more citation_failed rows.",
+      "False passes undermine trust; prefer more citation_failed rows over exporting untrusted outputs.",
       "Missing-doc false positives create user confusion; enforce FP=0 on pack_01_clean."
     ]
   },

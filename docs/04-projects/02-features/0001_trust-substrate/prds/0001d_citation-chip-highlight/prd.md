@@ -21,7 +21,7 @@ Ship the citation click-to-highlight UX scaffold:
 UI scaffold + overlay rendering only. No Quick Start runs, no entailment verification, no export.
 
 ### Primary Observable Effect
-On `pack_01_clean`, a reviewer can click a citation chip and see the correct clause highlighted, including at 50/100/150% zoom (or an honest fallback is enforced).
+On `pack_01_clean`, a reviewer can click a citation chip and see the correct clause highlighted (verified at 100% zoom only; cut).
 
 ### In Scope
 - Matter detail UI:
@@ -29,7 +29,7 @@ On `pack_01_clean`, a reviewer can click a citation chip and see the correct cla
   - citation chips rendered from `citation_id`s only (ADR-0001)
 - Viewer behavior (builds on 0001b):
   - accept `searchParams` (`page`, optional `citation`)
-  - fetch `GET /citations/:id` and render overlay + snippet/hash
+  - fetch `GET /citations/:id` (response `{ citation: { ... } }`) and render overlay + snippet/hash
 - Highlight overlay mapping (per RH2 oracle guidance):
   - store polygons normalized `[0..1]`, origin top-left
   - map to viewport CSS pixels via page `viewBox` -> `viewport.convertToViewportPoint()`
@@ -59,7 +59,9 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 
 #### Acceptance Criteria
 - AC-003: Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).
-- AC-004: Highlight remains aligned at 50/100/150% zoom and bbox scales with zoom (within ±2% OR ±3 CSS px vs `bbox100 * scale`) (or an explicit cut is enforced: "highlights verified at 100% only").
+- AC-004: Highlight overlay is verified at 100% zoom only (cut). The viewer enforces this by:
+  - snapping to 100% and disabling zoom while a citation highlight is active, OR
+  - showing "Highlight verified at 100% zoom only" and requiring a one-click reset to 100% before overlay renders.
 - AC-005: Highlight remains aligned on at least one rotated/scanned page (pack_07) (or an explicit cut/patch is enforced).
 - AC-006: Fail-closed: deliberate invalid polygon or wrong page yields explicit failure UI and no overlay.
 
@@ -69,8 +71,7 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
   - pack_01 anchors:
     - TitleCommitment: `SCHED_A_PROPOSED_INSURED` (page 1)
     - ALTA_Survey: `SURVEY_CERT_PARTIES` (page 3)
-  - screenshots at 50/100/150 with a debug HUD visible
-  - bbox logs prove scaling invariance (±2% OR ±3 CSS px)
+  - screenshots at 100% with a debug HUD visible
   - rotation screenshots for pack_07 (rotation 0 and 90; include `page.rotate` in `totalRotation`)
   - fail-closed screenshot + safe error code (invalid polygon injection + wrong page)
 - Evidence capture: prefer `browser-use` scripted screenshots (or manual DevTools if faster).

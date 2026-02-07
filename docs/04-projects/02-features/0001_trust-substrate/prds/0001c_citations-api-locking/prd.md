@@ -14,13 +14,13 @@ Trust UX needs an immutable, inspectable citation object. Without a locked citat
 Implement the locked citation object contract and API:
 - immutable `citations` records (ADR-0001)
 - canonical `snippet_hash` rule (data model)
-- `GET /citations/:id` returns the locked payload needed for viewer highlight + integrity checks
+- `GET /citations/:id` returns `{ "citation": { ... } }` (locked payload) needed for viewer highlight + integrity checks
 
 ### Slice
 Citation contract only. No viewer UI, no overlays, no verification/entailment.
 
 ### Primary Observable Effect
-Given a `citation_id`, the client can fetch a stable payload `{document_id,page_number,polygons,snippet,snippet_hash}` and render evidence without recomputing it.
+Given a `citation_id`, the client can fetch `{ "citation": { id, document_id, page_number, polygons, snippet, snippet_hash } }` and render evidence without recomputing it.
 
 ### In Scope
 - Data model for citations (see `docs/03-architecture/30_data_model.md`):
@@ -31,6 +31,8 @@ Given a `citation_id`, the client can fetch a stable payload `{document_id,page_
   - `normalise`: trim; CRLF->LF; collapse whitespace runs to a single space
 - HTTP API:
   - `GET /citations/:id` response shape per `docs/03-architecture/50_api_surface.md`
+- Fixture convention:
+  - fixtures may reference documents by filename (e.g. `TitleCommitment.pdf`); the fixture seeder maps filename -> `documents.id` and citations persist `documents.id` in `citations.document_id` (never persist filename in `citations.document_id`)
 - Safety:
   - boundary validation with Zod and safe error envelope (ADR-0008)
 
@@ -44,12 +46,7 @@ Given a `citation_id`, the client can fetch a stable payload `{document_id,page_
 As a reviewer, I want to fetch a citation payload so that I can inspect evidence reliably.
 
 #### Acceptance Criteria
-- AC-001: `GET /citations/:id` returns:
-  - `document_id`
-  - `page_number`
-  - `polygons`
-  - `snippet`
-  - `snippet_hash`
+- AC-001: `GET /citations/:id` returns `{ "citation": { id, document_id, page_number, polygons, snippet, snippet_hash } }`.
 - AC-002: Errors use the standard error envelope with safe `code` and `message` (no leaks).
 
 #### Verification

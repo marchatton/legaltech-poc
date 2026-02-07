@@ -149,6 +149,7 @@
     "Canonical polygon spec: store polygons as normalized [0..1] coords (origin top-left, relative to unrotated page viewBox); map to viewport CSS px via viewBox -> viewport.convertToViewportPoint(); render overlay in viewport CSS pixel space.",
     "Fail-closed highlight: if any citation invariants fail (doc mismatch, invalid polygons, wrong page, snippet_hash mismatch), render no overlay and show explicit citation_failed state.",
     "Row status machine blocks export by default when any row is citation_failed; exports are only allowed when runs.state = completed (PoC default).",
+    "Fixture seeding (PoC): each folder used for trust-substrate has exactly one fixture run created by the seeder with runs.state='completed'. All seeded report_rows belong to that run_id and obey report_rows invariants.",
     "missing_input invariant: answer is exactly 'Not found in provided documents.' and citations are empty."
   ],
   "qualityGates": [
@@ -195,7 +196,7 @@
       "acceptanceCriteria": [
         "AC-005: Viewer renders the correct PDF and can navigate to any page.",
         "AC-006: Viewer stays responsive on pack_07 scans and meets RH1 thresholds (Range support required; serial N=20 @100%: p95(totalMs) < 1000ms and max(totalMs) < 1500ms; spam N=30 @200ms: maxLongTaskMs < 250ms and final page completes < 1500ms after request). Zoom re-renders (no CSS-scaling drift).",
-        "AC-007: Viewer obtains render_url via GET /documents/:id/render?page=N (server contract, 1-indexed page) rather than hardcoding storage paths.",
+        "AC-007: Viewer obtains render_url via GET /documents/:id/render?page=N (server contract, 1-indexed page) which returns { document_id, page, render_url }, rather than hardcoding storage paths.",
         "Example: Run /spikes/rh1-pdf-perf against pack_07 and record results JSON + summary stats in spike-investigation.md.",
         "Negative case: If Range support is missing (no Accept-Ranges or Range does not return 206), RH1 is NO-GO and the harness reports the precondition failure."
       ]
@@ -209,7 +210,7 @@
       ],
       "description": "As a reviewer, I want each citation to be a locked object with a snippet + snippet_hash so that evidence is immutable and verifiable.",
       "acceptanceCriteria": [
-        "AC-008: GET /citations/:id returns locked payload {document_id,page_number,polygons,snippet,snippet_hash}.",
+        "AC-008: GET /citations/:id returns { citation: { id, document_id, page_number, polygons, snippet, snippet_hash } } (locked, immutable object).",
         "AC-009: snippet_hash uses canonical normalisation rules (single implementation reused everywhere) and is stable across repeated processing (RH3).",
         "Example: Open a citation in the UI and confirm snippet + snippet_hash are displayed and match the API payload.",
         "Negative case: If snippet_hash invariants fail (mismatch), the UI renders citation_failed and does not show a highlight overlay."
@@ -225,10 +226,10 @@
       "description": "As a reviewer, I want to click a citation chip and see the referenced clause highlighted so that I can trust the report row.",
       "acceptanceCriteria": [
         "AC-010: Clicking a citation chip opens the viewer at the correct document + page.",
-        "AC-011: Highlight overlay maps locked polygons to viewport CSS pixels correctly at 50/100/150% zoom (or the UI explicitly enforces the chosen honest fallback).",
-        "AC-012: On rotated/scanned pages (pack_07), highlight remains aligned (or the UI explicitly enforces the chosen honest fallback).",
+        "AC-011: Highlight overlay is verified at 100% zoom only (cut). Viewer enforces this by snapping to 100% and disabling zoom while highlight is active OR requiring a one-click reset to 100% before overlay renders.",
+        "AC-012: On rotated/scanned pages (pack_07), highlight remains aligned at 100% zoom.",
         "AC-013: If citation invariants fail (doc mismatch, invalid polygons, wrong page, snippet_hash mismatch), the UI renders no overlay and shows explicit citation_failed details.",
-        "Example: Use /spikes/rh2-overlay to capture screenshots at 50/100/150 with HUD visible for at least two pack_01 anchors.",
+        "Example: Use /spikes/rh2-overlay to capture screenshots at 100% with HUD visible for at least two pack_01 anchors.",
         "Negative case: Deliberately inject an invalid polygon or wrong page and confirm fail-closed behavior (no overlay + explicit failure UI)."
       ]
     },

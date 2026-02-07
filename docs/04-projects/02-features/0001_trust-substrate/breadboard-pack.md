@@ -87,11 +87,11 @@
 | N1 | Folders API (Matter CRUD) | `POST /folders` | call | creates `folder_id` |
 | N2 | Upload service | init upload + put to storage + complete | call | `POST /folders/:id/documents` → upload target; `POST /documents/:id/complete` enqueues ingest |
 | N3 | Documents store | ingest status + quality metadata | read/write | drives list state (`parse_status`, `ocr_status`, `extraction_quality`) |
-| N4 | Viewer render contract | render URL + viewer state | call | `GET /documents/:id/render?page=N` returns `render_url`; viewer handles page nav + zoom |
-| N5 | Citations API | `GET /citations/:id` | call | locked citation payload `{document_id,page_number,polygons,snippet,snippet_hash}` |
+| N4 | Viewer render contract | render URL + viewer state | call | `GET /documents/:id/render?page=N` returns `{ document_id, page, render_url }`; viewer handles page nav + zoom |
+| N5 | Citations API | `GET /citations/:id` | call | locked citation payload `{ "citation": { id, document_id, page_number, polygons, snippet, snippet_hash } }` |
 | N6 | Anchor fixture loader | map fixture anchor IDs to polygons | call | returns polygons for highlight scaffold |
 | N7 | Highlight renderer | anchor polygons → viewport CSS pixels | call | Maps normalised anchors (`[0..1]`, origin top-left of page viewBox) → PDF points using `viewBox` (invert Y), then uses `viewport.convertToViewportPoint()` to get CSS px. Returns overlay geometry for rendering. |
-| N8 | Verification pipeline | code checks + (optional) entailment | call | returns verdict + failure reason code |
+| N8 | Verification pipeline | code checks (integrity-only in 0001; entailment is future) | call | returns verdict + failure reason code |
 | N9 | Row status machine | status invariants + export gate | write | sets row status + blocks export by default on `citation_failed` |
 | N10 | Failure logger | taxonomy + structured logs | write | emits safe failure events |
 | N11 | Provenance store | minimal trace schema + export | write/call | returns run trace JSON |
@@ -101,12 +101,14 @@
 This is a minimal, clean server/client boundary that keeps pdf.js imperative work on the client while fetching data server-first.
 
 - `app/(app)/matters/[folderId]/page.tsx` (Server): fetch folder + docs + seeded report rows; render citation chips as `<Link>` to the viewer.
-- `app/(app)/viewer/[documentId]/page.tsx` (Server): read `searchParams` (`page`, optional `citation`, optional `zoom`), server-fetch `render_url` and (if present) locked citation payload; pass minimal props to client viewer.
+- `app/(app)/viewer/[documentId]/page.tsx` (Server): read `searchParams` (`page`, optional `citation`, optional `zoom`), server-fetch `render_url` and (if present) citation payload via `GET /citations/:id` (response `{ citation: { ... } }`); pass minimal props to client viewer.
 - `PdfViewerClient` (Client): owns pdf.js load/render and page/zoom/rotation state; renders canvas + overlay; surfaces explicit failure states.
 - `HighlightOverlaySvg` (Client): maps polygons to viewport CSS pixels (pure util) and renders an `<svg>` overlay sized to `viewport.width/height`.
 
 ### Fail-closed behaviour (viewer)
 - If a citation is present but any invariants fail (doc mismatch, page out of range, polygons invalid/out of range, `render_url` unavailable), do not render an overlay. Show an explicit `citation_failed` UI state and emit a safe failure log.
+
+Fixture seeding rule (PoC): each trust-substrate folder has exactly one fixture run created by the seeder with `runs.state = completed`; seeded report rows are `run_id` scoped and must obey the report row invariants.
 
 ## Wiring diagram
 

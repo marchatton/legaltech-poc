@@ -25,7 +25,7 @@
     {
       "path": "/citations/:id",
       "name": "Citations API",
-      "purpose": "Fetch a locked citation payload {document_id,page_number,polygons,snippet,snippet_hash} (immutable) for viewer rendering and integrity checks."
+      "purpose": "Fetch a locked citation payload { citation: { id, document_id, page_number, polygons, snippet, snippet_hash } } (immutable) for viewer rendering and integrity checks."
     }
   ],
   "uiNotes": [
@@ -71,6 +71,7 @@
     "Citations are immutable after insert; fixing a citation creates a new citation and updates the owning row to reference the new id.",
     "snippet_hash uses the canonical rule: sha256: + sha256_hex(normalise(snippet)) (lowercase hex).",
     "normalise(snippet): trim; CRLF->LF; collapse whitespace runs to a single space.",
+    "Fixture convention: fixtures may reference documents by filename (e.g. TitleCommitment.pdf); the fixture seeder maps filename -> documents.id and citations persist documents.id in citations.document_id (never persist filename in citations.document_id).",
     "Boundary validation with Zod and safe error envelope (ADR-0008).",
     "Never return signed URLs or transient provider URLs from citation endpoints."
   ],
@@ -86,7 +87,7 @@
       "dependsOn": [],
       "description": "As a reviewer, I want to fetch a citation payload so that I can inspect evidence reliably.",
       "acceptanceCriteria": [
-        "AC-001: GET /citations/:id returns document_id, page_number, polygons, snippet, and snippet_hash.",
+        "AC-001: GET /citations/:id returns { citation: { id, document_id, page_number, polygons, snippet, snippet_hash } } (response shape per docs/03-architecture/50_api_surface.md).",
         "AC-002: Errors use the standard error envelope with safe code and message (no leaks).",
         "Example: Fetch a known seeded citation_id from pack_01_clean and confirm the response contains snippet + snippet_hash and geometry.",
         "Negative case: Unknown citation id returns 404 NOT_FOUND using the standard error envelope.",
@@ -114,7 +115,7 @@
     "slug": "0001c-citations-api-locking",
     "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md"
   },
-  "primaryObservableEffect": "Given a citation_id, the client can fetch a stable payload {document_id,page_number,polygons,snippet,snippet_hash} and render evidence without recomputing it.",
+  "primaryObservableEffect": "Given a citation_id, the client can fetch { citation: { id, document_id, page_number, polygons, snippet, snippet_hash } } and render evidence without recomputing it.",
   "inScope": [
     "Data model for citations (docs/03-architecture/30_data_model.md): store snippet, snippet_hash, polygons, document_id, page_number, index_version, optional chunk_id; treat citations as immutable after insert.",
     "Canonical hashing util in packages/core: snippet_hash = sha256: + sha256_hex(normalise(snippet)) (lowercase hex).",

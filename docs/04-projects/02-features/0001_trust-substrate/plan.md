@@ -72,7 +72,7 @@ RH1 PASS (pdf.js perf on scans) requires:
 RH2 PASS (overlay transforms) requires:
 
 - pack_01: one commitment anchor and one survey anchor align at 100% zoom.
-- Zoom invariance: 50/100/150% bbox scales within `±2%` OR `±3 CSS px` vs `bbox100 * scale`, or an explicit cut is recorded (ADR-0020 “verified at 100% zoom only”).
+- Cut: highlight overlay is verified at 100% zoom only (ADR-0020). Viewer enforces 100% zoom while highlight is active.
 - Rotation: at least one rotated/scanned case in pack_07, or an explicit cut/patch is recorded.
 - Fail-closed proof: invalid polygon and wrong page show explicit failure UI and render no overlay.
 - Evidence committed: screenshots with HUD + bbox log JSON.
@@ -86,7 +86,7 @@ RH3 PASS (snippet hash stability) requires:
 RH4 PASS (verification precision/latency) requires:
 
 - Dataset: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` (>= 20 bad examples).
-- Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`.
+- Pass criteria (integrity-only): `false_passes = 0`.
 - Latency budget: `p95 <= 8s` per row on dev machine (record p50/p95/max).
 - Evidence committed: results summary + raw results JSON (and any rubric/prompt notes if used later).
 

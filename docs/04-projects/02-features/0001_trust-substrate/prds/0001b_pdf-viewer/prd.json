@@ -58,7 +58,7 @@
     {
       "entity": "RenderContract",
       "fields": [
-        "GET /documents/:id/render?page=N returns render_url",
+        "GET /documents/:id/render?page=N returns { document_id, page, render_url }",
         "page is 1-indexed and used for initial viewer state/validation"
       ]
     }
@@ -73,7 +73,7 @@
   },
   "rules": [
     "Viewer is a client component; server components fetch render_url server-first.",
-    "render_url contract is GET /documents/:id/render?page=N where page is 1-indexed.",
+    "render_url contract is GET /documents/:id/render?page=N where page is 1-indexed and the response is { document_id, page, render_url }.",
     "PDFs served to pdf.js must support Range requests (Accept-Ranges: bytes and 206 Partial Content).",
     "Cancel in-flight render tasks on navigation to avoid piling up work.",
     "All errors use the standard API error envelope; never leak internals."
@@ -125,7 +125,7 @@
   "primaryObservableEffect": "A user can open a document from a Matter and navigate/zoom without the UI freezing.",
   "inScope": [
     "Viewer route and minimal UI wiring: from Matter detail, open a document in the viewer; server-first fetch of render_url.",
-    "API: GET /documents/:id/render?page=N returns {render_url} where page is 1-indexed.",
+    "API: GET /documents/:id/render?page=N returns { document_id, page, render_url } where page is 1-indexed.",
     "Viewer behaviors: page navigation (jump + next/prev), zoom 50/100/150 (re-render), rotation handling (respect page intrinsic rotation).",
     "Explicit failure UI (safe error codes; no stack traces)."
   ],

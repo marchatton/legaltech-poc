@@ -44,7 +44,7 @@ This work is the foundation for Initiatives 002 (Quick Start engine) and 003 (de
 - `pack_01_clean`
   - viewer renders; page nav is responsive
   - seeded row shows citation chips; click chip highlights correct region and shows snippet + `snippet_hash`
-  - highlight remains aligned at 50/100/150% zoom (or we explicitly cut to “highlights verified at 100% only”)
+  - highlight is verified at 100% zoom only (cut); viewer enforces 100% zoom while a highlight is active
 - `pack_02_missing_rea`
   - rows that depend on missing docs are `missing_input` and include a missing-doc checklist
   - `missing_input` rows use the exact answer string: `Not found in provided documents.` and have zero citations (state model invariant)

@@ -30,6 +30,8 @@ On fixture packs:
 - Export contract per `docs/03-architecture/50_api_surface.md`:
   - exports allowed only when `runs.state = completed` (PoC default)
   - block export when any row is `citation_failed` unless demo-only override is enabled
+- Fixture convention:
+  - fixtures may reference documents by filename (e.g. `TitleCommitment.pdf`); the fixture seeder maps filename -> `documents.id` and citations persist `documents.id` in `citations.document_id` (never persist filename in `citations.document_id`)
 - UI surfaces:
   - report table shows status badges and gating reasons
   - "Export" button shows blocked state and why
@@ -63,9 +65,12 @@ As a reviewer, I want evidence failures to block export so that we don't ship un
 
 #### Acceptance Criteria
 - AC-004: A deliberate bad citation (`snippet_hash` mismatch, invalid polygons, or verification fail) yields `citation_failed`.
-- AC-004a: Verification is precision-first: deterministic integrity checks short-circuit; any integrity failure yields `citation_failed` (fail-closed).
+- AC-004a: Integrity checks are fail-closed: any invariant failure yields `citation_failed` with a safe `reason_code`. No entailment model is used in 0001.
 - AC-005: Export is blocked by default when any row is `citation_failed`:
   - `POST /export/csv` returns non-2xx with `error.code = EXPORT_BLOCKED`
+- AC-005a: `POST /export/csv` request/response match API surface:
+  - request: `{ folder_id, run_id, kind, unsafe_override }`
+  - success: `{ artefact: { id, kind, filename, storage_key, download_url, created_at } }`
 - AC-006: Unsafe override:
   - when `unsafe_override=true` is provided and demo mode is not enabled, return `403 UNAUTHORISED`
   - if demo mode allows unsafe export, the artefact is visibly labelled unsafe and metadata records the override
@@ -119,7 +124,7 @@ As a reviewer, I want to mark a row as reviewed so that the table reflects what 
 - Blocked by:
   - RH4 verification precision (false passes) and latency budget:
     - Dataset: `docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json` (>=20 bad examples)
-    - Pass criteria: `false_passes = 0`; treat `UNSURE` as `FAIL`; `p95 <= 8s` per row on dev machine
+    - Pass criteria (integrity-only): `false_passes = 0`; `p95 <= 8s` per row on dev machine
   - RH5 missing-doc detection heuristics
 - Dependencies:
   - citations are lockable and immutable (ADR-0001)
