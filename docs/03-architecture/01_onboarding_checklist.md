@@ -1,6 +1,6 @@
 # Onboarding checklist
 
-Last updated: 2026-02-06
+Last updated: 2026-02-07
 
 Use this when setting up a new machine, or when onboarding someone new to this repo.
 
