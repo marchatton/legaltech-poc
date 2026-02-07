@@ -22,6 +22,9 @@ Ship a fixture-driven evidence surface where a reviewer can click a citation chi
 This dossier is an initiative-level PRD spine. Implementation should happen via thin slices (see `breadboard-pack.md`), but the end state is a single "trust moment" flow:
 Matter (Folder) -> citation chip -> PDF viewer -> verified highlight overlay + snippet/hash, with fail-closed behavior and export gating.
 
+Slice PRDs (implementation-ready):
+- See `prds/README.md` for thin slice PRDs derived from the breadboard parts list.
+
 ### Primary Observable Effect
 - Reviewers can open a Matter, navigate its documents, and inspect evidence.
 - Clicking a citation opens the right document/page and overlays a highlight that stays aligned across zoom/rotation (or we explicitly cut/patch with an honest fallback).

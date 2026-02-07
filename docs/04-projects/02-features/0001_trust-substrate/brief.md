@@ -89,6 +89,7 @@ Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, we will slice PRDs from
 
 Note:
 - A draft `prd.md`/`prd.json` spine may exist in this dossier for handoff, but implementation should happen via thin slice PRDs once spikes are closed and the perimeter is re-locked.
+- Slice PRDs for 0001 live under `prds/` (see `prds/README.md`).
 
 ## Shaping decision (GO/NO-GO)
 NO-GO until spike items in `spike-investigation.md` are executed and outcomes are recorded, and the perimeter above is re-confirmed based on spike outcomes.

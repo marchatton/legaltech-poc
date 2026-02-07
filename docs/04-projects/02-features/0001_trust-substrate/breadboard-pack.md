@@ -197,3 +197,4 @@ Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slices should map to pa
 
 Notes:
 - A draft `prd.md`/`prd.json` “spine” may exist in this dossier for handoff, but implementation should happen via thin slice PRDs once spikes are closed and the perimeter is re-locked.
+- Slice PRDs for 0001 live under `prds/` (see `prds/README.md`).

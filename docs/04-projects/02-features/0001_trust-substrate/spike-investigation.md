@@ -85,7 +85,7 @@ Exclude:
 ### Approach (fixture-backed mini-eval)
 1. Build a dev-only spike harness route:
    - `app/(app)/__spikes/rh2-overlay/page.tsx`
-   - Controls: pack selector (`pack_01_clean`, `pack_07_scans_rotated_low_quality`), doc selector, page number, anchor id, zoom 50/100/150, rotation 0/90/180/270.
+   - Controls: pack selector (`pack_01_clean`, `pack_07_scans_rotated_low_quality`), doc selector, page number (1-indexed), anchor id, zoom 50/100/150, rotation 0/90/180/270.
    - Debug HUD: pack/doc/page/anchor, `scale`, `totalRotation`, `viewport.width/height`, `canvas.width/height` and CSS size, `devicePixelRatio`.
 
 2. Implement the pure mapping util (unit-testable):
@@ -132,10 +132,7 @@ Throw away:
     browser-use --session rh2 state
     browser-use --session rh2 screenshot
     ```
-  - If `browser-use` is not on your PATH, you can run it one-off via `uvx`:
-    ```bash
-    UV_CACHE_DIR=/tmp/uv-cache uvx --from "browser-use[cli]" browser-use --help
-    ```
+  - If `browser-use` is not available locally, follow `.agents/skills/00-utilities/browser-use/SKILL.md` (uvx one-off vs permanent install).
 - `agent-browser` (CLI): good for scripted screenshots if installable (snapshot + `@e1` refs). Requires npm install + a Chromium download; can also point at a system Chrome via an executable-path setting. Note: `agent-browser` is not currently installed and npm registry access may be blocked in this environment.
 
 ### Expected outcomes
