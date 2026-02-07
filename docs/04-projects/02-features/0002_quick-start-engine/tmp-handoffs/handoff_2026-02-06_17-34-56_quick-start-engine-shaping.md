@@ -11,7 +11,7 @@ Time: 2026-02-06 17:34:56 (local)
     - `risk-register.md`
     - `spike-investigation.md`
   - Corrected acceptance pack names to match `docs/08-example-data/packs_summary.md`.
-  - Deleted `docs/04-projects/02-features/0002_quick-start-engine/prd.md` and `prd.json`.
+  - Deleted `docs/04-projects/02-features/0002_quick-start-engine/prd-overall.md` and `prd.json`.
   - Commit created: `aac0a09` ("shape(0002): refresh packet; remove prd files").
 - Pending:
   - Run the spikes in `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md` and fill the report stubs.

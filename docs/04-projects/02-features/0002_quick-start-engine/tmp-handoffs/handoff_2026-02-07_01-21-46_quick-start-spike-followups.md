@@ -14,8 +14,8 @@ Time: 2026-02-07 01:21:46 (local)
       - adjusted SP-2.7 pack set to cover issues truth; clarified multi-parcel is SP-2.10
       - added new spikes: SP-2.11 (list verification semantics), SP-2.12 (indexed runnable + warning UX), SP-2.13 (human-in-the-loop semantics, optional)
   - Updated Slice 1 PRD to be explicit that row-level failures (`citation_failed`) do not crash the run, and runs can still reach `completed` with exports blocked:
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-01-run-skeleton.md`
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-01-run-skeleton.json`
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md`
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.json`
   - Verified JSON PRDs still validate against `docs/04-projects/_templates/json-prd.schema.json` (PASS).
 - Pending:
   - Run the gating spikes and fill report stubs:

@@ -1,6 +1,6 @@
 ---
 name: wf-ralph
-description: This skill should be used when running a Ralph-style, one-task-per-iteration loop using Ralphy under the hood, with simple modes (dev, research, e2e, review), Codex-by-default, and dossier-local prd.json discovery.
+description: This skill should be used when running a Ralph-style, one-task-per-iteration loop using Ralphy under the hood, with simple modes (dev, research, e2e, review), Codex-by-default, and dossier-local PRD JSON discovery.
 license: MIT
 ---
 
@@ -21,7 +21,7 @@ Use this skill when any of the following is true:
 
 - A “run Ralph loop” workflow is needed, but the underlying runner should be **Ralphy**.
 - A repeatable, copy-paste command template is needed for `dev | research | e2e | review`.
-- A dossier-local `prd.json` must be found from an `@slug` or a relative dossier path.
+- A dossier-local PRD JSON must be found from an `@slug` or a relative dossier path.
 
 ## Minimum questions
 
@@ -59,25 +59,25 @@ Reply shorthand:
 - Prefer: `git rev-parse --show-toplevel`
 - Fallback: current working directory
 
-### Locate dossier `prd.json` without brittle paths
+### Locate dossier PRD JSON without brittle paths
 
 Locate the PRD JSON using this order:
 
-1) If current working directory contains `prd.json`, use it.
+1) If current working directory contains `prd.json`, use it. (Never use slice PRDs under `prds/`.)
 2) Else, accept either:
    - an `@slug` (dossier folder name contains the slug), or
    - a relative dossier path, or
    - a relative path to a `prd.json`
    Then search under `docs/04-projects/**`.
 
-Optional helper (bundled): `scripts/find_prd_json.sh`
+Optional helper (bundled): `.agents/skills/04-develop/wf-ralph/scripts/find_prd_json.sh`
 
-- `scripts/find_prd_json.sh` prints the resolved `prd.json` path.
+- `.agents/skills/04-develop/wf-ralph/scripts/find_prd_json.sh` prints the resolved `prd.json` path.
 - Prefer invoking it from repo root:
 
 ```bash
-./scripts/find_prd_json.sh @bulk-invite-members
-./scripts/find_prd_json.sh docs/04-projects/02-features/0007_bulk-invite-members
+bash .agents/skills/04-develop/wf-ralph/scripts/find_prd_json.sh @bulk-invite-members
+bash .agents/skills/04-develop/wf-ralph/scripts/find_prd_json.sh docs/04-projects/02-features/0007_bulk-invite-members
 ```
 
 ## Ralphy commands

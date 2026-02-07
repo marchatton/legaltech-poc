@@ -17,14 +17,14 @@ Time: 2026-02-07 01:05:12 (local)
     - API + error envelope (ADR-0008): safe errors w/ `trace_id`; UI reads state through API, not DB.
     - Observability: correlate failures using `{trace_id, run_id, step_key, question_id}`.
   - Created PRD spine + slice PRDs (each has a matching JSON PRD that validates against `docs/04-projects/_templates/json-prd.schema.json`):
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd.md`
-    - `docs/04-projects/02-features/0002_quick-start-engine/prd.json`
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-01-run-skeleton.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-02-row-payload-contract.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-03-commitment-parsing-pack-01-clean.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-04-exception-matching-pack-01-02.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-05-survey-extraction-pack-01-03.md` (+ `.json`)
-    - `docs/04-projects/02-features/0002_quick-start-engine/prds/prd-slice-06-reconciliation-honesty-pack-03-07.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prd-overall.md`
+    - `docs/04-projects/02-features/0002_quick-start-engine/prd-overall.json`
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.md` (+ `.json`)
+    - `docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.md` (+ `.json`)
   - Proof capture tooling notes added to spikes:
     - `agent-browser` (`pnpm dlx agent-browser ...`)
     - `browser-use` (`uvx "browser-use[cli]" ...`)
@@ -69,7 +69,7 @@ d50f50e docs(projects): add 0002 handoff note
 
 ## 6) Next steps
 1. Read the spine and slice PRDs, confirm slice ordering and any missing seams:
-   - `docs/04-projects/02-features/0002_quick-start-engine/prd.md`
+   - `docs/04-projects/02-features/0002_quick-start-engine/prd-overall.md`
 2. Run spikes SP-2.1 and SP-2.7 first; they gate most downstream build work:
    - `docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md`
 3. Create `question_set_v1.json` and decide/pin `question_set_version` string format for `runs.question_set_version`.

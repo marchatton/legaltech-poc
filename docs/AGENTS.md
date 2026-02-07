@@ -32,7 +32,9 @@ Single place for workflow artefacts + docs outputs.
     - `0001` is lane-local (features count separately from fixes, etc)
     - `<slug>` is kebab-case
     - Every work item has a slug for easy `@slug` tagging in PRDs and discussions.
-  - All change types require **both** `prd.md` and `prd.json` (even if tiny).
+  - All change types require PRD markdown + JSON (even if tiny). Naming depends on whether the dossier has 1 PRD or multiple PRDs:
+    - Single-PRD dossier: `prd.md` + `prd.json`
+    - Multi-PRD dossier: `prd-overall.md` + `prd-overall.json` plus slice PRDs under `prds/<slice_id>_<slug>/prd.md` + `prd.json`
   - Reviews for a project live inside its dossier (e.g. `reviews/`).
 
 ## Storing oracle bundles and handoff notes

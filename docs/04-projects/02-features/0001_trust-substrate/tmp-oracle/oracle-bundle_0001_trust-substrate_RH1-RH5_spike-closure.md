@@ -47,7 +47,7 @@ Output format
 - docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md
 - docs/04-projects/02-features/0001_trust-substrate/risk-register.md
 - docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md
-- docs/04-projects/02-features/0001_trust-substrate/prd.md
+- docs/04-projects/02-features/0001_trust-substrate/prd-overall.md
 - docs/04-projects/02-features/0001_trust-substrate/prds/README.md
 - docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle_response_0001.md
 - docs/03-architecture/DECISIONS.md
@@ -715,7 +715,7 @@ Keep oracle bundles/notes in `tmp-oracle/` so they are git-tracked and easy to r
 
 ---
 
-## File: docs/04-projects/02-features/0001_trust-substrate/prd.md
+## File: docs/04-projects/02-features/0001_trust-substrate/prd-overall.md
 
 ````md
 # PRD: 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)

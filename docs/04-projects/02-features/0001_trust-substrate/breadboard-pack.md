@@ -196,5 +196,5 @@ Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slices should map to pa
 - Slice F (F7, U13, N11): Provenance capture + trace export
 
 Notes:
-- A draft `prd.md`/`prd.json` “spine” may exist in this dossier for handoff, but implementation should happen via thin slice PRDs once spikes are closed and the perimeter is re-locked.
+- A draft `prd-overall.md`/`prd-overall.json` overall (spine) PRD may exist in this dossier for handoff, but implementation should happen via thin slice PRDs once spikes are closed and the perimeter is re-locked.
 - Slice PRDs for 0001 live under `prds/` (see `prds/README.md`).

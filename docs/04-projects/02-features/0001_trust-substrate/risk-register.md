@@ -15,5 +15,5 @@ Treatments must be one of: `Cut` / `Patch` / `Spike` / `Out-of-bounds`.
 
 ## Notes
 - Per `docs/00-strategy/initiatives/prd-slicing-rules.md`, slice PRDs should not be created until Spike items are closed (or explicitly Cut/Out-of-bounds).
-- A draft `prd.md`/`prd.json` “spine” can exist pre-spike, but treat it as blocked until spikes are closed and perimeter is re-locked.
+- A draft `prd-overall.md`/`prd-overall.json` overall (spine) PRD can exist pre-spike, but treat it as blocked until spikes are closed and perimeter is re-locked.
 - Oracle review is mandatory per Spike (bundle + notes captured in `spike-investigation.md`).

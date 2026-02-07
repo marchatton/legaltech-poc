@@ -4,7 +4,7 @@
 - Goal of this thread: re-run wf-shape for initiative `0001` using `docs/03-architecture/*` + initiative overview context, and delete prior `prd.md`/`prd.json` for `0001` so the packet starts with brief/breadboard/risks/spikes.
 - Done:
   - Updated shaping packet docs under `docs/04-projects/02-features/0001_trust-substrate/` to align with architecture contracts (Folders API naming, state model, packs list).
-  - Deleted `docs/04-projects/02-features/0001_trust-substrate/prd.md` and `docs/04-projects/02-features/0001_trust-substrate/prd.json`.
+  - Deleted `docs/04-projects/02-features/0001_trust-substrate/prd-overall.md` and `docs/04-projects/02-features/0001_trust-substrate/prd-overall.json`.
   - Created a manual “oracle render” bundle for Spike RH2 (highlight overlay transform) at:
     - `tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md`
 - Pending:

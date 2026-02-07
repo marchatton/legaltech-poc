@@ -1,4 +1,4 @@
-# PRD (Spine): 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)
+# PRD (Overall): 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)
 
 Owner: marc
 Status: Draft (Blocked by RH1-RH5 spikes)
@@ -19,7 +19,7 @@ Orbital's product UX must be trustworthy before any "Quick Start" generation is 
 Ship a fixture-driven evidence surface where a reviewer can click a citation chip and see the correct clause highlighted with a snippet + `snippet_hash`, and where failures are explicit and block export by default.
 
 ### Slice
-This dossier is an initiative-level PRD spine. Implementation should happen via thin slices (see `breadboard-pack.md`), but the end state is a single "trust moment" flow:
+This dossier is an initiative-level overall PRD. Implementation should happen via thin slices (see `breadboard-pack.md`), but the end state is a single "trust moment" flow:
 Matter (Folder) -> citation chip -> PDF viewer -> verified highlight overlay + snippet/hash, with fail-closed behavior and export gating.
 
 Slice PRDs (implementation-ready):

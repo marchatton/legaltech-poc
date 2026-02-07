@@ -1,4 +1,4 @@
-# PRD (Spine): 0002 Quick Start Engine (Slices in `prds/`)
+# PRD (Overall): 0002 Quick Start Engine (Slices in `prds/`)
 
 Owner:
 Status: Draft (NO-GO until key spikes close)
@@ -12,7 +12,7 @@ Implement the deterministic-ish “Quick Start: Title + Survey” run that turns
 2. Schedule B-II exceptions table (linked to instruments)
 3. Survey reconciliation issues list (title ↔ survey)
 
-This `prd.md` is an initiative-level spine. Implementation should happen via the thin slice PRDs listed below.
+This `prd-overall.md` is the initiative-level overall (spine) PRD. Implementation should happen via the thin slice PRDs listed below.
 
 ## Non-negotiable constraints (from architecture)
 
@@ -45,17 +45,17 @@ Primary near-term anchors for implementation slices:
 
 ## Slice PRDs (thin, executable)
 
-1. `prds/prd-slice-01-run-skeleton.md`
+1. `prds/0002a_run-skeleton/prd.md`
   - Runs API + version pinning + WDK workflow skeleton + incremental UI progress, with strict invariants.
-2. `prds/prd-slice-02-row-payload-contract.md`
+2. `prds/0002b_row-payload-contract/prd.md`
   - Decide and implement list payload storage + schema versioning + UI rendering contract for artefact tables.
-3. `prds/prd-slice-03-commitment-parsing-pack-01-clean.md`
+3. `prds/0002c_commitment-parsing-pack-01-clean/prd.md`
   - Commitment parsing baseline for `pack_01_clean` producing B-I + B-II payloads matching truth key fields.
-4. `prds/prd-slice-04-exception-matching-pack-01-02.md`
+4. `prds/0002d_exception-matching-pack-01-02/prd.md`
   - Exception → instrument matching baseline + missing-doc journey on `pack_02_missing_rea`; ambiguity surfaced without “silent pick”.
-5. `prds/prd-slice-05-survey-extraction-pack-01-03.md`
+5. `prds/0002e_survey-extraction-pack-01-03/prd.md`
   - Survey extraction baseline + certification gap issue on `pack_03_mismatch_and_cert_gap` with locked citations.
-6. `prds/prd-slice-06-reconciliation-honesty-pack-03-07.md`
+6. `prds/0002f_reconciliation-honesty-pack-03-07/prd.md`
   - Reconciliation issues list with an honesty policy (bias to item-level `unknown`; `not_depicted` requires positive evidence of absence).
 
 ## Open questions (spike-owned)

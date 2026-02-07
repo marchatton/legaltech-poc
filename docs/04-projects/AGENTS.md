@@ -5,10 +5,20 @@ This folder tracks work items once implementation begins.
 ## Dossier conventions
 - Work items live under `docs/04-projects/<lane>/<id>_<slug>/`.
 - Within each work item:
-  - `prd.md` and `prd.json`, which form handoff between shaping, planning and development.
-    - `prd.md` is the dossier’s spine PRD. If the dossier also has slice PRDs, make the spine explicit in the H1 (e.g. `PRD (Spine): ...`).
+  - PRDs (handoff between shaping, planning and development):
+    - Single-PRD dossier:
+      - `prd.md`
+      - `prd.json`
+    - Multi-PRD dossier:
+      - Overall / spine PRD at the dossier root:
+        - `prd-overall.md` (H1 should be explicit, e.g. `PRD (Overall): ...`)
+        - `prd-overall.json`
+      - Slice PRDs under `prds/` (lowest-level PRDs):
+        - `prds/<slice_id>_<slug>/prd.md`
+        - `prds/<slice_id>_<slug>/prd.json`
+        - Lowest-level PRD filenames are always `prd.md` / `prd.json` (no `prd-slice` filenames).
   - Optional subfolders (use when helpful):
-    - `prds/`: slice PRDs for the dossier (keep the spine PRD at the dossier root).
+    - `prds/`: slice PRDs for the dossier (folder-per-slice, each containing `prd.md` + `prd.json`).
     - `specs/`: pinned contracts/spec artefacts referenced across PRDs/spikes (schemas, policies, question sets, comparator specs, UX copy).
     - `spike-proofs/`: committed spike evidence (JSON diffs, screenshots, short decisions). Link from `spike-investigation.md` and close items in `risk-register.md`.
   - Reviews for a work item live inside the dossier (e.g. `reviews/`).
