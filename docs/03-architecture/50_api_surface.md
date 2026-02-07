@@ -76,6 +76,37 @@ HTTP status mapping (PoC default):
 - `EXPORT_BLOCKED` -> `409`
 - `INTERNAL` -> `500`
 
+## Demo controls (dev-only)
+
+These endpoints are dev-only and must follow the spike endpoint conventions:
+- Paths live under `/spikes/*`.
+- They are gated behind `SPIKES_ENABLED=1` and return `404` unless spikes are explicitly enabled.
+
+### POST /spikes/demo/load-pack (admin)
+Load a known fixture pack from `docs/08-example-data/` and seed a fresh folder ("matter") with documents only.
+
+Access control (PoC v1):
+- Requires `X-Orbital-Admin-Token` header matching env `ORBITAL_ADMIN_TOKEN` (see Admin token (PoC) above).
+
+Feature flags:
+- Requires `SPIKES_ENABLED=1` and `DEMO_MODE=1`.
+  - Otherwise return `404` with `error.code = "NOT_FOUND"`.
+
+Request:
+```json
+{ "pack_id": "pack_01_clean" }
+```
+
+Response:
+```json
+{ "folder_id": "fld_123" }
+```
+
+Notes:
+- `pack_id` must be allowlisted. Do not accept filesystem paths.
+- Loader must read `docs/08-example-data/<pack_id>/manifest.json` and fail if missing; do not infer pack structure from directory listing.
+- Never return local filesystem paths or signed URLs from this endpoint.
+
 ## Folder + documents
 
 ### GET /folders

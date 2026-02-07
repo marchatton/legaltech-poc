@@ -25,7 +25,7 @@ Report rows are trapped in the UI and demos are brittle. We need a repeatable wa
 - A demo operator can export all 3 CSV artefacts from `docs/08-example-data/pack_01_clean`.
 - The export is **deterministic** (locked headers + deterministic row ordering).
 - Export is only available when `runs.state = completed`.
-- Export is blocked by default when any row is `citation_failed` (unless demo-only `unsafe_override=true` is explicitly used).
+- Export is blocked by default when any row is `citation_failed` (unless demo-only `unsafe_override=true` is explicitly used via API-only unsafe override per ADR-0019).
 - Exported artefacts are listed for the matter and downloadable via fresh signed URLs.
 - Exports include:
   - row status
@@ -68,6 +68,10 @@ survey_issues.csv headers (v1):
 8) citation_ids
 9) notes
 
+Column semantics (locked):
+- Column 6 (`failure_code`) carries the row-level Tier 2 `reason_code` when `row_status=citation_failed`; otherwise it must be empty.
+- Despite the header name, this is *not* the Tier 1 step-level `failure_code` (see `docs/03-architecture/60_observability_and_evals.md`).
+
 ### Deterministic row ordering (locked)
 
 - Sort rows by:
@@ -82,7 +86,8 @@ survey_issues.csv headers (v1):
 
 - runs.state must be completed, else 409 CONFLICT.
 - If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED.
-- unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise 403 UNAUTHORISED.
+- unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS + a valid `X-Orbital-Admin-Token` (ADR-0019); otherwise 403 UNAUTHORISED.
+- Unsafe override is API-only (no Trust Substrate UI affordance) (ADR-0019).
 - Unsafe exports must be visibly labelled in filename (e.g. requirements_tracker.UNSAFE.csv) and recorded in artefact metadata_json.
 - Under unsafe exports, any exported items derived from a citation_failed report row must:
   - have row_status=citation_failed
@@ -118,7 +123,8 @@ In scope:
 - Export gating:
   - `runs.state = completed` required (else `409 CONFLICT`)
   - if any row in the run is `citation_failed` and `unsafe_override != true`, export is blocked (`EXPORT_BLOCKED`)
-  - `unsafe_override = true` is demo-only and requires `DEMO_MODE` + `ALLOW_UNSAFE_EXPORTS` (else `403 UNAUTHORISED`)
+  - `unsafe_override = true` is demo-only and requires `DEMO_MODE` + `ALLOW_UNSAFE_EXPORTS` + a valid `X-Orbital-Admin-Token` (else `403 UNAUTHORISED`) (ADR-0019)
+  - unsafe override is API-only (ADR-0019)
 - CSV schemas v1 for:
   - `requirements_tracker`
   - `exceptions_table`
@@ -162,7 +168,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - FR-003: Export only allowed when `runs.state = completed`; otherwise return `409` with `error.code = "CONFLICT"`.
 - FR-004: If any row in the run is `citation_failed` and `unsafe_override != true`, export returns non-2xx with `error.code = "EXPORT_BLOCKED"`.
 - FR-005: If `unsafe_override = true`:
-  - when demo mode is not enabled (or `ALLOW_UNSAFE_EXPORTS` is not enabled), return `403` with `error.code = "UNAUTHORISED"`.
+  - when demo mode is not enabled (or `ALLOW_UNSAFE_EXPORTS` is not enabled) or the admin token is missing/invalid, return `403` with `error.code = "UNAUTHORISED"` (ADR-0019).
   - when allowed, export must label the artefact as unsafe (filename + metadata_json.unsafe_override=true).
 - FR-006: CSV mapper consumes structured row payload (`payload_json` + `payload_schema_version`) (no prose parsing). If payload is missing, export fails closed with `409 CONFLICT` and a safe message pointing to the Initiative 002 dependency.
 - FR-007: CSV headers + ordering are locked (v1 schemas) and drift is prevented by snapshot tests against fixture packs.
@@ -184,7 +190,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - AC-006: Artefact is persisted and appears in `GET /folders/:id/artefacts` with a working (fresh) `download_url`.
 - AC-007: No signed URLs are persisted; only `storage_key` + metadata are stored.
 - AC-008: Export does not parse `report_rows.answer` prose; it uses structured row payload (`payload_json`) and fails closed if missing.
-- AC-009: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled, operator can export with `unsafe_override=true` and the resulting CSV filename is labelled `*.UNSAFE.csv`.
+- AC-009: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled and a valid `X-Orbital-Admin-Token` is provided (ADR-0019), an admin can export with `unsafe_override=true` (API-only), and the resulting CSV filename is labelled `*.UNSAFE.csv`.
 
 ## Verification Plan
 
@@ -209,12 +215,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
   - Body: `This run contains {n} row(s) with failed citation verification. Fix the citations or re-run. By default we do not export when any row is citation_failed.`
   - Detail line: `Run must be completed. Exports are only available for completed runs.`
   - CTA (normal): `Review failed rows`
-  - Unsafe override CTA (only when `DEMO_MODE && ALLOW_UNSAFE_EXPORTS`):
-    - Button label: `Export anyway (UNSAFE)`
-    - Confirmation modal title: `Create an unsafe export?`
-    - Confirmation body: `This will export even though some rows failed citation verification. The file will be labelled UNSAFE and may contain unverified content. Do not share this outside internal demos.`
-    - Confirm button: `I understand, export UNSAFE`
-    - Cancel button: `Cancel`
+  - Unsafe override: API-only (ADR-0019). No UI bypass is provided in this slice.
 - Missing `payload_json`: show a hard error explaining the dependency on Initiative 002 (fail closed; no prose parsing fallback in this slice).
 - Storage errors: safe user-facing error; log with `EXPORT_FAIL`.
 

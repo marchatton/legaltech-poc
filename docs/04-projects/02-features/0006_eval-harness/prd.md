@@ -55,7 +55,14 @@ Implement the fixture-driven eval harness described in:
 Key design constraints:
 - Deterministic outputs for a given pack and produced run outputs.
 - Citation integrity uses the canonical `snippet_hash` normalization rule from `docs/03-architecture/30_data_model.md`.
+- Manifest-driven: the eval runner must read `docs/08-example-data/<pack_id>/manifest.json` and fail if missing (no directory inference).
 - PoC default: **snapshot-first**. For v1, `fixture:eval` reads file snapshots under each pack’s `/produced/` directory (no DB required). A DB-backed mode can be added later as an optional integration test.
+
+### Export truth match mechanism (v1)
+To avoid duplicating export mapping logic, `fixture:eval` must generate CSV outputs using the shared CSV mappers (the same mapping logic used by the export endpoints), using `/produced/report_rows.json` + `/produced/citations.json` snapshots as inputs. The generated CSVs are then compared to `/truth/expected_*.csv` (normalise line endings to LF).
+
+Taxonomy note:
+- Row failure reasons are Tier 2 `reason_code` values. If a CSV schema uses a header named `failure_code`, that column still carries the Tier 2 `reason_code` (not Tier 1 step failure codes).
 
 ## Scope
 
@@ -111,7 +118,7 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
   - cited page exists
   - polygons exist
   - `snippet_hash` matches canonical normalization rule
-- AC-005: Export truth match validates that generated CSV outputs match `/truth/expected_*.csv` (normalising line endings to LF), including locked header order and deterministic row ordering.
+- AC-005: Export truth match validates that CSVs generated via the shared CSV mappers from `/produced/report_rows.json` + `/produced/citations.json` match `/truth/expected_*.csv` (normalising line endings to LF), including locked header order and deterministic row ordering.
 - AC-006: Runner exits non-zero if any hard gate fails for any pack.
 - AC-007 (optional CI): CI job runs evals and uploads JSON/MD reports as build artefacts, but does not block merges beyond hard gates until explicitly enabled.
 

@@ -9,7 +9,7 @@ Date: 2026-02-07
 Make demos repeatable without risky deletion:
 - Feature-flagged **demo toolbar** (dev-only)
 - **Pack selector** that loads `pack_01_clean` and `pack_02_missing_rea` from `docs/08-example-data/`
-- “Reset” semantics for slice 1: **no deletion via HTTP**. Running the demo twice means creating a fresh demo matter/run each time.
+- “Reset” semantics for slice 1: **no deletion via HTTP**. Running the demo twice means creating a fresh demo matter each time (the operator starts a run separately).
 - A committed **demo checklist** Markdown file that describes the operator steps.
 
 ## Problem
@@ -41,7 +41,7 @@ Running the same demo twice is currently brittle and depends on manual “operat
 Add a dev-only demo surface that is isolated and explicit:
 
 - Demo toolbar (dev-only) is controlled by a demo flag (PoC default: env var `DEMO_MODE=1`).
-- Pack loading reads fixture packs from `docs/08-example-data/` and seeds the system deterministically.
+- Pack loading uses the canonical dev-only API contract in `docs/03-architecture/50_api_surface.md` (Demo controls), reads fixture packs from `docs/08-example-data/`, and seeds the system deterministically.
 - Pack loader is allowlisted to known pack IDs only.
 - Slice 1 reset semantics: no deletion via HTTP. Running the demo twice means loading the pack again, which creates a fresh matter each time.
 - Pack loader seeds documents only by default and does not auto-start runs (operator clicks “Run Quick Start”).
@@ -54,7 +54,10 @@ In scope:
 - Demo toolbar UI:
   - pack selector for `pack_01_clean` and `pack_02_missing_rea`
 - Pack loader behaviour:
-  - reads from `docs/08-example-data/<pack>/`
+  - implemented via the dev-only endpoint in `docs/03-architecture/50_api_surface.md` (Demo controls)
+  - endpoint is admin-token gated (`X-Orbital-Admin-Token`)
+  - reads `docs/08-example-data/<pack_id>/manifest.json` (required; fail if missing; no directory inference)
+  - reads from `docs/08-example-data/<pack_id>/`
   - pack_id must be allowlisted (no free-form filesystem paths; reject path traversal)
   - creates a new folder + documents for the selected pack
   - creates a new folder name with a demo prefix (recommended): `DEMO: <pack_id> <timestamp>`

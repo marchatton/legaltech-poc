@@ -68,13 +68,16 @@ Default rule (locked):
 - If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED.
 
 Unsafe override (locked, demo-only):
-- unsafe_override exists but is guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS.
+- unsafe_override exists but is guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS + a valid `X-Orbital-Admin-Token` (ADR-0019).
 - If unsafe_override=true when not allowed, return 403 UNAUTHORISED.
 - Unsafe artefacts must be visibly labelled in filename and metadata_json.
+- Unsafe override is API-only (no Trust Substrate UI affordance) (ADR-0019).
 
 UX copy (locked, required strings):
 - Blocked banner title: "Export blocked"
 - Body: "This run contains {n} row(s) with failed citation verification. Fix the citations or re-run. By default we do not export when any row is citation_failed."
+
+Operator runbook copy (NOT a shipped UI affordance; only if we add an admin-auth UI surface in the future):
 - Demo-only button label: "Export anyway (UNSAFE)"
 - Confirmation title: "Create an unsafe export?"
 - Confirmation body: "This will export even though some rows failed citation verification. The file will be labelled UNSAFE and may contain unverified content. Do not share this outside internal demos."

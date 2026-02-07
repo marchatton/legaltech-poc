@@ -13,21 +13,24 @@ Constraints:
 
 ## Unit of verification
 
-Verify at the **item + field** level (integrity-only):
-- Any non-empty scalar field that represents a material claim must have at least one locked citation attached to the same item.
-- "Display-only" fields (e.g. `notes`) may be excluded from verification.
+Verify at the **item** level (integrity-only):
+- Any item that contains one or more material claims must have at least one locked citation attached to the same item (`item.citation_ids.length > 0`).
+- "Display-only" fields (e.g. `notes`) may be excluded from the definition of a "material claim".
 - This check does **not** assert semantic correctness or entailment of the claim by the cited text.
+
+Notes:
+- `list_payload_v0` only supports item-level `citation_ids` and does not provide per-field citation attachment. Field-level verification is therefore out of scope for v1 and should be introduced with a schema revision (e.g. `list_payload_v1`) if/when required.
 
 ## Partial failures (decision pending SP-2.11)
 
 Two viable policies:
 
 1. **Strict policy (simplest):** any failed integrity check => entire row becomes `citation_failed`.
-2. **Repair policy (preferred if safe):** verifier is allowed to downgrade or remove unsupported fields/items (e.g. set `item_classification="unknown"`, drop `instrument_no` if unsupported) and re-verify, so the row can remain verifiable without fabricating claims.
+2. **Repair policy (preferred if safe):** verifier is allowed to downgrade or remove unsupported items (e.g. set `item_classification="unknown"`, drop an item that cannot be backed by citations) and re-verify, so the row can remain verifiable without fabricating claims.
 
 SP-2.11 should choose one policy explicitly and record:
 - what counts as a "material claim"
-- how downgrades are represented in `payload_json`
+- how downgrades/removals are represented in `payload_json`
 - how provenance records downgrade/repair actions (safe reason codes)
 
 ## Required provenance (minimum)

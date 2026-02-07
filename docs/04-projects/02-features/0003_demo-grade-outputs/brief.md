@@ -74,6 +74,7 @@ Out of scope (explicit cuts):
   - Deterministic-ish step boundaries (ADR-0005): keep route handlers thin; long-running export work should live in steps
   - Fixture-driven evals are first-class (ADR-0006)
   - No external web research inside runs (ADR-0007)
+  - Unsafe export override is demo-only, admin-token gated, and API-only (ADR-0019)
 - This initiative assumes Initiatives 001 and 002 exist in some form:
   - report rows with `status` and locked citations
   - fixture packs + `/truth` exist (or will be created as part of eval harness work)
@@ -94,7 +95,7 @@ Out of scope (explicit cuts):
 |---|---|---|
 | CSV column schema usability | First practitioner reaction can kill the export story | CLOSED (ASSUMPTION): lock CSV schemas v1 (headers + ordering) + deterministic row ordering + citations format. Falsifier: practitioner paste/import test cannot be done in <5 minutes or requests column/order changes. |
 | Word template choice (memo vs objection/cure letter) | Storytelling impact for demo audience | CLOSED (ASSUMPTION): ship single Word artefact = memo with fixed section list + deterministic ordering + inline citation rendering. Falsifier: stakeholder insists on letter format and provides must-have requirements. |
-| Export behaviour when any row is `citation_failed` | Trust posture vs demo usefulness; needs a crisp default | CLOSED: default block export when any row is `citation_failed`. Demo-only unsafe_override exists behind `DEMO_MODE` + `ALLOW_UNSAFE_EXPORTS` and produces clearly labelled UNSAFE artefacts. |
+| Export behaviour when any row is `citation_failed` | Trust posture vs demo usefulness; needs a crisp default | CLOSED: default block export when any row is `citation_failed`. Demo-only unsafe_override exists behind `DEMO_MODE` + `ALLOW_UNSAFE_EXPORTS` + a valid `X-Orbital-Admin-Token` (ADR-0019), is API-only, and produces clearly labelled UNSAFE artefacts. |
 | Docx formatting fragility | “Looks broken” erodes trust fast | Patch (keep template simple, constrain layout) |
 | Minimal metrics that actually predict demo readiness | Avoid false confidence without building a full eval platform | CLOSED: hard gates = schema validity, citation integrity, failure journeys, export truth match. |
 | Demo reset semantics (no-delete vs destructive tooling) | Accidental deletion is unacceptable | CLOSED: toolbar + checklist. No deletion via HTTP. Reset = load pack again to create a fresh matter. Pack loader seeds documents only and does not auto-start runs by default. |

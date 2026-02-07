@@ -54,7 +54,7 @@ As a demo operator, I want to export the 3 CSV artefacts and a single memo docx 
   - survey issues CSV
   - memo docx
 - Exports are only available when `runs.state = completed`.
-- Exports fail closed by default when any row is `citation_failed` (blocked, with clear UX). Demo-only unsafe override exists behind strict guardrails and produces clearly labelled UNSAFE artefacts.
+- Exports fail closed by default when any row is `citation_failed` (blocked, with clear UX). Demo-only unsafe override exists behind strict guardrails (DEMO_MODE + ALLOW_UNSAFE_EXPORTS + admin token), is API-only (ADR-0019), and produces clearly labelled UNSAFE artefacts.
 
 #### Verification
 - See PRDs: 0004 and 0005.

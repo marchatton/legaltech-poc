@@ -23,7 +23,7 @@ We need to export a defensible Word artefact without weakening the trust posture
 - From `docs/08-example-data/pack_01_clean`, operator can export `memo.docx` from a completed run and download it successfully.
 - Memo includes the spike-locked sections in deterministic order, with inline citations.
 - Export is only available when `runs.state = completed`.
-- Export is blocked by default when any row is `citation_failed` (`EXPORT_BLOCKED`), unless demo-only `unsafe_override=true` is explicitly used.
+- Export is blocked by default when any row is `citation_failed` (`EXPORT_BLOCKED`), unless demo-only `unsafe_override=true` is explicitly used via API-only unsafe override per ADR-0019.
 - Docx renders acceptably (basic “not broken” gate) in:
   - Microsoft Word
   - Google Docs
@@ -90,7 +90,8 @@ In scope:
 - Export gating (per `docs/03-architecture/20_state_model.md`):
   - require `runs.state = completed` (else `409 CONFLICT`)
   - block export if any row is `citation_failed` unless `unsafe_override = true` is provided
-  - `unsafe_override = true` is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise return `403 UNAUTHORISED`
+  - `unsafe_override = true` is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS + a valid `X-Orbital-Admin-Token` (ADR-0019); otherwise return `403 UNAUTHORISED`
+  - unsafe override is API-only (no Trust Substrate UI affordance) (ADR-0019)
   - unsafe exports must be visibly labelled (filename `memo.UNSAFE.docx` + metadata_json.unsafe_override=true)
 - Word renderer:
   - one fixed memo template approach (spike outcome)
@@ -134,7 +135,7 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 - AC-004: Memo contains the spike-locked sections in deterministic order and renders citations in the agreed format.
 - AC-005: Memo renders “not broken” in Word + Google Docs + Preview for the representative sample.
 - AC-006: Artefact is persisted and appears in `GET /folders/:id/artefacts` with a fresh signed `download_url`.
-- AC-007: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled, operator can export with `unsafe_override=true` and the resulting filename is labelled `memo.UNSAFE.docx`.
+- AC-007: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled and a valid `X-Orbital-Admin-Token` is provided (ADR-0019), an admin can export with `unsafe_override=true` (API-only) and the resulting filename is labelled `memo.UNSAFE.docx`.
 
 ## Verification Plan
 
