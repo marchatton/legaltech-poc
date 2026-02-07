@@ -3,18 +3,11 @@
   "$id": "https://example.local/brand_dna_run.schema.json",
   "title": "Brand DNA Run Schema",
   "type": "object",
-  "required": [
-    "run_metadata",
-    "sites"
-  ],
+  "required": ["run_metadata", "sites"],
   "properties": {
     "run_metadata": {
       "type": "object",
-      "required": [
-        "run_id",
-        "timestamp_utc",
-        "config"
-      ],
+      "required": ["run_id", "timestamp_utc", "config"],
       "properties": {
         "run_id": {
           "type": "string"
@@ -38,13 +31,7 @@
   "$defs": {
     "site": {
       "type": "object",
-      "required": [
-        "site_id",
-        "base_url",
-        "weight",
-        "pages",
-        "signals"
-      ],
+      "required": ["site_id", "base_url", "weight", "pages", "signals"],
       "properties": {
         "site_id": {
           "type": "string"
@@ -112,10 +99,7 @@
     },
     "page": {
       "type": "object",
-      "required": [
-        "page_id",
-        "url"
-      ],
+      "required": ["page_id", "url"],
       "properties": {
         "page_id": {
           "type": "string"
@@ -138,12 +122,7 @@
     },
     "signal_block": {
       "type": "object",
-      "required": [
-        "items",
-        "confidence",
-        "needs_human_review",
-        "evidence_map"
-      ],
+      "required": ["items", "confidence", "needs_human_review", "evidence_map"],
       "properties": {
         "confidence": {
           "type": "number",
@@ -173,9 +152,7 @@
     },
     "evidence": {
       "type": "object",
-      "required": [
-        "type"
-      ],
+      "required": ["type"],
       "properties": {
         "type": {
           "type": "string",
@@ -185,7 +162,8 @@
             "css_variable",
             "computed_style",
             "computed_style_diff",
-            "screenshot"
+            "screenshot",
+            "branding_profile"
           ]
         },
         "page_url": {
@@ -217,22 +195,14 @@
         },
         "state": {
           "type": "string",
-          "enum": [
-            "base",
-            "hover",
-            "focus",
-            "active"
-          ]
+          "enum": ["base", "hover", "focus", "active"]
         },
         "viewport": {
           "type": "string"
         },
         "media_mode": {
           "type": "string",
-          "enum": [
-            "light",
-            "dark"
-          ]
+          "enum": ["light", "dark"]
         },
         "path_or_url": {
           "type": "string"

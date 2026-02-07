@@ -3,7 +3,13 @@
   "$id": "https://example.local/design_tokens.schema.json",
   "title": "Design Tokens Schema",
   "type": "object",
-  "required": ["run_metadata", "per_site_tokens", "composite_tokens", "conflicts", "resolutions"],
+  "required": [
+    "run_metadata",
+    "per_site_tokens",
+    "composite_tokens",
+    "conflicts",
+    "resolutions"
+  ],
   "properties": {
     "run_metadata": {
       "type": "object",
@@ -21,7 +27,15 @@
     },
     "composite_tokens": {
       "type": "object",
-      "required": ["colour", "typography", "spacing", "radius", "elevation", "motion", "voice_hints"],
+      "required": [
+        "colour",
+        "typography",
+        "spacing",
+        "radius",
+        "elevation",
+        "motion",
+        "voice_hints"
+      ],
       "properties": {
         "colour": { "$ref": "#/$defs/colour_tokens" },
         "typography": { "$ref": "#/$defs/typography_tokens" },
@@ -48,7 +62,14 @@
         "needs_human_review": { "type": "boolean" },
         "tokens": {
           "type": "object",
-          "required": ["colour", "typography", "spacing", "radius", "elevation", "motion"],
+          "required": [
+            "colour",
+            "typography",
+            "spacing",
+            "radius",
+            "elevation",
+            "motion"
+          ],
           "properties": {
             "colour": { "$ref": "#/$defs/colour_tokens" },
             "typography": { "$ref": "#/$defs/typography_tokens" },
@@ -125,7 +146,10 @@
     "motion_tokens": {
       "type": "object",
       "properties": {
-        "transition_durations_ms": { "type": "array", "items": { "type": "integer" } },
+        "transition_durations_ms": {
+          "type": "array",
+          "items": { "type": "integer" }
+        },
         "timing_functions": { "type": "array", "items": { "type": "string" } },
         "notes": { "type": "array", "items": { "type": "string" } }
       },
@@ -143,7 +167,8 @@
             "css_variable",
             "computed_style",
             "computed_style_diff",
-            "screenshot"
+            "screenshot",
+            "branding_profile"
           ]
         },
         "page_url": { "type": "string" },

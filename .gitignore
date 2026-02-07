@@ -19,9 +19,9 @@ coverage/
 /throwaway/
 docs/97-throwaway/
 docs/04-projects/**/throwaway/
-.firecrawl/
-.parallel/
-.probe/
+**.firecrawl/
+**.parallel/
+**.probe/
 /.agents/skills/00-product-sense/
 
 # macOS
