@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
-import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
+import { loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
 
 export const runtime = "nodejs";
 
