@@ -133,7 +133,8 @@ Output a JSON file with this shape (include detailed top-level fields so the PRD
       "description": "As a [user], I want [feature] so that [benefit].",
       "acceptanceCriteria": [
         "Specific verifiable criterion",
-        "Another criterion"
+        "Another criterion",
+        "A negative criterion"
       ]
     }
   ]
