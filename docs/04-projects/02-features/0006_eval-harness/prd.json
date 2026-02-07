@@ -1,41 +1,145 @@
 {
-  "project": "0006_eval-harness",
-  "branchName": "codex/0006-eval-harness",
-  "description": "Fixture-driven eval harness that produces per-pack JSON+MD reports and enforces hard trust gates (schema validity, citation integrity, failure journeys).",
-  "userStories": [
+  "version": 1,
+  "project": "0006 Fixture-Driven Eval Harness (Hard Gates + Reports)",
+  "overview": "Create a lightweight, deterministic fixture-driven eval harness (fixture:eval) that reads in-repo pack snapshots and /truth, emits per-pack JSON + Markdown reports plus a cross-pack summary, and enforces hard trust gates (schema validity, citation integrity, expected failure journeys, export truth match).",
+  "goals": [
+    "fixture:eval produces per-pack reports (JSON + Markdown) for pack_01_clean, pack_02_missing_rea, and pack_09_bad_citation.",
+    "Hard gates align with docs/03-architecture/60_observability_and_evals.md plus export determinism: schema validity (100%), citation integrity (100%), expected failure journeys, export truth match.",
+    "Runner exits non-zero when any hard gate fails relative to the pack's expected outcomes.",
+    "Failure outputs use the canonical failure taxonomy codes."
+  ],
+  "nonGoals": [
+    "Complex scoring models, dashboards, or 'quality' judgement beyond the hard gates.",
+    "Orchestrating ingestion + running workflows inside CI as part of the first slice (keep CI report-only and fast)."
+  ],
+  "successMetrics": [
+    "Developers can run evals locally on the 3 packs and get deterministic outputs for the same inputs.",
+    "Hard gates reliably catch regressions before demo day (schema/citation/failure-journey/export-truth mismatches).",
+    "Reports are machine-readable (JSON) and human-scannable (Markdown), with a cross-pack summary table."
+  ],
+  "openQuestions": [
+    "Script/command naming: implement fixture:eval (and optionally fixture:eval:all) as a pnpm script per repo conventions.",
+    "Whether and when to add a DB-backed mode as an optional integration test after snapshot-first v1 ships."
+  ],
+  "stack": {
+    "framework": "Node/TypeScript scripts + packages/core (eval logic) + docs fixture packs",
+    "hosting": "N/A (local + CI)",
+    "database": "None required for v1 (snapshot-first reads pack /produced); optional later DB-backed mode",
+    "auth": "N/A"
+  },
+  "routes": [],
+  "uiNotes": [
+    "Primary UX is CLI output + generated Markdown summaries; CI uploads artefacts for reviewers.",
+    "CI integration is report-only initially."
+  ],
+  "dataModel": [
+    {
+      "entity": "fixture pack snapshots",
+      "fields": [
+        "docs/08-example-data/<pack>/truth/*",
+        "docs/08-example-data/<pack>/produced/report_rows.json",
+        "docs/08-example-data/<pack>/produced/documents.json",
+        "docs/08-example-data/<pack>/produced/citations.json (when referenced)"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "fixture:eval reads each pack under docs/08-example-data/<pack_id>/, comparing produced outputs under /produced to expectations under /truth.",
+    "example": {
+      "packId": "pack_01_clean",
+      "truth": "docs/08-example-data/pack_01_clean/truth/",
+      "produced": "docs/08-example-data/pack_01_clean/produced/"
+    }
+  },
+  "rules": [
+    "Deterministic outputs for a given pack and produced run outputs.",
+    "Citation integrity uses the canonical snippet_hash normalization rule from docs/03-architecture/30_data_model.md.",
+    "PoC default: snapshot-first. v1 reads file snapshots under each pack's /produced directory (no DB required).",
+    "Runner returns non-zero exit code when any hard gate fails relative to expected outcomes.",
+    "Export truth match normalizes line endings to LF and validates locked header order + deterministic row ordering."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm fixture:eval:all"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Run Fixture Evals Locally",
+      "status": "open",
+      "dependsOn": [],
       "description": "As a developer, I can run fixture:eval for a pack and get a deterministic report so I can catch regressions before demos.",
       "acceptanceCriteria": [
-        "fixture:eval pack_01_clean produces per-pack JSON + Markdown reports and a cross-pack summary table.",
-        "fixture:eval pack_02_missing_rea confirms expected missing_input journeys (missing docs -> missing_input).",
-        "Runner outputs are deterministic for the same inputs (no flaky ordering or randomness)."
-      ],
-      "priority": 1
+        "Example: fixture:eval pack_01_clean produces per-pack JSON + Markdown reports and a cross-pack summary table.",
+        "Example: fixture:eval pack_02_missing_rea confirms expected missing_input journeys; answer is exactly 'Not found in provided documents.'.",
+        "Example: fixture:eval pack_09_bad_citation confirms the expected citation_failed journey and includes a safe failure reason code in the report details.",
+        "Negative: Runner exits non-zero if any hard gate fails for any pack relative to that pack's expected outcomes, and outputs remain deterministic for the same inputs."
+      ]
     },
     {
       "id": "US-002",
       "title": "Enforce Hard Trust Gates",
-      "description": "As a developer, I get a clear pass/fail on schema validity, citation integrity, and failure journeys so we never ship a broken trust moment.",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a developer, I get a clear pass/fail on schema validity, citation integrity, failure journeys, and export truth match so we never ship a broken trust moment.",
       "acceptanceCriteria": [
-        "Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), failure journeys.",
-        "Citation integrity checks validate cited page exists, polygons exist, and snippet_hash matches canonical normalization rule.",
-        "Runner exits non-zero if any hard gate fails (even if CI is report-only initially)."
-      ],
-      "priority": 2
+        "Example: Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), expected failure journeys, and export truth match.",
+        "Example: Citation integrity checks validate at minimum that cited page exists, polygons exist, and snippet_hash matches the canonical normalization rule.",
+        "Example: Export truth match validates generated CSV outputs match /truth/expected_*.csv with normalized LF line endings.",
+        "Negative: If any citation integrity or export truth gate fails (e.g. snippet_hash mismatch, out-of-bounds page, missing polygons, CSV header/order drift), fixture:eval reports the failure using canonical taxonomy codes and exits non-zero."
+      ]
     },
     {
       "id": "US-003",
       "title": "Publish Eval Reports In CI (Report-Only)",
+      "status": "open",
+      "dependsOn": ["US-001"],
       "description": "As a developer, CI uploads eval reports so reviewers can see regressions without running the harness locally.",
       "acceptanceCriteria": [
-        "CI job runs fixture:eval and uploads JSON/MD outputs as build artefacts.",
-        "CI prints or posts a concise summary table (pass/fail + key counts) for quick scanning.",
-        "CI runtime is bounded; if it exceeds a budget, the job fails with clear output."
-      ],
-      "priority": 3
+        "Example: CI job runs fixture:eval (or fixture:eval:all) and uploads JSON/MD outputs as build artefacts.",
+        "Example: CI prints or posts a concise cross-pack summary table for quick scanning.",
+        "Negative: CI remains report-only and fast in the first pass; it does not orchestrate ingestion/runs and does not add additional gating beyond the hard gates until explicitly enabled."
+      ]
     }
+  ],
+  "metadata": {
+    "owner": "TBD",
+    "status": "DRAFT (GO: spike outcomes locked; pack_09_bad_citation added)",
+    "date": "2026-02-07"
+  },
+  "scope": {
+    "inScope": [
+      "Implement fixture:eval that reads produced outputs for a pack from /produced snapshots and compares against /truth.",
+      "Emit per-pack JSON report, per-pack Markdown summary, and a cross-pack summary table.",
+      "Return non-zero exit code when hard gates fail.",
+      "Create fixture pack pack_09_bad_citation with minimal docs, truth expectations (expected_failure_journeys.json and expected_*.csv), and produced snapshots (report_rows.json, documents.json, citations.json when referenced).",
+      "Include in reports: hard gates (pass/fail + counts) and failure taxonomy counts aligned to docs/03-architecture/60_observability_and_evals.md.",
+      "Optional CI wiring (report-only) that uploads JSON/MD outputs as build artefacts."
+    ],
+    "outOfScope": [
+      "Gating CI on recall thresholds in the first pass (report-only first).",
+      "Automated model calls inside evals beyond what is required to read persisted outputs."
+    ]
+  },
+  "breadboardMapping": {
+    "parts": ["F6 (eval harness)", "F7 (CI integration)"],
+    "codeAffordances": ["N12", "N13"]
+  },
+  "verificationPlan": [
+    "Run locally on pack_01_clean, pack_02_missing_rea, and pack_09_bad_citation and inspect JSON + Markdown outputs.",
+    "Validate taxonomy codes match docs/03-architecture/60_observability_and_evals.md.",
+    "Confirm snippet_hash normalization matches docs/03-architecture/30_data_model.md (single source of truth)."
+  ],
+  "risks": [
+    "Eval runtime too slow and gets ignored (RH9).",
+    "Citation integrity checks become flaky if underlying storage/polygons are unstable (RH8)."
+  ],
+  "links": [
+    "docs/04-projects/02-features/0003_demo-grade-outputs/brief.md",
+    "docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md",
+    "docs/03-architecture/30_data_model.md",
+    "docs/03-architecture/60_observability_and_evals.md",
+    "docs/03-architecture/06_frameworks_agents_rag_evals.md",
+    "docs/03-architecture/DECISIONS.md (ADR-0006)"
   ]
 }
-

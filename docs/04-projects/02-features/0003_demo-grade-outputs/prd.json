@@ -1,43 +1,173 @@
 {
-  "project": "0003_demo-grade-outputs",
-  "branchName": "codex/0003-demo-grade-outputs",
-  "description": "Initiative 0003 spine: demo-grade exports (CSV + memo docx), fixture-driven hard-gate evals, and safe demo repeatability controls aligned with canonical architecture + ADRs. Implementation is split into PRDs 0004-0007.",
-  "userStories": [
+  "version": 1,
+  "project": "0003 Demo-Grade Outputs + Repeatability (Initiative Spine)",
+  "overview": "Make the PoC demoable and repeatable by adding constrained exports (CSV + a single Word memo), artefact persistence + listing, fixture-driven evals with hard trust gates, and safe demo controls that avoid risky deletion, without weakening the trust posture.",
+  "goals": [
+    "Exports are deterministic and trustworthy: stable schemas + deterministic ordering; no silent exporting around citation_failed rows (ADR-0002).",
+    "Regression safety: fixture-driven hard gates for schema validity, citation integrity, expected failure journeys, and export truth match.",
+    "Demo repeatability: load known packs and run the demo twice with no manual cleanup and no risky deletion capability."
+  ],
+  "nonGoals": [
+    "Per-firm template customization, tone tuning, or a template editor UI.",
+    "Excel formatting beyond CSV.",
+    "'Perfect' Word formatting across all documents and viewers.",
+    "Orchestrating ingestion + runs inside CI as part of the first eval harness slice.",
+    "Any workflow that depends on external web research inside runs (ADR-0007)."
+  ],
+  "successMetrics": [
+    "Demo operator can run the same demo twice in a row without manual cleanup and without any risky delete capability.",
+    "Export + download path works end-to-end for fixture packs and is deterministic.",
+    "Fixture hard gates catch at least one intentional regression via a corrupted-citation negative case before demo day."
+  ],
+  "openQuestions": [
+    "Remaining dependency: Initiative 002 must persist payload_json + payload_schema_version; exports fail closed until present."
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web) + packages/core",
+    "hosting": "TBD (PoC)",
+    "database": "Postgres + pgvector (canonical state) + object storage for documents/artefacts",
+    "auth": "TBD; demo-only unsafe export override guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS"
+  },
+  "routes": [],
+  "uiNotes": [
+    "Exports are only available when runs.state = completed.",
+    "Exports fail closed by default when any row is citation_failed (blocked with clear UX).",
+    "Demo-only unsafe override exists behind strict guardrails and produces clearly labelled UNSAFE artefacts.",
+    "Demo toolbar is dev-only / feature-flagged and not reachable when demo mode is off."
+  ],
+  "dataModel": [
+    {
+      "entity": "artefacts",
+      "fields": ["id", "folder_id", "storage_key", "kind", "filename", "source_run_id", "metadata_json", "created_at"]
+    },
+    {
+      "entity": "report_rows",
+      "fields": ["id", "run_id", "status", "payload_schema_version", "payload_json", "citation_ids", "provenance_json"]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture packs under docs/08-example-data/ are used for deterministic demos and evals, with /truth as the source of expected outputs.",
+    "example": {
+      "pack": "docs/08-example-data/pack_01_clean",
+      "truth": "docs/08-example-data/pack_01_clean/truth/"
+    }
+  },
+  "rules": [
+    "Conform to canonical contracts: docs/03-architecture/20_state_model.md, docs/03-architecture/30_data_model.md, docs/03-architecture/50_api_surface.md, docs/03-architecture/60_observability_and_evals.md, and relevant ADRs in docs/03-architecture/DECISIONS.md (especially ADR-0001/0002/0005/0006/0008).",
+    "Exports must not parse prose from report_rows.answer to reconstruct structure; exports consume structured payload_json + payload_schema_version persisted by Initiative 002.",
+    "No destructive reset/delete HTTP endpoints are shipped as part of the first demo repeatability slice.",
+    "Feature-flag export UI affordances and demo toolbar off by default until verified on pack_01_clean."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm fixture:eval:all"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Export Demo-Grade Artefacts",
+      "status": "open",
+      "dependsOn": [],
       "description": "As a demo operator, I want to export the 3 CSV artefacts and a single memo docx from a completed run so I can share outputs outside the UI.",
       "acceptanceCriteria": [
-        "From docs/08-example-data/pack_01_clean, operator can export requirements_tracker CSV, exceptions_table CSV, survey_issues CSV, and memo docx and download them successfully via the artefacts list.",
-        "Exports are only allowed when runs.state=completed; otherwise export is disabled and the API returns 409 with error.code=CONFLICT if called anyway.",
-        "If any row is citation_failed, export is blocked by default with error.code=EXPORT_BLOCKED and clear UX; no silent partial export is allowed in the first slice.",
-        "Exports must not parse report_rows.answer prose; they consume structured row payload (payload_json + payload_schema_version) persisted by Initiative 002 and fail closed if missing."
+        "Example: From docs/08-example-data/pack_01_clean, operator can export requirements tracker CSV, exceptions table CSV, survey issues CSV, and memo docx.",
+        "Exports are only available when runs.state = completed.",
+        "Exports fail closed by default when any row is citation_failed (blocked with clear UX).",
+        "Negative: If export is attempted while runs.state != completed, export is disabled and the API returns 409 CONFLICT.",
+        "Negative: Demo-only unsafe override (when enabled) produces clearly labelled UNSAFE artefacts and must not silently export around citation_failed evidence."
       ],
-      "priority": 1
+      "verification": [
+        "See child PRDs: docs/04-projects/02-features/0004_csv-export/prd.md and docs/04-projects/02-features/0005_word-export/prd.md."
+      ]
     },
     {
       "id": "US-002",
       "title": "Detect Regressions With Fixture Evals",
+      "status": "open",
+      "dependsOn": [],
       "description": "As a developer, I want a deterministic eval harness that runs against fixture packs and produces per-pack reports so I can catch regressions before demos.",
       "acceptanceCriteria": [
-        "fixture:eval produces per-pack JSON + Markdown reports and a cross-pack summary for docs/08-example-data/pack_01_clean and docs/08-example-data/pack_02_missing_rea.",
-        "A deterministic negative case exists that deliberately corrupts one locked citation and fixture:eval reports the expected citation_failed journey for it (CITATION_MISMATCH).",
-        "Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), expected failure journeys.",
-        "Runner exits non-zero when any hard gate fails, and outputs are deterministic for the same pack inputs (no flaky ordering/randomness)."
+        "Example: fixture:eval produces per-pack JSON + Markdown reports for docs/08-example-data/pack_01_clean and docs/08-example-data/pack_02_missing_rea.",
+        "Example: A deterministic negative case exists that deliberately corrupts one locked citation and fixture:eval reports the expected citation_failed journey for it (CITATION_MISMATCH).",
+        "Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), expected failure journeys (missing docs -> missing_input; bad citation -> citation_failed), and export truth match (CSV outputs match /truth).",
+        "Negative: Runner exits non-zero when any hard gate fails and outputs are deterministic for the same pack inputs (no flaky ordering/randomness)."
       ],
-      "priority": 2
+      "verification": [
+        "See child PRD: docs/04-projects/02-features/0006_eval-harness/prd.md."
+      ]
     },
     {
       "id": "US-003",
       "title": "Run Demos Twice Safely",
+      "status": "open",
+      "dependsOn": [],
       "description": "As a demo operator, I want to load known fixture packs and re-run the demo twice without manual cleanup and without any destructive reset endpoint that could delete non-demo data.",
       "acceptanceCriteria": [
-        "Demo toolbar/pack loader is dev-only and feature-flagged; when the demo flag is off, the UI does not render and the server rejects pack load actions.",
-        "Operator can load pack_01_clean and pack_02_missing_rea, each creating a fresh matter and navigating to it.",
-        "Loading the same pack twice creates two distinct matters; no deletion/reset via HTTP is required or used.",
-        "Demo checklist exists at docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md and matches the actual operator flow."
+        "Example: Demo toolbar is dev-only / feature-flagged and not reachable when demo mode is off.",
+        "Example: Operator can load pack_01_clean and pack_02_missing_rea, landing in a freshly created matter each time.",
+        "Example: Loading the same pack twice creates two distinct matters; no deletion/reset via HTTP is required.",
+        "Negative: No destructive reset/delete HTTP endpoints ship in the first demo repeatability slice.",
+        "Demo checklist exists and matches the actual operator flow."
       ],
-      "priority": 3
+      "verification": [
+        "See child PRD: docs/04-projects/02-features/0007_demo-reliability/prd.md."
+      ]
     }
+  ],
+  "metadata": {
+    "owner": "TBD",
+    "status": "DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)",
+    "date": "2026-02-07",
+    "slug": "0003-demo-grade-outputs"
+  },
+  "slice": {
+    "type": "initiative-spine",
+    "childPrds": [
+      "docs/04-projects/02-features/0004_csv-export/prd.md",
+      "docs/04-projects/02-features/0005_word-export/prd.md",
+      "docs/04-projects/02-features/0006_eval-harness/prd.md",
+      "docs/04-projects/02-features/0007_demo-reliability/prd.md"
+    ]
+  },
+  "primaryObservableEffect": "From fixture packs under docs/08-example-data/, a demo operator can run a demo twice in a row (no destructive reset via HTTP) and produce/export/download deterministic CSV + Word artefacts, while developers can run deterministic fixture evals that enforce hard trust gates.",
+  "inScope": [
+    "Constrained exports (3 CSV kinds + 1 memo docx) that fail closed by default and respect the canonical state model and API surface.",
+    "Artefact persistence + listing with fresh signed download URLs.",
+    "Fixture-driven eval harness with hard gates and per-pack reports.",
+    "Dev-only/feature-flagged demo controls (pack loader + checklist; no destructive reset via HTTP in slice 1)."
+  ],
+  "functionalRequirements": [
+    "FR-001: Conform to canonical contracts: docs/03-architecture/20_state_model.md, 30_data_model.md, 50_api_surface.md, 60_observability_and_evals.md, and ADRs in docs/03-architecture/DECISIONS.md.",
+    "FR-002: Exports must not parse prose from report_rows.answer; exports consume structured payload_json + payload_schema_version persisted by Initiative 002.",
+    "FR-003: No destructive reset/delete HTTP endpoints are shipped as part of the first demo repeatability slice."
+  ],
+  "failureStatesUx": [
+    "Export not ready: run not completed -> export disabled; API returns 409 CONFLICT if called.",
+    "Export blocked: any citation_failed row -> EXPORT_BLOCKED with counts + remediation; no silent partial export.",
+    "Demo mode off: demo controls not rendered; pack load action rejected."
+  ],
+  "metricsLogging": [
+    "Export attempts by kind + result (success|blocked|conflict|fail).",
+    "Fixture eval hard gate pass/fail per pack over time.",
+    "Demo pack load events (pack name, created folder_id)."
+  ],
+  "rollbackDisablePlan": [
+    "Feature-flag export UI affordances and demo toolbar off by default until verified on pack_01_clean.",
+    "Evals can run report-only first; CI hard gating only when explicitly enabled."
+  ],
+  "risksDependencies": [
+    "Dependency: Initiative 002 must persist structured payload_json + payload_schema_version; otherwise exports must fail closed.",
+    "Spike outcomes are locked (assumption-driven where marked); stakeholder time can falsify assumptions.",
+    "Safety: any future destructive reset tooling must have provable guardrails and an ADR; do not ship casually."
+  ],
+  "sources": [
+    "docs/04-projects/02-features/0003_demo-grade-outputs/brief.md",
+    "docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md",
+    "docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md",
+    "docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md",
+    "docs/04-projects/02-features/0004_csv-export/prd.md",
+    "docs/04-projects/02-features/0005_word-export/prd.md",
+    "docs/04-projects/02-features/0006_eval-harness/prd.md",
+    "docs/04-projects/02-features/0007_demo-reliability/prd.md"
   ]
 }

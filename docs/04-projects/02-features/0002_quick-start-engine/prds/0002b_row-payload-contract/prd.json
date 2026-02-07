@@ -1,30 +1,106 @@
 {
-  "project": "0002_quick-start-engine",
-  "branchName": "codex/0002-s2-row-payload-contract",
-  "description": "Initiative 0002 Slice 2: introduce a versioned list payload contract for artefact rows (B-I/B-II/issues), store it in report_rows.payload_json with payload_schema_version, expose via API, and render artefact tables in the UI from locked citations only.",
-  "userStories": [
+  "version": 1,
+  "project": "0002 Quick Start Engine - Slice 2 (Row Payload Contract)",
+  "overview": "Ship a versioned, list-shaped structured payload contract for artefact rows (B-I/B-II/issues), store and validate it, expose via API, and render artefact tables in the UI backed by locked citations only.",
+  "goals": [
+    "List-shaped artefacts can be rendered deterministically from structured payload (no prose parsing).",
+    "Payload is stable and versioned for eval comparators and UI.",
+    "Item-level evidence is honest: unsupported fields/items are downgraded (no fabrication)."
+  ],
+  "nonGoals": [
+    "Defining the final set of fields for each artefact (owned by later parsing/matching/survey slices and truth comparators).",
+    "Any human-in-the-loop editing or mutation of row content."
+  ],
+  "successMetrics": [
+    "Artefact rows render as tables from payload_json with predictable UI behavior.",
+    "Payload schema validation failures are measurable and approach 0 for list_payload_v0.",
+    "Payload contract enables stable diffs for evals without relying on answer prose."
+  ],
+  "openQuestions": [
+    "SP-2.7: Confirm the payload representation decision; if it changes, update this PRD before implementation."
+  ],
+  "qualityGates": [
+    "pnpm verify"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Artefact rows have a versioned list payload",
-      "description": "B-I/B-II/issues rows carry a stable, versioned items[] payload with stable item_id and item-level citation_ids for claimed fields, without inventing new report-row statuses.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I want B-I/B-II/issues to be structured so the UI can render them as tables and evals can compare them reliably.",
       "acceptanceCriteria": [
-        "Artefact rows include payload_schema_version='list_payload_v0' and payload_json.items[].",
-        "Each item has stable item_id and item-level citation_ids[] for claimed fields; unsupported fields are downgraded (no fabrication).",
-        "Item-level states (match_status, depicted/not_depicted/unknown) do not invent or reuse report-row statuses."
-      ],
-      "priority": 1
+        "Example: Artefact rows include payload_schema_version=list_payload_v0 and payload_json.items[].",
+        "Example: Each item has a stable item_id and item-level citation_ids[] for any claimed fields.",
+        "Negative: payload_schema_version and payload_json are both present or both absent; inconsistent states are rejected/flagged and surfaced via a safe error envelope with trace_id.",
+        "Item-level states (e.g. match_status, depicted|not_depicted|unknown) do not invent or reuse report-row statuses.",
+        "Keep report_rows.answer as a human-readable summary; provenance_json remains debug-only (not a product contract)."
+      ]
     },
     {
       "id": "US-002",
       "title": "UI renders artefact tables from payload and locked citations",
-      "description": "UI renders artefact tables from payload_json (not answer prose) and item-level citation chips jump to evidence using locked citations.",
-      "acceptanceCriteria": [
-        "UI renders artefact rows from payload_json only; it does not parse report_rows.answer prose for table rendering.",
-        "Clicking a citation uses GET /citations/:id and highlights evidence in the viewer (dependency: Initiative 0001).",
-        "If payload is missing/invalid, UI shows a safe error state using the standard error envelope and trace_id (no internal leak)."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2
+      "description": "As a user, I can view B-I/B-II/issues as tables, open a row drawer, and click citations to jump to evidence.",
+      "acceptanceCriteria": [
+        "Example: UI renders artefact rows from payload_json only and does not parse answer prose for table rendering.",
+        "Example: Clicking an item's citation chip fetches locked citations (GET /citations/:id) and highlights evidence in the viewer (dependency: Initiative 0001).",
+        "Negative: If payload is missing or invalid, UI shows a safe, non-leaky error state (standard error envelope + trace_id) and the row remains inspectable.",
+        "GET /folders/:id/report?run_id=... includes payload fields (nullable) in each row response without breaking existing clients.",
+        "Item-level citations sent to the UI are locked citation_id values only; chunk IDs are not exposed."
+      ]
     }
+  ],
+  "meta": {
+    "owner": null,
+    "status": "DRAFT (Blocked until SP-2.7 decision is confirmed)",
+    "date": "2026-02-07",
+    "slug": "0002-s2-row-payload-contract",
+    "sourceMarkdown": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md"
+  },
+  "decision": {
+    "name": "SP-2.7 Option 4 (proposed)",
+    "details": [
+      "Add report_rows.payload_json (JSONB) and report_rows.payload_schema_version (string).",
+      "Keep report_rows.answer as a human-readable summary string.",
+      "Keep report_rows.provenance_json as debug-only (do not rely on it as a product contract)."
+    ],
+    "note": "If SP-2.7 changes, update this PRD before implementation."
+  },
+  "inScope": [
+    "A stable list payload v0 schema with stable item_id and item-level citation_ids[].",
+    "Canonical schema doc: docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md.",
+    "Storage + versioning for structured payload (per SP-2.7 decision).",
+    "API returns payload + schema version alongside the existing row shell.",
+    "UI renders artefact tables from payload (table view + row drawer)."
+  ],
+  "functionalRequirements": [
+    "Payload schemas live in packages/core/schemas (Zod) and are validated at the step boundary.",
+    "Add DB columns report_rows.payload_json (JSONB) and report_rows.payload_schema_version (string).",
+    "GET /folders/:id/report?run_id=... includes payload fields (nullable) in each row response without breaking existing clients.",
+    "Item-level citations are locked citation_id values only; no chunk IDs are exposed to the UI (ADR-0001).",
+    "Error handling uses the standard safe error envelope with trace_id (ADR-0008)."
+  ],
+  "failureStatesAndUX": [
+    "Invalid payload schema: show a row payload invalid banner with safe error.code=INTERNAL and trace_id.",
+    "Missing payload for an artefact row: show payload not available yet guidance; do not attempt prose parsing."
+  ],
+  "metricsLogging": [
+    "Count of payload schema validation failures (hard gate in evals).",
+    "UI render failures by payload_schema_version (should be 0 for v0)."
+  ],
+  "rollbackDisablePlan": {
+    "featureFlag": "artefact_table_rendering_enabled",
+    "default": "off",
+    "notes": "Default off until seeded payload renders correctly."
+  },
+  "sources": [
+    "docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/50_api_surface.md",
+    "docs/03-architecture/DECISIONS.md"
   ]
 }
-

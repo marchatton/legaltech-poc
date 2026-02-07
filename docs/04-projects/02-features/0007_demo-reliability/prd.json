@@ -1,39 +1,145 @@
 {
-  "project": "0007_demo-reliability",
-  "branchName": "codex/0007-demo-reliability",
-  "description": "Dev-only demo reliability pack: feature-flagged demo toolbar with pack loader for pack_01_clean and pack_02_missing_rea, plus a demo checklist. No deletion/reset via HTTP in slice 1.",
-  "userStories": [
+  "version": 1,
+  "project": "0007 Demo Reliability Pack (Dev-Only): Pack Loader + Checklist",
+  "overview": "Make demos repeatable without risky deletion by adding a dev-only, feature-flagged demo toolbar with a pack loader for pack_01_clean and pack_02_missing_rea, plus a committed operator checklist.",
+  "goals": [
+    "Demo toolbar is only available when a demo flag is enabled (dev-only / feature-flagged).",
+    "Operator can load pack_01_clean (happy path) and pack_02_missing_rea (missing-doc journey).",
+    "Each load creates a fresh folder (matter) seeded with documents only; operator manually starts runs.",
+    "Operator can run the demo twice in a row without manual cleanup and without deleting data via HTTP.",
+    "Demo checklist exists as Markdown and matches the actual UI flow."
+  ],
+  "nonGoals": [
+    "Any destructive reset/delete endpoints in slice 1.",
+    "Production onboarding wizard or general admin tooling.",
+    "External web research (ADR-0007)."
+  ],
+  "successMetrics": [
+    "In dev with demo mode enabled, loading pack_01_clean and pack_02_missing_rea consistently creates new matters and navigates to them.",
+    "Loading the same pack twice produces two distinct matters with no deletion/reset endpoint involved.",
+    "Demo checklist reduces operator tribal knowledge and stays aligned with the real UI flow."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js (apps/web) + packages/core",
+    "hosting": "TBD (PoC)",
+    "database": "Postgres (canonical state) + object storage for documents/artefacts (see docs/03-architecture/30_data_model.md)",
+    "auth": "TBD / not in scope for this slice"
+  },
+  "routes": [],
+  "uiNotes": [
+    "Demo toolbar is dev-only / feature-flagged and must not render when demo mode is off.",
+    "Pack selector supports only pack_01_clean and pack_02_missing_rea.",
+    "Pack load seeds documents only and does not auto-start runs; operator clicks Run Quick Start."
+  ],
+  "dataModel": [
+    {
+      "entity": "folders",
+      "fields": ["id", "name", "state", "created_at", "updated_at"]
+    },
+    {
+      "entity": "documents",
+      "fields": [
+        "id",
+        "folder_id",
+        "filename",
+        "mime",
+        "bytes",
+        "sha256",
+        "storage_key",
+        "page_count"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture packs live under docs/08-example-data/<pack_id>/ and are used as the source for demo seeding.",
+    "example": {
+      "packId": "pack_01_clean",
+      "sourcePath": "docs/08-example-data/pack_01_clean/"
+    }
+  },
+  "rules": [
+    "Slice 1 reset semantics: no deletion via HTTP. Re-running the demo means loading the pack again to create a fresh matter.",
+    "Pack loading is allowlisted by pack_id only; reject free-form filesystem paths and path traversal attempts.",
+    "Deterministic seeding: the same pack produces the same seeded state shape."
+  ],
+  "qualityGates": ["pnpm verify"],
+  "stories": [
     {
       "id": "US-001",
       "title": "Load A Demo Pack",
+      "status": "open",
+      "dependsOn": [],
       "description": "As a demo operator, I can load a known fixture pack and land in the created matter so I can start a demo quickly.",
       "acceptanceCriteria": [
-        "Demo toolbar does not render unless demo flag is enabled.",
-        "With demo flag enabled, operator can load pack_01_clean and the system creates a fresh matter and navigates to it.",
-        "With demo flag enabled, operator can load pack_02_missing_rea and the system creates a fresh matter and navigates to it."
-      ],
-      "priority": 1
+        "Example: With demo mode enabled, operator can load pack_01_clean from the demo toolbar, the system creates a fresh matter seeded with documents, and the UI navigates to it.",
+        "Example: With demo mode enabled, operator can load pack_02_missing_rea and the system creates a fresh matter seeded with documents and navigates to it.",
+        "Negative: Demo toolbar does not render unless the demo flag is enabled, and any pack-load action is rejected when demo mode is off.",
+        "Negative: pack_id is allowlisted to known values only (pack_01_clean, pack_02_missing_rea); reject free-form paths and path traversal attempts."
+      ]
     },
     {
       "id": "US-002",
       "title": "Run The Demo Twice Without Cleanup",
+      "status": "open",
+      "dependsOn": ["US-001"],
       "description": "As a demo operator, I can run the same demo twice in a row without manual cleanup because each run starts from a fresh seeded matter.",
       "acceptanceCriteria": [
-        "Loading a pack twice creates two distinct matters; no deletion/reset is required to re-run.",
-        "No destructive reset/delete endpoints are used or required in this PRD."
-      ],
-      "priority": 2
+        "Example: Loading the same pack twice creates two distinct matters; operator can run Quick Start in each without manual cleanup.",
+        "Negative: No deletion/reset endpoint is introduced or required to re-run; the system must not delete or reset data via HTTP as part of this slice."
+      ]
     },
     {
       "id": "US-003",
       "title": "Follow A Demo Checklist",
+      "status": "open",
+      "dependsOn": ["US-001"],
       "description": "As a demo operator, I have a short checklist that makes the demo repeatable and reduces tribal knowledge.",
       "acceptanceCriteria": [
-        "Demo checklist exists at docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md.",
-        "Checklist matches the operator flow for loading packs and running Quick Start."
-      ],
-      "priority": 3
+        "Example: A demo checklist exists at docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md and matches the actual operator flow in the UI.",
+        "Negative: The checklist path and content must remain in sync with the UI; if demo flow changes, checklist is updated as part of the same change."
+      ]
     }
+  ],
+  "metadata": {
+    "owner": "TBD",
+    "status": "DRAFT (GO: spike outcomes locked)",
+    "date": "2026-02-07"
+  },
+  "scope": {
+    "inScope": [
+      "Demo flag (env/feature flag): when off, demo toolbar does not render and pack-load action is rejected.",
+      "Demo toolbar UI: pack selector for pack_01_clean and pack_02_missing_rea.",
+      "Pack loader reads from docs/08-example-data/<pack>/, allowlists pack_id, and rejects path traversal.",
+      "Pack loader creates a new folder + documents for selected pack; recommended folder name prefix: DEMO: <pack_id> <timestamp>; returns folder_id.",
+      "Deterministic seeding: same pack produces same seeded state shape.",
+      "Pack loader seeds documents only and does not auto-start runs.",
+      "Demo checklist markdown stored in this dossier as demo-checklist.md."
+    ],
+    "outOfScope": [
+      "Safe deletion/reset endpoints.",
+      "Fixture pack authoring beyond what is required for pack_01_clean and pack_02_missing_rea."
+    ]
+  },
+  "breadboardMapping": {
+    "parts": ["F8 (demo mode controls)", "F9 (demo checklist)"],
+    "affordances": ["U6", "U7", "U8"],
+    "codeAffordances": ["N7", "N8", "N9"]
+  },
+  "verificationPlan": [
+    "Manual smoke in dev: toggle demo flag off and confirm toolbar absent and pack load rejected.",
+    "Manual smoke in dev: toggle demo flag on and load both packs successfully.",
+    "Manual smoke in dev: load the same pack twice and confirm two matters exist and demo proceeds."
+  ],
+  "risks": [
+    "Demo tooling pollutes the real UX or bypasses trust gates (RH11).",
+    "Pack loading becomes nondeterministic or slow and defeats the point."
+  ],
+  "links": [
+    "docs/04-projects/02-features/0003_demo-grade-outputs/brief.md",
+    "docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md",
+    "docs/03-architecture/00_overview.md",
+    "docs/03-architecture/10_system_architecture.md",
+    "docs/03-architecture/DECISIONS.md (ADR-0007)"
   ]
 }
-

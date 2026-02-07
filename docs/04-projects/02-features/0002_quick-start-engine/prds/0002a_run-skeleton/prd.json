@@ -1,31 +1,122 @@
 {
-  "project": "0002_quick-start-engine",
-  "branchName": "codex/0002-s1-run-skeleton",
-  "description": "Initiative 0002 Slice 1: canonical Runs API + WDK workflow skeleton with version pinning, incremental progress, idempotent steps, and strict row invariants (placeholder rows allowed until extraction slices ship).",
-  "userStories": [
+  "version": 1,
+  "project": "0002 Quick Start Engine - Slice 1 (Run Skeleton)",
+  "overview": "Ship the canonical Quick Start run surface (API + WDK workflow + UI) with version pinning, idempotent steps, incremental progress/rows, and safe error envelopes. Until later extraction slices ship, placeholder missing_input rows are acceptable.",
+  "goals": [
+    "A run can start, progress, and complete deterministically on fixture Matters without producing duplicate rows.",
+    "Pin index_version, agent_bundle_version, and question_set_version per run and return them from the API.",
+    "Every produced row obeys docs/03-architecture/20_state_model.md invariants.",
+    "Debugging is possible from persisted state and logs (trace_id, step_key, reason codes)."
+  ],
+  "nonGoals": [
+    "Correct parsing/matching/extraction outputs (handled in later slices).",
+    "Any external web research inside runs (ADR-0007)."
+  ],
+  "successMetrics": [
+    "Runs can be started, refreshed mid-run, and resumed without duplicated rows.",
+    "Row invariants are enforceable and auditable for fixture runs.",
+    "Failures are returned via safe error envelopes with trace_id and do not leak provider payloads."
+  ],
+  "openQuestions": [
+    "NO-GO until SP-2.1/2.7 contracts are frozen (see dossier spike investigation)."
+  ],
+  "qualityGates": [
+    "pnpm verify"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Start Quick Start run and observe progress",
-      "description": "Start a Quick Start run on indexed/ready folders, pin versions, and expose progress and failure counts via canonical APIs with safe error envelopes.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I can start a Quick Start run and watch progress so I know it is working and can inspect partial results.",
       "acceptanceCriteria": [
-        "POST /folders/:id/runs enforces preconditions (folders.state in {indexed, ready}); otherwise returns 409 with error.code=CONFLICT using the standard error envelope including trace_id.",
-        "Run pins index_version, agent_bundle_version, and question_set_version and returns them in the response.",
-        "GET /runs/:id returns progress and failure taxonomy counts per docs/03-architecture/50_api_surface.md."
-      ],
-      "priority": 1
+        "Example: When folders.state is indexed or ready, POST /folders/:id/runs creates a run and returns run_id plus pinned index_version, agent_bundle_version, and question_set_version.",
+        "Negative: When folders.state is not in {indexed, ready}, POST /folders/:id/runs returns 409 with error.code=CONFLICT using the standard error envelope including trace_id; no run is created.",
+        "The created run pins index_version, agent_bundle_version, and question_set_version for the lifetime of the run and returns them in GET /runs/:id.",
+        "GET /runs/:id returns progress counts and failure taxonomy counts (shape per docs/03-architecture/50_api_surface.md).",
+        "Run/step correlation is available for debugging: {trace_id, run_id, step_key, question_id} is emitted in logs/events and persisted where applicable.",
+        "API layer validates external inputs with Zod and returns safe user-facing errors (never internal/provider payload leaks).",
+        "POST /folders/:id/runs supports Idempotency-Key for safe retries."
+      ]
     },
     {
       "id": "US-002",
       "title": "Rows appear incrementally and always obey invariants",
-      "description": "Rows stream into the report table as they complete, and every row obeys terminal status invariants; no duplicate (run_id, question_id) rows on restart.",
-      "acceptanceCriteria": [
-        "UI reads rows via GET /folders/:id/report?run_id=... (no direct DB reads).",
-        "completed runs have exactly one row per question_id for the run's question_set_version.",
-        "missing_input rows use the exact answer string, have zero citations, and include an actionable checklist in notes/provenance.",
-        "citation_failed rows include a safe taxonomy reason code in provenance (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL).",
-        "Row-level failures do not crash the run: if a question yields citation_failed, the workflow continues and the run can still reach completed after writing terminal rows for all questions (exports remain blocked by default)."
+      "status": "open",
+      "dependsOn": [
+        "US-001"
       ],
-      "priority": 2
+      "description": "As a user, I can see rows appear in the report table as they finish, and every row is in a terminal status with correct evidence behavior.",
+      "acceptanceCriteria": [
+        "Example: While a run is in progress, GET /folders/:id/report?run_id=... returns rows as each question completes and the UI can render partial results.",
+        "Negative: Retrying or restarting a run does not create duplicate rows; uniqueness of (run_id, question_id) is enforced and step idempotency short-circuits repeats via deterministic step_key.",
+        "GET /folders/:id/report?run_id=... returns rows for the selected run; UI never reads Postgres directly.",
+        "Completed runs have exactly one row per question_id for the run's question_set_version.",
+        "If a row is missing_input, answer is exactly Not found in provided documents., citation_ids is empty, and notes or provenance_json includes an actionable checklist.",
+        "If a row is citation_failed, provenance_json includes a safe taxonomy reason_code (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL).",
+        "Row-level failures do not crash the run: a question that yields citation_failed still allows the workflow to continue and the run can reach completed after writing terminal rows for all questions (exports remain blocked by default)."
+      ]
     }
+  ],
+  "meta": {
+    "owner": null,
+    "status": "DRAFT (NO-GO until SP-2.1/2.7 contracts are frozen)",
+    "date": "2026-02-07",
+    "slug": "0002-s1-run-skeleton",
+    "sourceMarkdown": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md"
+  },
+  "inScope": [
+    "API endpoints (canonical): POST /folders/:id/runs, GET /runs/:id, GET /folders/:id/report?run_id=...",
+    "Error envelope + trace_id on non-2xx (ADR-0008).",
+    "Run + step correlation: {trace_id, run_id, step_key, question_id}.",
+    "WDK workflow/step boundaries (use workflow / use step) and deterministic step idempotency via step_key.",
+    "Unique (run_id, question_id) enforcement (no duplicate rows on retries).",
+    "Question set v1 is loaded and pinned per run.",
+    "Workflow executes retrieve -> draft -> lock -> verify -> write; placeholder missing_input rows allowed until later slices ship."
+  ],
+  "functionalRequirements": [
+    "API layer validates external inputs with Zod and returns the safe error envelope (ADR-0008).",
+    "POST /folders/:id/runs supports Idempotency-Key (for safe retries).",
+    "Workflow controller contains no side effects; all side effects occur in steps.",
+    "Steps record a deterministic step_key in run_steps and short-circuit repeats.",
+    "Workflow and steps use the WDK directive string literal as the first statement (use workflow / use step).",
+    "Logs/events are correlate-able with {trace_id, run_id, step_key, question_id} and avoid raw PDF/text logging."
+  ],
+  "failureStatesAndUX": [
+    "Folder not runnable (empty|ingesting|failed): disable CTA and show safe error reason (no stack traces).",
+    "Run step failure: run becomes partial with a visible failure banner; completed rows remain inspectable.",
+    "Row failure: write a terminal citation_failed row with reason code and guidance, then continue to the next question; the run can still reach completed."
+  ],
+  "metricsLogging": [
+    "run_duration_ms (p50/p95).",
+    "retries per step.",
+    "counts by row status.",
+    "counts by failure taxonomy code."
+  ],
+  "rollbackDisablePlan": {
+    "featureFlag": "quick_start_enabled",
+    "default": "off",
+    "notes": "Default off until slice 2+ ship."
+  },
+  "verificationPlan": {
+    "packs": [
+      "pack_01_clean",
+      "pack_02_missing_rea"
+    ],
+    "manual": [
+      "Start run from UI; observe progress updates; refresh mid-run and confirm state is consistent."
+    ],
+    "automated": [
+      "DB constraint for unique (run_id, question_id).",
+      "Row invariant audit helper (if present)."
+    ]
+  },
+  "sources": [
+    "docs/03-architecture/50_api_surface.md",
+    "docs/03-architecture/06_frameworks_agents_rag_evals.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/60_observability_and_evals.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md"
   ]
 }

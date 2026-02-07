@@ -1,30 +1,132 @@
 {
-  "project": "0002_quick-start-engine",
-  "branchName": "codex/0002-s4-exception-matching-pack-01-02",
-  "description": "Initiative 0002 Slice 4: deterministically match B-II exception items to instrument PDFs for pack_01_clean and surface missing-doc journey for pack_02_missing_rea, using item-level match_status and locked citations (no silent auto-pick).",
-  "userStories": [
+  "version": 1,
+  "project": "0002d Exception to Instrument Matching (pack_01_clean + pack_02_missing_rea)",
+  "overview": "After extracting a correct B-II exceptions list, deterministically match each exception to the correct instrument PDF (or explicitly mark missing/ambiguous) without silent false matches, using item-level match_status and locked citations; include a missing-doc checklist journey for pack_02_missing_rea.",
+  "goals": [
+    "No silent false matches: ambiguous cases are surfaced, not auto-picked.",
+    "Missing-doc journey is explicit and actionable.",
+    "Matching evidence is inspectable (citations point to the reference fields used for matching)."
+  ],
+  "nonGoals": [
+    "Missing attachment detection (pack_06_overlapping_easements) and exhibit chase (pack_08_defined_terms_and_cross_refs) in this slice.",
+    "Human-in-the-loop 'choose correct doc' persistence (v1 cut; must re-verify and must not mutate immutable citations if added later)."
+  ],
+  "successMetrics": [
+    "On pack_01_clean, truth-linked exceptions resolve to match_status=matched with supporting citations.",
+    "Ambiguous cases are marked ambiguous with candidates listed (no silent auto-pick).",
+    "On pack_02_missing_rea, missing REA is surfaced as match_status=missing_doc with actionable checklist copy."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js (apps/web) + packages/core + WDK steps/workflows",
+    "hosting": "TBD (PoC)",
+    "database": "Postgres + pgvector (canonical state)",
+    "auth": "TBD / not in scope"
+  },
+  "routes": [],
+  "uiNotes": [
+    "In the B-II exceptions table, each exception item shows a match badge (matched|ambiguous|missing_doc) and matched doc name or candidate list.",
+    "Missing docs show an actionable checklist in notes/guidance.",
+    "No selection/persistence of candidate choice in v1; candidates are display-only."
+  ],
+  "dataModel": [
+    {
+      "entity": "list payload items",
+      "fields": [
+        "match_status: matched|ambiguous|missing_doc",
+        "matched_doc_name or candidates[]",
+        "item-level citation_ids[] backing match references"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Slice is proven on pack_01_clean and pack_02_missing_rea.",
+    "example": {
+      "packs": [
+        "docs/08-example-data/pack_01_clean",
+        "docs/08-example-data/pack_02_missing_rea"
+      ]
+    }
+  },
+  "rules": [
+    "Deterministic matching rules (instrument number, book/page, filename hints).",
+    "Item-level match_status stored in list payload; do not invent new report-row statuses.",
+    "No silent auto-pick: if >1 candidate matches, item is ambiguous and candidates are listed.",
+    "Missing-doc checklist behavior for pack_02_missing_rea; include expected filename when known (e.g. REA.pdf).",
+    "Evidence-first: matching references are backed by locked citations; if citations can't be locked, downgrade to ambiguous or missing_doc (no fabricated match)."
+  ],
+  "qualityGates": ["pnpm verify"],
+  "stories": [
     {
       "id": "US-001",
-      "title": "Match exceptions to instrument PDFs (clean pack)",
-      "description": "Match exception items to instruments deterministically, attach evidence citations supporting the match, and surface ambiguity explicitly.",
+      "title": "Match Exceptions To Instrument PDFs (Clean Pack)",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I can click an exception item and see which instrument it matched to, with evidence.",
       "acceptanceCriteria": [
-        "For pack_01_clean, exception items with truth-linked instruments resolve to match_status=matched.",
-        "Each matched item includes citations supporting the match (instrument no/recording reference).",
-        "If >1 candidate matches, item is match_status=ambiguous with candidates listed (no silent auto-pick)."
+        "Example: For docs/08-example-data/pack_01_clean, exception items with truth-linked instruments resolve to match_status=matched.",
+        "Each matched item includes citations that support the match (e.g. instrument no / recording reference).",
+        "No silent auto-pick: if >1 candidate matches, item is match_status=ambiguous with candidates listed.",
+        "Negative: No items are marked matched when multiple candidates exist; ambiguous is the safe default."
       ],
-      "priority": 1
+      "verification": [
+        "Pack: docs/08-example-data/pack_01_clean",
+        "Automated: spot-check candidate lists vs expected; ensure no items are marked matched when multiple candidates exist."
+      ]
     },
     {
       "id": "US-002",
-      "title": "Surface missing-doc journey (pack_02_missing_rea)",
-      "description": "When an exception references a missing instrument doc, show match_status=missing_doc with an actionable checklist including expected filename.",
+      "title": "Surface Missing-Doc Journey (pack_02_missing_rea)",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I see missing instrument docs called out explicitly with a checklist so I can fix the pack.",
       "acceptanceCriteria": [
-        "For pack_02_missing_rea, missing REA is surfaced as match_status=missing_doc for the relevant items.",
-        "Row notes include an actionable checklist and include the expected filename when known (e.g. REA.pdf).",
-        "Row status uses missing_input only when an answer truly cannot be supported; otherwise row remains needs_review with item-level missing states."
+        "Example: For docs/08-example-data/pack_02_missing_rea, exceptions referencing the missing REA are match_status=missing_doc.",
+        "Row notes include an actionable checklist, including the expected filename when known (e.g. REA.pdf).",
+        "Row status uses missing_input only when an answer truly cannot be supported; otherwise row remains needs_review with item-level missing states.",
+        "Negative: Checklist copy is actionable and specific (no generic 'upload doc' only)."
       ],
-      "priority": 2
+      "verification": [
+        "Pack: docs/08-example-data/pack_02_missing_rea",
+        "Manual: verify checklist copy is actionable and specific."
+      ]
     }
+  ],
+  "metadata": {
+    "owner": "",
+    "status": "DRAFT (Depends on Slice 3 exceptions extraction)",
+    "date": "2026-02-07",
+    "slug": "0002-s4-exception-matching-pack-01-02"
+  },
+  "scope": {
+    "inScope": [
+      "Packs: pack_01_clean and pack_02_missing_rea.",
+      "Item-level match states matched|ambiguous|missing_doc.",
+      "Candidate display (no selection/persistence in v1).",
+      "Deterministic matching rules; missing-doc checklist journey for pack_02_missing_rea."
+    ],
+    "outOfScope": [
+      "Missing attachment detection and exhibit chase packs in this slice.",
+      "Human-in-the-loop selection persistence."
+    ]
+  },
+  "functionalRequirements": [
+    "FR-001: Matching runs as a workflow step ('use step') and is idempotent via deterministic step_key.",
+    "FR-002: Item-level match state is stored in the list payload (not as a report-row status).",
+    "FR-003: Evidence-first: matching references backed by locked citations; if citations can't be locked, downgrade to ambiguous or missing_doc (no fabricated match).",
+    "FR-004: Errors use the standard error envelope with trace_id (ADR-0008) and avoid leaking provider payloads.",
+    "FR-005: Reason codes align with the failure taxonomy when matching fails in a row-blocking way (e.g. RETRIEVAL_MISS)."
+  ],
+  "failureStatesUx": [
+    "Ambiguous match: show candidates + guidance; keep row needs_review.",
+    "Missing doc: show checklist; keep row inspectable; allow upload + re-run."
+  ],
+  "rollbackDisablePlan": [
+    "Feature flag: exception_matching_enabled (default off until pack_01_clean and pack_02_missing_rea pass)."
+  ],
+  "sources": [
+    "docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md (SP-2.3A)",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/40_rag_and_agents.md"
   ]
 }
-

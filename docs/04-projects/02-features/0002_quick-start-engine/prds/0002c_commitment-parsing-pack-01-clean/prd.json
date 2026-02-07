@@ -1,32 +1,119 @@
 {
-  "project": "0002_quick-start-engine",
-  "branchName": "codex/0002-s3-commitment-parsing-pack-01-clean",
-  "description": "Initiative 0002 Slice 3: commitment parsing baseline for pack_01_clean producing B-I requirements and B-II exceptions payloads that match truth key fields with lockable citations and fail-closed verification.",
-  "userStories": [
+  "version": 1,
+  "project": "0002 Quick Start Engine - Slice 3 (Commitment Parsing pack_01_clean)",
+  "overview": "For pack_01_clean, produce Schedule B-I and Schedule B-II structured payloads from the commitment that match /truth key fields, are backed by lockable citations, and are verified fail-closed.",
+  "goals": [
+    "0 false positives: never emit an item that is not present in truth by item number.",
+    "Evidence-backed items: claimed fields have lockable citations; verification passes fail-closed.",
+    "Comparator-driven proof: diffs vs truth are computed, not eyeballed."
+  ],
+  "nonGoals": [
+    "Scan torture behavior (pack_07_scans_rotated_low_quality).",
+    "Multi-parcel scoping (pack_04_multi_parcel).",
+    "Exception to instrument PDF matching (owned by Slice 4)."
+  ],
+  "successMetrics": [
+    "Comparator pass rate for B-I and B-II on pack_01_clean reaches 100% on required key fields.",
+    "0 extra items appear vs truth by item number.",
+    "Failure taxonomy counts (RETRIEVAL_MISS, ENTAILMENT_FAIL, CITATION_MISMATCH) are measurable and actionable."
+  ],
+  "openQuestions": [
+    "Blocked until Slice 2 payload contract is in place (list_payload_v0)."
+  ],
+  "qualityGates": [
+    "pnpm verify"
+  ],
+  "stories": [
     {
       "id": "US-001",
       "title": "Extract B-I requirements tracker (clean pack)",
-      "description": "Extract Schedule B-I requirements into list_payload_v0 with stable item_id and item-level citation_ids, matching truth key fields with zero false positives.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I can see a B-I requirements tracker table derived from the commitment and backed by evidence.",
       "acceptanceCriteria": [
-        "For pack_01_clean, extracted requirements item count equals truth item count.",
+        "Example: For pack_01_clean, extracted requirements item count equals truth item count (truth/expected_requirements_tracker.csv).",
+        "Example: pnpm fixtures:compare-truth -- --snapshot <snapshot_path> --pack pack_01_clean --datasets requirements exits 0.",
+        "Negative: Precision rule holds: no extra items not present in truth by item number; comparator reports extra_keys.length=0 and any mismatch fails closed.",
         "For pack_01_clean, every extracted item has the correct truth item number and required key fields as defined by the comparator.",
-        "Precision rule: no extra items not present in truth by item number.",
-        "Each item has item-level citation_ids that lock and verify; no header-only citations for item content."
-      ],
-      "priority": 1
+        "Each extracted item has item-level citation_ids[] that lock and verify (no header-only evidence for item content)."
+      ]
     },
     {
       "id": "US-002",
       "title": "Extract B-II exceptions table (clean pack)",
-      "description": "Extract Schedule B-II exceptions into list_payload_v0 with stable item_id and item-level citation_ids, matching truth key fields and normalising instrument refs deterministically.",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I can see a B-II exceptions table derived from the commitment and backed by evidence.",
       "acceptanceCriteria": [
-        "For pack_01_clean, extracted exceptions item count equals truth item count.",
+        "Example: For pack_01_clean, extracted exceptions item count equals truth item count (truth/expected_exceptions_table.csv).",
+        "Example: pnpm fixtures:compare-truth -- --snapshot <snapshot_path> --pack pack_01_clean --datasets exceptions exits 0.",
+        "Negative: Instrument references are normalised to a single canonical form; conflicting formats do not create duplicates and do not cause truth mismatches.",
         "For pack_01_clean, every extracted exception has the correct item number and required key fields as defined by the comparator.",
-        "Instrument references are normalised to a single canonical form (declared once and reused).",
-        "Each exception item has item-level citation_ids that lock and verify."
-      ],
-      "priority": 2
+        "Each extracted exception item has item-level citation_ids[] that lock and verify."
+      ]
     }
+  ],
+  "meta": {
+    "owner": null,
+    "status": "DRAFT (Blocked until Slice 2 payload contract is in place)",
+    "date": "2026-02-07",
+    "slug": "0002-s3-commitment-parsing-pack-01-clean",
+    "sourceMarkdown": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.md"
+  },
+  "slice": {
+    "packs": [
+      "pack_01_clean"
+    ],
+    "comparisonTargets": [
+      "truth/expected_requirements_tracker.csv",
+      "truth/expected_exceptions_table.csv"
+    ],
+    "payloadContract": {
+      "payload_schema_version": "list_payload_v0",
+      "notes": [
+        "Use stable item_id for item-level diffing/idempotency.",
+        "Attach item-level citation_ids[] for claimed fields."
+      ]
+    },
+    "normalisationRules": [
+      "Item numbering is normalised deterministically.",
+      "Instrument reference canonical form is declared once and reused everywhere (when present in truth)."
+    ]
+  },
+  "functionalRequirements": [
+    "Retrieval returns chunk IDs + scores (ADR-0004) and stores retrieved IDs/scores in row provenance (debug-only).",
+    "Drafting output includes candidate citations as chunk IDs (ADR-0001), which are then locked into immutable citations before verification.",
+    "Verification is fail-closed (ADR-0002). Any mismatch yields citation_failed with taxonomy reason code.",
+    "Step boundaries follow WDK conventions (use workflow / use step) and step inputs/outputs are JSON-serialisable and Zod-validated.",
+    "The list payload contract from Slice 2 is used (payload_schema_version=list_payload_v0 with stable item_id).",
+    "Any model calls (draft/verify/embed) go through AI SDK (gateway default) per ADR-0013 (proposed)."
+  ],
+  "failureStatesAndUX": [
+    "If evidence cannot be locked for an item field, downgrade that field/item to unknown rather than fabricating it; keep row needs_review.",
+    "If verification fails for the row, row becomes citation_failed with a reason code and guidance."
+  ],
+  "metricsLogging": [
+    "Comparator pass rate for B-I and B-II on pack_01_clean.",
+    "Failure taxonomy counts (RETRIEVAL_MISS, ENTAILMENT_FAIL, CITATION_MISMATCH)."
+  ],
+  "rollbackDisablePlan": {
+    "featureFlag": "quick_start_commitment_parsing_enabled",
+    "default": "off",
+    "notes": "Default off until pack_01_clean comparator passes."
+  },
+  "verificationPlan": {
+    "pack": "docs/08-example-data/pack_01_clean",
+    "automated": [
+      "Comparator script diffs payload vs truth/expected_requirements_tracker.csv and truth/expected_exceptions_table.csv (rules single-sourced in specs/comparator_spec_v0.md).",
+      "Row invariant audit.",
+      "Citation integrity checks."
+    ]
+  },
+  "sources": [
+    "docs/03-architecture/40_rag_and_agents.md",
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/60_observability_and_evals.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md"
   ]
 }
-

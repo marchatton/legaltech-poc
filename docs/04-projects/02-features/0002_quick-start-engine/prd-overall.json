@@ -1,80 +1,199 @@
 {
-  "project": "0002_quick-start-engine",
-  "branchName": "codex/0002-quick-start-engine",
-  "description": "PRD spine for Initiative 0002 (Quick Start Engine): deterministic-ish WDK run that produces three evidence-backed artefacts (B-I tracker, B-II exceptions table, reconciliation issues list) under evidence-first + fail-closed invariants. Implementation proceeds via numbered slice PRDs in the dossier.",
-  "userStories": [
+  "version": 1,
+  "project": "0002 Quick Start Engine (Overall)",
+  "overview": "Implement the deterministic-ish Quick Start: Title + Survey run that turns a fixture pack into three evidence-backed artefacts: Schedule B-I requirements tracker, Schedule B-II exceptions table (linked to instruments), and a survey reconciliation issues list. This is the initiative-level overall (spine) PRD; implementation is executed via the thin slice PRDs under prds/.",
+  "goals": [
+    "Implement a Quick Start run that produces three evidence-backed artefacts from a fixture pack: B-I requirements tracker, B-II exceptions table (linked to instruments), and survey reconciliation issues list.",
+    "Maintain the trust posture: evidence-first, fail-closed verification, deterministic orchestration, and fixtures/evals as first-class.",
+    "Prove outputs against fixture packs and /truth rather than ad-hoc eyeballing."
+  ],
+  "nonGoals": [
+    "Implementing work directly in the overall PRD; implementation happens via slice PRDs listed in prds/.",
+    "Any external web research inside runs (ADR-0007).",
+    "Any approach that weakens fail-closed verification or evidence-first contracts."
+  ],
+  "successMetrics": [
+    "Quick Start produces the three artefacts for pack_01_clean with locked citations and deterministic outputs.",
+    "Known failure journeys (missing docs, bad citations) are surfaced as missing_input / citation_failed per taxonomy, and exports are blocked by default when citation_failed exists.",
+    "Fixture/eval infrastructure supports regression detection vs /truth."
+  ],
+  "openQuestions": [
+    "Payload representation decision (SP-2.7): where structured artefact payload lives and how API exposes it.",
+    "Retrieval Recall@K baseline (SP-2.8): are we retrieving the right evidence before drafting?",
+    "Scan torture honesty policy: when to downgrade to missing_input vs emit unknown items safely.",
+    "Human-in-the-loop ambiguity resolution: if later allowed, it must re-verify and must not mutate immutable citations."
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web) + packages/core + WDK workflows/steps",
+    "hosting": "TBD (PoC)",
+    "database": "Postgres + pgvector (canonical state) (docs/03-architecture/30_data_model.md)",
+    "auth": "TBD / not specified"
+  },
+  "routes": [],
+  "uiNotes": [
+    "Quick Start is artefacts-first and should surface deterministic progress and artefacts views.",
+    "Exports and trust gates must remain fail-closed by default."
+  ],
+  "dataModel": [
+    {
+      "entity": "runs",
+      "fields": ["index_version", "agent_bundle_version", "question_set_version", "state"]
+    },
+    {
+      "entity": "report_rows",
+      "fields": ["status", "citation_ids", "payload_schema_version", "payload_json"]
+    },
+    {
+      "entity": "citations",
+      "fields": ["immutable locked citation_id", "document_id", "page_number", "polygons", "snippet_hash"]
+    }
+  ],
+  "importFormat": {
+    "description": "Quick Start operates on fixture packs under docs/08-example-data/ and compares key outputs against each pack's /truth.",
+    "example": {
+      "packId": "pack_01_clean",
+      "packsSummary": "docs/08-example-data/packs_summary.md"
+    }
+  },
+  "rules": [
+    "Evidence-first (ADR-0001): drafting uses candidate chunk_id values; rows refer to locked citation_id values only.",
+    "Verification is fail-closed (ADR-0002): mismatch/entailment fail yields citation_failed; blocked from export by default.",
+    "OCR/layout extraction is default for all PDFs (ADR-0003) for geometry highlights.",
+    "Retrieval returns IDs (ADR-0004): chunk IDs + scores; provenance stores IDs, not prose.",
+    "Orchestration via WDK (ADR-0005): 'use workflow' controller; 'use step' side effects; step idempotency via deterministic step_key.",
+    "Fixtures + evals are first-class (ADR-0006): success is measurable vs /truth.",
+    "No external web research inside runs (ADR-0007).",
+    "APIs use a safe error envelope with trace_id (ADR-0008); never leak internal errors/provider payloads."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm fixture:eval:all"
+  ],
+  "stories": [
     {
       "id": "US-001",
-      "title": "Run skeleton + version pinning + incremental progress surface",
-      "description": "Start a Quick Start run on indexed/ready folders, pin versions (index_version, agent_bundle_version, question_set_version), stream progress/rows via canonical APIs, and enforce strict row invariants.",
+      "title": "Run Surface Skeleton (Slice 0002a)",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I can start Quick Start and observe deterministic progress and incremental rows via the canonical run API and WDK workflow skeleton.",
       "acceptanceCriteria": [
-        "POST /folders/:id/runs enforces preconditions (folders.state in {indexed, ready}) and returns safe errors via the standard error envelope with trace_id.",
-        "Run records pin index_version, agent_bundle_version, and question_set_version; workflow/step boundaries follow WDK directives ('use workflow' / 'use step').",
-        "UI reads run progress via GET /runs/:id and rows via GET /folders/:id/report?run_id=... (no direct DB reads).",
-        "Unique (run_id, question_id) is enforced; restarts do not duplicate rows; step idempotency is via deterministic step_key."
-      ],
-      "priority": 1
+        "Example: On fixture packs pack_01_clean and pack_02_missing_rea, Quick Start can start and progress deterministically with incremental UI progress.",
+        "Slice is implemented per docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md.",
+        "Negative: No duplicate rows are produced on retries; step idempotency via step_key and unique (run_id, question_id) is enforced.",
+        "Negative: APIs return safe error envelope with trace_id and do not leak internal/provider payloads (ADR-0008)."
+      ]
     },
     {
       "id": "US-002",
-      "title": "List payload contract + artefact table rendering",
-      "description": "Decide and implement a versioned list payload contract for B-I/B-II/issues with stable item_id and item-level citation_ids; UI renders artefact tables from structured payload without inventing new report-row statuses.",
+      "title": "Row Payload Contract + Table Rendering (Slice 0002b)",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a user, artefact rows are structured and renderable as deterministic tables from versioned payload_json with item-level locked citations.",
       "acceptanceCriteria": [
-        "Payload storage approach is explicit and versioned (payload_schema_version) and does not turn provenance_json into a product contract.",
-        "Items have stable item_id for diffing/idempotency and include item-level citation_ids for claimed fields; unsupported fields are downgraded (no fabrication).",
-        "Report-row statuses remain terminal-only: needs_review|reviewed|missing_input|citation_failed; item-level states do not reuse row statuses.",
-        "API exposes citation_ids and payload needed for UI rendering; UI renders from locked citations only (no chunk IDs)."
-      ],
-      "priority": 2
+        "Example: Artefact rows render as tables in the UI from payload_json with item-level citation chips that jump-to-evidence.",
+        "Slice is implemented per docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md.",
+        "Negative: No prose parsing fallback exists when payload_json is missing/invalid; the system fails safely and remains honest."
+      ]
     },
     {
       "id": "US-003",
-      "title": "Commitment parsing baseline (pack_01_clean) for B-I and B-II",
-      "description": "Extract B-I requirements and B-II exceptions from the commitment for pack_01_clean and match truth key fields with lockable citations and zero false positives.",
+      "title": "Commitment Parsing Baseline (Slice 0002c)",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As a user, pack_01_clean yields B-I requirements and B-II exceptions structured payloads that match truth key fields with locked citations and fail-closed verification.",
       "acceptanceCriteria": [
-        "For pack_01_clean, B-I payload matches truth/expected_requirements_tracker.csv on key fields (item count + item numbering at minimum).",
-        "For pack_01_clean, B-II payload matches truth/expected_exceptions_table.csv on key fields (item count + item numbering + normalised instrument refs where present).",
-        "Precision rule: 0 false positives (no extra items not present in truth by item number).",
-        "Candidate citations are chunk IDs; citations are locked and immutable; verification is fail-closed with taxonomy reason codes."
-      ],
-      "priority": 3
+        "Example: For pack_01_clean, B-I and B-II payloads match /truth key fields per comparator rules.",
+        "Slice is implemented per docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.md.",
+        "Negative: 0 false positives by item number; no extra items not present in truth are emitted.",
+        "Negative: Verification is fail-closed; mismatches yield citation_failed and exports remain blocked by default."
+      ]
     },
     {
       "id": "US-004",
-      "title": "Exception -> instrument matching baseline + missing-doc journey (pack_02_missing_rea)",
-      "description": "Match exception items to instrument PDFs deterministically, surface ambiguity and missing docs/attachments explicitly, and prevent silent auto-picks or fabricated summaries.",
+      "title": "Exception to Instrument Matching (Slice 0002d)",
+      "status": "open",
+      "dependsOn": ["US-003"],
+      "description": "As a user, exceptions are deterministically linked to instrument PDFs (or surfaced as ambiguous/missing_doc) without silent false matches, proven on pack_01_clean and pack_02_missing_rea.",
       "acceptanceCriteria": [
-        "For pack_01_clean, exception items with truth-linked instruments resolve to match_status=matched with citations supporting the match.",
-        "Ambiguous matches surface as match_status=ambiguous with candidates listed; no silent auto-pick; row remains needs_review.",
-        "For pack_02_missing_rea, missing exception doc is surfaced as match_status=missing_doc with an actionable missing-doc checklist.",
-        "Missing attachments are surfaced explicitly and do not result in fabricated exhibit summaries; the reference clause is cited."
-      ],
-      "priority": 4
+        "Example: For pack_01_clean, truth-linked exceptions resolve to matched with evidence.",
+        "Example: For pack_02_missing_rea, missing REA is surfaced as missing_doc with checklist.",
+        "Slice is implemented per docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.md.",
+        "Negative: No silent auto-pick; ambiguous cases remain ambiguous with candidates listed."
+      ]
     },
     {
       "id": "US-005",
-      "title": "Survey extraction baseline + certification gap issue (pack_03_mismatch_and_cert_gap)",
-      "description": "Extract certification parties and baseline callouts with citations, and flag certification gaps as a structured issue code with evidence.",
+      "title": "Survey Extraction Baseline + Cert Gap (Slice 0002e)",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As a user, survey certification parties and supported callouts are extracted with locked citations, and a structured cert gap issue code is emitted for the cert gap pack.",
       "acceptanceCriteria": [
-        "Survey extraction yields structured certification parties and baseline callouts for pack_01_clean where truth supports them, each backed by lockable citations.",
-        "For pack_03_mismatch_and_cert_gap, missing lender is flagged as a machine-readable issue code with citation to the certification block.",
-        "On scan/low-quality behavior where no citations can be locked, the row is missing_input with the exact answer string, zero citations, and a remediation checklist.",
-        "Model calls (draft/verify/embed) go through AI SDK (gateway default) and step boundaries record telemetry metadata safely."
-      ],
-      "priority": 5
+        "Example: For pack_01_clean and pack_03_mismatch_and_cert_gap, survey extraction produces structured outputs with evidence.",
+        "Slice is implemented per docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.md.",
+        "Negative: No fabricated callouts or lender names; when evidence can't be locked, downgrade safely (unknown/missing_input)."
+      ]
     },
     {
       "id": "US-006",
-      "title": "Reconciliation issues list honesty policy (unknown bias)",
-      "description": "Generate reconciliation issues with an explicit evidence threshold policy that biases to unknown rather than incorrect not_depicted claims.",
+      "title": "Reconciliation Issues Honesty Policy (Slice 0002f)",
+      "status": "open",
+      "dependsOn": ["US-004", "US-005"],
+      "description": "As a user, reconciliation issues are classified honestly (depicted|not_depicted|unknown) with strict evidence thresholds and actionable guidance under uncertainty.",
       "acceptanceCriteria": [
-        "Reconciliation items use item-level classification depicted|not_depicted|unknown; not_depicted requires positive evidence of absence (narrowly defined and cited).",
-        "When evidence is weak, items are downgraded to unknown and the report row remains needs_review (no hallucinations).",
-        "Issue drawer guidance explains what evidence is missing and what to do next; failure modes are explicit (no silent failures).",
-        "Verification is fail-closed and reason codes align with the failure taxonomy (e.g. ENTAILMENT_FAIL, CITATION_MISMATCH)."
-      ],
-      "priority": 6
+        "Example: For pack_03_mismatch_and_cert_gap and pack_07_scans_rotated_low_quality, reconciliation issues are generated with classifications and guidance copy.",
+        "Slice is implemented per docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.md.",
+        "Negative: not_depicted requires positive evidence of absence; under uncertainty the system biases to unknown or missing_input."
+      ]
     }
+  ],
+  "metadata": {
+    "owner": "",
+    "status": "Draft (NO-GO until key spikes close)",
+    "date": "2026-02-07",
+    "slug": "0002-quick-start-engine"
+  },
+  "dependencies": [
+    "Initiative 0001 trust substrate must exist for citation locking + immutable citations, click-to-jump PDF viewer highlights, report-row status invariants, and export gating UX."
+  ],
+  "fixtureAnchors": {
+    "canonicalPackList": "docs/08-example-data/packs_summary.md",
+    "primaryAnchors": [
+      "pack_01_clean",
+      "pack_02_missing_rea",
+      "pack_03_mismatch_and_cert_gap",
+      "pack_07_scans_rotated_low_quality"
+    ]
+  },
+  "slicePrds": [
+    {
+      "path": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md",
+      "summary": "Runs API + version pinning + WDK workflow skeleton + incremental UI progress, with strict invariants."
+    },
+    {
+      "path": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md",
+      "summary": "Decide and implement list payload storage + schema versioning + UI rendering contract for artefact tables."
+    },
+    {
+      "path": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.md",
+      "summary": "Commitment parsing baseline for pack_01_clean producing B-I + B-II payloads matching truth key fields."
+    },
+    {
+      "path": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.md",
+      "summary": "Exception to instrument matching baseline + missing-doc journey on pack_02_missing_rea; ambiguity surfaced without silent pick."
+    },
+    {
+      "path": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.md",
+      "summary": "Survey extraction baseline + certification gap issue on pack_03_mismatch_and_cert_gap with locked citations."
+    },
+    {
+      "path": "docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.md",
+      "summary": "Reconciliation issues list with honesty policy: bias to unknown; not_depicted requires positive evidence of absence."
+    }
+  ],
+  "sources": [
+    "docs/04-projects/02-features/0002_quick-start-engine/brief.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/risk-register.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md"
   ]
 }
-

@@ -1,30 +1,129 @@
 {
-  "project": "0002_quick-start-engine",
-  "branchName": "codex/0002-s5-survey-extraction-pack-01-03",
-  "description": "Initiative 0002 Slice 5: survey extraction baseline for pack_01_clean and pack_03_mismatch_and_cert_gap: extract certification parties and baseline callouts with locked citations, and surface missing lender certification as a structured issue code.",
-  "userStories": [
+  "version": 1,
+  "project": "0002e Survey Extraction Baseline + Cert Gap (pack_01_clean + pack_03_mismatch_and_cert_gap)",
+  "overview": "For pack_01_clean and pack_03_mismatch_and_cert_gap, implement deterministic, fixture-verifiable survey extraction into the list payload: certification parties (including lender presence/absence where truth supports it) and baseline text callouts where supported, with locked citations and fail-closed verification; surface a structured cert gap issue code (CERT_MISSING_LENDER or equivalent) for the cert gap pack.",
+  "goals": [
+    "No invented callouts: if evidence can't be locked, downgrade or fail safely.",
+    "Cert gap is explicit and machine-readable (issue code), not just prose.",
+    "Outputs are fixture-verifiable and support later reconciliation safely."
+  ],
+  "nonGoals": [
+    "Scan torture survey behavior (pack_07_scans_rotated_low_quality) beyond the safe fallback policy.",
+    "Geometry-only callouts without text support."
+  ],
+  "successMetrics": [
+    "For pack_01_clean, extracted certification parties match truth key fields where truth supports them and have lockable citations.",
+    "For pack_03_mismatch_and_cert_gap, missing lender certification is surfaced as a structured issue code with evidence.",
+    "Under low-quality evidence, the system downgrades to unknown or missing_input safely (no fabricated callouts)."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js (apps/web) + packages/core + WDK steps/workflows",
+    "hosting": "TBD (PoC)",
+    "database": "Postgres + pgvector (canonical state)",
+    "auth": "TBD / not in scope"
+  },
+  "routes": [],
+  "uiNotes": [
+    "In the survey artefact row drawer, certification section shows extracted parties with citations.",
+    "Issues include a cert gap structured issue code for pack_03_mismatch_and_cert_gap with evidence jump."
+  ],
+  "dataModel": [
+    {
+      "entity": "list payload items (survey)",
+      "fields": [
+        "certification parties fields",
+        "baseline callouts (where supported)",
+        "issues[] with issue_code (e.g. CERT_MISSING_LENDER)",
+        "item-level citation_ids[]"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Slice is proven on pack_01_clean and pack_03_mismatch_and_cert_gap; issue outputs may be compared to truth/expected_survey_issues.csv per comparator rules.",
+    "example": {
+      "packs": [
+        "docs/08-example-data/pack_01_clean",
+        "docs/08-example-data/pack_03_mismatch_and_cert_gap"
+      ],
+      "truth": "truth/expected_survey_issues.csv"
+    }
+  },
+  "rules": [
+    "Survey doc classification/routing.",
+    "Structured output for certification + callouts in list payload.",
+    "CERT_MISSING_LENDER (or equivalent) issue code is emitted for cert gap pack.",
+    "Comparator rules are single-sourced in docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md.",
+    "Candidate citations are chunk IDs; citations are locked and immutable before verification (ADR-0001).",
+    "Verification is fail-closed (ADR-0002) and uses taxonomy reason codes from docs/03-architecture/60_observability_and_evals.md.",
+    "On low-quality behavior where no citations can be locked, row falls back safely to missing_input with remediation checklist (no invented callouts)."
+  ],
+  "qualityGates": ["pnpm verify"],
+  "stories": [
     {
       "id": "US-001",
-      "title": "Extract certification parties with citations",
-      "description": "Extract survey certification parties into structured fields backed by lockable citations so the row can be verified and trusted.",
+      "title": "Extract Certification Parties With Citations",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I can see certification parties (where present) backed by evidence so I can trust the survey extraction.",
       "acceptanceCriteria": [
-        "For pack_01_clean, certification parties extracted match truth key fields where truth supports them.",
+        "Example: For docs/08-example-data/pack_01_clean, certification parties extracted match truth key fields where truth supports them.",
         "Each extracted party field has lockable citations; row is needs_review when verification passes.",
-        "Candidate citations are chunk IDs; citations are locked and immutable before verification (no free-text citations)."
+        "Negative: No invented parties or callouts; if evidence can't be locked, downgrade safely (unknown/missing_input) rather than fabricating."
       ],
-      "priority": 1
+      "verification": [
+        "Packs: pack_01_clean",
+        "Automated: comparator against truth key fields (rules in docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md); citation integrity checks."
+      ]
     },
     {
       "id": "US-002",
-      "title": "Flag certification gap as structured issue code",
-      "description": "Surface missing lender certification as a machine-readable issue code with evidence on the cert gap pack, without fabricating missing data.",
+      "title": "Flag Certification Gap As Structured Issue Code",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I see a structured cert gap issue (missing lender) backed by evidence, not a vague note.",
       "acceptanceCriteria": [
-        "For pack_03_mismatch_and_cert_gap, missing lender certification is surfaced as a structured issue code (e.g. CERT_MISSING_LENDER) with citation to the certification block.",
-        "No fabricated lender name is emitted when lender is missing; the field is absent/unknown.",
-        "If no citations can be locked due to low extraction quality, row falls back safely to missing_input with remediation checklist (no invented callouts)."
+        "Example: For docs/08-example-data/pack_03_mismatch_and_cert_gap, missing lender certification is surfaced as a structured issue code (e.g. CERT_MISSING_LENDER) with citation to the certification block.",
+        "Negative: No fabricated lender name is emitted when lender is missing; field is absent/unknown."
       ],
-      "priority": 2
+      "verification": [
+        "Pack: pack_03_mismatch_and_cert_gap",
+        "Manual: open row drawer and confirm issue code + evidence jump."
+      ]
     }
+  ],
+  "metadata": {
+    "owner": "",
+    "status": "DRAFT",
+    "date": "2026-02-07",
+    "slug": "0002-s5-survey-extraction-pack-01-03"
+  },
+  "scope": {
+    "inScope": [
+      "Packs: pack_01_clean and pack_03_mismatch_and_cert_gap.",
+      "Survey extraction baseline: doc classification/routing, structured outputs for certification + callouts.",
+      "Cert gap: emit structured issue code for missing lender with evidence.",
+      "Outputs compared to truth/expected_survey_issues.csv where applicable (key fields, not wording)."
+    ],
+    "outOfScope": [
+      "Scan torture beyond safe fallback policy.",
+      "Geometry-only callouts without text support."
+    ]
+  },
+  "functionalRequirements": [
+    "FR-001: Survey extraction runs in steps ('use step') and records deterministic step_key and provenance (retrieved chunk IDs + scores) safely.",
+    "FR-002: Candidate citations are chunk IDs; citations are locked and immutable before verification (ADR-0001).",
+    "FR-003: Verification is fail-closed (ADR-0002) and uses taxonomy reason codes from docs/03-architecture/60_observability_and_evals.md.",
+    "FR-004: Model calls (draft/verify/embed) go through AI SDK (ADR-0013 proposed) and do not leak provider payloads to clients/logs.",
+    "FR-005: On low-quality behavior where no citations can be locked, row must fall back safely to missing_input with remediation checklist (no invented callouts)."
+  ],
+  "rollbackDisablePlan": [
+    "Feature flag: survey_extraction_enabled (default off until pack_01_clean and pack_03_mismatch_and_cert_gap pass)."
+  ],
+  "sources": [
+    "docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md (SP-2.4A)",
+    "docs/03-architecture/40_rag_and_agents.md",
+    "docs/03-architecture/60_observability_and_evals.md",
+    "docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md"
   ]
 }
-
