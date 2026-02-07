@@ -91,7 +91,7 @@ As a user, I can see a B-II exceptions table derived from the commitment and bac
 ## Metrics / Logging
 
 - Comparator pass rate for B-I and B-II on pack_01_clean.
-- Failure taxonomy counts (`RETRIEVAL_MISS`, `ENTAILMENT_FAIL`, `CITATION_MISMATCH`).
+- Failure taxonomy counts (`RETRIEVAL_MISS`, `NO_CITATIONS`, `CITATION_MISMATCH`).
 
 ## Rollback / Disable Plan
 

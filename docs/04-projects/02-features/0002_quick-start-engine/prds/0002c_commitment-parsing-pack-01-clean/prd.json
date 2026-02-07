@@ -15,7 +15,7 @@
   "successMetrics": [
     "Comparator pass rate for B-I and B-II on pack_01_clean reaches 100% on required key fields.",
     "0 extra items appear vs truth by item number.",
-    "Failure taxonomy counts (RETRIEVAL_MISS, ENTAILMENT_FAIL, CITATION_MISMATCH) are measurable and actionable."
+    "Failure taxonomy counts (RETRIEVAL_MISS, NO_CITATIONS, CITATION_MISMATCH) are measurable and actionable."
   ],
   "openQuestions": [
     "Blocked until Slice 2 payload contract is in place (list_payload_v0)."
@@ -94,7 +94,7 @@
   ],
   "metricsLogging": [
     "Comparator pass rate for B-I and B-II on pack_01_clean.",
-    "Failure taxonomy counts (RETRIEVAL_MISS, ENTAILMENT_FAIL, CITATION_MISMATCH)."
+    "Failure taxonomy counts (RETRIEVAL_MISS, NO_CITATIONS, CITATION_MISMATCH)."
   ],
   "rollbackDisablePlan": {
     "featureFlag": "quick_start_commitment_parsing_enabled",

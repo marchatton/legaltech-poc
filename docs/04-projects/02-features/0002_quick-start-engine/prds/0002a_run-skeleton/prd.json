@@ -54,7 +54,7 @@
         "GET /folders/:id/report?run_id=... returns rows for the selected run; UI never reads Postgres directly.",
         "Completed runs have exactly one row per question_id for the run's question_set_version.",
         "If a row is missing_input, answer is exactly Not found in provided documents., citation_ids is empty, and notes or provenance_json includes an actionable checklist.",
-        "If a row is citation_failed, provenance_json includes a safe taxonomy reason_code (e.g. CITATION_MISMATCH, ENTAILMENT_FAIL).",
+        "If a row is citation_failed, provenance_json includes a safe taxonomy reason_code (e.g. CITATION_MISMATCH, NO_CITATIONS).",
         "Row-level failures do not crash the run: a question that yields citation_failed still allows the workflow to continue and the run can reach completed after writing terminal rows for all questions (exports remain blocked by default)."
       ]
     }

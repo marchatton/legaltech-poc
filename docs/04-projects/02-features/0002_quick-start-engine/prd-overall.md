@@ -18,7 +18,7 @@ This `prd-overall.md` is the initiative-level overall (spine) PRD. Implementatio
 
 From `docs/03-architecture/*` and `docs/03-architecture/DECISIONS.md`:
 - Evidence-first (ADR-0001): drafting uses candidate `chunk_id`s; rows refer to locked `citation_id`s only.
-- Verification is fail-closed (ADR-0002): mismatch/entailment fail → `citation_failed`; blocked from export by default.
+- Verification is fail-closed (ADR-0002): integrity/invariant failures → `citation_failed`; blocked from export by default. (ADR-0017: v1 is integrity-only.)
 - OCR/layout extraction is default for all PDFs (ADR-0003) for geometry highlights.
 - Retrieval returns IDs (ADR-0004): chunk IDs + scores; provenance stores IDs, not prose.
 - Orchestration via WDK (ADR-0005): `"use workflow"` controller; `"use step"` side effects; step idempotency via deterministic `step_key`.

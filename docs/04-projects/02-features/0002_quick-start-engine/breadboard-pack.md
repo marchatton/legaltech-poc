@@ -111,7 +111,7 @@ Freeze question set v1 (<=25) and a stable row shell schema so we can build dete
 From `docs/03-architecture/20_state_model.md`:
 - `needs_review|reviewed`: row has >= 1 locked citation.
 - `missing_input`: `answer` is exactly `Not found in provided documents.` and citations are empty; `notes` (or provenance) includes an actionable missing-doc checklist.
-- `citation_failed`: include a safe reason code in provenance (e.g. `CITATION_MISMATCH`, `ENTAILMENT_FAIL`).
+- `citation_failed`: include a safe reason code in provenance (e.g. `CITATION_MISMATCH`, `NO_CITATIONS`).
 
 ### List payload contract v0 (for B-I/B-II/issues)
 

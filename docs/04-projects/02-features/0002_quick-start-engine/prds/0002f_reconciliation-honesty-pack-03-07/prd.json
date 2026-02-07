@@ -54,7 +54,7 @@
     "Item-level classification only; do not invent new report-row statuses.",
     "Guidance copy for unknown must be specific and actionable.",
     "Cross-evidence citations required for depicted claims that span both sources; if either can't be locked, downgrade to unknown.",
-    "Verification is fail-closed and uses taxonomy reason codes (e.g. ENTAILMENT_FAIL, CITATION_MISMATCH).",
+    "Verification is fail-closed and uses taxonomy reason codes (e.g. NO_CITATIONS, CITATION_MISMATCH).",
     "On low-quality scan behavior where no citations can be locked, row falls back safely to missing_input with remediation checklist."
   ],
   "qualityGates": ["pnpm verify"],
@@ -114,7 +114,7 @@
     "FR-001: Reconciliation runs as steps ('use step') and is idempotent; step IO is JSON-serialisable and Zod-validated.",
     "FR-002: Issues payload uses list payload contract v0 with stable item_id and item-level citation_ids[] for claimed fields.",
     "FR-003: Cross-evidence citations required for depicted classifications when claim spans both sources; if either can't be locked, downgrade to unknown.",
-    "FR-004: Verification is fail-closed and uses taxonomy reason codes (ENTAILMENT_FAIL, CITATION_MISMATCH).",
+    "FR-004: Verification is fail-closed and uses taxonomy reason codes (NO_CITATIONS, CITATION_MISMATCH).",
     "FR-005: On low-quality scan behavior where no citations can be locked, row falls back safely to missing_input with remediation checklist.",
     "FR-006: If any model fallback is used, it runs via AI SDK (gateway default) with strict schemas and safe telemetry; determinism-first remains default."
   ],

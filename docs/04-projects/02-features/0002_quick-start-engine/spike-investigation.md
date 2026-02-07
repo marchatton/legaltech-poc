@@ -24,7 +24,7 @@ From `docs/03-architecture/20_state_model.md`:
   - citations must be empty
   - `notes` (or provenance) must include an actionable missing-doc checklist
 - For any row with status `citation_failed`:
-  - provenance must include a safe reason code from the failure taxonomy (prefer: `RETRIEVAL_MISS`, `CITATION_MISMATCH`, `ENTAILMENT_FAIL`) (see `docs/03-architecture/60_observability_and_evals.md`)
+  - provenance must include a safe reason code from the failure taxonomy (prefer: `CITATION_MISMATCH`, `NO_CITATIONS`, `VALIDATION_ERROR`) (see `docs/03-architecture/60_observability_and_evals.md`)
 
 For list-shaped artefacts (B-I/B-II/issues):
 - Any item that asserts a concrete field must include item-level `citation_ids[]` for that field.
