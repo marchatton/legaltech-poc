@@ -57,7 +57,7 @@ const MissingDocsProvenanceSchema = z
 function CitationChips(props: {
   packId: string;
   citationIds: string[];
-  citations: Record<string, { document_filename: string; page_number: number }> | undefined;
+  citations: Record<string, { document_id: string; page_number: number }> | undefined;
 }) {
   if (!props.citationIds.length) return <div className="text-xs text-slate-500">(no citations)</div>;
 
@@ -65,7 +65,7 @@ function CitationChips(props: {
     const cit = props.citations?.[cid];
     const params = new URLSearchParams({ pack: props.packId, citation: cid });
     if (cit) {
-      params.set("document_id", cit.document_filename);
+      params.set("document_id", cit.document_id);
       params.set("page", String(cit.page_number));
     }
 
@@ -84,7 +84,7 @@ function CitationChips(props: {
 function ExceptionsPayload(props: {
   packId: string;
   payload: unknown;
-  citations: Record<string, { document_filename: string; page_number: number }> | undefined;
+  citations: Record<string, { document_id: string; page_number: number }> | undefined;
 }) {
   const parsed = ListPayloadV0Schema.safeParse(props.payload);
   if (!parsed.success) return null;

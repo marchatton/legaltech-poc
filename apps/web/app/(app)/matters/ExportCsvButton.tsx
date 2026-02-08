@@ -31,7 +31,7 @@ export function ExportCsvButton(props: Props) {
 
     let res: Response;
     try {
-      res = await fetch("/export/csv", {
+      res = await fetch("/spikes/export/csv", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

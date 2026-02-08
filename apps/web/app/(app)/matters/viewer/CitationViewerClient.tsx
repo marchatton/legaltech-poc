@@ -15,7 +15,7 @@ type Props = {
   packId: string;
   citationId: string;
   pdfUrl: string;
-  documentFilename: string;
+  documentId: string;
   pageNumber: number;
   polygons: NormPolygons;
   snippet: string;
@@ -273,7 +273,7 @@ export function CitationViewerClient(props: Props) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="grid gap-1 text-sm text-slate-700">
             <div>
-              <span className="font-medium text-slate-900">doc:</span> {props.documentFilename}{" "}
+              <span className="font-medium text-slate-900">document_id:</span> {props.documentId}{" "}
               <span className="ml-2 font-medium text-slate-900">page:</span> {props.pageNumber}{" "}
               {pdfPageCount ? <span className="text-slate-500">(of {pdfPageCount})</span> : null}
             </div>
