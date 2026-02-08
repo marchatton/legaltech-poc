@@ -572,3 +572,25 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-163923-131740-ite
   - Next dev may auto-shift ports (3000 was in use; ran on 3001).
   - Repo-local `dev-browser` skill doc exists but runtime isn’t available in this environment; `agent-browser` is a workable fallback for headless UI verification.
 ---
+## [2026-02-08 17:35:26 UTC] - US-002: Flag Certification Gap As Structured Issue Code
+Thread: 
+Run: 20260208-171524-140451 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-171524-140451-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-171524-140451-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 69758b5 feat(survey): add CERT_MISSING_LENDER issue
+- Post-commit status: `dirty` (.ralph/activity.log, .ralph/progress.md)
+- Verification:
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - packages/core/src/schemas/list_payload_v0.ts
+  - scripts/fixtures/assert_row_invariants.ts
+  - scripts/fixtures/seed.ts
+  - packages/core/src/spikes/us002_pack03_cert_gap_issue.e2e.test.ts
+- What was implemented
+- **Learnings for future iterations:**
+  - Fixture scripts executed via `node` should avoid workspace package imports (use relative imports) to keep verification deterministic.
+---
