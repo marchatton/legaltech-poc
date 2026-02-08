@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { AnchorFileSchema, anchorBoxToPolygons, type AnchorBox } from "../../packages/core/src/geometry/anchors.ts";
 import { hashSnippet } from "../../packages/core/src/citations/snippet.ts";
+import { detectMissingDocs } from "../../packages/core/src/missing-docs/detectMissingDocs.ts";
 
 import { parseArgs, getBoolArg, getStringArg } from "./lib/args.ts";
 
@@ -11,6 +12,8 @@ type FixtureManifest = {
   expected_question_set_version?: string;
   documents: Array<{
     filename: string;
+    role?: string;
+    layout_file?: string;
     anchors_file?: string;
   }>;
 };
@@ -92,8 +95,10 @@ function loadManifest(packRoot: string): FixtureManifest {
     if (!isRecord(d)) continue;
     const filename = asNonEmptyString(d.filename);
     if (!filename) continue;
+    const role = asNonEmptyString(d.role) ?? undefined;
+    const layout_file = asNonEmptyString(d.layout_file) ?? undefined;
     const anchors_file = asNonEmptyString(d.anchors_file) ?? undefined;
-    documents.push({ filename, anchors_file });
+    documents.push({ filename, role, layout_file, anchors_file });
   }
 
   return { pack_id, expected_question_set_version, documents };
@@ -136,6 +141,76 @@ function anchorsPathFor(manifest: FixtureManifest, packRoot: string, docFilename
   const doc = manifest.documents.find((d) => d.filename === docFilename);
   if (!doc?.anchors_file) return null;
   return path.join(packRoot, doc.anchors_file);
+}
+
+type LayoutFile = {
+  pages: Array<{
+    page: number;
+    lines: Array<{ text: string; anchor?: string }>;
+  }>;
+};
+
+function pickTitleCommitmentDoc(manifest: FixtureManifest): FixtureManifest["documents"][number] | null {
+  return (
+    manifest.documents.find((d) => d.role === "title_commitment") ??
+    manifest.documents.find((d) => /TitleCommitment\.pdf$/i.test(d.filename)) ??
+    null
+  );
+}
+
+function layoutPathFor(manifest: FixtureManifest, packRoot: string, docFilename: string): string | null {
+  const doc = manifest.documents.find((d) => d.filename === docFilename);
+  if (!doc?.layout_file) return null;
+  return path.join(packRoot, doc.layout_file);
+}
+
+function loadScheduleBiiReference(args: {
+  manifest: FixtureManifest;
+  packRoot: string;
+}): { ok: true; referenceText: string; referenceSource: { source: string; page: number } } | { ok: false; reason: string } {
+  const title = pickTitleCommitmentDoc(args.manifest);
+  if (!title) return { ok: false, reason: "NO_TITLE_COMMITMENT" };
+
+  const layoutPath = layoutPathFor(args.manifest, args.packRoot, title.filename);
+  if (!layoutPath) return { ok: false, reason: "NO_LAYOUT_FILE" };
+  if (!fs.existsSync(layoutPath)) return { ok: false, reason: "LAYOUT_FILE_NOT_FOUND" };
+
+  const layout = readJsonFile(layoutPath) as LayoutFile;
+  const pages = Array.isArray((layout as any)?.pages) ? (layout as any).pages : null;
+  if (!pages) return { ok: false, reason: "INVALID_LAYOUT_FILE" };
+
+  // Prefer the anchored Schedule B-II header if present; fall back to page 3 (per RH5 harness).
+  let pageNumber: number | null = null;
+  for (const p of layout.pages) {
+    for (const l of p.lines ?? []) {
+      if (l?.anchor === "SCHEDULE_BII_HEADER") {
+        pageNumber = p.page;
+        break;
+      }
+    }
+    if (pageNumber) break;
+  }
+
+  if (!pageNumber) {
+    const fromAnchors = loadAnchorBbox({
+      manifest: args.manifest,
+      packRoot: args.packRoot,
+      docFilename: title.filename,
+      anchorId: "SCHEDULE_BII_HEADER",
+    });
+    pageNumber = fromAnchors.ok ? fromAnchors.anchor.page : 3;
+  }
+
+  const page = layout.pages.find((p) => p.page === pageNumber);
+  if (!page) return { ok: false, reason: "SCHEDULE_BII_PAGE_NOT_FOUND" };
+
+  const referenceText = page.lines.map((l) => String(l?.text ?? "")).filter(Boolean).join(" ");
+
+  return {
+    ok: true,
+    referenceText,
+    referenceSource: { source: title.filename, page: pageNumber },
+  };
 }
 
 function loadAnchorBbox(args: {
@@ -181,6 +256,37 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
     rows: [],
     citations: {},
   };
+
+  // If the pack references missing documents (high-confidence), seed a canonical missing_input row with a structured checklist.
+  // This is a tracer bullet for the missing-doc journey (US-007) and must satisfy missing_input invariants.
+  const providedFilenames = manifest.documents.map((d) => d.filename).filter((f) => /\.pdf$/i.test(f));
+  const ref = loadScheduleBiiReference({ manifest, packRoot });
+  if (ref.ok) {
+    const missing = detectMissingDocs({
+      packId,
+      providedFilenames,
+      referenceText: ref.referenceText,
+      referenceSource: ref.referenceSource,
+    });
+
+    if (missing.missing_docs.length > 0) {
+      snapshot.rows.push({
+        question_id: "TB-MISSING-INPUT",
+        question: "Tracer bullet: missing docs -> missing_input with checklist",
+        answer: "Not found in provided documents.",
+        status: "missing_input",
+        citation_ids: [],
+        notes: null,
+        payload_schema_version: null,
+        payload_json: null,
+        provenance_json: {
+          missing_docs_pack_id: missing.pack_id,
+          missing_docs_checklist: missing.missing_docs,
+          missing_docs_candidates_low_confidence: missing.candidates_low_confidence ?? undefined,
+        },
+      });
+    }
+  }
 
   for (const q of golden) {
     const row = {

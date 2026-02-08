@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 12:05:40 | run=20260208-082954-32669 | iter=10 | mode=build | story=US-009 | duration=2047s | status=success
 - 2026-02-08 11:31:30 | run=20260208-082954-32669 | iter=9 | mode=build | story=US-008 | duration=1351s | status=success
 - 2026-02-08 11:08:57 | run=20260208-082954-32669 | iter=8 | mode=build | story=US-007 | duration=1205s | status=success
 - 2026-02-08 10:48:47 | run=20260208-082954-32669 | iter=7 | mode=build | story=US-006 | duration=1168s | status=success
@@ -98,3 +99,10 @@
 [2026-02-08 11:53:30] US-009: verification PASS (pnpm typecheck, pnpm verify); browser verified mark reviewed persistence + NO_LOCKED_CITATIONS rejection
 [2026-02-08 12:00:51] US-009: pre-commit audit (security/perf/regression) complete
 [2026-02-08 12:03:32] US-009: appended progress entry to .ralph/progress.md
+[2026-02-08 12:05:40] ITERATION 10 end (duration=2047s)
+[2026-02-08 12:05:45] ITERATION 11 start (mode=build story=US-007)
+[2026-02-08 12:06:36] US-007 start: implement missing_input + missing-doc checklist + pack_02_missing_rea detection
+[2026-02-08 12:20:40] US-007: seed missing_input row via missing-doc detection; render checklist UI; add core fixture test; update row invariants
+[2026-02-08 12:26:10] US-007: verification PASS (pnpm typecheck, pnpm verify)
+[2026-02-08 12:28:57] US-007: browser verified /matters shows missing-doc checklist on pack_02_missing_rea; pack_01_clean has no missing_input false positives
+[2026-02-08 12:30:56] US-007: pre-commit audit complete (security/perf/regression)

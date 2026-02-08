@@ -1,6 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { z } from "zod";
+
+import { MissingDocCandidateSchema } from "../../packages/core/src/missing-docs/schemas.ts";
+
 import { parseArgs, getStringArg, requireStringArg } from "./lib/args.ts";
 import { assertIsSnapshot, isRecord } from "./lib/snapshot.ts";
 
@@ -32,11 +36,16 @@ function hasChecklist(row: { notes?: string | null; provenance_json?: unknown })
   const prov = row.provenance_json;
   if (!prov || !isRecord(prov)) return false;
 
+  const ChecklistSchema = z
+    .array(MissingDocCandidateSchema)
+    .min(1)
+    .refine((items) => items.every((c) => c.confidence >= 0.8), "checklist must only include high-confidence candidates");
+
   const checklist = prov.checklist;
-  if (Array.isArray(checklist) && checklist.some((x) => typeof x === "string" && x.trim().length > 0)) return true;
+  if (ChecklistSchema.safeParse(checklist).success) return true;
 
   const missing = prov.missing_docs_checklist;
-  if (Array.isArray(missing) && missing.some((x) => typeof x === "string" && x.trim().length > 0)) return true;
+  if (ChecklistSchema.safeParse(missing).success) return true;
 
   return false;
 }
@@ -128,7 +137,8 @@ async function main() {
         errors.push({
           kind: "missing_input_missing_checklist",
           question_id: qid,
-          message: "missing_input rows must include an actionable checklist (notes or provenance_json.checklist[])",
+          message:
+            "missing_input rows must include an actionable missing-doc checklist (notes or provenance_json.missing_docs_checklist[])",
         });
       }
     }

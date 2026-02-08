@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { MissingDocCandidateSchema } from "@orbital-poc/core";
+
 import { assertDevOnly } from "../../../lib/devOnly";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
 
@@ -35,6 +37,78 @@ function reviewErrorMessage(code: string): string {
   if (code === "SNAPSHOT_NOT_FOUND") return "Cannot mark reviewed: seed snapshot not found.";
   if (code === "INVALID_REQUEST") return "Cannot mark reviewed: invalid request.";
   return "Cannot mark reviewed.";
+}
+
+const MissingDocsProvenanceSchema = z
+  .object({
+    missing_docs_checklist: z.array(MissingDocCandidateSchema).optional(),
+    missing_docs_candidates_low_confidence: z.array(MissingDocCandidateSchema).optional(),
+  })
+  .passthrough();
+
+function MissingDocsChecklist(props: { provenance: unknown }) {
+  const parsed = MissingDocsProvenanceSchema.safeParse(props.provenance);
+  if (!parsed.success) return null;
+
+  const highConfidence = (parsed.data.missing_docs_checklist ?? []).filter((c) => c.confidence >= 0.8);
+  const lowConfidence = (parsed.data.missing_docs_candidates_low_confidence ?? []).filter((c) => c.confidence < 0.8);
+
+  if (!highConfidence.length && !lowConfidence.length) return null;
+
+  return (
+    <section className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
+      <div className="text-sm font-semibold text-slate-900">Missing document checklist</div>
+      <p className="mt-1 text-xs text-slate-600">Upload the missing PDF(s), then re-run the workflow for this row.</p>
+
+      {highConfidence.length ? (
+        <ul className="mt-3 grid gap-2">
+          {highConfidence.map((cand) => (
+            <li key={cand.label} className="rounded border border-slate-200 bg-white p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{cand.label}</div>
+                <div className="text-xs text-slate-600">confidence: {Math.round(cand.confidence * 100)}%</div>
+              </div>
+              {cand.signals.length ? (
+                <div className="mt-2 text-xs text-slate-700">
+                  <div className="font-medium text-slate-800">Evidence signals</div>
+                  <ul className="mt-1 list-disc pl-5">
+                    {cand.signals.map((s, idx) => (
+                      <li key={`${s.type}:${s.value}:${s.source}:${String(s.page ?? "")}:${idx}`}>
+                        <span className="font-medium">{s.source}</span>
+                        {s.page ? <span> p.{s.page}</span> : null}
+                        <span>: </span>
+                        <span className="font-mono">
+                          {s.type}={JSON.stringify(s.value)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {lowConfidence.length ? (
+        <details className="mt-3">
+          <summary className="cursor-pointer text-xs font-medium text-slate-700">
+            Show low-confidence candidates ({lowConfidence.length})
+          </summary>
+          <ul className="mt-2 grid gap-2">
+            {lowConfidence.map((cand) => (
+              <li key={cand.label} className="rounded border border-slate-200 bg-white p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{cand.label}</div>
+                  <div className="text-xs text-slate-600">confidence: {Math.round(cand.confidence * 100)}%</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </section>
+  );
 }
 
 export default async function MattersPage(props: {
@@ -140,6 +214,10 @@ export default async function MattersPage(props: {
                 ) : null}
 
                 <div className="mt-2 text-sm text-slate-700">{row.answer}</div>
+
+                {row.status === "missing_input" ? (
+                  <MissingDocsChecklist provenance={(row as { provenance_json?: unknown }).provenance_json} />
+                ) : null}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {row.citation_ids.length ? (

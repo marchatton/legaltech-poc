@@ -1,7 +1,7 @@
 import type { DetectMissingDocsResult, MissingDocCandidate, MissingDocSignal } from "./schemas";
 
 const PHRASE_TO_ACRONYM: ReadonlyArray<[phrase: RegExp, acronym: string]> = [
-  [/\\bReciprocal\\s+Easement\\s+Agreement\\b/i, "REA"],
+  [/\bReciprocal\s+Easement\s+Agreement\b/i, "REA"],
 ];
 
 function filenameTokenSet(filename: string): Set<string> {
@@ -24,7 +24,7 @@ export function detectMissingDocs(args: {
   const signals: MissingDocSignal[] = [];
 
   // 1) Direct file references like "REA.pdf"
-  for (const match of args.referenceText.matchAll(/\\b([A-Za-z0-9_-]+\\.(?:pdf|PDF))\\b/g)) {
+  for (const match of args.referenceText.matchAll(/\b([A-Za-z0-9_-]+\.(?:pdf|PDF))\b/g)) {
     signals.push({
       type: "file_ref",
       value: match[1],
@@ -34,7 +34,7 @@ export function detectMissingDocs(args: {
   }
 
   // 2) Acronyms in parentheses like "(REA)"
-  for (const match of args.referenceText.matchAll(/\\(([A-Z]{2,6})\\)/g)) {
+  for (const match of args.referenceText.matchAll(/\(([A-Z]{2,6})\)/g)) {
     signals.push({
       type: "acronym",
       value: match[1],
@@ -48,7 +48,7 @@ export function detectMissingDocs(args: {
     if (re.test(args.referenceText)) {
       signals.push({
         type: "phrase",
-        value: re.source.replace(/\\\\b/g, ""),
+        value: re.source.replace(/\\b/g, ""),
         source: args.referenceSource.source,
         page: args.referenceSource.page,
       });
@@ -111,4 +111,3 @@ export function detectMissingDocs(args: {
     candidates_low_confidence: candidates_low_confidence.length ? candidates_low_confidence : undefined,
   };
 }
-
