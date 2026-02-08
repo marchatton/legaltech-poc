@@ -1,9 +1,9 @@
 {
   "version": 1,
   "project": "0005 Word Export (.docx) Single Memo Template",
-  "overview": "Generate one demo-grade Word artefact (memo.docx) from a completed Quick Start run via POST /export/docx kind=memo, with strict fail-closed export gating on citation_failed (demo-only unsafe override behind guardrails), artefact persistence + listing with fresh signed download URLs, and a basic viewer sanity gate across Word/Google Docs/Preview.",
+  "overview": "Generate one demo-grade Word artefact (memo.docx) from a completed Quick Start run via POST /export/docx kind=memo, with strict fail-closed export gating on citation_failed (demo-only unsafe override behind guardrails). Persist the docx as an artefact and rely on 0008 for listing + fresh signed download URLs, plus a basic viewer sanity gate across Word/Google Docs/Preview.",
   "goals": [
-    "From docs/08-example-data/pack_01_clean, operator can export memo.docx from a completed run and download it successfully.",
+    "From docs/08-example-data/pack_01_clean, operator can export memo.docx from a completed run and download it successfully via the artefacts list (0008).",
     "Memo includes the spike-locked sections in deterministic order, with inline citations.",
     "Export is only available when runs.state = completed.",
     "Export is blocked by default when any row is citation_failed (EXPORT_BLOCKED), unless demo-only unsafe_override=true is explicitly used.",
@@ -18,12 +18,13 @@
     "Any editing of the memo in-app."
   ],
   "successMetrics": [
-    "For pack_01_clean, memo export/download works end-to-end and content order is deterministic.",
+    "For pack_01_clean, memo export + download via the artefacts list (0008) works end-to-end and content order is deterministic.",
     "Default posture remains fail-closed: citation_failed blocks exports unless explicitly unsafe in demo mode.",
     "Memo renders 'not broken' in Word, Google Docs, and Preview for a representative sample."
   ],
   "openQuestions": [
-    "Dependency remains: Initiative 002 must persist structured payload_json + payload_schema_version (no prose parsing)."
+    "Dependency remains: Initiative 002 must persist structured payload_json + payload_schema_version (no prose parsing).",
+    "Dependency: 0008 must provide artefacts persistence + listing/download via GET /folders/:id/artefacts (fresh signed URLs)."
   ],
   "stack": {
     "framework": "Next.js (apps/web) + packages/core",
@@ -89,7 +90,7 @@
       "dependsOn": [],
       "description": "As a demo operator, I can export a Word memo from a completed run so I can share a narrative artefact outside the UI.",
       "acceptanceCriteria": [
-        "Example: From docs/08-example-data/pack_01_clean, operator can export memo.docx from a completed run and download it successfully via the artefacts list.",
+        "Example: From docs/08-example-data/pack_01_clean, operator can export memo.docx from a completed run and download it successfully via the artefacts list (0008).",
         "Memo contains the spike-locked sections in deterministic order and renders citations in the agreed inline format.",
         "Memo renders 'not broken' in Microsoft Word, Google Docs, and macOS Preview for a representative sample.",
         "Negative: If runs.state != completed, export is disabled and the API returns 409 CONFLICT if called anyway.",
@@ -108,22 +109,11 @@
         "Negative: unsafe_override=true is demo-only; when DEMO_MODE and ALLOW_UNSAFE_EXPORTS are not enabled, API returns 403 UNAUTHORISED and the UI does not expose the unsafe CTA.",
         "Negative: When unsafe_override=true is allowed, the resulting filename is labelled memo.UNSAFE.docx and metadata_json.unsafe_override=true is persisted."
       ]
-    },
-    {
-      "id": "US-003",
-      "title": "View And Download Artefacts",
-      "status": "open",
-      "dependsOn": ["US-001"],
-      "description": "As a demo operator, I can see and download the exported memo artefact reliably from the matter.",
-      "acceptanceCriteria": [
-        "Example: After export, artefact is persisted and appears in GET /folders/:id/artefacts with a working (fresh) signed download_url.",
-        "Negative: Signed URLs are not persisted; download_url is generated on demand and remains refresh-safe (fresh URL after refresh)."
-      ]
     }
   ],
   "metadata": {
     "owner": "TBD",
-    "status": "DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)",
+    "status": "DRAFT (GO: spike outcomes locked; remaining dependencies are Initiative 002 structured row payload persistence + 0008 artefacts foundation)",
     "date": "2026-02-07"
   },
   "lockedDecisions": {
@@ -159,7 +149,7 @@
       "Export gating: require runs.state=completed (else 409 CONFLICT); block on any citation_failed unless unsafe_override=true.",
       "unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS (else 403 UNAUTHORISED); unsafe exports labelled memo.UNSAFE.docx and recorded in metadata_json.",
       "Word renderer: one fixed memo template, deterministic section ordering, stable formatting rules, consistent citations format.",
-      "Artefacts persisted with storage_key + metadata (kind=memo, template version id, filename, source_run_id); do not persist signed URLs; generate fresh download_url via list endpoint.",
+      "Persist created memo docx as an artefact using 0008 (storage_key + metadata; signed URLs generated via GET /folders/:id/artefacts).",
       "UI: Export memo button; disabled until run completes; blocked banner on EXPORT_BLOCKED."
     ],
     "outOfScope": [
@@ -171,10 +161,9 @@
     "parts": [
       "F1 (export endpoints)",
       "F3 (Word renderer + template)",
-      "F4 (artefacts list)",
       "F5 (export UI states)"
     ],
-    "affordances": ["U1", "U3", "U4", "U5"],
+    "affordances": ["U1", "U3", "U5"],
     "codeAffordances": ["N1", "N2", "N4", "N5", "N6"]
   },
   "verificationPlan": [
@@ -191,6 +180,7 @@
     "docs/04-projects/02-features/0003_demo-grade-outputs/brief.md",
     "docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md",
     "docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md",
+    "docs/04-projects/02-features/0008_artefacts-foundation/prd.md",
     "docs/03-architecture/20_state_model.md",
     "docs/03-architecture/30_data_model.md",
     "docs/03-architecture/50_api_surface.md",

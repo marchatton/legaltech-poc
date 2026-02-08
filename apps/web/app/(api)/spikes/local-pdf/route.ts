@@ -5,6 +5,7 @@ import { Readable } from "node:stream";
 import { LocalPdfQuerySchema, safeErrorEnvelope } from "@orbital-poc/core";
 
 import { parseSingleRangeHeader } from "../../../../lib/httpRange.server";
+import { safePdfFilename } from "../../../../lib/safePdfFilename.server";
 import { assertSpikesEnabled } from "../../../../lib/spikes.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
@@ -61,7 +62,7 @@ export async function GET(req: Request): Promise<Response> {
   const headers = new Headers(traceHeaders);
   headers.set("Accept-Ranges", "bytes");
   headers.set("Content-Type", "application/pdf");
-  headers.set("Content-Disposition", `inline; filename="${parsed.data.filename}"`);
+  headers.set("Content-Disposition", `inline; filename="${safePdfFilename(parsed.data.filename)}"`);
   headers.set("Cache-Control", "no-store");
 
   if (!rangeHeader) {

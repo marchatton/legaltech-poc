@@ -3,18 +3,50 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
-import { putObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
+import { putObjectWriteOnce, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
+
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
 const ParamsSchema = z.object({
   id: z.string().min(1),
 });
 
+function parseExpectedBytes(val: unknown): number | null {
+  if (typeof val === "number" && Number.isSafeInteger(val) && val > 0) return val;
+  if (typeof val === "bigint") {
+    if (val <= 0n) return null;
+    if (val > BigInt(Number.MAX_SAFE_INTEGER)) return null;
+    return Number(val);
+  }
+  if (typeof val === "string" && /^[0-9]+$/.test(val)) {
+    const n = Number(val);
+    if (!Number.isSafeInteger(n) || n <= 0) return null;
+    return n;
+  }
+  return null;
+}
+
+function hasPdfMagic(bytes: Uint8Array): boolean {
+  // "%PDF-" (25 50 44 46 2d)
+  return (
+    bytes.byteLength >= 5 &&
+    bytes[0] === 0x25 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x44 &&
+    bytes[3] === 0x46 &&
+    bytes[4] === 0x2d
+  );
+}
+
 export async function PUT(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
   await ensureSchema();
 
   const rawParams = await ctx.params;
@@ -56,8 +88,17 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
   }
 
   const documentId = parsedParams.data.id;
-  const docs = await sql<{ id: string; folder_id: string; storage_key: string | null }[]>`
-    SELECT id, folder_id, storage_key
+  const docs = await sql<
+    Array<{
+      id: string;
+      folder_id: string;
+      storage_key: string | null;
+      upload_completed_at: Date | null;
+      mime: string;
+      bytes: unknown;
+    }>
+  >`
+    SELECT id, folder_id, storage_key, upload_completed_at, mime, bytes
     FROM documents
     WHERE id = ${documentId}
     LIMIT 1
@@ -70,11 +111,45 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
+  if (doc.upload_completed_at) {
+    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload already completed.", traceId }), {
+      status: 409,
+      headers,
+    });
+  }
+
   if (!doc.storage_key) {
     return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key.", traceId }), {
       status: 409,
       headers,
     });
+  }
+
+  if (doc.mime !== "application/pdf") {
+    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document mime is not application/pdf.", traceId }), {
+      status: 409,
+      headers,
+    });
+  }
+
+  const expectedBytes = parseExpectedBytes(doc.bytes);
+  if (expectedBytes === null) {
+    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Document bytes is invalid.", traceId }), {
+      status: 500,
+      headers,
+    });
+  }
+
+  if (expectedBytes > MAX_UPLOAD_BYTES) {
+    return Response.json(
+      safeErrorEnvelope({
+        code: "VALIDATION_ERROR",
+        message: "Upload too large.",
+        details: { bytes: expectedBytes, max_bytes: MAX_UPLOAD_BYTES },
+        traceId,
+      }),
+      { status: 413, headers },
+    );
   }
 
   const keyValid = validateStorageKey(doc.storage_key);
@@ -85,7 +160,7 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  const sigOk = verifySignature({ storageKey: doc.storage_key, expiresAtMs, sig: sigHeader });
+  const sigOk = verifySignature({ purpose: "put", storageKey: doc.storage_key, expiresAtMs, sig: sigHeader });
   if (!sigOk) {
     return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid upload signature.", traceId }), {
       status: 403,
@@ -103,15 +178,61 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  const result = await putObject({ storageKey: doc.storage_key, bytes });
+  if (bytes.byteLength > MAX_UPLOAD_BYTES) {
+    return Response.json(
+      safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Upload too large.", traceId }),
+      { status: 413, headers },
+    );
+  }
 
-  await sql`
+  if (bytes.byteLength !== expectedBytes) {
+    return Response.json(
+      safeErrorEnvelope({
+        code: "VALIDATION_ERROR",
+        message: "Upload size did not match document bytes.",
+        details: { expected_bytes: expectedBytes, actual_bytes: bytes.byteLength },
+        traceId,
+      }),
+      { status: 400, headers },
+    );
+  }
+
+  if (!hasPdfMagic(bytes)) {
+    return Response.json(
+      safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Upload must be a PDF.", traceId }),
+      { status: 400, headers },
+    );
+  }
+
+  let result: { bytesWritten: number; sha256: string };
+  try {
+    result = await putObjectWriteOnce({ storageKey: doc.storage_key, bytes });
+  } catch (err) {
+    const code = typeof err === "object" && err ? (err as { code?: unknown }).code : null;
+    if (code === "EEXIST") {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload already completed.", traceId }), {
+        status: 409,
+        headers,
+      });
+    }
+    throw err;
+  }
+
+  const updated = await sql<{ id: string }[]>`
     UPDATE documents
-    SET upload_completed_at = COALESCE(upload_completed_at, now()),
+    SET upload_completed_at = now(),
         sha256 = ${result.sha256},
         updated_at = now()
     WHERE id = ${doc.id}
+      AND upload_completed_at IS NULL
+    RETURNING id
   `;
+  if (!updated[0]) {
+    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload already completed.", traceId }), {
+      status: 409,
+      headers,
+    });
+  }
 
   await refreshFolderState(doc.folder_id);
 

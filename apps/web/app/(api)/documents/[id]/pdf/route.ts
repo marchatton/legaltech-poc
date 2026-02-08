@@ -8,8 +8,10 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { parseSingleRangeHeader } from "../../../../../lib/httpRange.server";
 import { createObjectReadStream, statObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
+import { safePdfFilename } from "../../../../../lib/safePdfFilename.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -19,17 +21,10 @@ const ParamsSchema = z.object({
   id: z.string().min(1),
 });
 
-function safePdfFilename(val: unknown): string {
-  if (typeof val !== "string") return "document.pdf";
-  const s = val.trim();
-  if (!s) return "document.pdf";
-  if (s.length > 200) return "document.pdf";
-  if (!/^[A-Za-z0-9_.-]+\.pdf$/i.test(s)) return "document.pdf";
-  return s;
-}
-
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
 
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);
@@ -89,7 +84,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
       });
     }
 
-    const sigOk = verifySignature({ storageKey: `fixture:${documentId}`, expiresAtMs, sig: sigRaw });
+    const sigOk = verifySignature({ purpose: "get", storageKey: `fixture:${documentId}`, expiresAtMs, sig: sigRaw });
     if (!sigOk) {
       return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
         status: 403,
@@ -180,7 +175,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  const sigOk = verifySignature({ storageKey: doc.storage_key, expiresAtMs, sig: sigRaw });
+  const sigOk = verifySignature({ purpose: "get", storageKey: doc.storage_key, expiresAtMs, sig: sigRaw });
   if (!sigOk) {
     return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
       status: 403,

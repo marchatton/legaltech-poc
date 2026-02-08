@@ -3,6 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { enqueueDocumentIngest } from "../../../../../lib/ingest/ingestQueue.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
@@ -18,6 +19,8 @@ const BodySchema = z.object({
 
 export async function POST(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
   await ensureSchema();
 
   const rawParams = await ctx.params;

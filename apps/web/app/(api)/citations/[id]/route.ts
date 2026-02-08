@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
+import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
@@ -88,13 +89,8 @@ function findCitationInSeedSnapshots(args: {
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
-
-  if (process.env.FEATURE_CITATIONS_API !== "1") {
-    return Response.json(
-      safeErrorEnvelope({ code: "NOT_FOUND", message: "Citations API not enabled.", traceId }),
-      { status: 404, headers },
-    );
-  }
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
 
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);

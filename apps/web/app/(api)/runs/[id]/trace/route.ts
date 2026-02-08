@@ -5,6 +5,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 import { verifyRow } from "@orbital-poc/core/server";
 
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
@@ -131,6 +132,8 @@ function safeDurationMs(ms: unknown): number {
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
 
   if (process.env.FEATURE_TRACE_EXPORT !== "1") {
     return Response.json(

@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "project": "0008 Artefacts Foundation (Exports): Persistence + Listing + Fresh Download URLs",
+  "overview": "Extract the shared artefacts foundation needed by export slices: persist artefacts (storage_key + metadata) and list/download them reliably via fresh signed URLs (refresh-safe), with clear unsafe labelling. This is the canonical F4 (artefacts list) surface reused by 0004 (CSV) and 0005 (Word).",
+  "goals": [
+    "A demo operator can view a matter's exported artefacts and download them successfully.",
+    "Download links are refresh-safe: GET /folders/:id/artefacts always returns fresh signed URLs (never persisted).",
+    "Unsafe artefacts are clearly labelled via filename + metadata_json + UI tag.",
+    "Export slices can reuse one shared artefact persistence contract (schema/template versioning + unsafe metadata) without duplicating logic."
+  ],
+  "nonGoals": [
+    "Implementing any specific export formats (CSV in 0004, docx in 0005).",
+    "Eval harness (0006) or demo tooling (0007).",
+    "Any destructive reset/delete tooling.",
+    "A general-purpose admin UI for artefacts beyond list + download."
+  ],
+  "successMetrics": [
+    "For a folder containing artefacts, downloads succeed and remain working after a hard refresh.",
+    "No signed URLs are persisted anywhere in Postgres.",
+    "Artefacts list UI can be enabled safely behind a feature flag after verification."
+  ],
+  "openQuestions": [
+    "Should download_url include expires_at in the API for UI messaging, or keep it opaque for v1?",
+    "Should artefacts list be available in all environments, or dev/demo-only for the PoC?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web) + packages/core",
+    "hosting": "TBD (PoC)",
+    "database": "Postgres + object storage (artefacts) (see docs/03-architecture/30_data_model.md)",
+    "auth": "TBD; follow existing folder access rules"
+  },
+  "routes": [
+    {
+      "path": "GET /folders/:id/artefacts",
+      "name": "List Artefacts",
+      "purpose": "Return artefacts for a folder with fresh signed download_url values (not persisted)."
+    }
+  ],
+  "uiNotes": [
+    "Folder page includes an Artefacts list with filename, kind, created_at, and a Download action.",
+    "Unsafe artefacts are visibly labelled UNSAFE (tag + filename contains .UNSAFE.).",
+    "Artefacts list UI is feature-flagged off by default until verified end-to-end."
+  ],
+  "dataModel": [
+    {
+      "entity": "artefacts",
+      "fields": [
+        "id",
+        "folder_id",
+        "storage_key",
+        "kind",
+        "schema_version/template_version",
+        "filename",
+        "source_run_id",
+        "metadata_json (unsafe_override, etc)",
+        "created_at"
+      ]
+    }
+  ],
+  "rules": [
+    "Signed download URLs are generated at read time and are never persisted in Postgres.",
+    "List endpoint must be refresh-safe: repeated calls return working download URLs even if previous URLs expired.",
+    "List endpoint must be no-store/no-cache (download_url values are per-request).",
+    "Unsafe artefacts must be clearly labelled: filename contains .UNSAFE. and metadata_json.unsafe_override=true (when applicable).",
+    "Artefacts list sorts newest-first (created_at desc)."
+  ],
+  "qualityGates": ["pnpm verify"],
+  "scope": {
+    "inScope": [
+      "Data model: artefacts table/entity.",
+      "Storage integration: upload bytes using stable storage_key; generate fresh signed download URLs at read time.",
+      "API: GET /folders/:id/artefacts returns artefacts sorted newest-first with fresh download_url values; errors use safe envelope (ADR-0008).",
+      "UI: Artefacts list in folder UI with download actions and UNSAFE labelling.",
+      "Logging/metrics: list calls + signed URL generation outcomes include folder_id + trace_id.",
+      "Rollback/disable: feature-flag artefacts list UI off by default."
+    ],
+    "outOfScope": [
+      "Any endpoint that allows arbitrary file upload to create artefacts (exports create artefacts)."
+    ]
+  },
+  "risks": [
+    "Signed URL TTL too short (operator clicks an expired link mid-demo).",
+    "Caching layers accidentally cache download_url values (must be no-store).",
+    "Storage provider differences (local vs cloud) create inconsistent download behaviour."
+  ],
+  "verificationPlan": [
+    "Unit/integration tests for GET /folders/:id/artefacts response shape, sorting, and safe error handling.",
+    "Test that download_url is computed per-call (varies between calls) and is not stored in the DB.",
+    "Manual smoke in dev: create a folder with at least one artefact (via an export slice once available or via a dev seed path) and confirm list + downloads work, then refresh and re-download."
+  ],
+  "links": [
+    "docs/04-projects/02-features/0004_csv-export/prd.md",
+    "docs/04-projects/02-features/0005_word-export/prd.md",
+    "docs/03-architecture/30_data_model.md",
+    "docs/03-architecture/50_api_surface.md",
+    "docs/03-architecture/DECISIONS.md (ADR-0008)"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "List Artefacts With Fresh Signed URLs",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a demo operator, I can view a folder's exported artefacts and download them reliably so I can retrieve outputs during demos.",
+      "acceptanceCriteria": [
+        "Example: GET /folders/:id/artefacts returns artefacts for the folder, sorted newest-first, and includes a working fresh download_url for each artefact.",
+        "Example: Repeating the list call after a refresh returns new download_url values and downloads still succeed.",
+        "Negative: Signed URLs are not persisted in Postgres; only storage_key + metadata are stored.",
+        "Negative: Responses are marked no-store/no-cache to avoid caching download_url values."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Render Artefacts List In Folder UI",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a demo operator, I can see an Artefacts list in the folder UI and download each artefact so I can access outputs without leaving the app.",
+      "acceptanceCriteria": [
+        "Example: Folder UI shows an Artefacts list (filename, kind, created_at) and a Download action that uses the latest download_url.",
+        "Example: Unsafe artefacts are visibly labelled UNSAFE (UI tag + filename contains .UNSAFE.).",
+        "Negative: When the feature flag is off, the Artefacts list UI is hidden/disabled (safe default).",
+        "Negative: The UI does not display raw storage_key values."
+      ]
+    }
+  ]
+}

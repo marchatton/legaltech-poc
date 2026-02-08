@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 import { headers } from "next/headers";
 
@@ -182,7 +183,14 @@ export default async function MatterViewerPage(props: {
   }
 
   const computed = hashSnippet(cit.snippet);
-  const resolvedDocId = requestedDocId ?? cit.document_id;
+  let resolvedDocId = requestedDocId ?? cit.document_id;
+  if (requestedDocId && /\.pdf$/i.test(requestedDocId) && !requestedDocId.startsWith("fx_")) {
+    try {
+      resolvedDocId = fixtureDocumentId({ packId, filename: requestedDocId });
+    } catch {
+      // Preserve the original string if it doesn't match the fixture id contract.
+    }
+  }
   const resolvedPage = requestedPage ?? cit.page_number;
   let errorCode: string | null = null;
   if (computed !== cit.snippet_hash) errorCode = "SNIPPET_HASH_MISMATCH";

@@ -3,10 +3,12 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { newId } from "../../../../../lib/ids";
 import { enqueueQuickStartRun } from "../../../../../lib/quickStartRunQueue.server";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -70,11 +72,9 @@ async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey:
 }
 
 export async function POST(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
-  const traceId = newId("trc");
-  const headers = new Headers({
-    "Cache-Control": "no-store",
-    "X-Trace-Id": traceId,
-  });
+  const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
 
   await ensureSchema();
 

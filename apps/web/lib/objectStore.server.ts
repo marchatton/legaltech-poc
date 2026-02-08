@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -43,10 +43,15 @@ function secret(): string {
   const fromEnv = process.env.OBJECT_STORE_SIGNING_SECRET;
   if (fromEnv && fromEnv.trim()) return fromEnv.trim();
 
+  // Fail closed outside dev: signing must be explicitly configured.
+  if (process.env.NODE_ENV !== "development") {
+    throw new Error("OBJECT_STORE_SIGNING_SECRET_MISSING");
+  }
+
   // Dev-only fallback so local upload works out of the box.
   const g = globalThis as GlobalObj;
   if (!g.__orbitalObjectStoreSecret) {
-    g.__orbitalObjectStoreSecret = `dev-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+    g.__orbitalObjectStoreSecret = `dev-${randomBytes(32).toString("hex")}`;
   }
   return g.__orbitalObjectStoreSecret;
 }
@@ -59,14 +64,16 @@ function b64url(input: Buffer): string {
     .replace(/\//g, "_");
 }
 
-function sign(storageKey: string, expiresAtMs: number): string {
-  const payload = `${storageKey}\n${expiresAtMs}`;
+const SIGNATURE_PAYLOAD_VERSION = "v1";
+
+function sign(args: { purpose: string; storageKey: string; expiresAtMs: number }): string {
+  const payload = `${SIGNATURE_PAYLOAD_VERSION}\n${args.purpose}\n${args.storageKey}\n${args.expiresAtMs}`;
   const digest = createHmac("sha256", secret()).update(payload).digest();
   return b64url(digest);
 }
 
-export function verifySignature(args: { storageKey: string; expiresAtMs: number; sig: string }): boolean {
-  const expected = sign(args.storageKey, args.expiresAtMs);
+export function verifySignature(args: { purpose: string; storageKey: string; expiresAtMs: number; sig: string }): boolean {
+  const expected = sign({ purpose: args.purpose, storageKey: args.storageKey, expiresAtMs: args.expiresAtMs });
   const a = Buffer.from(expected);
   const b = Buffer.from(args.sig);
   if (a.length !== b.length) return false;
@@ -74,12 +81,13 @@ export function verifySignature(args: { storageKey: string; expiresAtMs: number;
 }
 
 function createSignedHeaders(args: {
+  purpose: string;
   storageKey: string;
   expiresInSeconds?: number;
 }): { expires_at_ms: number; signature: string } {
   const expiresInSeconds = args.expiresInSeconds ?? 10 * 60;
   const expiresAtMs = Date.now() + expiresInSeconds * 1000;
-  const signature = sign(args.storageKey, expiresAtMs);
+  const signature = sign({ purpose: args.purpose, storageKey: args.storageKey, expiresAtMs });
   return { expires_at_ms: expiresAtMs, signature };
 }
 
@@ -87,14 +95,14 @@ export function createSignedPutHeaders(args: {
   storageKey: string;
   expiresInSeconds?: number;
 }): { expires_at_ms: number; signature: string } {
-  return createSignedHeaders(args);
+  return createSignedHeaders({ purpose: "put", ...args });
 }
 
 export function createSignedGetHeaders(args: {
   storageKey: string;
   expiresInSeconds?: number;
 }): { expires_at_ms: number; signature: string } {
-  return createSignedHeaders(args);
+  return createSignedHeaders({ purpose: "get", ...args });
 }
 
 export function objectExists(storageKey: string): boolean {
@@ -102,17 +110,36 @@ export function objectExists(storageKey: string): boolean {
   return fs.existsSync(p);
 }
 
+function sha256Digest(bytes: Uint8Array): string {
+  const hash = createHash("sha256").update(bytes).digest("hex");
+  return `sha256:${hash}`;
+}
+
+async function writeObjectFile(p: string, bytes: Uint8Array, opts?: { writeOnce?: boolean }): Promise<void> {
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  if (opts?.writeOnce) {
+    await fs.promises.writeFile(p, bytes, { flag: "wx" });
+    return;
+  }
+  await fs.promises.writeFile(p, bytes);
+}
+
 export async function putObject(args: {
   storageKey: string;
   bytes: Uint8Array;
 }): Promise<{ bytesWritten: number; sha256: string }> {
   const p = resolveObjectPath(args.storageKey);
-  fs.mkdirSync(path.dirname(p), { recursive: true });
-  await fs.promises.writeFile(p, args.bytes);
+  await writeObjectFile(p, args.bytes);
+  return { bytesWritten: args.bytes.byteLength, sha256: sha256Digest(args.bytes) };
+}
 
-  // Hash in-process to avoid extra reads.
-  const hash = createHash("sha256").update(args.bytes).digest("hex");
-  return { bytesWritten: args.bytes.byteLength, sha256: `sha256:${hash}` };
+export async function putObjectWriteOnce(args: {
+  storageKey: string;
+  bytes: Uint8Array;
+}): Promise<{ bytesWritten: number; sha256: string }> {
+  const p = resolveObjectPath(args.storageKey);
+  await writeObjectFile(p, args.bytes, { writeOnce: true });
+  return { bytesWritten: args.bytes.byteLength, sha256: sha256Digest(args.bytes) };
 }
 
 export async function readObject(storageKey: string): Promise<Uint8Array> {
