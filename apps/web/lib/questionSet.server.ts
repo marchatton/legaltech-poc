@@ -48,10 +48,11 @@ function sha256Hex(bytes: string): string {
 
 function questionSetV1Path(): string {
   // Keep the source of truth in docs until we extract it into a dedicated package.
-  return path.join(
-    process.cwd(),
-    "docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json",
-  );
+  // In Next dev, `process.cwd()` resolves to `apps/web`, so probe both locations.
+  const rel = "docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json";
+  const direct = path.resolve(process.cwd(), rel);
+  if (fs.existsSync(direct)) return direct;
+  return path.resolve(process.cwd(), "../..", rel);
 }
 
 export async function loadQuestionSetV1(): Promise<{ questionSet: QuestionSet; version: string }> {
@@ -73,4 +74,3 @@ export async function loadQuestionSetV1(): Promise<{ questionSet: QuestionSet; v
   }
   return g.__orbitalQuestionSetV1;
 }
-

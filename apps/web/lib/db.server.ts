@@ -148,6 +148,53 @@ async function ensureSchemaInner(): Promise<void> {
       UNIQUE (run_id, step_key)
     );
   `;
+
+  // Report rows are the durable, per-question output of a run (terminal statuses only).
+  await sql`
+    CREATE TABLE IF NOT EXISTS report_rows (
+      id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
+      folder_id TEXT NOT NULL REFERENCES folders(id) ON DELETE CASCADE,
+      question_set_version TEXT NOT NULL,
+      question_id TEXT NOT NULL,
+      question TEXT NOT NULL,
+      answer TEXT NOT NULL,
+      status TEXT NOT NULL CHECK (status IN ('needs_review','reviewed','missing_input','citation_failed')),
+      notes TEXT NULL,
+      provenance_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      payload_schema_version TEXT NULL,
+      payload_json JSONB NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (run_id, question_id),
+      CHECK (status <> 'missing_input' OR answer = 'Not found in provided documents.')
+    );
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS report_rows_folder_run_idx
+    ON report_rows(folder_id, run_id);
+  `;
+
+  // Locked citations associated to a report row. In this slice we may emit zero citations.
+  await sql`
+    CREATE TABLE IF NOT EXISTS citations (
+      id TEXT PRIMARY KEY,
+      report_row_id TEXT NOT NULL REFERENCES report_rows(id) ON DELETE CASCADE,
+      document_id TEXT NOT NULL,
+      page_number INT NOT NULL,
+      snippet TEXT NOT NULL,
+      snippet_hash TEXT NOT NULL,
+      polygons_json JSONB NOT NULL,
+      locked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS citations_report_row_idx
+    ON citations(report_row_id);
+  `;
 }
 
 export async function ensureSchema(): Promise<void> {

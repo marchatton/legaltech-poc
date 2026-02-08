@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 15:21:21 | run=20260208-151217-112794 | iter=1 | mode=build | story=US-001 | duration=544s | status=success
 - 2026-02-08 14:57:43 | run=20260208-143708-105964 | iter=2 | mode=build | story=US-002 | duration=45s | status=success
 - 2026-02-08 14:56:56 | run=20260208-143708-105964 | iter=1 | mode=build | story=US-001 | duration=1188s | status=success
 - 2026-02-08 13:16:06 | run=20260208-082954-32669 | iter=13 | mode=build | story=US-010 | duration=935s | status=success
@@ -143,3 +144,8 @@
 [2026-02-08 15:16:24] US-001: implement runs schema + POST /folders/:id/runs and GET /runs/:id
 [2026-02-08 15:18:47] US-001: running pnpm verify
 [2026-02-08 15:20:43] US-001: progress log updated
+[2026-02-08 15:21:21] ITERATION 1 end (duration=544s)
+[2026-02-08 15:21:24] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 15:21:34] US-002 start: audit guardrails/errors/PRD
+[2026-02-08 15:25:35] US-002 implementing: report_rows schema + report endpoint + run queue
+[2026-02-08 15:28:29] US-002 verification: pnpm verify

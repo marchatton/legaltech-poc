@@ -5,6 +5,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { newId } from "../../../../../lib/ids";
+import { enqueueQuickStartRun } from "../../../../../lib/quickStartRunQueue.server";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
 
 export const runtime = "nodejs";
@@ -286,6 +287,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     agent_bundle_version: agentVersion,
     question_set_version: questionSetVersion,
   };
+
+  // Fire-and-forget in-process runner (PoC). Row writes are durable + idempotent.
+  enqueueQuickStartRun(runId);
 
   return Response.json(runResponse(created), { status: 200, headers });
 }
