@@ -4,6 +4,7 @@ import path from "node:path";
 import { AnchorFileSchema, anchorBoxToPolygons, type AnchorBox } from "../../packages/core/src/geometry/anchors.ts";
 import { hashSnippet } from "../../packages/core/src/citations/snippet.ts";
 import { detectMissingDocs } from "../../packages/core/src/missing-docs/detectMissingDocs.ts";
+import { matchExceptionToInstrumentDocs } from "../../packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.ts";
 import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "../../packages/core/src/schemas/list_payload_v0.ts";
 
 import { parseArgs, getBoolArg, getStringArg } from "./lib/args.ts";
@@ -166,6 +167,20 @@ function layoutPathFor(manifest: FixtureManifest, packRoot: string, docFilename:
   return path.join(packRoot, doc.layout_file);
 }
 
+function findLayoutLineByAnchor(layout: LayoutFile, anchorId: string): { page: number; text: string } | null {
+  for (const p of layout.pages ?? []) {
+    for (const l of p.lines ?? []) {
+      if (l?.anchor === anchorId) return { page: p.page, text: String(l.text ?? "") };
+    }
+  }
+  return null;
+}
+
+function extractInstrumentNoFromRecordingInfoLine(text: string): string | null {
+  const m = text.match(/\bInstrument\s+No\.\s*:?\s*([A-Za-z0-9-]+)\b/i);
+  return m?.[1]?.trim() ? m[1].trim() : null;
+}
+
 function loadScheduleBiiReference(args: {
   manifest: FixtureManifest;
   packRoot: string;
@@ -241,6 +256,22 @@ function norm_ws(input: string): string {
 
 function norm_instrument_no(input: string): string {
   return input.toUpperCase().replace(/\s+/g, "").replace(/[^A-Z0-9-]/g, "");
+}
+
+function missingInstrumentDocChecklist(args: {
+  expectedFilename: string | null;
+  instrumentNo: string | null;
+}): string {
+  const expected = args.expectedFilename ?? "(unknown filename)";
+  const inst = args.instrumentNo ?? "(unknown instrument number)";
+  return [
+    `Missing instrument document: ${expected}`,
+    "",
+    "Checklist:",
+    `- [ ] Request ${expected} from the title company/seller (Instrument No. ${inst}).`,
+    `- [ ] Confirm the PDF is the full recorded instrument (not a summary).`,
+    `- [ ] Add ${expected} to the diligence pack and re-run this workflow.`,
+  ].join("\n");
 }
 
 const MONTHS: Record<string, number> = {
@@ -407,6 +438,34 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
       if (fs.existsSync(truthPath)) {
         const truth = parseCsv(fs.readFileSync(truthPath, "utf8")).rows;
 
+        // Build candidate instrument docs by requiring a REC_INFO anchor line, which keeps the matcher
+        // from accidentally treating the Title Commitment (or other non-instrument PDFs) as a candidate.
+        const instrumentDocs: Array<{ doc: string; instrument_no: string | null; rec_info_text: string }> = [];
+        for (const d of manifest.documents) {
+          if (!/\.pdf$/i.test(d.filename)) continue;
+          const layoutPath = layoutPathFor(manifest, packRoot, d.filename);
+          if (!layoutPath || !fs.existsSync(layoutPath)) continue;
+
+          const anchorResult = loadAnchorBbox({
+            manifest,
+            packRoot,
+            docFilename: d.filename,
+            anchorId: "REC_INFO",
+          });
+          if (!anchorResult.ok) continue;
+
+          const layout = readJsonFile(layoutPath) as LayoutFile;
+          const recLine = findLayoutLineByAnchor(layout, "REC_INFO");
+          if (!recLine?.text) continue;
+
+          const instrumentNo = extractInstrumentNoFromRecordingInfoLine(recLine.text);
+          if (!instrumentNo) continue;
+
+          instrumentDocs.push({ doc: d.filename, instrument_no: instrumentNo, rec_info_text: recLine.text });
+        }
+
+        const instrumentDocByFilename = new Map(instrumentDocs.map((d) => [d.doc, d] as const));
+
         const items: any[] = [];
         for (const t of truth) {
           const bii = Number(t.bii_item);
@@ -443,18 +502,82 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
           const recordedRaw = String(t.recorded ?? "").trim();
           const tagsRaw = String(t.risk_tags ?? "");
 
+          const normalizedInstrumentNo = instrumentNoRaw ? norm_instrument_no(instrumentNoRaw) : null;
+
+          const match = matchExceptionToInstrumentDocs({
+            instrument_no: normalizedInstrumentNo,
+            instrument_docs: instrumentDocs.map((d) => ({ doc: d.doc, instrument_no: d.instrument_no })),
+          });
+
+          const truthDoc = String(t.doc ?? "").trim() || null;
+          const expectedFilename = truthDoc;
+          let matchedDoc: string | null = null;
+          let candidates: unknown = undefined;
+          let matchCitationId: string | null = null;
+          let matchCitation: (typeof snapshot.citations)[string] | null = null;
+
+          if (match.match_status === "matched") {
+            matchedDoc = match.doc;
+            if (truthDoc && matchedDoc && matchedDoc !== truthDoc) {
+              throw new Error(
+                `Fixture truth mismatch: bii_item=${bii} instrument_no=${String(normalizedInstrumentNo)} expected doc=${truthDoc} actual doc=${matchedDoc}`,
+              );
+            }
+
+            // Evidence-first: for matched items, attach a locked citation pointing at the instrument PDF's REC_INFO line.
+            const info = matchedDoc ? instrumentDocByFilename.get(matchedDoc) : null;
+            if (!info) {
+              throw new Error(`Matched doc not found in instrument docs index: bii_item=${bii} doc=${String(matchedDoc)}`);
+            }
+
+            const recAnchor = loadAnchorBbox({
+              manifest,
+              packRoot,
+              docFilename: info.doc,
+              anchorId: "REC_INFO",
+            });
+            if (!recAnchor.ok) {
+              throw new Error(`Expected REC_INFO anchor for matched doc: doc=${info.doc} reason=${recAnchor.reason}`);
+            }
+
+            matchCitationId = `cit_TS-04_MATCH_${bii}`;
+            matchCitation = {
+              document_filename: info.doc,
+              page_number: recAnchor.anchor.page,
+              polygons: anchorBoxToPolygons(recAnchor.anchor),
+              snippet: `${info.doc}#REC_INFO: ${info.rec_info_text}`,
+              snippet_hash: hashSnippet(`${info.doc}#REC_INFO: ${info.rec_info_text}`),
+            };
+          } else if (match.match_status === "ambiguous") {
+            candidates = match.candidates;
+          }
+
+          if (matchCitationId && matchCitation) {
+            snapshot.citations[matchCitationId] = matchCitation;
+          }
+
+          const citation_ids = matchCitationId ? [itemCid, matchCitationId] : [itemCid];
+
+          const itemNotes =
+            match.match_status === "missing_doc"
+              ? missingInstrumentDocChecklist({ expectedFilename, instrumentNo: normalizedInstrumentNo })
+              : null;
+
           items.push({
             kind: "exceptions_table_item",
             item_id: `bii:${bii}`,
-            citation_ids: [itemCid],
+            citation_ids,
+            ...(itemNotes ? { notes: itemNotes } : {}),
             bii_item: bii,
             type: String(t.type ?? "").trim() || "Unknown",
             item_status: String(t.status ?? "").trim() || "needs_review",
-            instrument_no: instrumentNoRaw ? norm_instrument_no(instrumentNoRaw) : null,
+            instrument_no: normalizedInstrumentNo,
             recorded_date: norm_date(recordedRaw),
-            doc: String(t.doc ?? "").trim() || null,
+            // "doc" is the expected filename from fixture truth. It may be missing from the pack.
+            doc: expectedFilename,
             risk_tags: norm_tags(tagsRaw),
-            match_status: "matched",
+            match_status: match.match_status,
+            ...(candidates ? { candidates } : {}),
           });
         }
 
@@ -465,6 +588,21 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
           row.payload_schema_version = LIST_PAYLOAD_V0_SCHEMA_VERSION;
           row.payload_json = payload;
           row.answer = "Extracted exceptions table (see payload).";
+
+          const missingDocs = items.filter((it) => it?.match_status === "missing_doc") as Array<{
+            doc?: string | null;
+            instrument_no?: string | null;
+          }>;
+          if (missingDocs.length) {
+            row.notes = [
+              "Missing instrument docs detected in this exceptions table:",
+              ...missingDocs.map((it) => {
+                const expected = it.doc ?? "(unknown filename)";
+                const inst = it.instrument_no ?? "(unknown instrument number)";
+                return `- [ ] Add ${expected} (Instrument No. ${inst}), then re-run this workflow.`;
+              }),
+            ].join("\n");
+          }
         }
       }
     }

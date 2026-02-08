@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { MissingDocCandidateSchema } from "@orbital-poc/core";
+import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@orbital-poc/core";
 
 import { assertDevOnly } from "../../../lib/devOnly";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
@@ -40,12 +40,165 @@ function reviewErrorMessage(code: string): string {
   return "Cannot mark reviewed.";
 }
 
+function matchStatusClass(status: string): string {
+  if (status === "matched") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+  if (status === "ambiguous") return "bg-amber-50 text-amber-800 ring-amber-200";
+  if (status === "missing_doc" || status === "missing_attachment") return "bg-slate-100 text-slate-800 ring-slate-200";
+  return "bg-slate-100 text-slate-800 ring-slate-200";
+}
+
 const MissingDocsProvenanceSchema = z
   .object({
     missing_docs_checklist: z.array(MissingDocCandidateSchema).optional(),
     missing_docs_candidates_low_confidence: z.array(MissingDocCandidateSchema).optional(),
   })
   .passthrough();
+
+function CitationChips(props: {
+  packId: string;
+  citationIds: string[];
+  citations: Record<string, { document_filename: string; page_number: number }> | undefined;
+}) {
+  if (!props.citationIds.length) return <div className="text-xs text-slate-500">(no citations)</div>;
+
+  return props.citationIds.map((cid) => {
+    const cit = props.citations?.[cid];
+    const params = new URLSearchParams({ pack: props.packId, citation: cid });
+    if (cit) {
+      params.set("document_id", cit.document_filename);
+      params.set("page", String(cit.page_number));
+    }
+
+    return (
+      <a
+        key={cid}
+        className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+        href={`/matters/viewer?${params.toString()}`}
+      >
+        {cid}
+      </a>
+    );
+  });
+}
+
+function ExceptionsPayload(props: {
+  packId: string;
+  payload: unknown;
+  citations: Record<string, { document_filename: string; page_number: number }> | undefined;
+}) {
+  const parsed = ListPayloadV0Schema.safeParse(props.payload);
+  if (!parsed.success) return null;
+  if (parsed.data.kind !== "exceptions_table") return null;
+
+  const items = parsed.data.items
+    .filter((it) => it.kind === "exceptions_table_item")
+    .slice()
+    .sort((a, b) => a.bii_item - b.bii_item);
+
+  if (!items.length) return null;
+
+  return (
+    <section className="mt-4 rounded border border-slate-200 bg-slate-50 p-3">
+      <div className="text-sm font-semibold text-slate-900">Exceptions table</div>
+      <p className="mt-1 text-xs text-slate-600">
+        Click an item to see its matched instrument PDF and the locked citations used as evidence.
+      </p>
+
+      <div className="mt-3 grid gap-2">
+        {items.map((it) => (
+          <details key={it.item_id} className="rounded border border-slate-200 bg-white p-3">
+            <summary className="cursor-pointer list-none">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{it.item_id}</div>
+                <div className="text-sm font-medium text-slate-900">{it.type}</div>
+                <div
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${matchStatusClass(
+                    it.match_status,
+                  )}`}
+                >
+                  {it.match_status}
+                </div>
+                {it.match_status === "matched" && it.doc ? (
+                  <div className="text-xs text-slate-700">
+                    matched: <span className="font-mono">{it.doc}</span>
+                  </div>
+                ) : null}
+                {it.match_status === "ambiguous" && it.candidates?.length ? (
+                  <div className="text-xs text-slate-700">candidates: {it.candidates.length}</div>
+                ) : null}
+              </div>
+            </summary>
+
+            <div className="mt-3 grid gap-2 text-xs text-slate-700">
+              <div className="flex flex-wrap gap-4">
+                <div>
+                  <span className="font-medium text-slate-800">Instrument</span>:{" "}
+                  <span className="font-mono">{it.instrument_no ?? "(none)"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-slate-800">Recorded</span>:{" "}
+                  <span className="font-mono">{it.recorded_date ?? "(none)"}</span>
+                </div>
+              </div>
+
+              {it.match_status === "missing_doc" ? (
+                <section className="rounded border border-slate-200 bg-slate-50 p-3">
+                  <div className="font-medium text-slate-800">Missing instrument document</div>
+                  <p className="mt-1 text-xs text-slate-700">
+                    Expected filename: <span className="font-mono">{it.doc ?? "(unknown)"}</span>
+                  </p>
+                  <ul className="mt-2 list-disc pl-5 text-xs text-slate-700">
+                    <li>
+                      Request{" "}
+                      <span className="font-mono">{it.doc ?? "the instrument PDF"}</span>{" "}
+                      from the title company/seller.
+                    </li>
+                    <li>
+                      Confirm the PDF is the full recorded instrument (not a summary) and that the instrument number
+                      matches <span className="font-mono">{it.instrument_no ?? "(unknown)"}</span>.
+                    </li>
+                    <li>Add the missing PDF to the diligence pack, then re-run this workflow.</li>
+                  </ul>
+                </section>
+              ) : null}
+
+              {it.match_status === "ambiguous" && it.candidates?.length ? (
+                <div>
+                  <div className="font-medium text-slate-800">Candidates</div>
+                  <ul className="mt-1 list-disc pl-5">
+                    {it.candidates.map((c) => (
+                      <li key={`${c.doc}:${String(c.instrument_no ?? "")}`}>
+                        <span className="font-mono">{c.doc}</span>
+                        {c.instrument_no ? (
+                          <>
+                            <span> (</span>
+                            <span className="font-mono">{c.instrument_no}</span>
+                            <span>)</span>
+                          </>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <div>
+                <div className="font-medium text-slate-800">Evidence (locked citations)</div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <CitationChips
+                    packId={props.packId}
+                    citationIds={it.citation_ids}
+                    citations={props.citations}
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function MissingDocsChecklist(props: { provenance: unknown }) {
   const parsed = MissingDocsProvenanceSchema.safeParse(props.provenance);
@@ -59,7 +212,9 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
   return (
     <section className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
       <div className="text-sm font-semibold text-slate-900">Missing document checklist</div>
-      <p className="mt-1 text-xs text-slate-600">Upload the missing PDF(s), then re-run the workflow for this row.</p>
+      <p className="mt-1 text-xs text-slate-600">
+        Use the evidence signals below to request the exact PDF(s), verify the filename, then re-run the workflow.
+      </p>
 
       {highConfidence.length ? (
         <ul className="mt-3 grid gap-2">
@@ -86,6 +241,18 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
                   </ul>
                 </div>
               ) : null}
+              <div className="mt-2 text-xs text-slate-700">
+                <div className="font-medium text-slate-800">Checklist</div>
+                <ul className="mt-1 list-disc pl-5">
+                  <li>
+                    Request <span className="font-mono">{cand.label}</span> from the title company/seller.
+                  </li>
+                  <li>
+                    Confirm the file name matches <span className="font-mono">{cand.label}</span> (or adjust to match).
+                  </li>
+                  <li>Add it to the diligence pack and re-run the workflow.</li>
+                </ul>
+              </div>
             </li>
           ))}
         </ul>
@@ -222,33 +389,27 @@ export default async function MattersPage(props: {
 
                 <div className="mt-2 text-sm text-slate-700">{row.answer}</div>
 
+                {row.notes ? (
+                  <section className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
+                    <div className="text-xs font-semibold text-slate-900">Notes</div>
+                    <pre className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{row.notes}</pre>
+                  </section>
+                ) : null}
+
+                {row.payload_schema_version === "list_payload_v0" ? (
+                  <ExceptionsPayload
+                    packId={packId}
+                    payload={(row as { payload_json?: unknown }).payload_json}
+                    citations={snapshot.citations}
+                  />
+                ) : null}
+
                 {row.status === "missing_input" ? (
                   <MissingDocsChecklist provenance={(row as { provenance_json?: unknown }).provenance_json} />
                 ) : null}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {row.citation_ids.length ? (
-                    row.citation_ids.map((cid) => {
-                      const cit = snapshot.citations?.[cid];
-                      const params = new URLSearchParams({ pack: packId, citation: cid });
-                      if (cit) {
-                        params.set("document_id", cit.document_filename);
-                        params.set("page", String(cit.page_number));
-                      }
-
-                      return (
-                        <a
-                          key={cid}
-                          className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
-                          href={`/matters/viewer?${params.toString()}`}
-                        >
-                          {cid}
-                        </a>
-                      );
-                    })
-                  ) : (
-                    <div className="text-xs text-slate-500">(no citations)</div>
-                  )}
+                  <CitationChips packId={packId} citationIds={row.citation_ids} citations={snapshot.citations} />
                 </div>
               </div>
             ))}

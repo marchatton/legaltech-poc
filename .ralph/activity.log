@@ -1,6 +1,8 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 16:49:21 | run=20260208-163923-131740 | iter=1 | mode=build | story=US-001 | duration=598s | status=success
+- 2026-02-08 16:36:51 | run=20260208-162438-128744 | iter=2 | mode=build | story=US-002 | duration=707s | status=success
 - 2026-02-08 16:25:02 | run=20260208-162438-128744 | iter=1 | mode=build | story=US-001 | duration=24s | status=success
 - 2026-02-08 16:22:15 | run=20260208-160632-123841 | iter=2 | mode=build | story=US-002 | duration=20s | status=success
 - 2026-02-08 16:21:52 | run=20260208-160632-123841 | iter=1 | mode=build | story=US-001 | duration=920s | status=success
@@ -193,3 +195,16 @@
 [2026-02-08 16:33:45] US-002: running verification (pnpm verify + fixtures compare-truth exceptions)
 [2026-02-08 16:34:35] US-002: verification complete (pnpm verify + fixtures compare-truth exceptions PASS)
 [2026-02-08 16:36:15] US-002: progress log updated
+[2026-02-08 16:36:51] ITERATION 2 end (duration=707s)
+[2026-02-08 16:39:23] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 16:39:33] US-001 start: audit existing exception->instrument matching and add evidence/citations + ambiguity handling for pack_01_clean
+[2026-02-08 16:42:50] US-001: implementing deterministic exception->instrument matching + evidence citations and UI rendering for exceptions_table payload
+[2026-02-08 16:45:24] US-001: reseeding fixture snapshot for pack_01_clean with exception match evidence citations
+[2026-02-08 16:47:31] US-001: reseeding pack_01_clean after fixing instrument doc candidate regex
+[2026-02-08 16:47:43] US-001: running fixture truth comparison for pack_01_clean
+[2026-02-08 16:49:21] ITERATION 1 end (duration=598s)
+[2026-02-08 16:49:24] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 16:49:35] US-002 start: surface missing doc journey for pack_02_missing_rea
+[2026-02-08 16:54:47] US-002: implemented missing-doc checklist surfacing in seed + Matters UI (row notes + item-level missing_doc callout)
+[2026-02-08 16:57:37] US-002: verification complete (pnpm verify PASS)
+[2026-02-08 17:00:01] US-002: browser verification PASS (/matters pack_02_missing_rea); screenshot at .agents/skills/00-utilities/dev-browser/tmp/matters_pack_02_missing_rea.png
