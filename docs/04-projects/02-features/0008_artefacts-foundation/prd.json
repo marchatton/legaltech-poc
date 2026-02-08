@@ -101,7 +101,7 @@
     {
       "id": "US-001",
       "title": "List Artefacts With Fresh Signed URLs",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a demo operator, I can view a folder's exported artefacts and download them reliably so I can retrieve outputs during demos.",
       "acceptanceCriteria": [
@@ -111,13 +111,13 @@
         "Negative: Responses are marked no-store/no-cache to avoid caching download_url values."
       ],
       "startedAt": "2026-02-08T22:56:21.824120+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T22:56:21.824152+00:00"
+      "completedAt": "2026-02-08T23:23:07.722910+00:00",
+      "updatedAt": "2026-02-08T23:23:07.722871+00:00"
     },
     {
       "id": "US-002",
       "title": "Render Artefacts List In Folder UI",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -127,7 +127,10 @@
         "Example: Unsafe artefacts are visibly labelled UNSAFE (UI tag + filename contains .UNSAFE.).",
         "Negative: When the feature flag is off, the Artefacts list UI is hidden/disabled (safe default).",
         "Negative: The UI does not display raw storage_key values."
-      ]
+      ],
+      "startedAt": "2026-02-08T23:23:09.957004+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T23:23:09.957043+00:00"
     }
   ]
 }

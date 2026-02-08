@@ -8,6 +8,7 @@ import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.se
 import { ExportCsvButton } from "./ExportCsvButton";
 import { ExportTraceButton } from "./ExportTraceButton";
 import { MattersToolbar } from "./MattersToolbar";
+import { ArtefactsList } from "./ArtefactsList";
 import { markRowReviewed } from "./actions";
 
 export const runtime = "nodejs";
@@ -296,6 +297,7 @@ export default async function MattersPage(props: {
       ? snapshot.meta.run_id
       : null;
   const traceExportEnabled = process.env.FEATURE_TRACE_EXPORT === "1";
+  const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
 
   const reviewedQid = parsed.success ? parsed.data.reviewed : undefined;
   const reviewErrorCode = parsed.success ? parsed.data.review_error : undefined;
@@ -342,6 +344,12 @@ export default async function MattersPage(props: {
               {traceExportEnabled ? <ExportTraceButton folderId={packId} runId={runId} /> : null}
             </div>
           </section>
+
+          {artefactsListEnabled ? (
+            <div className="mt-6">
+              <ArtefactsList folderId={packId} />
+            </div>
+          ) : null}
 
           <section className="mt-6 grid gap-4">
             {snapshot.rows.map((row) => (

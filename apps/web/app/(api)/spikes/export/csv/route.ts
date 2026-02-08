@@ -219,7 +219,7 @@ export async function POST(req: Request): Promise<Response> {
   const createdAt = new Date();
   const csv = snapshotToCsv(snapshot);
 
-  const filename = unsafeOverride ? `UNSAFE_${kind}.csv` : `${kind}.csv`;
+  const filename = unsafeOverride ? `${kind}.UNSAFE.csv` : `${kind}.csv`;
 
   const storageKey = `folders/${packId}/artefacts/${artefactId}.csv`;
   const keyOk = validateArtefactCsvStorageKey(storageKey);
