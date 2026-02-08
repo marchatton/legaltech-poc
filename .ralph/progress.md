@@ -517,3 +517,32 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-162438-128744-ite
   - Useful context
     - For list payload comparators, item-level citations must overlap the per-item anchors; header-only citations are insufficient.
 ---
+## [2026-02-08 17:00 UTC] - US-002: Surface Missing-Doc Journey (pack_02_missing_rea)
+Thread: 36441
+Run: 20260208-163923-131740 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-163923-131740-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-163923-131740-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: c10fabb feat(exceptions): surface missing-doc checklist
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm fixture:seed pack_01_clean pack_02_missing_rea --overwrite -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-163923-131740-iter-1.md
+  - apps/web/app/(app)/matters/page.tsx
+  - packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.test.ts
+  - packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.ts
+  - packages/core/src/index.ts
+  - scripts/fixtures/seed.ts
+- What was implemented
+  - For pack_02_missing_rea, exception item B-II 12 (REA) is now surfaced as item-level match_status=missing_doc while the exceptions-table row remains needs_review.
+  - Seeded actionable missing-doc checklist copy into row notes and item notes, including the expected filename (REA.pdf) when known.
+  - Updated Matters UI to render row notes and show a missing-doc callout + checklist on the exception item.
+- **Learnings for future iterations:**
+  - Vitest runs from package cwd under `pnpm -r`; fixture-path tests should resolve repo root via `import.meta.url`.
+  - dev-browser in Sprite needs `--headless` (no X server); keep screenshots in skill tmp (already gitignored).
+---

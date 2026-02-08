@@ -208,3 +208,4 @@
 [2026-02-08 16:54:47] US-002: implemented missing-doc checklist surfacing in seed + Matters UI (row notes + item-level missing_doc callout)
 [2026-02-08 16:57:37] US-002: verification complete (pnpm verify PASS)
 [2026-02-08 17:00:01] US-002: browser verification PASS (/matters pack_02_missing_rea); screenshot at .agents/skills/00-utilities/dev-browser/tmp/matters_pack_02_missing_rea.png
+[2026-02-08 17:01:35] US-002: progress log updated
