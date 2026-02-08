@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 import { z } from "zod";
 
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@orbital-poc/core";
 import { MissingDocCandidateSchema } from "../../packages/core/src/missing-docs/schemas.ts";
 
 import { parseArgs, getStringArg, requireStringArg } from "./lib/args.ts";
@@ -177,6 +178,26 @@ async function main() {
         message: "payload_schema_version and payload_json must be both present or both absent",
         details: { payload_schema_version: row.payload_schema_version, payload_json_present: hasPayload },
       });
+    }
+
+    if (hasSchema && hasPayload) {
+      if (row.payload_schema_version === LIST_PAYLOAD_V0_SCHEMA_VERSION) {
+        const parsed = ListPayloadV0Schema.safeParse(row.payload_json);
+        if (!parsed.success) {
+          errors.push({
+            kind: "payload_schema_invalid",
+            question_id: qid,
+            message: "payload_json failed list_payload_v0 validation",
+            details: parsed.error.issues.map((i) => ({ code: i.code, message: i.message, path: i.path })),
+          });
+        }
+      } else {
+        errors.push({
+          kind: "payload_schema_unknown",
+          question_id: qid,
+          message: `Unknown payload_schema_version: ${String(row.payload_schema_version)}`,
+        });
+      }
     }
   }
 

@@ -54,9 +54,6 @@ export type ExceptionItemV0 = BaseItemV0 & {
   match_status: ExceptionMatchStatusV0;
   candidates?: Array<{ doc: string; instrument_no?: string | null }>;
   parcel_scope?: ParcelScopeV0;
-
-  // Truth CSVs include an item-level "status". Keep this item-level and map from match_status.
-  item_status: "needs_review" | "missing_input";
 };
 
 export type SurveyIssueItemV0 = BaseItemV0 & {
@@ -85,6 +82,7 @@ Keep item IDs boring and stable:
 
 - `citation_ids` must refer only to locked `citations.id` values; never expose chunk IDs to the UI.
 - "Missing doc" and "missing attachment" are item-level states (e.g. `match_status`) that may require row-level `missing_input` depending on what the question/row can honestly answer.
+- Item payloads must not reuse `report_rows.status` values. Item-level states live in fields like `match_status` and `item_classification`.
 
 ## Example payload items
 
@@ -117,7 +115,6 @@ These are illustrative only; truth comparators for packs define the concrete exp
   "doc": "REA.pdf",
   "risk_tags": ["parking", "shared_costs"],
   "match_status": "matched",
-  "item_status": "needs_review",
   "citation_ids": ["cit_..."]
 }
 ```

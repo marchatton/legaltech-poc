@@ -1,5 +1,12 @@
 import "server-only";
 
+import {
+  LIST_PAYLOAD_V0_SCHEMA_VERSION,
+  ListPayloadV0KindSchema,
+  ListPayloadV0Schema,
+  emptyListPayloadV0,
+} from "@orbital-poc/core";
+
 import { ensureSchema, sql } from "./db.server";
 import { newId } from "./ids";
 import { loadQuestionSetV1 } from "./questionSet.server";
@@ -15,6 +22,8 @@ type RunRow = {
 };
 
 type FailureCounts = Record<string, number>;
+
+type JsonArg = Parameters<typeof sql.json>[0];
 
 const queue: string[] = [];
 const running = new Set<string>();
@@ -73,7 +82,7 @@ function missingInputRow(args: { folderId: string; questionSetVersion: string; q
       ],
     },
     payload_schema_version: null as string | null,
-    payload_json: null as null,
+    payload_json: null as unknown | null,
   };
 }
 
@@ -95,8 +104,29 @@ function citationFailedRow(args: { folderId: string; questionSetVersion: string;
       ],
     },
     payload_schema_version: null as string | null,
-    payload_json: null as null,
+    payload_json: null as unknown | null,
   };
+}
+
+function attachListPayloadIfNeeded<T extends { payload_schema_version: string | null; payload_json: unknown | null }>(
+  row: T,
+  question: { response_kind: string; artefact_kind?: string; payload_schema_version?: string },
+): T {
+  if (question.response_kind !== "list_payload") return row;
+
+  if (question.payload_schema_version !== LIST_PAYLOAD_V0_SCHEMA_VERSION) {
+    throw new Error(`Unsupported payload_schema_version for list_payload: ${String(question.payload_schema_version ?? "null")}`);
+  }
+
+  const kind = ListPayloadV0KindSchema.parse(question.artefact_kind);
+  const payload = emptyListPayloadV0(kind);
+  ListPayloadV0Schema.parse(payload);
+
+  return {
+    ...row,
+    payload_schema_version: LIST_PAYLOAD_V0_SCHEMA_VERSION,
+    payload_json: payload,
+  } as T;
 }
 
 function asReasonCode(val: unknown): string | null {
@@ -221,10 +251,26 @@ async function executeOne(runId: string): Promise<void> {
           questionId: q.question_id,
           question: q.question,
         });
+    let rowWithPayload: typeof row = row;
+    try {
+      rowWithPayload = attachListPayloadIfNeeded(row, q);
+    } catch {
+      // If the question set metadata is malformed, fail safely without crashing the run.
+      rowWithPayload = citationFailedRow({
+        folderId: run.folder_id,
+        questionSetVersion: run.question_set_version,
+        questionId: q.question_id,
+        question: q.question,
+      });
+      rowWithPayload.provenance_json = {
+        reason_code: "VALIDATION_ERROR",
+        checklist: ["Question set payload metadata is invalid for this row."],
+      };
+    }
 
     const reasonCode =
-      row.status === "citation_failed"
-        ? String((row.provenance_json as { reason_code?: unknown }).reason_code ?? "VALIDATION_ERROR")
+      rowWithPayload.status === "citation_failed"
+        ? String((rowWithPayload.provenance_json as { reason_code?: unknown }).reason_code ?? "VALIDATION_ERROR")
         : null;
 
     let wrote = false;
@@ -257,7 +303,7 @@ async function executeOne(runId: string): Promise<void> {
             ${stepKey},
             ${traceId},
             ${q.question_id},
-            ${t.json({ row_status: row.status })},
+            ${t.json({ row_status: rowWithPayload.status })},
             NULL,
             now(),
             now()
@@ -266,6 +312,9 @@ async function executeOne(runId: string): Promise<void> {
           RETURNING id
         `;
         if (!steps[0]) return false;
+
+        const payload = rowWithPayload.payload_json ?? null;
+        const payloadJson = payload === null ? null : t.json(payload as JsonArg);
 
         const inserted = await t<{ id: string }[]>`
           INSERT INTO report_rows (
@@ -287,16 +336,16 @@ async function executeOne(runId: string): Promise<void> {
           VALUES (
             ${rowId},
             ${runId},
-            ${row.folder_id},
-            ${row.question_set_version},
-            ${row.question_id},
-            ${row.question},
-            ${row.answer},
-            ${row.status},
-            ${row.notes},
-            ${t.json(row.provenance_json)},
-            ${row.payload_schema_version},
-            NULL,
+            ${rowWithPayload.folder_id},
+            ${rowWithPayload.question_set_version},
+            ${rowWithPayload.question_id},
+            ${rowWithPayload.question},
+            ${rowWithPayload.answer},
+            ${rowWithPayload.status},
+            ${rowWithPayload.notes},
+            ${t.json(rowWithPayload.provenance_json)},
+            ${rowWithPayload.payload_schema_version},
+            ${payloadJson},
             now(),
             now()
           )
@@ -311,7 +360,7 @@ async function executeOne(runId: string): Promise<void> {
           UPDATE runs
           SET questions_done = LEAST(questions_total, questions_done + 1),
               failure_counts_json = CASE
-                WHEN ${row.status} = 'citation_failed' THEN jsonb_set(
+                WHEN ${rowWithPayload.status} = 'citation_failed' THEN jsonb_set(
                   failure_counts_json,
                   ARRAY[${reasonKey}]::text[],
                   to_jsonb(COALESCE((failure_counts_json->>${reasonKey})::int, 0) + 1),
@@ -350,6 +399,12 @@ async function executeOne(runId: string): Promise<void> {
           "Inspect server logs using the run_id and trace_id for correlation.",
         ],
       };
+      let fallbackWithPayload: typeof fallback = fallback;
+      try {
+        fallbackWithPayload = attachListPayloadIfNeeded(fallback, q);
+      } catch {
+        // Keep the fallback row writable even if question metadata is malformed.
+      }
 
       try {
         wrote = await sql.begin(async (tx) => {
@@ -387,6 +442,9 @@ async function executeOne(runId: string): Promise<void> {
             ON CONFLICT (run_id, step_key) DO NOTHING
           `;
 
+          const payload = fallbackWithPayload.payload_json ?? null;
+          const payloadJson = payload === null ? null : t.json(payload as JsonArg);
+
           const inserted = await t<{ id: string }[]>`
             INSERT INTO report_rows (
               id,
@@ -407,16 +465,16 @@ async function executeOne(runId: string): Promise<void> {
             VALUES (
               ${newId("row")},
               ${runId},
-              ${fallback.folder_id},
-              ${fallback.question_set_version},
-              ${fallback.question_id},
-              ${fallback.question},
-              ${fallback.answer},
-              ${fallback.status},
-              ${fallback.notes},
-              ${t.json(fallback.provenance_json)},
-              ${fallback.payload_schema_version},
-              NULL,
+              ${fallbackWithPayload.folder_id},
+              ${fallbackWithPayload.question_set_version},
+              ${fallbackWithPayload.question_id},
+              ${fallbackWithPayload.question},
+              ${fallbackWithPayload.answer},
+              ${fallbackWithPayload.status},
+              ${fallbackWithPayload.notes},
+              ${t.json(fallbackWithPayload.provenance_json)},
+              ${fallbackWithPayload.payload_schema_version},
+              ${payloadJson},
               now(),
               now()
             )
@@ -454,7 +512,7 @@ async function executeOne(runId: string): Promise<void> {
         trace_id: run.trace_id ?? null,
         step_key: stepKey,
         question_id: q.question_id,
-        row_status: row.status,
+        row_status: rowWithPayload.status,
         reason_code: reasonCode,
       });
 

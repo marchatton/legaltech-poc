@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 15:51:24 | run=20260208-151217-112794 | iter=4 | mode=build | story=US-002 | duration=639s | status=success
 - 2026-02-08 15:40:43 | run=20260208-151217-112794 | iter=3 | mode=build | story=US-001 | duration=331s | status=success
 - 2026-02-08 15:35:09 | run=20260208-151217-112794 | iter=2 | mode=build | story=US-002 | duration=826s | status=success
 - 2026-02-08 15:21:21 | run=20260208-151217-112794 | iter=1 | mode=build | story=US-001 | duration=544s | status=success
@@ -166,3 +167,10 @@
 [2026-02-08 15:48:08] US-002: running verification (pnpm verify)
 [2026-02-08 15:49:09] US-002: re-running verification after finalization state update
 [2026-02-08 15:50:43] US-002: progress log updated
+[2026-02-08 15:51:24] ITERATION 4 end (duration=639s)
+[2026-02-08 16:06:33] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 16:06:51] US-001 start: implement versioned list payload on artefact report_rows
+[2026-02-08 16:09:00] US-001: implementing list_payload_v0 Zod schema + persistence/validation
+[2026-02-08 16:14:07] US-001: running pnpm verify
+[2026-02-08 16:18:33] US-001: pre-commit review + staging
+[2026-02-08 16:19:04] US-001: cleaning unrelated PRD/errors artifacts from working tree

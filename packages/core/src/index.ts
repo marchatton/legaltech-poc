@@ -2,6 +2,7 @@ export * from "./geometry/anchors";
 export * from "./geometry/mapToViewport";
 export * from "./missing-docs/detectMissingDocs";
 export * from "./missing-docs/schemas";
+export * from "./schemas/list_payload_v0";
 export * from "./safe-error";
 export * from "./spikes/rh1.schemas";
 export * from "./verify/verifier.schemas";

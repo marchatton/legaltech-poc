@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { newId } from "../../../../../lib/ids";
@@ -34,6 +34,12 @@ type ReportRow = {
   created_at: Date;
   updated_at: Date;
 };
+
+function zodIssueSummary(err: unknown): Array<{ code: string; message: string; path: Array<string | number> }> {
+  if (!err || typeof err !== "object" || !("issues" in err)) return [];
+  const anyErr = err as { issues?: Array<{ code: string; message: string; path: Array<string | number> }> };
+  return Array.isArray(anyErr.issues) ? anyErr.issues.map((i) => ({ code: i.code, message: i.message, path: i.path })) : [];
+}
 
 function parseRunId(req: Request): string | null {
   const url = new URL(req.url);
@@ -124,6 +130,49 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     ORDER BY created_at ASC, question_id ASC
   `;
 
+  for (const r of rows) {
+    const hasSchema = r.payload_schema_version !== null && String(r.payload_schema_version).trim() !== "";
+    const hasPayload = r.payload_json !== null && r.payload_json !== undefined;
+    if (hasSchema !== hasPayload) {
+      return Response.json(
+        safeErrorEnvelope({
+          code: "INTERNAL",
+          message: "Report row payload is in an inconsistent state.",
+          details: { row_id: r.id, question_id: r.question_id },
+          traceId,
+        }),
+        { status: 500, headers },
+      );
+    }
+
+    if (!hasSchema) continue;
+
+    if (r.payload_schema_version === LIST_PAYLOAD_V0_SCHEMA_VERSION) {
+      const parsed = ListPayloadV0Schema.safeParse(r.payload_json);
+      if (!parsed.success) {
+        return Response.json(
+          safeErrorEnvelope({
+            code: "INTERNAL",
+            message: "Report row payload failed schema validation.",
+            details: { row_id: r.id, question_id: r.question_id, issues: zodIssueSummary(parsed.error) },
+            traceId,
+          }),
+          { status: 500, headers },
+        );
+      }
+    } else {
+      return Response.json(
+        safeErrorEnvelope({
+          code: "INTERNAL",
+          message: "Report row payload uses an unsupported schema version.",
+          details: { row_id: r.id, question_id: r.question_id, payload_schema_version: r.payload_schema_version },
+          traceId,
+        }),
+        { status: 500, headers },
+      );
+    }
+  }
+
   const rowIds = rows.map((r) => r.id);
   const citations = rowIds.length
     ? await sql<Array<{ id: string; report_row_id: string }>>`
@@ -170,4 +219,3 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     { status: 200, headers },
   );
 }
-
