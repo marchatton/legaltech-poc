@@ -48,3 +48,4 @@
 [2026-02-08 09:40:45] US-004: fixed RH3 harness (Node runnable + compareWith) and added single-source test
 [2026-02-08 09:43:12] US-004: verification PASS (pnpm typecheck, pnpm verify); RH3 harness run1/run2 stable
 [2026-02-08 09:44:44] US-004: updated .ralph/progress.md entry
+[2026-02-08 09:47:31] US-004: wrote iter-4 run summary
