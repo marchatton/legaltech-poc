@@ -1,6 +1,9 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 13:16:06 | run=20260208-082954-32669 | iter=13 | mode=build | story=US-010 | duration=935s | status=success
+- 2026-02-08 13:00:29 | run=20260208-082954-32669 | iter=12 | mode=build | story=US-008 | duration=1294s | status=success
+- 2026-02-08 12:38:52 | run=20260208-082954-32669 | iter=11 | mode=build | story=US-007 | duration=1987s | status=success
 - 2026-02-08 12:05:40 | run=20260208-082954-32669 | iter=10 | mode=build | story=US-009 | duration=2047s | status=success
 - 2026-02-08 11:31:30 | run=20260208-082954-32669 | iter=9 | mode=build | story=US-008 | duration=1351s | status=success
 - 2026-02-08 11:08:57 | run=20260208-082954-32669 | iter=8 | mode=build | story=US-007 | duration=1205s | status=success
@@ -108,3 +111,18 @@
 [2026-02-08 12:30:56] US-007: pre-commit audit complete (security/perf/regression)
 [2026-02-08 12:34:35] US-007: appended progress entry to .ralph/progress.md
 [2026-02-08 12:37:41] US-007: wrote iter-11 run summary
+[2026-02-08 12:38:52] ITERATION 11 end (duration=1987s)
+[2026-02-08 12:38:55] ITERATION 12 start (mode=build story=US-008)
+[2026-02-08 12:39:48] US-008 start: implement citation_failed integrity + export gating
+[2026-02-08 12:50:46] US-008 audit: spike exporter exists; /export/csv missing; implementing target API + UI wiring
+[2026-02-08 12:55:24] US-008: implement POST /export/csv + GET /export/csv/download; wire Matters export button to /export/csv (blocked on citation_failed; unsafe override gated)
+[2026-02-08 12:59:30] US-008: verification PASS (pnpm typecheck, pnpm verify)
+[2026-02-08 13:00:22] US-008: started dev server on http://localhost:3001 for browser verification
+[2026-02-08 13:00:29] ITERATION 12 end (duration=1294s)
+[2026-02-08 13:00:31] ITERATION 13 start (mode=build story=US-010)
+[2026-02-08 13:10:26] US-010 start: implement safe run trace JSON download (/runs/:id/trace)
+[2026-02-08 13:13:41] US-010: added /runs/:id/trace route + ExportTraceButton UI wiring
+[2026-02-08 13:14:15] US-010: running pnpm typecheck
+[2026-02-08 13:14:29] US-010: running pnpm verify
+[2026-02-08 13:15:28] US-010: starting dev server on :3001 for browser verification
+[2026-02-08 13:16:06] ITERATION 13 end (duration=935s)

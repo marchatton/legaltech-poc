@@ -391,7 +391,7 @@
     {
       "id": "US-007",
       "title": "Missing docs yields missing_input with checklist",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a reviewer, I want missing inputs to be explicit and actionable so that I can upload the right documents.",
       "acceptanceCriteria": [
@@ -402,13 +402,13 @@
         "Negative case: On pack_01_clean, no rows are marked missing_input due to false missing-doc detection (FP=0)."
       ],
       "startedAt": "2026-02-08T12:05:45.128047+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T12:05:45.128059+00:00"
+      "completedAt": "2026-02-08T12:38:52.947367+00:00",
+      "updatedAt": "2026-02-08T12:38:52.947330+00:00"
     },
     {
       "id": "US-008",
       "title": "Bad evidence yields citation_failed and blocks export",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-007"
       ],
@@ -421,7 +421,10 @@
         "AC-006: Unsafe override: when unsafe_override=true is provided and demo mode is not enabled, return 403 UNAUTHORISED; if demo mode allows unsafe export, the artefact is visibly labelled unsafe and metadata records the override.",
         "Example: On pack_01_clean with one deliberately corrupted citation fixture, attempt export and confirm the API returns EXPORT_BLOCKED and UI shows a blocked state.",
         "Negative case: Call POST /export/csv with unsafe_override=true when demo mode is off and confirm 403 UNAUTHORISED (safe envelope)."
-      ]
+      ],
+      "startedAt": "2026-02-08T12:38:55.216037+00:00",
+      "completedAt": "2026-02-08T13:00:29.327248+00:00",
+      "updatedAt": "2026-02-08T13:00:29.327212+00:00"
     },
     {
       "id": "US-009",
@@ -444,7 +447,7 @@
     {
       "id": "US-010",
       "title": "Download run trace JSON",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want to download a run trace so that I can debug failures deterministically.",
       "acceptanceCriteria": [
@@ -453,7 +456,10 @@
         "AC-003: Failures return the standard error envelope with trace_id.",
         "Example: Download a trace JSON for a known run_id and spot-check that required keys exist and safety rules hold.",
         "Negative case: Request trace export for an unknown run_id returns NOT_FOUND (safe envelope) and the UI surfaces the trace_id."
-      ]
+      ],
+      "startedAt": "2026-02-08T13:00:31.554416+00:00",
+      "completedAt": "2026-02-08T13:16:06.579984+00:00",
+      "updatedAt": "2026-02-08T13:16:06.579946+00:00"
     }
   ],
   "meta": {
