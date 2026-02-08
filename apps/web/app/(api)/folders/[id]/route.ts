@@ -4,6 +4,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { refreshFolderState } from "../../../../lib/folderState.server";
+import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,7 @@ const ParamsSchema = z.object({
 });
 
 export async function GET(_req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
   await ensureSchema();
 
   const rawParams = await ctx.params;
@@ -22,8 +24,9 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -35,7 +38,10 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
     LIMIT 1
   `;
   if (!found[0]) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   // Keep folder state consistent with latest persisted facts.
@@ -58,18 +64,23 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
   `;
   const folder = folders[0];
   if (!folder) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
-  return Response.json({
-    folder: {
-      id: folder.id,
-      name: folder.name,
-      state: folder.state,
-      latest_index_version: folder.latest_index_version,
-      created_at: folder.created_at.toISOString(),
-      updated_at: folder.updated_at.toISOString(),
+  return Response.json(
+    {
+      folder: {
+        id: folder.id,
+        name: folder.name,
+        state: folder.state,
+        latest_index_version: folder.latest_index_version,
+        created_at: folder.created_at.toISOString(),
+        updated_at: folder.updated_at.toISOString(),
+      },
     },
-  });
+    { status: 200, headers },
+  );
 }
-

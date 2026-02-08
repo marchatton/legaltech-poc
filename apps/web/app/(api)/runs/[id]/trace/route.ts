@@ -6,7 +6,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { verifyRow } from "@orbital-poc/core/server";
 
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
-import { newId } from "../../../../../lib/ids";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,9 +40,10 @@ function assertAdminAllowed(req: Request):
   | { ok: false; code: "UNAUTHORISED" | "INTERNAL"; message: string } {
   const expected = process.env.ORBITAL_ADMIN_TOKEN?.trim() ?? "";
   if (!expected) {
-    // In local/dev PoC environments we may not configure an admin token.
-    if (process.env.NODE_ENV === "development") return { ok: true };
-    return { ok: false, code: "INTERNAL", message: "Admin token not configured." };
+    // Keep production posture strict; allow explicit bypass in dev only.
+    const bypassAllowed = process.env.NODE_ENV === "development" && process.env.ALLOW_ADMIN_BYPASS === "1";
+    if (bypassAllowed) return { ok: true };
+    return { ok: false, code: "INTERNAL", message: "Trace export is misconfigured." };
   }
 
   const provided = req.headers.get("x-orbital-admin-token")?.trim() ?? "";
@@ -129,11 +130,7 @@ function safeDurationMs(ms: unknown): number {
 }
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
-  const traceId = newId("trc");
-  const headers = new Headers({
-    "Cache-Control": "no-store",
-    "X-Trace-Id": traceId,
-  });
+  const { traceId, headers } = createTraceContext();
 
   if (process.env.FEATURE_TRACE_EXPORT !== "1") {
     return Response.json(
@@ -206,8 +203,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
           const cit = snapshot.citations?.[cid];
           if (!cit) return null;
           return {
-            // Fixture seed data is filename-based today; treat this as an opaque stable id.
-            document_id: cit.document_filename,
+            document_id: cit.document_id,
             page_number: cit.page_number,
             snippet: cit.snippet,
             snippet_hash: cit.snippet_hash,
@@ -270,7 +266,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
           ? null
           : {
               code: verify.reason_code,
-              message: typeof verify.reason === "string" && verify.reason.trim() ? verify.reason : "Verification failed.",
+              message: `Verification failed (${verify.reason_code}).`,
             },
     })),
     rows: results.map(({ row, citationIds, verify, retrieved }) => ({
@@ -282,8 +278,6 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         verification: {
           verdict: verify.verdict,
           reason_code: verify.reason_code,
-          // Avoid dumping long text into traces; reason is optional and safe for deterministic checks.
-          reason: verify.reason,
         },
       },
     })),
@@ -292,4 +286,3 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   headers.set("Content-Disposition", `attachment; filename=\"trace_${runId}.json\"`);
   return Response.json({ trace }, { status: 200, headers });
 }
-

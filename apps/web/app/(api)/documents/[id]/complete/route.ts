@@ -4,6 +4,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { enqueueDocumentIngest } from "../../../../../lib/ingest/ingestQueue.server";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -16,6 +17,7 @@ const BodySchema = z.object({
 });
 
 export async function POST(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
   await ensureSchema();
 
   const rawParams = await ctx.params;
@@ -26,8 +28,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -35,8 +38,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   try {
     body = await req.json();
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body." }), {
+    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
       status: 400,
+      headers,
     });
   }
 
@@ -47,8 +51,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "Body did not match schema.",
         details: parsedBody.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -69,7 +74,10 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   `;
   const doc = docs[0];
   if (!doc) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   if (!doc.storage_key || doc.storage_key !== parsedBody.data.storage_key) {
@@ -78,14 +86,16 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "storage_key did not match document.",
         details: { storage_key: "mismatch" },
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
   if (!doc.upload_completed_at) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload not completed yet." }), {
+    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload not completed yet.", traceId }), {
       status: 409,
+      headers,
     });
   }
 
@@ -101,7 +111,6 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         ocr_status: doc.ocr_status,
       },
     },
-    { status: 200 },
+    { status: 200, headers },
   );
 }
-

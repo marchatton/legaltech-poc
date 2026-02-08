@@ -1,18 +1,23 @@
 import { safeErrorEnvelope, VerifyInputSchema } from "@orbital-poc/core";
 import { verifyRow } from "@orbital-poc/core/server";
 
+import { assertSpikesEnabled } from "../../../../lib/spikes.server";
+import { createTraceContext } from "../../../../lib/trace.server";
+
 export const runtime = "nodejs";
 
 export async function POST(req: Request): Promise<Response> {
-  if (process.env.NODE_ENV !== "development") return new Response(null, { status: 404 });
+  const { traceId, headers } = createTraceContext();
+  const spikesGate = assertSpikesEnabled(traceId, headers);
+  if (spikesGate) return spikesGate;
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return Response.json(
-      safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body." }),
-      { status: 400 },
+      safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }),
+      { status: 400, headers },
     );
   }
 
@@ -23,11 +28,12 @@ export async function POST(req: Request): Promise<Response> {
         code: "VALIDATION_ERROR",
         message: "Body did not match VerifyInput schema.",
         details: parsed.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
   const result = await verifyRow(parsed.data, { mode: "deterministic-only" });
-  return Response.json(result, { status: 200 });
+  return Response.json(result, { status: 200, headers });
 }

@@ -7,7 +7,9 @@ import {
   readObject,
   validateArtefactCsvStorageKey,
   validateArtefactMetadataStorageKey,
+  verifySignature,
 } from "../../../../../lib/objectStore.server";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -33,6 +35,8 @@ function safeFilename(val: unknown): string | null {
 }
 
 export async function GET(req: Request): Promise<Response> {
+  const { traceId, headers } = createTraceContext();
+
   const url = new URL(req.url);
   const parsed = QuerySchema.safeParse(Object.fromEntries(url.searchParams));
   if (!parsed.success) {
@@ -41,24 +45,61 @@ export async function GET(req: Request): Promise<Response> {
         code: "VALIDATION_ERROR",
         message: "Invalid query params.",
         details: parsed.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
   const folderId = parsed.data.folder_id;
   const artefactId = parsed.data.artefact_id;
 
+  const expiresRaw = url.searchParams.get("expires");
+  const sigRaw = url.searchParams.get("sig");
+  if (!expiresRaw || !sigRaw) {
+    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Missing download signature.", traceId }), {
+      status: 403,
+      headers,
+    });
+  }
+
+  const expiresAtMs = Number(expiresRaw);
+  if (!Number.isFinite(expiresAtMs) || expiresAtMs <= 0) {
+    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid download expires.", traceId }), {
+      status: 400,
+      headers,
+    });
+  }
+
+  if (Date.now() > expiresAtMs) {
+    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Download URL expired.", traceId }), {
+      status: 403,
+      headers,
+    });
+  }
+
   const storageKey = `folders/${folderId}/artefacts/${artefactId}.csv`;
   const keyOk = validateArtefactCsvStorageKey(storageKey);
   if (!keyOk.ok) {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid storage key." }), {
+    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid storage key.", traceId }), {
       status: 400,
+      headers,
+    });
+  }
+
+  const sigOk = verifySignature({ storageKey, expiresAtMs, sig: sigRaw });
+  if (!sigOk) {
+    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid download signature.", traceId }), {
+      status: 403,
+      headers,
     });
   }
 
   if (!objectExists(storageKey)) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Artefact not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Artefact not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   const metaKey = `folders/${folderId}/artefacts/${artefactId}.meta.json`;
@@ -78,12 +119,11 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   const bytes = await readObject(storageKey);
+  const outHeaders = new Headers(headers);
+  outHeaders.set("Content-Type", "text/csv; charset=utf-8");
+  outHeaders.set("Content-Disposition", `attachment; filename="${filename}"`);
   return new Response(Buffer.from(bytes), {
     status: 200,
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-      "Cache-Control": "no-store",
-    },
+    headers: outHeaders,
   });
 }

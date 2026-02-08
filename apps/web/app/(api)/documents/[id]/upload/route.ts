@@ -5,6 +5,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { putObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,7 @@ const ParamsSchema = z.object({
 });
 
 export async function PUT(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
   await ensureSchema();
 
   const rawParams = await ctx.params;
@@ -23,28 +25,34 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
   const expiresHeader = req.headers.get("x-orbital-upload-expires");
   const sigHeader = req.headers.get("x-orbital-upload-signature");
   if (!expiresHeader || !sigHeader) {
-    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Missing upload signature headers." }), {
-      status: 403,
-    });
+    return Response.json(
+      safeErrorEnvelope({ code: "UNAUTHORISED", message: "Missing upload signature headers.", traceId }),
+      { status: 403, headers },
+    );
   }
 
   const expiresAtMs = Number(expiresHeader);
   if (!Number.isFinite(expiresAtMs) || expiresAtMs <= 0) {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid upload expires header." }), {
-      status: 400,
-    });
+    return Response.json(
+      safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid upload expires header.", traceId }),
+      { status: 400, headers },
+    );
   }
 
   if (Date.now() > expiresAtMs) {
-    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Upload URL expired." }), { status: 403 });
+    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Upload URL expired.", traceId }), {
+      status: 403,
+      headers,
+    });
   }
 
   const documentId = parsedParams.data.id;
@@ -56,26 +64,32 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
   `;
   const doc = docs[0];
   if (!doc) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   if (!doc.storage_key) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key." }), {
+    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key.", traceId }), {
       status: 409,
+      headers,
     });
   }
 
   const keyValid = validateStorageKey(doc.storage_key);
   if (!keyValid.ok) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has an invalid storage_key." }), {
+    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has an invalid storage_key.", traceId }), {
       status: 409,
+      headers,
     });
   }
 
   const sigOk = verifySignature({ storageKey: doc.storage_key, expiresAtMs, sig: sigHeader });
   if (!sigOk) {
-    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid upload signature." }), {
+    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid upload signature.", traceId }), {
       status: 403,
+      headers,
     });
   }
 
@@ -83,8 +97,9 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
   try {
     bytes = new Uint8Array(await req.arrayBuffer());
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid request body." }), {
+    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid request body.", traceId }), {
       status: 400,
+      headers,
     });
   }
 
@@ -100,6 +115,5 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
 
   await refreshFolderState(doc.folder_id);
 
-  return new Response(null, { status: 200 });
+  return new Response(null, { status: 200, headers });
 }
-

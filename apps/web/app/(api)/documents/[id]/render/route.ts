@@ -1,10 +1,11 @@
 import { z } from "zod";
 
 import { safeErrorEnvelope } from "@orbital-poc/core";
+import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
-import { newId } from "../../../../../lib/ids";
 import { createSignedGetHeaders, objectExists, validateStorageKey } from "../../../../../lib/objectStore.server";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,13 +19,7 @@ const QuerySchema = z.object({
 });
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
-  await ensureSchema();
-
-  const traceId = newId("trc");
-  const headers = new Headers({
-    "Cache-Control": "no-store",
-    "X-Trace-Id": traceId,
-  });
+  const { traceId, headers } = createTraceContext();
 
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);
@@ -56,6 +51,55 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   const documentId = parsedParams.data.id;
   const page = parsedQuery.data.page;
+
+  const fixture = parseFixtureDocumentId(documentId);
+  if (fixture.ok) {
+    if (process.env.NODE_ENV !== "development") {
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+        status: 404,
+        headers,
+      });
+    }
+
+    // Verify the fixture PDF exists so we can fail closed on drift.
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const packRoot = path.resolve(process.cwd(), "../../docs/08-example-data");
+    const candidate = path.resolve(packRoot, fixture.packId, "docs", fixture.filename);
+    if (!candidate.startsWith(packRoot + path.sep)) {
+      return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid path.", traceId }), {
+        status: 400,
+        headers,
+      });
+    }
+    try {
+      const stat = fs.statSync(candidate);
+      if (!stat.isFile()) throw new Error("NOT_A_FILE");
+    } catch {
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
+        status: 404,
+        headers,
+      });
+    }
+
+    const origin = new URL(req.url).origin;
+    const signed = createSignedGetHeaders({ storageKey: `fixture:${documentId}` });
+    const renderUrl = `${origin}/documents/${documentId}/pdf?${new URLSearchParams({
+      expires: String(signed.expires_at_ms),
+      sig: signed.signature,
+    }).toString()}`;
+
+    return Response.json(
+      {
+        document_id: documentId,
+        page,
+        render_url: renderUrl,
+      },
+      { status: 200, headers },
+    );
+  }
+
+  await ensureSchema();
 
   const docs = await sql<
     Array<{ id: string; storage_key: string | null; upload_completed_at: Date | null; page_count: number | null }>
@@ -116,11 +160,11 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   }
 
   const origin = new URL(req.url).origin;
-  const renderUrl = `${origin}/documents/${documentId}/pdf`;
-
   const signed = createSignedGetHeaders({ storageKey: doc.storage_key });
-  headers.set("X-Orbital-Render-Expires", String(signed.expires_at_ms));
-  headers.set("X-Orbital-Render-Signature", signed.signature);
+  const renderUrl = `${origin}/documents/${documentId}/pdf?${new URLSearchParams({
+    expires: String(signed.expires_at_ms),
+    sig: signed.signature,
+  }).toString()}`;
 
   return Response.json(
     {
@@ -131,4 +175,3 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     { status: 200, headers },
   );
 }
-

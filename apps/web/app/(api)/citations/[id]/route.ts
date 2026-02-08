@@ -3,6 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
+import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -63,8 +64,7 @@ function findCitationInSeedSnapshots(args: {
     hits.push({
       pack_id: packId,
       citation: {
-        // Fixture seed data is filename-based today; treat this as an opaque stable id.
-        document_id: cit.document_filename,
+        document_id: cit.document_id,
         page_number: cit.page_number,
         polygons: cit.polygons,
         snippet: cit.snippet,
@@ -87,6 +87,15 @@ function findCitationInSeedSnapshots(args: {
 }
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
+
+  if (process.env.FEATURE_CITATIONS_API !== "1") {
+    return Response.json(
+      safeErrorEnvelope({ code: "NOT_FOUND", message: "Citations API not enabled.", traceId }),
+      { status: 404, headers },
+    );
+  }
+
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);
   if (!parsedParams.success) {
@@ -95,8 +104,9 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -108,8 +118,9 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         code: "VALIDATION_ERROR",
         message: "Invalid query params.",
         details: parsedQuery.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -124,20 +135,23 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         code: found.code,
         message: found.message,
         details: found.details,
+        traceId,
       }),
-      { status },
+      { status, headers },
     );
   }
 
-  return Response.json({
-    citation: {
-      id: citationId,
-      document_id: found.citation.document_id,
-      page_number: found.citation.page_number,
-      polygons: found.citation.polygons,
-      snippet: found.citation.snippet,
-      snippet_hash: found.citation.snippet_hash,
+  return Response.json(
+    {
+      citation: {
+        id: citationId,
+        document_id: found.citation.document_id,
+        page_number: found.citation.page_number,
+        polygons: found.citation.polygons,
+        snippet: found.citation.snippet,
+        snippet_hash: found.citation.snippet_hash,
+      },
     },
-  });
+    { status: 200, headers },
+  );
 }
-

@@ -5,6 +5,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { newId } from "../../../../../lib/ids";
 import { createSignedPutHeaders, validateStorageKey } from "../../../../../lib/objectStore.server";
+import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,7 @@ const InitUploadSchema = z.object({
 });
 
 export async function GET(_req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
   await ensureSchema();
 
   const rawParams = await ctx.params;
@@ -29,8 +31,9 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -42,7 +45,10 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
     LIMIT 1
   `;
   if (!found[0]) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   const documents = await sql<
@@ -64,22 +70,26 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
     ORDER BY created_at DESC
   `;
 
-  return Response.json({
-    documents: documents.map((d) => ({
-      id: d.id,
-      folder_id: d.folder_id,
-      filename: d.filename,
-      parse_status: d.parse_status,
-      ocr_status: d.ocr_status,
-      extraction_quality: d.extraction_quality,
-      page_count: d.page_count,
-      error_json: d.error_json,
-      created_at: d.created_at.toISOString(),
-    })),
-  });
+  return Response.json(
+    {
+      documents: documents.map((d) => ({
+        id: d.id,
+        folder_id: d.folder_id,
+        filename: d.filename,
+        parse_status: d.parse_status,
+        ocr_status: d.ocr_status,
+        extraction_quality: d.extraction_quality,
+        page_count: d.page_count,
+        error_json: d.error_json,
+        created_at: d.created_at.toISOString(),
+      })),
+    },
+    { status: 200, headers },
+  );
 }
 
 export async function POST(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
   await ensureSchema();
 
   const rawParams = await ctx.params;
@@ -90,8 +100,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -99,8 +110,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   try {
     body = await req.json();
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body." }), {
+    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
       status: 400,
+      headers,
     });
   }
 
@@ -111,8 +123,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         code: "VALIDATION_ERROR",
         message: "Body did not match schema.",
         details: parsedBody.error.flatten(),
+        traceId,
       }),
-      { status: 400 },
+      { status: 400, headers },
     );
   }
 
@@ -124,15 +137,19 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     LIMIT 1
   `;
   if (!found[0]) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found." }), { status: 404 });
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   const documentId = newId("doc");
   const storageKey = `folders/${folderId}/documents/${documentId}.pdf`;
   const validKey = validateStorageKey(storageKey);
   if (!validKey.ok) {
-    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to create storage key." }), {
+    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to create storage key.", traceId }), {
       status: 500,
+      headers,
     });
   }
 
@@ -186,6 +203,6 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         },
       },
     },
-    { status: 200 },
+    { status: 200, headers },
   );
 }

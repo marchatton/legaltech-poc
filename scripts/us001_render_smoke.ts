@@ -97,17 +97,9 @@ async function main() {
   const renderUrl = String(renderJson.render_url ?? "");
   if (!renderUrl) throw new Error(`Missing render_url in response: ${JSON.stringify(renderJson)}`);
 
-  const expires = renderRes.headers.get("x-orbital-render-expires") ?? "";
-  const sig = renderRes.headers.get("x-orbital-render-signature") ?? "";
-  if (!expires || !sig) {
-    throw new Error("Missing X-Orbital-Render-* headers on render response.");
-  }
-
   const rangeRes = await fetch(renderUrl, {
     headers: {
       Range: "bytes=0-10",
-      "X-Orbital-Render-Expires": expires,
-      "X-Orbital-Render-Signature": sig,
     },
   });
 

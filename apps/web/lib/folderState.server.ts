@@ -10,12 +10,7 @@ type DocRow = {
   ocr_status: "queued" | "running" | "done" | "failed";
   page_count: number | null;
   extraction_quality: number | null;
-  upload_completed_at: string | null;
 };
-
-function isUploaded(doc: DocRow): boolean {
-  return !!doc.upload_completed_at;
-}
 
 export async function deriveFolderState(folderId: string): Promise<FolderState> {
   await ensureSchema();
@@ -30,22 +25,21 @@ export async function deriveFolderState(folderId: string): Promise<FolderState> 
   if (!folder) throw new Error("FOLDER_NOT_FOUND");
 
   const docs = await sql<DocRow[]>`
-    SELECT id, parse_status, ocr_status, page_count, extraction_quality, upload_completed_at
+    SELECT id, parse_status, ocr_status, page_count, extraction_quality
     FROM documents
     WHERE folder_id = ${folderId}
     ORDER BY created_at ASC
   `;
 
-  const uploaded = docs.filter(isUploaded);
-  if (uploaded.length === 0) return "empty";
+  if (docs.length === 0) return "empty";
 
-  if (uploaded.some((d) => d.parse_status === "failed" || d.ocr_status === "failed")) return "failed";
+  if (docs.some((d) => d.parse_status === "failed" || d.ocr_status === "failed")) return "failed";
 
-  const allTerminalSuccess = uploaded.every((d) => d.parse_status === "parsed" && d.ocr_status === "done");
+  const allTerminalSuccess = docs.every((d) => d.parse_status === "parsed" && d.ocr_status === "done");
   if (!allTerminalSuccess) return "ingesting";
 
   // All docs ingested; ensure chunks exist for the latest index version.
-  const docIds = uploaded.map((d) => d.id);
+  const docIds = docs.map((d) => d.id);
   const chunks = await sql<{ document_id: string; n: number }[]>`
     SELECT document_id, count(*)::int AS n
     FROM chunks
@@ -57,10 +51,10 @@ export async function deriveFolderState(folderId: string): Promise<FolderState> 
   if (docIds.some((id) => (chunked.get(id) ?? 0) <= 0)) return "ingesting";
 
   // Health checks for "ready".
-  const meetsQuality = uploaded.every((d) => (d.extraction_quality ?? 0) >= 0.6);
+  const meetsQuality = docs.every((d) => (d.extraction_quality ?? 0) >= 0.6);
   if (!meetsQuality) return "indexed";
 
-  const pageCounts = new Map(uploaded.map((d) => [d.id, d.page_count ?? null]));
+  const pageCounts = new Map(docs.map((d) => [d.id, d.page_count ?? null]));
   if ([...pageCounts.values()].some((n) => typeof n !== "number" || n <= 0)) return "indexed";
 
   const pageRows = await sql<{ document_id: string; n: number }[]>`
