@@ -149,6 +149,12 @@ async function ensureSchemaInner(): Promise<void> {
     );
   `;
 
+  // Enforce idempotency even if an older dev DB pre-dates the table constraint.
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS run_steps_run_step_key_uidx
+    ON run_steps(run_id, step_key);
+  `;
+
   // Report rows are the durable, per-question output of a run (terminal statuses only).
   await sql`
     CREATE TABLE IF NOT EXISTS report_rows (
@@ -169,6 +175,12 @@ async function ensureSchemaInner(): Promise<void> {
       UNIQUE (run_id, question_id),
       CHECK (status <> 'missing_input' OR answer = 'Not found in provided documents.')
     );
+  `;
+
+  // Enforce row uniqueness even if an older dev DB pre-dates the table constraint.
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS report_rows_run_question_uidx
+    ON report_rows(run_id, question_id);
   `;
 
   await sql`

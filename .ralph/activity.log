@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 15:40:43 | run=20260208-151217-112794 | iter=3 | mode=build | story=US-001 | duration=331s | status=success
 - 2026-02-08 15:35:09 | run=20260208-151217-112794 | iter=2 | mode=build | story=US-002 | duration=826s | status=success
 - 2026-02-08 15:21:21 | run=20260208-151217-112794 | iter=1 | mode=build | story=US-001 | duration=544s | status=success
 - 2026-02-08 14:57:43 | run=20260208-143708-105964 | iter=2 | mode=build | story=US-002 | duration=45s | status=success
@@ -158,3 +159,9 @@
 [2026-02-08 15:38:31] US-001: added run.step correlation logging for write_row steps
 [2026-02-08 15:38:34] US-001: running verification (pnpm verify)
 [2026-02-08 15:39:59] US-001: progress log updated
+[2026-02-08 15:40:43] ITERATION 3 end (duration=331s)
+[2026-02-08 15:40:46] ITERATION 4 start (mode=build story=US-002)
+[2026-02-08 15:40:57] US-002 start: audit guardrails/errors/PRD and report pipeline
+[2026-02-08 15:44:50] US-002: implementing robust idempotent row writes + progress recompute
+[2026-02-08 15:48:08] US-002: running verification (pnpm verify)
+[2026-02-08 15:49:09] US-002: re-running verification after finalization state update

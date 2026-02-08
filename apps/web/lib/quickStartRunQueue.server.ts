@@ -14,6 +14,8 @@ type RunRow = {
   questions_done: number;
 };
 
+type FailureCounts = Record<string, number>;
+
 const queue: string[] = [];
 const running = new Set<string>();
 let draining = false;
@@ -97,6 +99,48 @@ function citationFailedRow(args: { folderId: string; questionSetVersion: string;
   };
 }
 
+function asReasonCode(val: unknown): string | null {
+  if (!val || typeof val !== "object" || Array.isArray(val)) return null;
+  const rec = val as Record<string, unknown>;
+  const direct = rec.reason_code;
+  if (typeof direct === "string" && direct.trim()) return direct.trim();
+  const verify = rec.verify;
+  if (verify && typeof verify === "object" && !Array.isArray(verify)) {
+    const s = (verify as Record<string, unknown>).reason_code;
+    if (typeof s === "string" && s.trim()) return s.trim();
+  }
+  const verification = rec.verification;
+  if (verification && typeof verification === "object" && !Array.isArray(verification)) {
+    const s = (verification as Record<string, unknown>).reason_code;
+    if (typeof s === "string" && s.trim()) return s.trim();
+  }
+  return null;
+}
+
+async function recomputeRunProgress(args: { runId: string }): Promise<{ questionsDone: number; failureCounts: FailureCounts }> {
+  const done = await sql<{ n: number }[]>`
+    SELECT COUNT(*)::int as n
+    FROM report_rows
+    WHERE run_id = ${args.runId}
+  `;
+  const questionsDone = done[0]?.n ?? 0;
+
+  // Keep failure taxonomy deterministic across retries by deriving from stored rows.
+  const failed = await sql<Array<{ provenance_json: unknown }>>`
+    SELECT provenance_json
+    FROM report_rows
+    WHERE run_id = ${args.runId}
+      AND status = 'citation_failed'
+  `;
+  const counts: FailureCounts = {};
+  for (const r of failed) {
+    const reasonCode = asReasonCode(r.provenance_json) ?? "VALIDATION_ERROR";
+    counts[reasonCode] = (counts[reasonCode] ?? 0) + 1;
+  }
+
+  return { questionsDone, failureCounts: counts };
+}
+
 async function executeOne(runId: string): Promise<void> {
   await ensureSchema();
 
@@ -135,11 +179,34 @@ async function executeOne(runId: string): Promise<void> {
   `;
   const hasDocs = (docCounts[0]?.n ?? 0) > 0;
 
+  const existing = await sql<Array<{ question_id: string }>>`
+    SELECT question_id
+    FROM report_rows
+    WHERE run_id = ${runId}
+  `;
+  const existingQids = new Set(existing.map((r) => r.question_id));
+
+  // If we resumed a running run (server restart, retries), make progress reflect
+  // already-written rows immediately so polling UIs stay consistent.
+  if (existingQids.size > 0) {
+    const { questionsDone, failureCounts } = await recomputeRunProgress({ runId });
+    await sql`
+      UPDATE runs
+      SET questions_done = ${questionsDone},
+          failure_counts_json = ${sql.json(failureCounts)},
+          updated_at = now()
+      WHERE id = ${runId}
+    `;
+  }
+
   for (const q of questionSet.questions) {
     const stepKey = `quick_start:${run.question_set_version}:question:${q.question_id}:write_row`;
     const stepId = newId("stp");
     const rowId = newId("row");
     const traceId = run.trace_id ?? newId("trc");
+
+    // If the row already exists (retries, restarts), skip all side effects.
+    if (existingQids.has(q.question_id)) continue;
 
     const row = hasDocs
       ? citationFailedRow({
@@ -160,104 +227,227 @@ async function executeOne(runId: string): Promise<void> {
         ? String((row.provenance_json as { reason_code?: unknown }).reason_code ?? "VALIDATION_ERROR")
         : null;
 
-    const wrote = await sql.begin(async (tx) => {
-      const t = tx as unknown as typeof sql;
+    let wrote = false;
+    try {
+      wrote = await sql.begin(async (tx) => {
+        const t = tx as unknown as typeof sql;
 
-      // Step idempotency: deterministic step_key prevents duplicate row writes on retries.
-      const steps = await t<{ id: string }[]>`
-        INSERT INTO run_steps (
-          id,
-          run_id,
-          step_type,
-          state,
-          attempt,
-          step_key,
-          trace_id,
-          question_id,
-          metrics_json,
-          error_json,
-          created_at,
-          updated_at
-        )
-        VALUES (
-          ${stepId},
-          ${runId},
-          'write_row',
-          'succeeded',
-          1,
-          ${stepKey},
-          ${traceId},
-          ${q.question_id},
-          ${t.json({ row_status: row.status })},
-          NULL,
-          now(),
-          now()
-        )
-        ON CONFLICT (run_id, step_key) DO NOTHING
-        RETURNING id
-      `;
-      if (!steps[0]) return false;
+        // Step idempotency: deterministic step_key prevents duplicate row writes on retries.
+        const steps = await t<{ id: string }[]>`
+          INSERT INTO run_steps (
+            id,
+            run_id,
+            step_type,
+            state,
+            attempt,
+            step_key,
+            trace_id,
+            question_id,
+            metrics_json,
+            error_json,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            ${stepId},
+            ${runId},
+            'write_row',
+            'succeeded',
+            1,
+            ${stepKey},
+            ${traceId},
+            ${q.question_id},
+            ${t.json({ row_status: row.status })},
+            NULL,
+            now(),
+            now()
+          )
+          ON CONFLICT (run_id, step_key) DO NOTHING
+          RETURNING id
+        `;
+        if (!steps[0]) return false;
 
-      const inserted = await t<{ id: string }[]>`
-        INSERT INTO report_rows (
-          id,
-          run_id,
-          folder_id,
-          question_set_version,
-          question_id,
-          question,
-          answer,
-          status,
-          notes,
-          provenance_json,
-          payload_schema_version,
-          payload_json,
-          created_at,
-          updated_at
-        )
-        VALUES (
-          ${rowId},
-          ${runId},
-          ${row.folder_id},
-          ${row.question_set_version},
-          ${row.question_id},
-          ${row.question},
-          ${row.answer},
-          ${row.status},
-          ${row.notes},
-          ${t.json(row.provenance_json)},
-          ${row.payload_schema_version},
-          NULL,
-          now(),
-          now()
-        )
-        ON CONFLICT (run_id, question_id) DO NOTHING
-        RETURNING id
-      `;
+        const inserted = await t<{ id: string }[]>`
+          INSERT INTO report_rows (
+            id,
+            run_id,
+            folder_id,
+            question_set_version,
+            question_id,
+            question,
+            answer,
+            status,
+            notes,
+            provenance_json,
+            payload_schema_version,
+            payload_json,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            ${rowId},
+            ${runId},
+            ${row.folder_id},
+            ${row.question_set_version},
+            ${row.question_id},
+            ${row.question},
+            ${row.answer},
+            ${row.status},
+            ${row.notes},
+            ${t.json(row.provenance_json)},
+            ${row.payload_schema_version},
+            NULL,
+            now(),
+            now()
+          )
+          ON CONFLICT (run_id, question_id) DO NOTHING
+          RETURNING id
+        `;
 
-      if (!inserted[0]) return false;
+        if (!inserted[0]) return false;
 
-      const reasonKey = reasonCode ?? "VALIDATION_ERROR";
-      await t`
-        UPDATE runs
-        SET questions_done = LEAST(questions_total, questions_done + 1),
-            failure_counts_json = CASE
-              WHEN ${row.status} = 'citation_failed' THEN jsonb_set(
-                failure_counts_json,
-                ARRAY[${reasonKey}]::text[],
-                to_jsonb(COALESCE((failure_counts_json->>${reasonKey})::int, 0) + 1),
-                true
-              )
-              ELSE failure_counts_json
-            END,
-            updated_at = now()
-        WHERE id = ${runId}
-      `;
+        const reasonKey = reasonCode ?? "VALIDATION_ERROR";
+        await t`
+          UPDATE runs
+          SET questions_done = LEAST(questions_total, questions_done + 1),
+              failure_counts_json = CASE
+                WHEN ${row.status} = 'citation_failed' THEN jsonb_set(
+                  failure_counts_json,
+                  ARRAY[${reasonKey}]::text[],
+                  to_jsonb(COALESCE((failure_counts_json->>${reasonKey})::int, 0) + 1),
+                  true
+                )
+                ELSE failure_counts_json
+              END,
+              updated_at = now()
+          WHERE id = ${runId}
+        `;
 
-      return true;
-    });
+        return true;
+      });
+    } catch (err) {
+      // Row-level failure should not crash the run. Best-effort: emit a terminal
+      // citation_failed row with a safe reason_code, then continue.
+      // eslint-disable-next-line no-console
+      console.error("run.step failed", {
+        run_id: runId,
+        trace_id: traceId,
+        step_key: stepKey,
+        question_id: q.question_id,
+        message: err instanceof Error ? err.message : String(err),
+      });
+
+      const fallback = citationFailedRow({
+        folderId: run.folder_id,
+        questionSetVersion: run.question_set_version,
+        questionId: q.question_id,
+        question: q.question,
+      });
+      fallback.provenance_json = {
+        reason_code: "VALIDATION_ERROR",
+        checklist: [
+          "Retry the run (step idempotency should avoid duplicates).",
+          "Inspect server logs using the run_id and trace_id for correlation.",
+        ],
+      };
+
+      try {
+        wrote = await sql.begin(async (tx) => {
+          const t = tx as unknown as typeof sql;
+
+          await t`
+            INSERT INTO run_steps (
+              id,
+              run_id,
+              step_type,
+              state,
+              attempt,
+              step_key,
+              trace_id,
+              question_id,
+              metrics_json,
+              error_json,
+              created_at,
+              updated_at
+            )
+            VALUES (
+              ${newId("stp")},
+              ${runId},
+              'write_row',
+              'succeeded',
+              1,
+              ${stepKey},
+              ${traceId},
+              ${q.question_id},
+              ${t.json({ row_status: "citation_failed", reason_code: "VALIDATION_ERROR" })},
+              NULL,
+              now(),
+              now()
+            )
+            ON CONFLICT (run_id, step_key) DO NOTHING
+          `;
+
+          const inserted = await t<{ id: string }[]>`
+            INSERT INTO report_rows (
+              id,
+              run_id,
+              folder_id,
+              question_set_version,
+              question_id,
+              question,
+              answer,
+              status,
+              notes,
+              provenance_json,
+              payload_schema_version,
+              payload_json,
+              created_at,
+              updated_at
+            )
+            VALUES (
+              ${newId("row")},
+              ${runId},
+              ${fallback.folder_id},
+              ${fallback.question_set_version},
+              ${fallback.question_id},
+              ${fallback.question},
+              ${fallback.answer},
+              ${fallback.status},
+              ${fallback.notes},
+              ${t.json(fallback.provenance_json)},
+              ${fallback.payload_schema_version},
+              NULL,
+              now(),
+              now()
+            )
+            ON CONFLICT (run_id, question_id) DO NOTHING
+            RETURNING id
+          `;
+
+          if (!inserted[0]) return false;
+
+          await t`
+            UPDATE runs
+            SET questions_done = LEAST(questions_total, questions_done + 1),
+                failure_counts_json = jsonb_set(
+                  failure_counts_json,
+                  ARRAY['VALIDATION_ERROR']::text[],
+                  to_jsonb(COALESCE((failure_counts_json->>'VALIDATION_ERROR')::int, 0) + 1),
+                  true
+                ),
+                updated_at = now()
+            WHERE id = ${runId}
+          `;
+          return true;
+        });
+      } catch {
+        // If we can't write the fallback row, just continue; finalization will
+        // mark the run partial if not all rows were persisted.
+      }
+    }
 
     if (wrote) {
+      existingQids.add(q.question_id);
       // eslint-disable-next-line no-console
       console.info("run.step", {
         run_id: runId,
@@ -273,6 +463,15 @@ async function executeOne(runId: string): Promise<void> {
     }
   }
 
+  const { questionsDone, failureCounts } = await recomputeRunProgress({ runId });
+  await sql`
+    UPDATE runs
+    SET questions_done = ${questionsDone},
+        failure_counts_json = ${sql.json(failureCounts)},
+        updated_at = now()
+    WHERE id = ${runId}
+  `;
+
   await sql`
     UPDATE runs
     SET state = 'completed',
@@ -281,6 +480,23 @@ async function executeOne(runId: string): Promise<void> {
       AND state = 'running'
       AND questions_done >= questions_total
   `;
+
+  // If we couldn't persist terminal rows for every question, avoid leaving the
+  // run stuck in running. Keep it inspectable with a safe error envelope.
+  if (questionsDone < run.questions_total) {
+    await sql`
+      UPDATE runs
+      SET state = 'partial',
+          error_json = ${sql.json({
+            code: "ROW_WRITE_INCOMPLETE",
+            message: "Run completed with missing terminal rows.",
+            details: { questions_total: run.questions_total, questions_done: questionsDone },
+          })},
+          updated_at = now()
+      WHERE id = ${runId}
+        AND state = 'running'
+    `;
+  }
 
   // eslint-disable-next-line no-console
   console.info("run.completed", { run_id: runId, trace_id: run.trace_id ?? null });
