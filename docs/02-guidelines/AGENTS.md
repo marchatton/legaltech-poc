@@ -40,7 +40,7 @@ node --experimental-strip-types .agents/skills/04-develop/00-frontend-general/ge
 If missing, search within `docs/02-guidelines/`.
 
 ## Design system
-Foundational design system `docs/02-guidelines/design-system-final-v1.html`.
+Foundational design system `docs/02-guidelines/v5-final`.
 
 ## Key Skills
 - `generating-tailwind-brand-config` for brand tokens/config

@@ -1,0 +1,198 @@
+/*
+ * Orbital Design System — V5 "Final"
+ * Warm cream canvas, pure-black dark mode, Crimson Pro serif.
+ * Orange reserved for high-signal moments; cyan user bubbles.
+ *
+ * Color format: space-separated RGB triplets for Tailwind alpha support.
+ *   Usage: rgb(var(--primary) / 0.5)
+ */
+
+/* ─── Fixed colour scales (mode-independent) ─── */
+:root {
+  /* Primary — Orange */
+  --primary-50:  255 247 240;
+  --primary-100: 254 224 200;
+  --primary-200: 253 189 148;
+  --primary-300: 252 154 96;
+  --primary-400: 252 126 61;
+  --primary-500: 251 99 27;     /* brand orange */
+  --primary-600: 232 85 16;
+  --primary-700: 196 74 14;
+  --primary-800: 154 58 11;
+  --primary-900: 114 44 9;
+
+  /* Secondary — Cyan */
+  --secondary-50:  240 250 254;
+  --secondary-100: 220 244 251;
+  --secondary-200: 192 240 251;  /* brand cyan */
+  --secondary-300: 151 226 245;
+  --secondary-400: 109 207 235;
+  --secondary-500: 72 184 217;
+  --secondary-600: 42 153 187;
+  --secondary-700: 29 122 150;
+  --secondary-800: 21 92 113;
+  --secondary-900: 13 62 77;
+
+  /* Accent — Purple */
+  --accent-50:  248 240 255;
+  --accent-100: 239 217 255;
+  --accent-200: 228 195 255;
+  --accent-300: 216 172 255;    /* brand purple */
+  --accent-400: 200 143 255;
+  --accent-500: 181 114 255;
+  --accent-600: 155 79 239;
+  --accent-700: 126 56 204;
+  --accent-800: 98 43 163;
+  --accent-900: 71 32 122;
+
+  /* Semantic — Success (Green) */
+  --success-50:  236 249 243;
+  --success-100: 209 240 225;
+  --success-200: 153 218 188;
+  --success-300: 96 196 151;
+  --success-400: 59 170 120;
+  --success-500: 45 138 95;
+  --success-600: 36 114 78;
+  --success-700: 28 90 62;
+  --success-800: 22 70 48;
+  --success-900: 15 48 33;
+
+  /* Semantic — Warning (Amber) */
+  --warning-50:  255 249 235;
+  --warning-100: 254 237 198;
+  --warning-200: 250 214 130;
+  --warning-300: 245 191 68;
+  --warning-400: 232 166 22;
+  --warning-500: 212 146 11;
+  --warning-600: 178 120 8;
+  --warning-700: 142 96 6;
+  --warning-800: 108 73 5;
+  --warning-900: 76 52 4;
+
+  /* Semantic — Destructive (Red) */
+  --destructive-50:  254 242 242;
+  --destructive-100: 252 218 218;
+  --destructive-200: 247 175 175;
+  --destructive-300: 239 132 132;
+  --destructive-400: 232 100 100;
+  --destructive-500: 220 74 74;
+  --destructive-600: 193 54 54;
+  --destructive-700: 160 42 42;
+  --destructive-800: 126 33 33;
+  --destructive-900: 92 24 24;
+
+  /* Semantic — Info (Blue) */
+  --info-50:  236 247 254;
+  --info-100: 204 232 248;
+  --info-200: 150 203 237;
+  --info-300: 96 174 226;
+  --info-400: 50 148 212;
+  --info-500: 13 110 165;
+  --info-600: 10 90 138;
+  --info-700: 8 72 110;
+  --info-800: 6 55 84;
+  --info-900: 4 38 58;
+}
+
+/* ─── Light mode (default) ─── */
+@layer base {
+  :root {
+    --background: 255 251 245;        /* #FFFBF5 — warm cream */
+    --foreground: 26 26 26;           /* #1A1A1A */
+    --card: 255 255 255;
+    --card-foreground: 26 26 26;
+    --popover: 255 255 255;
+    --popover-foreground: 26 26 26;
+    --muted: 240 237 232;            /* #F0EDE8 — warm muted */
+    --muted-foreground: 122 117 110; /* #7A756E */
+
+    --primary: 251 99 27;            /* #FB631B */
+    --primary-foreground: 255 255 255;
+    --secondary: 192 240 251;        /* #C0F0FB */
+    --secondary-foreground: 26 26 26;
+    --accent: 216 172 255;           /* #D8ACFF */
+    --accent-foreground: 26 26 26;
+
+    --destructive: 220 74 74;
+    --destructive-foreground: 255 255 255;
+    --success: 45 138 95;
+    --success-foreground: 255 255 255;
+    --warning: 212 146 11;
+    --warning-foreground: 26 26 26;
+    --info: 13 110 165;
+    --info-foreground: 255 255 255;
+
+    --border: 232 229 224;           /* #E8E5E0 */
+    --input: 232 229 224;
+    --ring: 216 172 255;
+
+    /* Chat-specific */
+    --user-bubble: 220 244 251;      /* secondary-100 — soft cyan */
+    --user-bubble-foreground: 26 26 26;
+
+    /* Sidebar */
+    --sidebar: 240 237 232;
+    --sidebar-foreground: 26 26 26;
+    --sidebar-accent: 255 251 245;
+    --sidebar-accent-foreground: 26 26 26;
+    --sidebar-border: 232 229 224;
+    --sidebar-ring: 216 172 255;
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-pill: 9999px;
+  }
+
+  /* ─── Dark mode ─── */
+  .dark {
+    --background: 10 10 10;          /* #0A0A0A — pure black */
+    --foreground: 245 245 245;       /* #F5F5F5 */
+    --card: 23 23 23;               /* #171717 */
+    --card-foreground: 245 245 245;
+    --popover: 28 28 28;
+    --popover-foreground: 245 245 245;
+    --muted: 36 36 36;              /* #242424 */
+    --muted-foreground: 163 163 163; /* #A3A3A3 */
+
+    --primary: 255 90 20;           /* #FF5A14 — boosted for dark */
+    --primary-foreground: 10 10 10;
+    --secondary: 192 240 251;
+    --secondary-foreground: 10 10 10;
+    --accent: 216 172 255;
+    --accent-foreground: 10 10 10;
+
+    --destructive: 239 100 100;
+    --destructive-foreground: 10 10 10;
+    --success: 74 190 133;
+    --success-foreground: 10 10 10;
+    --warning: 245 178 55;
+    --warning-foreground: 10 10 10;
+    --info: 70 160 220;
+    --info-foreground: 10 10 10;
+
+    --border: 46 46 46;             /* #2E2E2E */
+    --input: 46 46 46;
+    --ring: 216 172 255;
+
+    /* Chat-specific */
+    --user-bubble: 20 38 46;        /* deep teal */
+    --user-bubble-foreground: 220 235 240;
+
+    /* Sidebar */
+    --sidebar: 18 18 18;
+    --sidebar-foreground: 245 245 245;
+    --sidebar-accent: 28 28 28;
+    --sidebar-accent-foreground: 245 245 245;
+    --sidebar-border: 46 46 46;
+    --sidebar-ring: 216 172 255;
+  }
+
+  html {
+    color: rgb(var(--foreground));
+    background: rgb(var(--background));
+  }
+}
