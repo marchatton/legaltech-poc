@@ -211,3 +211,40 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter
   - Useful context
     - Constrain document identifiers in query params to a safe charset even in dev-only routes.
 ---
+## [2026-02-08 10:45 UTC] - US-006: Evidence highlights align across zoom + rotation
+Thread: 
+Run: 20260208-082954-32669 (iteration 7)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-7.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-7.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 8733fe5 fix(viewer): lock highlight overlay to 100% zoom
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: dev-browser (headless) screenshots -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-082954-32669-iter-6.md
+  - apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+  - apps/web/app/(app)/matters/viewer/page.tsx
+  - apps/web/app/(app)/spikes/rh2-overlay/Rh2OverlayClient.tsx
+- What was implemented
+  - Cut highlight overlay verification to 100% zoom: viewer snaps to 100% and disables zoom while a valid highlight is active.
+  - RH2 overlay harness locks zoom to 100% and fails closed (no overlay) for wrong-page and invalid polygon injections.
+  - Viewer returns explicit safe failure reason codes for mismatch cases: `WRONG_PAGE`, `DOC_MISMATCH`, `SNIPPET_HASH_MISMATCH`.
+  - Browser verified alignment at 100%:
+    - pack_01_clean: TitleCommitment (COMMITMENT_HEADER) + ALTA_Survey (SURVEY_HEADER)
+    - pack_07_scans_rotated_low_quality: TitleCommitment rotated/scanned page
+    - Fail-closed: WRONG_PAGE + OUT_OF_RANGE polygon (no overlay) confirmed
+    - Screenshots saved under `.agents/skills/00-utilities/dev-browser/tmp/US-006_*.png`
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Treat zoom as an invariant of the highlight overlay (lock/snap) to reduce coordinate drift risk.
+  - Gotchas encountered
+    - dev-browser must run with `--headless` here (no X server).
+  - Useful context
+    - Mapping remains stable across intrinsic `page.rotate` when using `viewport.convertToViewportPoint()` and sizing overlays in viewport CSS px.
+---

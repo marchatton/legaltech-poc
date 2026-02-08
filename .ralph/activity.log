@@ -74,3 +74,4 @@
 [2026-02-08 10:36:18] US-006: enforce 100% zoom for highlight overlay (snap+lock); add explicit mismatch reason codes; tighten fail-closed in RH2 harness
 [2026-02-08 10:37:40] US-006: verification PASS (pnpm typecheck, pnpm verify)
 [2026-02-08 10:42:34] US-006: browser verified RH2 overlay + viewer at 100% zoom (screenshots in .agents/skills/00-utilities/dev-browser/tmp/US-006_*.png)
+[2026-02-08 10:46:09] US-006: appended progress entry to .ralph/progress.md
