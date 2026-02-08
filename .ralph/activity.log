@@ -1,0 +1,31 @@
+# Activity Log
+
+## Run Summary
+- 2026-02-08 00:25:59 | run=20260208-002520-10946 | iter=1 | mode=build | story=US-001 | duration=39s | status=success
+- 2026-02-07 23:47:34 | run=20260207-233425-3805 | iter=1 | mode=build | story=US-001 | duration=789s | status=success
+- 2026-02-07 23:26:30 | run=20260207-232621-3352 | iter=1 | mode=build | story=US-001 | duration=9s | status=error
+
+## Events
+
+[2026-02-07 23:26:22] ITERATION 1 start (mode=build story=US-001)
+[2026-02-07 23:26:30] ITERATION 1 end (duration=9s)
+[2026-02-07 23:34:26] ITERATION 1 start (mode=build story=US-001)
+[2026-02-07 23:34:42] Start US-001 Create and open a Matter
+[2026-02-07 23:39:40] Implemented folders API + matters list/detail UI for US-001
+[2026-02-07 23:44:45] Verification complete: pnpm verify, pnpm typecheck
+[2026-02-07 23:45:26] Started dev server for browser verification (timeout after readiness)
+[2026-02-07 23:46:04] API smoke: POST/GET /folders and /folders/:id verified via curl; dev server stopped
+[2026-02-07 23:46:57] Updated progress log for US-001
+[2026-02-07 23:47:11] Created sprite checkpoint v1 after US-001 changes
+[2026-02-07 23:47:34] ITERATION 1 end (duration=789s)
+[2026-02-08 00:25:21] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 00:25:54] US-001 start: create/list/open Matter (folders endpoints + UI)
+[2026-02-08 00:25:59] ITERATION 1 end (duration=39s)
+[2026-02-08 00:26:02] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 00:29:39] Start US-002: upload PDFs + ingest status (iter 2)
+[2026-02-08 00:40:02] Installing DB dependency (postgres) for US-002
+[2026-02-08 00:47:34] Implemented US-002 API routes, local object store, ingest worker, and folder state derivation
+[2026-02-08 00:49:11] Running US-002 smoke script + global quality gates
+[2026-02-08 01:01:41] US-002 smoke script PASS (upload + complete + status polling + folder ready/indexed)
+[2026-02-08 01:07:33] Quality gates PASS: pnpm typecheck, pnpm verify
+[2026-02-08 01:11:20] Updated .ralph/progress.md for US-002 and wrote iter-2 run summary

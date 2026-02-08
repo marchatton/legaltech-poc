@@ -18,3 +18,7 @@
 
 ## Learned Signs
 
+### Sign: Don’t Put Signatures In URLs
+- **Trigger**: Creating signed URLs (uploads, downloads, render links)
+- **Instruction**: Put signatures in headers (or request body), not query params, since dev servers commonly log full URLs.
+- **Added after**: US-002 (2026-02-08)

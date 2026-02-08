@@ -5,6 +5,52 @@ Started: Sat Feb  7 11:26:21 PM UTC 2026
 - (add reusable patterns here)
 
 ---
+## [2026-02-08 01:10 UTC] - US-002: Upload PDFs and observe ingest status
+Thread: 26618
+Run: 20260208-002520-10946 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-002520-10946-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-002520-10946-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: f41655b feat(documents): upload PDFs and track ingest
+- Post-commit status: clean
+- Verification:
+  - Command: ORBITAL_BASE_URL=http://localhost:3001 node --experimental-strip-types scripts/us002_smoke.ts -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .gitignore
+  - apps/web/app/(api)/folders/route.ts
+  - apps/web/app/(api)/folders/[id]/route.ts
+  - apps/web/app/(api)/folders/[id]/documents/route.ts
+  - apps/web/app/(api)/documents/[id]/upload/route.ts
+  - apps/web/app/(api)/documents/[id]/complete/route.ts
+  - apps/web/lib/db.server.ts
+  - apps/web/lib/objectStore.server.ts
+  - apps/web/lib/ingest/ingestQueue.server.ts
+  - apps/web/lib/folderState.server.ts
+  - apps/web/lib/ids.ts
+  - scripts/us002_smoke.ts
+  - .ralph/guardrails.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-002520-10946-iter-2.log
+  - .ralph/runs/run-20260208-002520-10946-iter-2.md
+  - .ralph/progress.md
+- What was implemented
+  - Added Postgres-backed folder/document persistence (auto-creates tables in dev) and a derived folder state machine.
+  - Implemented upload init (`POST /folders/:id/documents`), signed upload target (`PUT /documents/:id/upload`), ingest enqueue (`POST /documents/:id/complete`), and status listing (`GET /folders/:id/documents`).
+  - Implemented an in-process ingest worker (pdf.js) that transitions `parse_status`/`ocr_status`, populates `page_count`, `document_pages`, `chunks`, and `extraction_quality`.
+  - Added smoke script to upload fixture PDFs and assert progress + negative validation behavior.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Putting signatures in headers avoids leaking signed URL tokens in standard dev server request logs.
+  - Gotchas encountered
+    - pdf.js needs `GlobalWorkerOptions.workerSrc` set in Next server bundles, otherwise fake worker setup fails.
+    - postgres.js `sql.array(values, type)` expects a type OID number (not `"text"`), and `TransactionSql` typing drops call signatures (cast for tagged templates).
+  - Useful context
+    - Use `sql.json(...)` when writing `jsonb` to satisfy TypeScript and ensure correct serialization.
+---
 ## [2026-02-07 23:46 UTC] - US-001: Create and open a Matter
 Thread: 
 Run: 20260207-233425-3805 (iteration 1)
