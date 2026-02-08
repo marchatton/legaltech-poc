@@ -378,3 +378,37 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-151217-112794-ite
   - Useful context
     - Next.js route handlers under `apps/web/app/(api)` can set `X-Trace-Id` headers per-request even without global middleware.
 ---
+## [2026-02-08 15:33:30 UTC] - US-002: Rows appear incrementally and always obey invariants
+Thread: 
+Run: 20260208-151217-112794 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-151217-112794-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-151217-112794-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 251e5da feat(report): persist incremental run rows
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-151217-112794-iter-1.md
+  - .ralph/runs/run-20260208-151217-112794-iter-2.md
+  - apps/web/app/(api)/folders/[id]/report/route.ts
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/lib/db.server.ts
+  - apps/web/lib/questionSet.server.ts
+  - apps/web/lib/quickStartRunQueue.server.ts
+- What was implemented
+  - Added `report_rows` + `citations` tables with a unique constraint on `(run_id, question_id)` and terminal-status checks.
+  - Implemented `GET /folders/:id/report?run_id=...` to return Postgres-backed rows for the selected run (partial rows mid-run).
+  - Implemented an in-process Quick Start runner that writes one terminal row per question incrementally and idempotently (deterministic `step_key`).
+  - Enforced row invariants for `missing_input` (exact answer string + empty citations + checklist) and `citation_failed` (safe `reason_code` in provenance), while allowing runs to complete.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Using a deterministic `run_steps.step_key` plus a DB unique constraint is an effective belt-and-suspenders for retry idempotency.
+  - Gotchas encountered
+    - Next.js server runtime `process.cwd()` can be `apps/web`; file-backed specs should probe repo-root-relative paths.
+  - Useful context
+    - The PoC runner is in-process (not a durable worker); a later slice should move it to a proper workflow runner/service.
+---
