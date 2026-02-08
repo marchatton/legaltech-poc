@@ -88,5 +88,15 @@ describe("detectMissingDocs (fixture packs)", () => {
     expect(rea?.signals.length).toBeGreaterThan(0);
     expect(rea?.signals.some((s) => s.source === "TitleCommitment.pdf")).toBe(true);
   });
-});
 
+  it("does not flag a direct file_ref when the PDF is already provided", () => {
+    const res = detectMissingDocs({
+      packId: "pack_01_clean",
+      providedFilenames: ["REA.pdf"],
+      referenceText: "See REA.pdf for details.",
+      referenceSource: { source: "TitleCommitment.pdf", page: 3 },
+    });
+
+    expect(res.missing_docs).toHaveLength(0);
+  });
+});

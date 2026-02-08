@@ -5,7 +5,7 @@ const PHRASE_TO_ACRONYM: ReadonlyArray<[phrase: RegExp, acronym: string]> = [
 ];
 
 function filenameTokenSet(filename: string): Set<string> {
-  const stem = filename.replace(/\\.[^.]+$/, "");
+  const stem = filename.replace(/\.[^.]+$/, "");
   const tokens = stem.split(/[^A-Za-z0-9]+/g).filter(Boolean);
   return new Set(tokens.map((t) => t.toUpperCase()));
 }
@@ -80,7 +80,7 @@ export function detectMissingDocs(args: {
   for (const s of signals) {
     if (s.type === "file_ref") {
       const label = s.value;
-      const stem = label.replace(/\\.[^.]+$/, "").toUpperCase();
+      const stem = label.replace(/\.[^.]+$/, "").toUpperCase();
       if (!hasFilenameOrToken(stem)) recordCandidate(label, 0.95, s);
       continue;
     }
