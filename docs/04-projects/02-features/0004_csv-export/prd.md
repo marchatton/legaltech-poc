@@ -1,7 +1,7 @@
-# PRD: CSV Exports + Artefacts List (Requirements / Exceptions / Survey Issues)
+# PRD: CSV Exports (Requirements / Exceptions / Survey Issues)
 
 Owner: TBD
-Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)
+Status: DRAFT (GO: spike outcomes locked; remaining dependencies are Initiative 002 structured row payload persistence + 0008 artefacts foundation)
 Date: 2026-02-07
 
 ## Summary
@@ -12,7 +12,7 @@ Ship demo-grade CSV exports aligned with canonical architecture contracts:
   - `exceptions_table.csv`
   - `survey_issues.csv`
 - Strict export gating (fail-closed) and clear UI blocked/not-ready states.
-- Artefact persistence + artefacts list/download via fresh signed URLs.
+- Persist CSV exports as artefacts. Artefacts list/download (fresh signed URLs) is handled by 0008.
 
 This PRD does not include Word export, eval harness, or demo tooling.
 
@@ -26,7 +26,7 @@ Report rows are trapped in the UI and demos are brittle. We need a repeatable wa
 - The export is **deterministic** (locked headers + deterministic row ordering).
 - Export is only available when `runs.state = completed`.
 - Export is blocked by default when any row is `citation_failed` (unless demo-only `unsafe_override=true` is explicitly used via API-only unsafe override per ADR-0019).
-- Exported artefacts are listed for the matter and downloadable via fresh signed URLs.
+- Exported CSVs are persisted as artefacts and downloadable via the matter's artefacts list (0008).
 - Exports include:
   - row status
   - citations rendered as `filename:page` plus `citation_ids`
@@ -110,9 +110,10 @@ Column semantics (locked):
 
 ## Solution
 
-Add/implement the canonical export + artefact listing contract:
+Add/implement the canonical export contract:
 - `POST /export/csv` with `kind=requirements_tracker|exceptions_table|survey_issues`
-- `GET /folders/:id/artefacts` to list/download previously exported artefacts
+
+Persist exports as artefacts using the shared foundation in 0008 (which owns listing + fresh signed download URLs via `GET /folders/:id/artefacts`).
 
 Exports must not parse prose. CSV mapping consumes structured row payloads persisted by Initiative 002 via `report_rows.payload_schema_version` + `report_rows.payload_json` (see `docs/03-architecture/30_data_model.md`, `docs/03-architecture/50_api_surface.md`).
 
@@ -131,13 +132,11 @@ In scope:
   - `survey_issues`
   - Each has locked header list + ordering (from CSV usability spike outcome) and deterministic row ordering rule (documented).
 - Artefact persistence:
-  - persist `storage_key` + metadata (`kind`, `schema_version`, `filename`, `source_run_id`)
-  - do not persist signed URLs
+  - persist via 0008 (storage_key + metadata; do not persist signed URLs)
 - UI:
   - export buttons for the 3 CSV kinds
   - disabled state until run completes
   - blocked banner state for `EXPORT_BLOCKED`
-  - artefacts list with working download links
 - Logging: export attempt + success/blocked/failure with `trace_id`.
 
 Out of scope:
@@ -146,8 +145,8 @@ Out of scope:
 ## Breadboard Mapping
 
 From `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`:
-- Parts: F1 (export endpoints), F2 (CSV schemas + mappers), F4 (artefacts list), F5 (export UI states)
-- Affordances: U1, U2, U4, U5
+- Parts: F1 (export endpoints), F2 (CSV schemas + mappers), F5 (export UI states) (F4 artefacts list is handled by 0008)
+- Affordances: U1, U2, U5 (U4 is handled by 0008)
 - Code affordances: N1, N2, N3, N5, N6
 
 ## User Stories
@@ -157,9 +156,6 @@ As a demo operator, I can export the requirements tracker, exceptions table, and
 
 ### US-002 See Blocked/Not-Ready States
 As a demo operator, I can clearly see when export is not ready (run still running) or blocked (citation failures) so I don’t create inconsistent artefacts.
-
-### US-003 View And Download Artefacts
-As a demo operator, I can see previously exported artefacts for a matter and download them reliably.
 
 ## Functional Requirements
 
@@ -174,23 +170,21 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - FR-007: CSV headers + ordering are locked (v1 schemas) and drift is prevented by snapshot tests against fixture packs.
 - FR-008: Deterministic row ordering is enforced in code (no DB ordering assumptions).
 - FR-009: Artefact metadata includes `kind`, `schema_version`, `filename`, `source_run_id`, `created_at`, and `unsafe_override` (when applicable).
-- FR-010: `GET /folders/:id/artefacts` returns a list with fresh `download_url` values (do not persist signed URLs).
-- FR-011: UI disables export until run completion, shows blocked banner on `EXPORT_BLOCKED`, and renders artefacts list.
+- FR-010: Export persists the created CSV as an artefact via 0008 (storage_key + metadata; do not persist signed URLs).
+- FR-011: UI disables export until run completion and shows blocked banner on `EXPORT_BLOCKED`.
 - FR-012: Logging exists for export attempt + success/blocked/fail: `folder_id`, `run_id`, `kind`, `artefact_id` (if created), `trace_id`.
 - FR-013: CSV rows include `row_status`, citations as `filename:page`, and `citation_ids`.
 - FR-014: For `missing_input`, `source_answer` must be exactly `Not found in provided documents.` and citations columns must be empty.
 
 ## Acceptance Criteria
 
-- AC-001: From `docs/08-example-data/pack_01_clean`, operator can export all 3 CSV kinds and download them successfully.
+- AC-001: From `docs/08-example-data/pack_01_clean`, operator can export all 3 CSV kinds and download them successfully via the artefacts list (0008).
 - AC-002: If `runs.state != completed`, export button is disabled and API returns `409 CONFLICT` if called anyway.
 - AC-003: If any row is `citation_failed` and `unsafe_override != true`, API returns `EXPORT_BLOCKED` and UI shows blocked banner with counts and next action.
 - AC-004: Each CSV output matches the spike-locked header list + ordering and has deterministic row ordering.
 - AC-005: From `docs/08-example-data/pack_02_missing_rea`, exports succeed (unless blocked by `citation_failed`) and include `missing_input` rows with the canonical answer preserved.
-- AC-006: Artefact is persisted and appears in `GET /folders/:id/artefacts` with a working (fresh) `download_url`.
-- AC-007: No signed URLs are persisted; only `storage_key` + metadata are stored.
-- AC-008: Export does not parse `report_rows.answer` prose; it uses structured row payload (`payload_json`) and fails closed if missing.
-- AC-009: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled and a valid `X-Orbital-Admin-Token` is provided (ADR-0019), an admin can export with `unsafe_override=true` (API-only), and the resulting CSV filename is labelled `*.UNSAFE.csv`.
+- AC-006: Export does not parse `report_rows.answer` prose; it uses structured row payload (`payload_json`) and fails closed if missing.
+- AC-007: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled and a valid `X-Orbital-Admin-Token` is provided (ADR-0019), an admin can export with `unsafe_override=true` (API-only), and the resulting CSV filename is labelled `*.UNSAFE.csv`.
 
 ## Verification Plan
 
@@ -205,7 +199,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
   - deterministic row ordering (stable sort) per kind
 - Manual smoke:
   - export works twice in a row for the same completed run (each kind)
-  - artefact list download links still work after refresh (fresh signed URLs)
+  - created artefacts are visible/downloadable via the artefacts list (0008)
 
 ## Failure States + UX (no silent failures)
 
@@ -232,12 +226,13 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 
 - Requires structured row payload (`payload_json` + `payload_schema_version`) persisted by Initiative 002 (see `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`).
 - CSV usability is spike-dependent (header list/order).
-- Artefacts list must generate fresh signed URLs (expiry handling).
+- Depends on 0008 for artefacts persistence + artefacts list/download (fresh signed URLs).
 
 ## Open Questions
 
 - None for slice 0004 (spike outcomes locked).
 - Dependency remains: Initiative 002 must persist structured `payload_json` + `payload_schema_version` for all three artefacts.
+- Dependency: 0008 must provide artefacts foundation (list/download via fresh signed URLs).
 
 ## Links (sources)
 
@@ -245,6 +240,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 - `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
+- `docs/04-projects/02-features/0008_artefacts-foundation/prd.md`
 - `docs/03-architecture/20_state_model.md`
 - `docs/03-architecture/30_data_model.md`
 - `docs/03-architecture/50_api_surface.md`
