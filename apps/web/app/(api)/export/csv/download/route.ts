@@ -90,7 +90,7 @@ export async function GET(req: Request): Promise<Response> {
     });
   }
 
-  const sigOk = verifySignature({ storageKey, expiresAtMs, sig: sigRaw });
+  const sigOk = verifySignature({ purpose: "get", storageKey, expiresAtMs, sig: sigRaw });
   if (!sigOk) {
     return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid download signature.", traceId }), {
       status: 403,

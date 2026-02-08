@@ -92,7 +92,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
       });
     }
 
-    const sigOk = verifySignature({ storageKey: `fixture:${documentId}`, expiresAtMs, sig: sigRaw });
+    const sigOk = verifySignature({ purpose: "get", storageKey: `fixture:${documentId}`, expiresAtMs, sig: sigRaw });
     if (!sigOk) {
       return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
         status: 403,
@@ -183,7 +183,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  const sigOk = verifySignature({ storageKey: doc.storage_key, expiresAtMs, sig: sigRaw });
+  const sigOk = verifySignature({ purpose: "get", storageKey: doc.storage_key, expiresAtMs, sig: sigRaw });
   if (!sigOk) {
     return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
       status: 403,

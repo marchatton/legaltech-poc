@@ -88,7 +88,7 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  const sigOk = verifySignature({ storageKey: doc.storage_key, expiresAtMs, sig: sigHeader });
+  const sigOk = verifySignature({ purpose: "put", storageKey: doc.storage_key, expiresAtMs, sig: sigHeader });
   if (!sigOk) {
     return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid upload signature.", traceId }), {
       status: 403,
