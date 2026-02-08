@@ -66,7 +66,7 @@
     {
       "id": "US-001",
       "title": "Run Fixture Evals Locally",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a developer, I can run fixture:eval for a pack and get a deterministic report so I can catch regressions before demos.",
       "acceptanceCriteria": [
@@ -74,26 +74,36 @@
         "Example: fixture:eval pack_02_missing_rea confirms expected missing_input journeys; answer is exactly 'Not found in provided documents.'.",
         "Example: fixture:eval pack_09_bad_citation confirms the expected citation_failed journey and includes a safe failure reason code in the report details.",
         "Negative: Runner exits non-zero if any hard gate fails for any pack relative to that pack's expected outcomes, and outputs remain deterministic for the same inputs."
-      ]
+      ],
+      "startedAt": "2026-02-08T23:45:48.325834+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T23:45:48.325859+00:00"
     },
     {
       "id": "US-002",
       "title": "Enforce Hard Trust Gates",
-      "status": "open",
-      "dependsOn": ["US-001"],
+      "status": "done",
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a developer, I get a clear pass/fail on schema validity, citation integrity, failure journeys, and export truth match so we never ship a broken trust moment.",
       "acceptanceCriteria": [
         "Example: Hard gates align with docs/03-architecture/60_observability_and_evals.md: schema validity (100%), citation integrity (100%), expected failure journeys, and export truth match.",
         "Example: Citation integrity checks validate at minimum that cited page exists, polygons exist, and snippet_hash matches the canonical normalization rule.",
         "Example: Export truth match validates generated CSV outputs match /truth/expected_*.csv with normalized LF line endings.",
         "Negative: If any citation integrity or export truth gate fails (e.g. snippet_hash mismatch, out-of-bounds page, missing polygons, CSV header/order drift), fixture:eval reports the failure using canonical taxonomy codes and exits non-zero."
-      ]
+      ],
+      "updatedAt": "2026-02-08T23:45:46.060646+00:00",
+      "completedAt": "2026-02-08T23:45:46.060685+00:00",
+      "startedAt": "2026-02-08T23:45:46.060689+00:00"
     },
     {
       "id": "US-003",
       "title": "Publish Eval Reports In CI (Report-Only)",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a developer, CI uploads eval reports so reviewers can see regressions without running the harness locally.",
       "acceptanceCriteria": [
         "Example: CI job runs fixture:eval (or fixture:eval:all) and uploads JSON/MD outputs as build artefacts.",
@@ -122,8 +132,14 @@
     ]
   },
   "breadboardMapping": {
-    "parts": ["F6 (eval harness)", "F7 (CI integration)"],
-    "codeAffordances": ["N12", "N13"]
+    "parts": [
+      "F6 (eval harness)",
+      "F7 (CI integration)"
+    ],
+    "codeAffordances": [
+      "N12",
+      "N13"
+    ]
   },
   "verificationPlan": [
     "Run locally on pack_01_clean, pack_02_missing_rea, and pack_09_bad_citation and inspect JSON + Markdown outputs.",

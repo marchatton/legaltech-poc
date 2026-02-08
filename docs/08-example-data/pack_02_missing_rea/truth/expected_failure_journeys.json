@@ -1,0 +1,6 @@
+[
+  {
+    "question_id": "TB-MISSING-INPUT",
+    "expected_status": "missing_input"
+  }
+]
