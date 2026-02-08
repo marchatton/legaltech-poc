@@ -99,7 +99,7 @@
     {
       "id": "US-001",
       "title": "Create and open a Matter",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a reviewer, I want to create and open a Matter so that I can review a diligence pack.",
       "acceptanceCriteria": [
@@ -109,12 +109,15 @@
         "Example: Create a Matter named 'Pack 01 Clean' and verify it appears in /matters and in GET /folders.",
         "Negative case: POST /folders with missing/empty name returns VALIDATION_ERROR using the standard error envelope.",
         "Verification: Manual smoke: create a Matter, confirm it appears in the list, and open its detail page."
-      ]
+      ],
+      "startedAt": "2026-02-08T00:25:20.795494+00:00",
+      "completedAt": "2026-02-08T00:25:59.736105+00:00",
+      "updatedAt": "2026-02-08T00:25:59.736092+00:00"
     },
     {
       "id": "US-002",
       "title": "Upload PDFs and observe ingest status",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -127,7 +130,10 @@
         "Example: Upload TitleCommitment.pdf from pack_01_clean and observe parse_status and ocr_status progress to terminal states and page_count/extraction_quality fields populate when ready.",
         "Negative case: POST /documents/:id/complete with wrong/missing storage_key returns VALIDATION_ERROR.",
         "Verification: Upload 2+ PDFs from pack_01_clean and pack_07_scans_rotated_low_quality; confirm statuses progress and failures show a safe error code/message."
-      ]
+      ],
+      "startedAt": "2026-02-08T00:26:01.948646+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T00:26:01.948657+00:00"
     }
   ],
   "meta": {

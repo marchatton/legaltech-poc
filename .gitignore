@@ -26,6 +26,7 @@ docs/04-projects/**/throwaway/
 /.agents/backup/
 /.agents/skills/00-product-sense/
 tmp/fixture-seed/
+tmp/object-store/
 
 # macOS
 .DS_Store
