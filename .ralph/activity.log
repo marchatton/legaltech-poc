@@ -131,3 +131,4 @@
 [2026-02-08 14:50:01] US-001: added /documents/:id/render and /documents/:id/pdf endpoints + smoke script
 [2026-02-08 14:51:11] US-001: pnpm typecheck PASS; pnpm verify PASS
 [2026-02-08 14:53:03] US-001: manual smoke (scripts/us001_render_smoke.ts) PASS
+[2026-02-08 14:55:46] US-001: progress log updated

@@ -5,6 +5,38 @@ Started: Sat Feb  7 11:26:21 PM UTC 2026
 - (add reusable patterns here)
 
 ---
+## [2026-02-08 14:55 UTC] - US-001: Fetch a signed render URL for a document
+Thread: 
+Run: 20260208-143708-105964 (iteration 1)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-143708-105964-iter-1.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-143708-105964-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 6fceef8 feat(api): add signed render URL contract
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: ORBITAL_BASE_URL=http://localhost:3001 node --experimental-strip-types scripts/us001_render_smoke.ts -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - apps/web/app/(api)/documents/[id]/pdf/route.ts
+  - apps/web/app/(api)/documents/[id]/render/route.ts
+  - apps/web/lib/objectStore.server.ts
+  - docs/04-projects/02-features/0001_trust-substrate/prds/0001g_render-url-contract-alignment/prd.json
+  - scripts/us001_render_smoke.ts
+- What was implemented
+  - Implemented `GET /documents/:id/render?page=N` returning `{ document_id, page, render_url }` and issuing short-lived render signature headers.
+  - Added a signed PDF bytes endpoint `GET /documents/:id/pdf` that supports single-range requests (`Accept-Ranges: bytes`, `206`, `Content-Range`).
+  - Added a smoke script that uploads a fixture PDF, fetches `render_url`, and runs a Range precheck against the returned target.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Returning the signature via response headers keeps secrets out of URLs while keeping the JSON contract stable.
+  - Gotchas encountered
+    - Range regex literals must escape `/` as `\\/` (not `\\\\/`), or Node will fail parsing the script.
+  - Useful context
+    - The pdf bytes endpoint streams from the object store with `fs.createReadStream(start,end)` to avoid reading full PDFs per Range request.
+---
 ## [2026-02-08 12:01 UTC] - US-009: needs_review -> reviewed is explicit and persisted
 Thread: 
 Run: 20260208-082954-32669 (iteration 10)
