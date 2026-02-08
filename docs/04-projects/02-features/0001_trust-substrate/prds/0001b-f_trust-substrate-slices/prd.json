@@ -325,7 +325,7 @@
     {
       "id": "US-003",
       "title": "Fetch a locked citation by ID",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a reviewer, I want to fetch a citation payload so that I can inspect evidence reliably.",
       "acceptanceCriteria": [
@@ -336,8 +336,8 @@
         "Negative case: Invalid id format returns VALIDATION_ERROR using the standard error envelope."
       ],
       "startedAt": "2026-02-08T09:49:22.632717+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T09:49:22.632730+00:00"
+      "completedAt": "2026-02-08T10:07:47.192969+00:00",
+      "updatedAt": "2026-02-08T10:07:47.192930+00:00"
     },
     {
       "id": "US-004",
@@ -358,7 +358,7 @@
     {
       "id": "US-005",
       "title": "Click citation chip -> open viewer at cited evidence",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a reviewer, I want to click a citation chip and jump to the cited PDF page so that I can inspect evidence quickly.",
       "acceptanceCriteria": [
@@ -366,7 +366,10 @@
         "AC-002: Clicking a chip navigates to the viewer with the correct document_id and page (1-indexed).",
         "Example: On pack_01_clean, click chips across at least two documents (commitment + survey) and confirm the viewer opens at the correct page.",
         "Negative case: If a row has no citation_ids, no chips render and the UI does not invent citations."
-      ]
+      ],
+      "startedAt": "2026-02-08T10:07:49.454308+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T10:07:49.454332+00:00"
     },
     {
       "id": "US-006",

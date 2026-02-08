@@ -16,6 +16,13 @@ const SearchSchema = z.object({
     .min(1)
     .regex(/^pack_\d{2}_[a-z0-9_]+$/i),
   citation: z.string().min(1),
+  document_id: z
+    .string()
+    .min(1)
+    .max(200)
+    .regex(/^[A-Za-z0-9_.-]+$/i, "Invalid document id")
+    .optional(),
+  page: z.coerce.number().int().positive().optional(),
 });
 
 export default async function MatterViewerPage(props: {
@@ -36,6 +43,8 @@ export default async function MatterViewerPage(props: {
 
   const packId = parsed.data.pack;
   const citationId = parsed.data.citation;
+  const requestedDocId = parsed.data.document_id ?? null;
+  const requestedPage = parsed.data.page ?? null;
 
   const snapshot = loadSeedSnapshot(packId);
   const cit = snapshot?.citations?.[citationId] ?? null;
@@ -69,11 +78,16 @@ export default async function MatterViewerPage(props: {
   }
 
   const computed = hashSnippet(cit.snippet);
-  const errorCode = computed === cit.snippet_hash ? null : "CITATION_MISMATCH";
+  const resolvedDocId = requestedDocId ?? cit.document_filename;
+  const resolvedPage = requestedPage ?? cit.page_number;
+  const errorCode =
+    computed === cit.snippet_hash && resolvedDocId === cit.document_filename && resolvedPage === cit.page_number
+      ? null
+      : "CITATION_MISMATCH";
 
   const pdfUrl = `/spikes/local-pdf?${new URLSearchParams({
     pack: packId,
-    filename: cit.document_filename,
+    filename: resolvedDocId,
   }).toString()}`;
 
   return (
@@ -92,8 +106,8 @@ export default async function MatterViewerPage(props: {
           packId={packId}
           citationId={citationId}
           pdfUrl={pdfUrl}
-          documentFilename={cit.document_filename}
-          pageNumber={cit.page_number}
+          documentFilename={resolvedDocId}
+          pageNumber={resolvedPage}
           polygons={cit.polygons}
           snippet={cit.snippet}
           snippetHash={cit.snippet_hash}

@@ -92,15 +92,24 @@ export default async function MattersPage(props: {
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {row.citation_ids.length ? (
-                    row.citation_ids.map((cid) => (
-                      <a
-                        key={cid}
-                        className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
-                        href={`/matters/viewer?${new URLSearchParams({ pack: packId, citation: cid }).toString()}`}
-                      >
-                        {cid}
-                      </a>
-                    ))
+                    row.citation_ids.map((cid) => {
+                      const cit = snapshot.citations?.[cid];
+                      const params = new URLSearchParams({ pack: packId, citation: cid });
+                      if (cit) {
+                        params.set("document_id", cit.document_filename);
+                        params.set("page", String(cit.page_number));
+                      }
+
+                      return (
+                        <a
+                          key={cid}
+                          className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+                          href={`/matters/viewer?${params.toString()}`}
+                        >
+                          {cid}
+                        </a>
+                      );
+                    })
                   ) : (
                     <div className="text-xs text-slate-500">(no citations)</div>
                   )}
