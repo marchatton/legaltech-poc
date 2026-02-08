@@ -485,3 +485,35 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-151217-112794-ite
 - **Learnings for future iterations:**
   - Deterministic idempotency needs a final reconciliation pass (derive progress from durable rows) to handle restarts cleanly.
 ---
+## [2026-02-08 16:35:33 UTC] - US-002: Extract B-II exceptions table (clean pack)
+Thread: 
+Run: 20260208-162438-128744 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-162438-128744-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-162438-128744-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 5f1d2fc feat(exceptions): seed B-II exceptions payload
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm fixture:seed pack_01_clean --overwrite -> PASS
+  - Command: pnpm fixtures:compare-truth -- --snapshot tmp/fixture-seed/pack_01_clean/snapshot.json --pack pack_01_clean --datasets exceptions -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - packages/core/src/schemas/list_payload_v0.ts
+  - packages/core/src/schemas/list_payload_v0.test.ts
+  - scripts/fixtures/seed.ts
+  - scripts/fixtures/lib/args.ts
+  - .ralph/runs/run-20260208-162438-128744-iter-2.md
+  - .ralph/progress.md
+- What was implemented
+  - Added `item_status` to `exceptions_table_item` in `list_payload_v0` to match comparator-required key fields.
+  - Extended fixture seeding to attach a TS-04 `exceptions_table` payload for `pack_01_clean`, with per-item locked citation_ids anchored to `TitleCommitment.pdf` B-II exception anchors.
+  - Adjusted fixture CLI arg parsing to ignore pnpm’s forwarded leading `--` so `pnpm <script> -- --flag ...` works.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - When a pnpm script is invoked with `--`, some CLIs receive a leading `--` token; custom arg parsers should treat it as a no-op.
+  - Gotchas encountered
+    - Date parsing regexes in regex literals should not double-escape `\\s`/`\\d`; it breaks normalisation silently.
+  - Useful context
+    - For list payload comparators, item-level citations must overlap the per-item anchors; header-only citations are insufficient.
+---
