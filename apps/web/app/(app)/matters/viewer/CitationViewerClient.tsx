@@ -83,7 +83,7 @@ function coerceViewBox(view: unknown): ViewBox {
 }
 
 export function CitationViewerClient(props: Props) {
-  const [zoomPercent, setZoomPercent] = useState(125);
+  const [zoomPercent, setZoomPercent] = useState(100);
   const [userRotation, setUserRotation] = useState(0);
 
   const [pdfjs, setPdfjs] = useState<PdfJsModule | null>(null);
@@ -108,6 +108,17 @@ export function CitationViewerClient(props: Props) {
     errorCode: props.errorCode,
     pdfjsVersion: null,
   });
+
+  const polygonError = validateNormPolygons(props.polygons);
+  const highlightActive = props.errorCode === null && polygonError === null;
+  const effectiveZoomPercent = highlightActive ? 100 : zoomPercent;
+
+  // Cut: highlight overlays are verified at 100% only. Snap to 100% and
+  // disable zoom while highlight is active to avoid accidental drift.
+  useEffect(() => {
+    if (!highlightActive) return;
+    if (zoomPercent !== 100) setZoomPercent(100);
+  }, [highlightActive, zoomPercent]);
 
   // Load pdf.js + PDF
   useEffect(() => {
@@ -166,7 +177,7 @@ export function CitationViewerClient(props: Props) {
       const pageRotate = Number(page.rotate ?? 0);
       const totalRotation = (pageRotate + userRotation) % 360;
 
-      const scale = zoomPercent / 100;
+      const scale = effectiveZoomPercent / 100;
       const viewport = page.getViewport({ scale, rotation: totalRotation });
       const viewBox = coerceViewBox(page.view);
 
@@ -197,7 +208,7 @@ export function CitationViewerClient(props: Props) {
         return;
       }
 
-      const polyErr = validateNormPolygons(props.polygons);
+      const polyErr = polygonError;
       if (polyErr) {
         setOverlay([]);
         setHud((h) => ({
@@ -240,7 +251,16 @@ export function CitationViewerClient(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [pdf, pdfjs, props.errorCode, props.pageNumber, props.polygons, userRotation, zoomPercent]);
+  }, [
+    effectiveZoomPercent,
+    pdf,
+    pdfjs,
+    polygonError,
+    props.errorCode,
+    props.pageNumber,
+    props.polygons,
+    userRotation,
+  ]);
 
   const overlayPath = useMemo(() => {
     if (!overlay.length) return [];
@@ -269,7 +289,8 @@ export function CitationViewerClient(props: Props) {
               <span className="text-slate-600">Zoom</span>
               <select
                 className="rounded border border-slate-300 bg-white p-2"
-                value={zoomPercent}
+                value={effectiveZoomPercent}
+                disabled={highlightActive}
                 onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
               >
                 {[75, 100, 125, 150].map((z) => (
@@ -278,6 +299,7 @@ export function CitationViewerClient(props: Props) {
                   </option>
                 ))}
               </select>
+              {highlightActive ? <span className="text-xs text-slate-500">Locked to 100% while highlighting</span> : null}
             </label>
 
             <label className="grid gap-1 text-sm">

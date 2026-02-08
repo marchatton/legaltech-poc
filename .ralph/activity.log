@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 10:29:13 | run=20260208-082954-32669 | iter=6 | mode=build | story=US-005 | duration=1284s | status=success
 - 2026-02-08 10:07:46 | run=20260208-082954-32669 | iter=5 | mode=build | story=US-003 | duration=1104s | status=success
 - 2026-02-08 09:49:20 | run=20260208-082954-32669 | iter=4 | mode=build | story=US-004 | duration=1078s | status=success
 - 2026-02-08 09:18:53 | run=20260208-082954-32669 | iter=2 | mode=build | story=US-002 | duration=2538s | status=success
@@ -67,3 +68,9 @@
 [2026-02-08 10:23:33] US-005: re-ran pnpm verify after URL param validation tweak (PASS)
 [2026-02-08 10:24:55] US-005: browser verified /matters chips navigate to /matters/viewer with document_id+page (TitleCommitment p1; ALTA_Survey p3). Screenshots saved under .agents/skills/00-utilities/dev-browser/tmp
 [2026-02-08 10:27:44] US-005: appended progress entry to .ralph/progress.md
+[2026-02-08 10:29:13] ITERATION 6 end (duration=1284s)
+[2026-02-08 10:29:20] ITERATION 7 start (mode=build story=US-006)
+[2026-02-08 10:30:21] US-006 start: highlight overlay alignment at 100% zoom + rotation; enforce 100% + fail-closed overlay
+[2026-02-08 10:36:18] US-006: enforce 100% zoom for highlight overlay (snap+lock); add explicit mismatch reason codes; tighten fail-closed in RH2 harness
+[2026-02-08 10:37:40] US-006: verification PASS (pnpm typecheck, pnpm verify)
+[2026-02-08 10:42:34] US-006: browser verified RH2 overlay + viewer at 100% zoom (screenshots in .agents/skills/00-utilities/dev-browser/tmp/US-006_*.png)

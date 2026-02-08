@@ -80,10 +80,10 @@ export default async function MatterViewerPage(props: {
   const computed = hashSnippet(cit.snippet);
   const resolvedDocId = requestedDocId ?? cit.document_filename;
   const resolvedPage = requestedPage ?? cit.page_number;
-  const errorCode =
-    computed === cit.snippet_hash && resolvedDocId === cit.document_filename && resolvedPage === cit.page_number
-      ? null
-      : "CITATION_MISMATCH";
+  let errorCode: string | null = null;
+  if (computed !== cit.snippet_hash) errorCode = "SNIPPET_HASH_MISMATCH";
+  else if (resolvedDocId !== cit.document_filename) errorCode = "DOC_MISMATCH";
+  else if (resolvedPage !== cit.page_number) errorCode = "WRONG_PAGE";
 
   const pdfUrl = `/spikes/local-pdf?${new URLSearchParams({
     pack: packId,

@@ -108,6 +108,11 @@ export function Rh2OverlayClient(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack, docKey]);
 
+  // Cut: overlay is verified at 100% zoom only. Snap and lock.
+  useEffect(() => {
+    if (zoomPercent !== 100) setZoomPercent(100);
+  }, [zoomPercent]);
+
   // Load pdf.js + PDF on pdfUrl change
   useEffect(() => {
     let cancelled = false;
@@ -151,11 +156,6 @@ export function Rh2OverlayClient(props: Props) {
       const canvas = document.getElementById("rh2-canvas") as HTMLCanvasElement | null;
       if (!canvas || !pdf || !pdfjs || !selectedAnchor || !effectivePage) return;
 
-      if (forceWrongPage) {
-        // Fail closed (we deliberately render the wrong page).
-        setHud((h) => ({ ...h, errorCode: "WRONG_PAGE", overlayBbox: null }));
-      }
-
       try {
         renderTaskRef.current?.cancel?.();
       } catch {
@@ -184,6 +184,22 @@ export function Rh2OverlayClient(props: Props) {
       renderTaskRef.current = renderTask;
       await renderTask.promise;
 
+      if (forceWrongPage) {
+        // Fail closed (we deliberately render the wrong page).
+        setOverlay([]);
+        setHud({
+          page: effectivePage,
+          pageRotate,
+          totalRotation,
+          viewport: { width: viewport.width, height: viewport.height },
+          canvas: { width: canvas.width, height: canvas.height, cssWidth: viewport.width, cssHeight: viewport.height },
+          dpr,
+          overlayBbox: null,
+          errorCode: "WRONG_PAGE",
+        });
+        return;
+      }
+
       const polygonsBase = anchorBoxToPolygons({ page: selectedAnchor.page, bbox: selectedAnchor.bbox });
       const badPoint: NormPoint = [-0.1, 0.2] as const;
       const polygons = injectInvalidPolygon
@@ -193,7 +209,16 @@ export function Rh2OverlayClient(props: Props) {
       const polyErr = validateNormPolygons(polygons);
       if (polyErr) {
         setOverlay([]);
-        setHud((h) => ({ ...h, errorCode: polyErr, overlayBbox: null }));
+        setHud({
+          page: effectivePage,
+          pageRotate,
+          totalRotation,
+          viewport: { width: viewport.width, height: viewport.height },
+          canvas: { width: canvas.width, height: canvas.height, cssWidth: viewport.width, cssHeight: viewport.height },
+          dpr,
+          overlayBbox: null,
+          errorCode: polyErr,
+        });
         return;
       }
 
@@ -213,7 +238,7 @@ export function Rh2OverlayClient(props: Props) {
           canvas: { width: canvas.width, height: canvas.height, cssWidth: viewport.width, cssHeight: viewport.height },
           dpr,
           overlayBbox,
-          errorCode: forceWrongPage ? "WRONG_PAGE" : null,
+          errorCode: null,
         });
 
         // Store mapped polygons for SVG render.
@@ -286,14 +311,16 @@ export function Rh2OverlayClient(props: Props) {
             <select
               className="rounded border border-slate-300 bg-white p-2"
               value={zoomPercent}
+              disabled
               onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
             >
-              {[50, 100, 150].map((z) => (
+              {[100].map((z) => (
                 <option key={z} value={z}>
                   {z}%
                 </option>
               ))}
             </select>
+            <span className="text-xs text-slate-500">Locked to 100% for overlay verification</span>
           </label>
         </div>
 
