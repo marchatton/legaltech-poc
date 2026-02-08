@@ -11,6 +11,7 @@ import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { parseSingleRangeHeader } from "../../../../../lib/httpRange.server";
 import { createObjectReadStream, statObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
+import { safePdfFilename } from "../../../../../lib/safePdfFilename.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -19,15 +20,6 @@ export const dynamic = "force-dynamic";
 const ParamsSchema = z.object({
   id: z.string().min(1),
 });
-
-function safePdfFilename(val: unknown): string {
-  if (typeof val !== "string") return "document.pdf";
-  const s = val.trim();
-  if (!s) return "document.pdf";
-  if (s.length > 200) return "document.pdf";
-  if (!/^[A-Za-z0-9_.-]+\.pdf$/i.test(s)) return "document.pdf";
-  return s;
-}
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
