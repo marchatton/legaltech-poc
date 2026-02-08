@@ -3,6 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../lib/devOnlyApi.server";
 import { newId } from "../../../lib/ids";
 import { createTraceContext } from "../../../lib/trace.server";
 
@@ -13,7 +14,9 @@ const CreateFolderSchema = z.object({
 });
 
 export async function GET(): Promise<Response> {
-  const { headers } = createTraceContext();
+  const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
   await ensureSchema();
 
   const folders = await sql<
@@ -46,6 +49,8 @@ export async function GET(): Promise<Response> {
 
 export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
   await ensureSchema();
 
   let body: unknown;

@@ -1,5 +1,6 @@
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
+import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -8,6 +9,8 @@ export const runtime = "nodejs";
 // The current fixture-backed implementation lives under /spikes/export/csv.
 export async function POST(): Promise<Response> {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
   return Response.json(
     safeErrorEnvelope({
       code: "NOT_FOUND",

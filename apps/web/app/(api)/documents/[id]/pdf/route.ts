@@ -8,6 +8,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { parseSingleRangeHeader } from "../../../../../lib/httpRange.server";
 import { createObjectReadStream, statObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
@@ -30,6 +31,8 @@ function safePdfFilename(val: unknown): string {
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
 
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);

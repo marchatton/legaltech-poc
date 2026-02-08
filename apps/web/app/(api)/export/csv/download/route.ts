@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
+import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import {
   objectExists,
   readObject,
@@ -36,6 +37,8 @@ function safeFilename(val: unknown): string | null {
 
 export async function GET(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
 
   const url = new URL(req.url);
   const parsed = QuerySchema.safeParse(Object.fromEntries(url.searchParams));

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
+import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../lib/folderState.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
@@ -14,6 +15,8 @@ const ParamsSchema = z.object({
 
 export async function GET(_req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOnlyApi(traceId, headers);
+  if (devGate) return devGate;
   await ensureSchema();
 
   const rawParams = await ctx.params;
