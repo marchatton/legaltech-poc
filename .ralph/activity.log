@@ -97,3 +97,4 @@
 [2026-02-08 11:44:48] US-009: removing untracked artefacts from prior iterations
 [2026-02-08 11:53:30] US-009: verification PASS (pnpm typecheck, pnpm verify); browser verified mark reviewed persistence + NO_LOCKED_CITATIONS rejection
 [2026-02-08 12:00:51] US-009: pre-commit audit (security/perf/regression) complete
+[2026-02-08 12:03:32] US-009: appended progress entry to .ralph/progress.md

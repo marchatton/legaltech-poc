@@ -5,6 +5,38 @@ Started: Sat Feb  7 11:26:21 PM UTC 2026
 - (add reusable patterns here)
 
 ---
+## [2026-02-08 12:01 UTC] - US-009: needs_review -> reviewed is explicit and persisted
+Thread: 
+Run: 20260208-082954-32669 (iteration 10)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-10.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-10.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 8fc7836 feat(matters): persist reviewed status
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: dev-browser (headless) mark reviewed flow -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/progress.md
+  - apps/web/app/(app)/matters/actions.ts
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/lib/fixtureSeed.server.ts
+- What was implemented
+  - Added a server action + UI button to explicitly mark `needs_review` rows as `reviewed`.
+  - Enforced status invariants: review is rejected when a row has zero locked citations, and the UI shows a safe reason.
+  - Persisted the status by writing back to the seeded snapshot so it survives refresh (dev-only tracer bullet).
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - For dev-only flows, a server action + redirect with a narrow `review_error` code is a simple way to show safe feedback.
+  - Gotchas encountered
+    - `dev-browser` must run headless in this environment (no X server).
+  - Useful context
+    - Browser screenshots saved under `.agents/skills/00-utilities/dev-browser/tmp/US-009_*.png`.
+---
 ## [2026-02-08 01:10 UTC] - US-002: Upload PDFs and observe ingest status
 Thread: 26618
 Run: 20260208-002520-10946 (iteration 2)
