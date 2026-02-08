@@ -60,6 +60,11 @@ const ExceptionItemV0Schema = BaseItemV0Schema.extend({
 const SurveyIssueItemV0Schema = BaseItemV0Schema.extend({
   kind: z.literal("survey_issue_item"),
   issue_type: z.string().min(1),
+  // Optional structured code for downstream routing/UX. Example: CERT_MISSING_LENDER.
+  issue_code: z
+    .string()
+    .regex(/^[A-Z][A-Z0-9_]+$/, "issue_code must be SCREAMING_SNAKE_CASE")
+    .optional(),
   description: z.string().min(1),
   impact: z.string().min(1).nullable().optional(),
   suggested_fix: z.string().min(1).nullable().optional(),

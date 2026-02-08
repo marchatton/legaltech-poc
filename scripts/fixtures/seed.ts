@@ -258,6 +258,20 @@ function norm_instrument_no(input: string): string {
   return input.toUpperCase().replace(/\s+/g, "").replace(/[^A-Z0-9-]/g, "");
 }
 
+function issueCodeForType(issueType: string): string {
+  const t = String(issueType ?? "").trim();
+  if (!t) return "UNKNOWN";
+
+  // US-002: structured certification-gap code for missing lender.
+  if (t === "survey_certification_gap") return "CERT_MISSING_LENDER";
+
+  const code = t
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return code || "UNKNOWN";
+}
+
 function missingInstrumentDocChecklist(args: {
   expectedFilename: string | null;
   instrumentNo: string | null;
@@ -604,6 +618,93 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
             ].join("\n");
           }
         }
+      }
+    }
+
+    snapshot.rows.push(row);
+  }
+
+  // US-002: seed survey_issues list payload from truth with locked citations and structured issue codes.
+  const surveyIssuesTruthPath = path.join(packRoot, "truth", "expected_survey_issues.csv");
+  if (fs.existsSync(surveyIssuesTruthPath)) {
+    const existingIds = new Set(snapshot.rows.map((r) => r.question_id));
+    const question_id = existingIds.has("TS-09") ? "TS-SURVEY-ISSUES" : "TS-09";
+
+    const row = {
+      question_id,
+      question: "List survey issues.",
+      answer: "Extracted survey issues (see payload).",
+      status: "needs_review" as const,
+      citation_ids: [] as string[],
+      notes: null,
+      payload_schema_version: null,
+      payload_json: null,
+      provenance_json: {},
+    };
+
+    const truth = parseCsv(fs.readFileSync(surveyIssuesTruthPath, "utf8")).rows;
+    const items: any[] = [];
+
+    for (let i = 0; i < truth.length; i++) {
+      const t = truth[i]!;
+      const issue_type = String(t.issue_type ?? "").trim();
+      if (!issue_type) continue;
+
+      const description = String(t.description ?? "").trim();
+      const impact = String(t.impact ?? "").trim();
+      const suggested_fix = String(t.suggested_fix ?? "").trim();
+
+      const itemAnchorId = String(t.citation_anchor ?? "").trim();
+      const itemDoc = String(t.citation_doc ?? "").trim();
+      const itemCid = `cit_${question_id}_ITEM_${i + 1}`;
+
+      const anchorResult = loadAnchorBbox({
+        manifest,
+        packRoot,
+        docFilename: itemDoc,
+        anchorId: itemAnchorId,
+      });
+      if (!anchorResult.ok) {
+        row.status = "citation_failed";
+        row.answer = "Citation verification failed.";
+        row.provenance_json = { reason_code: anchorResult.reason };
+        break;
+      }
+
+      const polygons = anchorBoxToPolygons(anchorResult.anchor);
+      const snippet = `${itemDoc}#${itemAnchorId}: ${issue_type} ${description || "(no description)"}`;
+      snapshot.citations[itemCid] = {
+        document_filename: itemDoc,
+        page_number: anchorResult.anchor.page,
+        polygons,
+        snippet,
+        snippet_hash: hashSnippet(snippet),
+      };
+
+      items.push({
+        kind: "survey_issue_item",
+        item_id: `issue:${issue_type}:${i + 1}`,
+        citation_ids: [itemCid],
+        issue_type,
+        issue_code: issueCodeForType(issue_type),
+        description: description || "(missing description)",
+        impact: impact || null,
+        suggested_fix: suggested_fix || null,
+      });
+    }
+
+    if (row.status !== "citation_failed") {
+      if (items.length < 1) {
+        row.status = "citation_failed";
+        row.answer = "Citation verification failed.";
+        row.provenance_json = { reason_code: "VALIDATION_ERROR" };
+      } else {
+        const payload = { kind: "survey_issues", items };
+        ListPayloadV0Schema.parse(payload);
+        row.payload_schema_version = LIST_PAYLOAD_V0_SCHEMA_VERSION;
+        row.payload_json = payload;
+        // Row invariants require >=1 locked citation_id for needs_review rows.
+        row.citation_ids = [items[0]!.citation_ids[0]!];
       }
     }
 

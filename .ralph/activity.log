@@ -1,6 +1,8 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 17:21:29 | run=20260208-171524-140451 | iter=1 | mode=build | story=US-001 | duration=364s | status=success
+- 2026-02-08 17:14:25 | run=20260208-163923-131740 | iter=3 | mode=build | story=US-001 | duration=729s | status=success
 - 2026-02-08 17:02:12 | run=20260208-163923-131740 | iter=2 | mode=build | story=US-002 | duration=769s | status=success
 - 2026-02-08 16:49:21 | run=20260208-163923-131740 | iter=1 | mode=build | story=US-001 | duration=598s | status=success
 - 2026-02-08 16:36:51 | run=20260208-162438-128744 | iter=2 | mode=build | story=US-002 | duration=707s | status=success
@@ -217,3 +219,33 @@
 [2026-02-08 17:08:55] Browser verify US-001: install agent-browser (dev-browser skill missing runtime)
 [2026-02-08 17:11:13] US-001: run pnpm verify
 [2026-02-08 17:13:36] US-001: progress log updated
+[2026-02-08 17:14:25] ITERATION 3 end (duration=729s)
+[2026-02-08 17:15:25] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 17:15:35] US-001 start: audit guardrails/errors/prd
+[2026-02-08 17:15:45] US-001 discovery: search for certification + pack fixtures
+[2026-02-08 17:15:55] US-001 discovery: inspect truth + comparator + extraction code
+[2026-02-08 17:16:41] US-001 discovery: inspect core extraction/steps
+[2026-02-08 17:16:48] US-001 discovery: read question set + run queue
+[2026-02-08 17:17:29] US-001 discovery: locate ai extraction + citations flow
+[2026-02-08 17:17:37] US-001 discovery: inspect seeded snapshot flow
+[2026-02-08 17:17:42] US-001 discovery: read matters seeded UI + actions
+[2026-02-08 17:21:10] US-001 implemented: extract survey cert parties from layout evidence in seed + core extractor + tests
+[2026-02-08 17:21:29] ITERATION 1 end (duration=364s)
+[2026-02-08 17:21:32] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 17:21:42] US-002 start: structured cert gap issue for missing lender
+[2026-02-08 17:21:48] US-002: locating certification extraction + issue model
+[2026-02-08 17:22:03] US-002: inspect survey issues extraction/comparator
+[2026-02-08 17:23:23] US-002: inspecting survey certification evidence loader
+[2026-02-08 17:23:54] US-002: checking UI/exports for survey issues fields
+[2026-02-08 17:24:34] US-002: inspecting pack_03 survey certification line for lender absence
+[2026-02-08 17:25:34] US-002: implementing survey_issues payload + CERT_MISSING_LENDER issue_code
+[2026-02-08 17:26:27] US-002: checking repo AGENTS instructions
+[2026-02-08 17:26:39] US-002: running pnpm verify
+[2026-02-08 17:27:01] US-002: diagnosing pnpm verify failure (lint/test/build)
+[2026-02-08 17:28:31] US-002: fixing assert_row_invariants to avoid root zod dependency
+[2026-02-08 17:28:59] US-002: making fixture invariant script runnable via plain node (no workspace package import)
+[2026-02-08 17:29:23] US-002: re-running pnpm verify
+[2026-02-08 17:30:00] US-002: reviewing diff before commit
+[2026-02-08 17:32:08] US-002: restoring unrelated tracked files to HEAD
+[2026-02-08 17:33:34] US-002: verifying after cleanup (pnpm verify)
+[2026-02-08 17:34:28] US-002: staging and committing

@@ -1,9 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { z } from "zod";
-
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "../../packages/core/src/schemas/list_payload_v0.ts";
 import { MissingDocCandidateSchema } from "../../packages/core/src/missing-docs/schemas.ts";
 
 import { parseArgs, getStringArg, requireStringArg } from "./lib/args.ts";
@@ -37,16 +35,21 @@ function hasChecklist(row: { notes?: string | null; provenance_json?: unknown })
   const prov = row.provenance_json;
   if (!prov || !isRecord(prov)) return false;
 
-  const ChecklistSchema = z
-    .array(MissingDocCandidateSchema)
-    .min(1)
-    .refine((items) => items.every((c) => c.confidence >= 0.8), "checklist must only include high-confidence candidates");
+  const isHighConfidenceChecklist = (val: unknown): boolean => {
+    if (!Array.isArray(val) || val.length < 1) return false;
+    for (const item of val) {
+      const parsed = MissingDocCandidateSchema.safeParse(item);
+      if (!parsed.success) return false;
+      if (parsed.data.confidence < 0.8) return false;
+    }
+    return true;
+  };
 
   const checklist = prov.checklist;
-  if (ChecklistSchema.safeParse(checklist).success) return true;
+  if (isHighConfidenceChecklist(checklist)) return true;
 
   const missing = prov.missing_docs_checklist;
-  if (ChecklistSchema.safeParse(missing).success) return true;
+  if (isHighConfidenceChecklist(missing)) return true;
 
   return false;
 }
