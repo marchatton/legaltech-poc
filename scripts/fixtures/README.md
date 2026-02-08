@@ -10,6 +10,8 @@ Run with Node's TypeScript stripping:
 
 ```bash
 node --experimental-strip-types scripts/fixtures/seed.ts pack_01_clean
+node --experimental-strip-types scripts/fixtures/eval.ts pack_01_clean
+node --experimental-strip-types scripts/fixtures/eval.ts --all
 node --experimental-strip-types scripts/fixtures/verify_pack_names.ts
 node --experimental-strip-types scripts/fixtures/assert_row_invariants.ts --snapshot <snapshot.json>
 node --experimental-strip-types scripts/fixtures/compare_truth.ts --snapshot <snapshot.json>
