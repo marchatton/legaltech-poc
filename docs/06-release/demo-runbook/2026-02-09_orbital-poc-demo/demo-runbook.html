@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orbital Copilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFBF5; --fg: #1A1A1A; --card: #FFFFFF;
+      --muted: #F0EDE8; --muted-fg: #7A756E;
+      --primary: #FB631B; --primary-fg: #FFFFFF;
+      --accent: #D8ACFF;
+      --border: rgba(26,26,26,0.10); --border-strong: rgba(26,26,26,0.18);
+      --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-pill: 9999px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05); --shadow-md: 0 4px 14px rgba(0,0,0,0.07);
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --serif: 'Crimson Pro', Georgia, serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      --maxw: 960px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--fg); font-family: var(--sans);
+      font-size: 15px; line-height: 1.6;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ─── Topbar ─── */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,251,245,0.96);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: var(--maxw); margin: 0 auto; padding: 10px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 26px; height: 26px; border-radius: 9999px;
+      border: 1px solid var(--border); background: var(--card);
+      box-shadow: var(--shadow-sm); position: relative; flex-shrink: 0;
+    }
+    .brand-icon::before {
+      content: ""; position: absolute; inset: 5px;
+      border-radius: 9999px; border: 1px solid rgba(26,26,26,0.08);
+    }
+    .brand-icon::after {
+      content: ""; position: absolute;
+      width: 5px; height: 5px; border-radius: 9999px;
+      background: var(--primary); top: 5px; left: 16px;
+      box-shadow: 0 0 0 2px var(--card);
+    }
+    .brand-text { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+    .nav { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    .pill {
+      border: 1px solid var(--border); background: var(--card);
+      padding: 5px 11px; border-radius: var(--radius-pill);
+      font-size: 12px; font-weight: 500; color: var(--muted-fg);
+      cursor: pointer; user-select: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all 120ms ease;
+    }
+    .pill:hover { transform: translateY(-1px); border-color: var(--border-strong); text-decoration: none; }
+    .pill .dot { width: 5px; height: 5px; border-radius: 9999px; background: rgba(122,117,110,0.3); }
+    .pill[aria-current="page"] { color: var(--fg); border-color: rgba(251,99,27,0.3); }
+    .pill[aria-current="page"] .dot { background: var(--primary); }
+
+    /* ─── Layout ─── */
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 32px 24px 80px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ─── Home ─── */
+    .home-hero {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 56px 0 48px;
+    }
+    .orbital-ring { width: 100px; height: 100px; position: relative; margin-bottom: 28px; }
+    .orbital-ring .orbit { position: absolute; border-radius: 9999px; border: 1.5px solid rgba(26,26,26,0.07); }
+    .orbital-ring .orbit:nth-child(1) { inset: 0; animation: spin 20s linear infinite; }
+    .orbital-ring .orbit:nth-child(2) { inset: 14px; animation: spin 14s linear infinite reverse; }
+    .orbital-ring .orbit:nth-child(3) { inset: 28px; animation: spin 22s linear infinite; }
+    .orbital-ring .planet { position: absolute; border-radius: 9999px; box-shadow: 0 0 0 3px var(--bg); }
+    .orbital-ring .planet.p1 { width: 8px; height: 8px; background: var(--primary); top: -4px; left: 50%; transform: translateX(-50%); animation: spin 20s linear infinite; }
+    .orbital-ring .planet.p2 { width: 6px; height: 6px; background: var(--accent); bottom: 10px; right: 2px; animation: spin 14s linear infinite reverse; }
+    .orbital-ring .planet.p3 { width: 5px; height: 5px; background: rgba(26,26,26,0.12); top: 34px; left: 1px; animation: spin 22s linear infinite; }
+    .orbital-ring .core { position: absolute; inset: 38px; border-radius: 9999px; background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .home-title { font-family: var(--serif); font-size: 32px; font-weight: 400; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .home-title em { font-style: italic; }
+    .home-sub { color: var(--muted-fg); font-size: 14px; max-width: 440px; }
+
+    /* ─── Agenda ─── */
+    .agenda-wrap { max-width: 480px; margin: 0 auto; }
+    .agenda { list-style: none; display: grid; gap: 1px; background: var(--border); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .agenda li {
+      display: grid; grid-template-columns: 44px 1fr; gap: 12px;
+      padding: 11px 16px; background: var(--card); align-items: baseline;
+    }
+    .time { font-family: var(--mono); font-size: 11px; color: var(--muted-fg); font-variant-numeric: tabular-nums; }
+    .a-title { font-size: 13px; font-weight: 600; }
+    .a-sub { font-size: 11px; color: var(--muted-fg); margin-top: 1px; }
+
+    /* ─── Section title ─── */
+    .stitle { font-family: var(--serif); font-size: 24px; font-weight: 400; margin-bottom: 20px; letter-spacing: -0.01em; }
+
+    /* ─── Grids ─── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ─── Cards ─── */
+    .card {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-xl); padding: 20px; box-shadow: var(--shadow-sm);
+    }
+    .card h3 { font-family: var(--serif); font-size: 17px; font-weight: 500; margin-bottom: 8px; }
+    .card p, .card li { font-size: 13px; color: var(--muted-fg); line-height: 1.6; }
+    .card ul { padding-left: 16px; }
+    .full { grid-column: 1 / -1; }
+    .hr { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* ─── Stack tile ─── */
+    .stack-tile {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-xl); padding: 16px 18px; box-shadow: var(--shadow-sm);
+    }
+    .stack-tile .icon { font-size: 20px; margin-bottom: 6px; display: block; }
+    .stack-tile h4 { font-size: 12px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .stack-tile .libs {
+      font-size: 12px; color: var(--muted-fg); line-height: 1.55;
+      font-family: var(--mono);
+    }
+
+    /* ─── Scenario rows ─── */
+    .scenario {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-lg); padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .scenario + .scenario { margin-top: 8px; }
+    .scenario .label { font-size: 13px; font-weight: 600; }
+    .scenario .desc { font-size: 12px; color: var(--muted-fg); margin-top: 2px; }
+    .scenario .tag {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; padding: 3px 8px;
+      border-radius: var(--radius-pill); flex-shrink: 0;
+    }
+    .tag-pass { background: #ECF9F3; color: #2D8A5F; }
+    .tag-warn { background: #FFF9EB; color: #B27808; }
+    .tag-fail { background: #FEF2F2; color: #C13636; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--fg); padding: 7px 13px;
+      border-radius: var(--radius-md); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 120ms ease; text-decoration: none;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--border-strong); text-decoration: none; }
+
+    /* ─── Diagram ─── */
+    .diagram {
+      border: 1px solid var(--border); background: var(--bg);
+      border-radius: var(--radius-xl); padding: 16px; overflow: auto;
+    }
+
+    /* ─── Placeholder page ─── */
+    .placeholder {
+      text-align: center; padding: 80px 0;
+      color: var(--muted-fg); font-size: 14px;
+    }
+
+    /* ─── ADR table ─── */
+    .adr-list { display: grid; gap: 6px; }
+    .adr-row {
+      display: grid; grid-template-columns: 56px 1fr;
+      gap: 12px; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      background: var(--card); font-size: 12px; align-items: baseline;
+    }
+    .adr-id { font-family: var(--mono); font-size: 11px; color: var(--muted-fg); }
+    .adr-text { color: var(--fg); }
+
+    /* ─── Preflight (hidden) ─── */
+    .codeblock {
+      font-family: var(--mono); font-size: 12px;
+      background: #1A1A1A; color: rgba(255,255,255,0.9);
+      border-radius: var(--radius-md); padding: 10px 12px;
+      overflow: auto; margin-top: 8px;
+    }
+    details { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 12px; background: var(--card); }
+    summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true"></div>
+        <span class="brand-text">Orbital Copilot</span>
+      </div>
+      <nav class="nav" aria-label="Navigation">
+        <a class="pill" href="#/" data-route="/"><span class="dot"></span> Home</a>
+        <a class="pill" href="#/demo" data-route="/demo"><span class="dot"></span> Demo</a>
+        <a class="pill" href="#/approach" data-route="/approach"><span class="dot"></span> Our approach</a>
+        <a class="pill" href="#/architecture" data-route="/architecture"><span class="dot"></span> Architecture</a>
+        <a class="pill" href="#/stack" data-route="/stack"><span class="dot"></span> Stack</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ═══ HOME ═══ -->
+    <section class="page active" id="page-home" data-page="/">
+      <div class="home-hero">
+        <div class="orbital-ring" aria-hidden="true">
+          <div class="orbit"></div><div class="orbit"></div><div class="orbit"></div>
+          <div class="planet p1"></div><div class="planet p2"></div><div class="planet p3"></div>
+          <div class="core"></div>
+        </div>
+        <h2 class="home-title">Orbital <em>Copilot</em></h2>
+        <p class="home-sub">Evidence-first diligence review for CRE teams.</p>
+      </div>
+
+      <div class="agenda-wrap">
+        <ul class="agenda">
+          <li>
+            <div class="time">1</div>
+            <div>
+              <div class="a-title">Live demo</div>
+              <div class="a-sub">Click a citation, see the clause highlighted</div>
+            </div>
+          </li>
+          <li>
+            <div class="time">2</div>
+            <div>
+              <div class="a-title">Safety</div>
+              <div class="a-sub">Missing docs and verification failures</div>
+            </div>
+          </li>
+          <li>
+            <div class="time">3</div>
+            <div>
+              <div class="a-title">Our approach</div>
+              <div class="a-sub">Why evidence-first and fail-closed</div>
+            </div>
+          </li>
+          <li>
+            <div class="time">4</div>
+            <div>
+              <div class="a-title">Architecture</div>
+              <div class="a-sub">Pipeline, data model, deployment</div>
+            </div>
+          </li>
+          <li>
+            <div class="time">5</div>
+            <div>
+              <div class="a-title">Q&amp;A</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══ DEMO ═══ -->
+    <section class="page" id="page-demo" data-page="/demo">
+      <h2 class="stitle">Live scenarios</h2>
+      <div id="scenarioList"></div>
+    </section>
+
+    <!-- ═══ OUR APPROACH ═══ -->
+    <section class="page" id="page-approach" data-page="/approach">
+      <h2 class="stitle">Our approach</h2>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3>The problem</h3>
+        <p>
+          CRE diligence is time-sensitive, but a single miss can blow up insurability, lender comfort, or value.
+          The bottleneck isn't writing or summarizing &mdash; it's converting a messy doc pack into
+          <strong style="color:var(--fg);">checkable work product</strong> that a senior reviewer can sign off on.
+        </p>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3>What teams try today</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:4px;">
+          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Manual</p>
+            <p style="font-size:12px;">Junior associate checklist + copy/paste into Word templates.</p>
+          </div>
+          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Horizontal copilots</p>
+            <p style="font-size:12px;">ChatGPT, Claude, Copilot. Good at summarizing. No repeatable deliverables or evidence trail.</p>
+          </div>
+          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Contract review tools</p>
+            <p style="font-size:12px;">Kira, Luminance. Strong at clause extraction. Not built for title/survey and CRE deliverables.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3>Orbital is a different category</h3>
+        <p style="font-size:15px; color:var(--fg); font-weight:500; font-family:var(--serif); margin-bottom:8px;">
+          CRE diligence work-product automation.
+        </p>
+        <p>
+          Not "chat with PDFs" and not contract review.
+          The product is designed around the outputs you already produce
+          and the evidence you must be able to defend.
+        </p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="card">
+          <h3>Work product, not chat</h3>
+          <p>
+            Issues lists, requirement trackers, exception tables, objection/cure asks &mdash; in your structure.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Evidence-first</h3>
+          <p>
+            Every claim is backed by locked citations.
+            Click to verify instead of trusting the AI.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Real-world packs</h3>
+          <p>
+            Messy scans, missing exhibits, inconsistent formatting.
+            Orbital is built for that reality.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Value</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;">
+          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+            <p style="font-size:12px;"><strong style="color:var(--fg);">Faster first pass</strong> without sacrificing defensibility</p>
+          </div>
+          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+            <p style="font-size:12px;"><strong style="color:var(--fg);">Lower review friction</strong> &mdash; less time hunting for evidence</p>
+          </div>
+          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+            <p style="font-size:12px;"><strong style="color:var(--fg);">Reduced miss risk</strong> &mdash; exceptions and requirements made explicit</p>
+          </div>
+          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+            <p style="font-size:12px;"><strong style="color:var(--fg);">Consistency</strong> across a practice group</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ARCHITECTURE ═══ -->
+    <section class="page" id="page-architecture" data-page="/architecture">
+      <h2 class="stitle">Architecture</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>Ingestion pipeline</h3>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart LR
+  A["Upload"] --> B["OCR +\nlayout"]
+  B --> C["Chunk +\nembed"]
+  C --> D["Index"]
+  D --> E["Ready"]
+            </pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Run execution</h3>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart LR
+  A["Retrieve"] --> B["Hydrate\nevidence"]
+  B --> C["Draft\nanswer"]
+  C --> D["Lock\ncitations"]
+  D --> E["Verify\nintegrity"]
+  E --> F["Write\nrow"]
+            </pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Citation verification</h3>
+          <div class="diagram">
+            <pre class="mermaid">
+sequenceDiagram
+  participant R as Reviewer
+  participant W as Workspace
+  participant A as API
+  participant V as Viewer
+
+  R->>W: Click citation
+  W->>A: Fetch citation + polygons
+  A-->>W: Locked citation object
+  W->>A: Document render (page N)
+  A-->>V: Signed PDF URL
+  V->>V: Verify hash
+  alt Verified
+    V-->>R: Highlighted passage
+  else Failed
+    V-->>R: Failure + reason
+  end
+            </pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Deployment</h3>
+          <div class="diagram">
+            <pre class="mermaid">
+flowchart TB
+  subgraph Vercel["Web tier (Vercel)"]
+    W["Next.js App Router"]
+    W --> S["Streaming UI"]
+    W --> H["Route handlers"]
+  end
+  subgraph Hetzner["Worker tier (Hetzner)"]
+    WDK["Workflow DevKit"]
+    WDK --> OCR["OCR steps"]
+    WDK --> LLM["LLM steps"]
+    WDK --> EMB["Embedding steps"]
+  end
+  subgraph Data["Data plane"]
+    PG["Postgres + pgvector"]
+    OBJ["Object storage"]
+  end
+  Vercel --> Data
+  Hetzner --> Data
+            </pre>
+          </div>
+        </div>
+
+        <div class="card full">
+          <h3>Key decisions</h3>
+          <div class="adr-list">
+            <div class="adr-row">
+              <span class="adr-id">ADR-01</span>
+              <span class="adr-text">Evidence-first: every claim backed by citation IDs and snippet hashes</span>
+            </div>
+            <div class="adr-row">
+              <span class="adr-id">ADR-02</span>
+              <span class="adr-text">Fail-closed: unverifiable citations block export by default</span>
+            </div>
+            <div class="adr-row">
+              <span class="adr-id">ADR-04</span>
+              <span class="adr-text">Hybrid retrieval: lexical (tsvector) + semantic (pgvector), returns chunk IDs</span>
+            </div>
+            <div class="adr-row">
+              <span class="adr-id">ADR-05</span>
+              <span class="adr-text">Durable orchestration: side effects in retryable, idempotent steps</span>
+            </div>
+            <div class="adr-row">
+              <span class="adr-id">ADR-15</span>
+              <span class="adr-text">Deterministic chunking: page-bounded, max 20 lines / 1500 chars, overlap 4</span>
+            </div>
+            <div class="adr-row">
+              <span class="adr-id">ADR-17</span>
+              <span class="adr-text">Verification is integrity-only (v1): schema + hash, no entailment model</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full">
+          <h3>State machines</h3>
+          <div class="grid-2" style="margin-top:0;">
+            <div>
+              <p style="font-size:13px;"><strong>Folder</strong></p>
+              <div class="diagram" style="margin-top:6px;">
+                <pre class="mermaid">
+stateDiagram-v2
+  [*] --> empty
+  empty --> ingesting
+  ingesting --> indexed
+  indexed --> ready
+  ingesting --> failed
+                </pre>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:13px;"><strong>Report row</strong></p>
+              <div class="diagram" style="margin-top:6px;">
+                <pre class="mermaid">
+stateDiagram-v2
+  [*] --> needs_review
+  needs_review --> reviewed
+  [*] --> missing_input
+  [*] --> citation_failed
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STACK ═══ -->
+    <section class="page" id="page-stack" data-page="/stack">
+      <h2 class="stitle">Stack</h2>
+      <div class="grid-3">
+        <div class="stack-tile">
+          <span class="icon" aria-hidden="true">&#9671;</span>
+          <h4>Frontend</h4>
+          <div class="libs">Next.js 15 (App Router)<br>React 19<br>Tailwind CSS<br>TanStack Table<br>pdf.js + overlay layer</div>
+        </div>
+        <div class="stack-tile">
+          <span class="icon" aria-hidden="true">&#9881;</span>
+          <h4>Orchestration</h4>
+          <div class="libs">Workflow DevKit (WDK)<br>Postgres-backed state<br>Retryable idempotent steps<br>Row-by-row progress</div>
+        </div>
+        <div class="stack-tile">
+          <span class="icon" aria-hidden="true">&#10024;</span>
+          <h4>AI</h4>
+          <div class="libs">Vercel AI SDK<br>AI Gateway (model router)<br>Claude for drafting<br>text-embedding-3-large</div>
+        </div>
+        <div class="stack-tile">
+          <span class="icon" aria-hidden="true">&#9638;</span>
+          <h4>Data</h4>
+          <div class="libs">Postgres<br>pgvector (semantic)<br>tsvector (lexical)<br>S3-compatible objects</div>
+        </div>
+        <div class="stack-tile">
+          <span class="icon" aria-hidden="true">&#9744;</span>
+          <h4>OCR</h4>
+          <div class="libs">Azure Document Intelligence<br>Per-page text + geometry<br>Scan-resilient extraction</div>
+        </div>
+        <div class="stack-tile">
+          <span class="icon" aria-hidden="true">&#9673;</span>
+          <h4>Infra</h4>
+          <div class="libs">Vercel (web tier)<br>Hetzner (worker + DB)<br>Zod validation<br>AI SDK telemetry</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PREFLIGHT (hidden from nav) ═══ -->
+    <section class="page" id="page-preflight" data-page="/preflight">
+      <h2 class="stitle">Preflight</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Setup</h3>
+          <details open>
+            <summary>Seed + dev server</summary>
+            <div class="codeblock">pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite</div>
+            <div class="codeblock">pnpm dev</div>
+          </details>
+        </div>
+        <div class="card">
+          <h3>Links</h3>
+          <div class="scenario">
+            <div>
+              <div class="label">Matters (happy path)</div>
+              <div class="desc">pack_01_clean</div>
+            </div>
+            <a class="btn" href="http://localhost:3000/matters?pack=pack_01_clean" target="_blank" rel="noreferrer">Open</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SCENARIOS = [
+      { label: "Evidence verification", desc: "Click a citation to see the source clause highlighted.", url: "http://localhost:3000/matters?pack=pack_01_clean", tag: "pass", tagLabel: "Happy path" },
+      { label: "Missing document", desc: "Required document absent, flagged explicitly.", url: "http://localhost:3000/matters?pack=pack_02_missing_rea", tag: "warn", tagLabel: "Missing input" },
+      { label: "Scanned and rotated PDFs", desc: "Low-quality scans handled gracefully.", url: "http://localhost:3000/matters?pack=pack_07_scans_rotated_low_quality", tag: "pass", tagLabel: "Resilience" },
+      { label: "Verification failure", desc: "Citation can't be verified, fails visibly. Exports blocked.", url: "http://localhost:3000/matters?pack=pack_09_bad_citation", tag: "fail", tagLabel: "Fail-closed" },
+    ];
+
+    function renderScenarios() {
+      const el = document.getElementById("scenarioList");
+      if (!el) return;
+      el.innerHTML = "";
+      SCENARIOS.forEach((s) => {
+        const d = document.createElement("div");
+        d.className = "scenario";
+        d.innerHTML = `
+          <div style="flex:1;min-width:0;">
+            <div class="label">${s.label}</div>
+            <div class="desc">${s.desc}</div>
+          </div>
+          <span class="tag tag-${s.tag}">${s.tagLabel}</span>
+          <a class="btn" href="${s.url}" target="_blank" rel="noreferrer">Open</a>
+        `;
+        el.appendChild(d);
+      });
+    }
+
+    const pages = Array.from(document.querySelectorAll(".page"));
+    const navLinks = Array.from(document.querySelectorAll(".pill[data-route]"));
+
+    function show(route) {
+      let found = false;
+      pages.forEach((p) => { const m = p.dataset.page === route; p.classList.toggle("active", m); if (m) found = true; });
+      if (!found) { pages.forEach((p) => p.classList.toggle("active", p.dataset.page === "/")); route = "/"; }
+      navLinks.forEach((a) => {
+        if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
+        else a.removeAttribute("aria-current");
+      });
+      window.scrollTo({ top: 0, behavior: "instant" });
+      renderMermaid();
+    }
+
+    function go(route) { location.hash = "#" + route; }
+    function currentRoute() { return (location.hash || "#/").replace("#", "") || "/"; }
+
+    function initMermaid() {
+      if (!window.mermaid) return;
+      window.mermaid.initialize({
+        startOnLoad: false, securityLevel: "loose", theme: "base",
+        themeVariables: {
+          fontFamily: "Inter, system-ui, sans-serif", fontSize: "12px",
+          primaryColor: "#FFFFFF", primaryTextColor: "#1A1A1A",
+          primaryBorderColor: "rgba(26,26,26,0.12)", lineColor: "#B7B2AA",
+          secondaryColor: "#F0EDE8", tertiaryColor: "#FFFBF5",
+          noteBkgColor: "#FFFBF5", noteTextColor: "#1A1A1A",
+        },
+      });
+    }
+
+    async function renderMermaid() {
+      try {
+        if (!window.mermaid) return;
+        const active = document.querySelector(".page.active");
+        if (!active) return;
+        const nodes = Array.from(active.querySelectorAll('pre.mermaid:not([data-processed="true"])'));
+        if (!nodes.length) return;
+        await window.mermaid.run({ nodes });
+      } catch {}
+    }
+
+    window.addEventListener("hashchange", () => show(currentRoute()));
+    renderScenarios();
+    initMermaid();
+    show(currentRoute());
+  </script>
+</body>
+</html>
