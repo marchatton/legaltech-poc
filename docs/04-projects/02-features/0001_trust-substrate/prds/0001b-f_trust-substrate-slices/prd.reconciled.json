@@ -1,0 +1,470 @@
+{
+  "version": 1,
+  "project": "0001b-f-trust-substrate-slices",
+  "overview": "Reconciled consolidation of slices 0001b-0001f (viewer, citations, highlight overlay, row statuses + export gate, trace export), explicitly derived from plan.md + prd-overall.* minus the 0001a Matter+Documents scope.",
+  "goals": [
+    "Viewer works for pack_01_clean and remains usable for pack_07_scans_rotated_low_quality (RH1 evidence).",
+    "Zoom is crisp and stable (no devicePixelRatio drift; re-render not CSS scaling).",
+    "Citation payload is sufficient for highlighting and deterministic integrity checks.",
+    "Snippet hashing is stable and single-sourced (RH3 evidence).",
+    "Prove the trust moment on fixture packs with evidence capture (RH2 screenshots + HUD/bbox logs).",
+    "Make trust failures explicit and actionable (no silent failures; no best-effort highlights).",
+    "Exports are blocked by default on evidence failure (server-enforced).",
+    "Failures are debuggable via a safe trace export (no secrets, signed URLs, or raw content)."
+  ],
+  "nonGoals": [
+    "All 0001a scope: create/list/open Matters, upload/init/complete ingest, and document ingest pipelines/state machines.",
+    "Auth/RBAC, sharing, multi-tenant admin.",
+    "External web research inside runs.",
+    "Quick Start runs and workflow orchestration (Initiative 0002).",
+    "Entailment verification beyond deterministic integrity/fail-closed checks.",
+    "Monitoring dashboards.",
+    "Storing raw prompts/document text in trace exports by default."
+  ],
+  "successMetrics": [
+    "pack_01_clean: click-to-highlight works; deliberate bad citation blocks export.",
+    "pack_02_missing_rea: missing-doc checklist shown; missing_input invariant holds; FP=0 on pack_01_clean.",
+    "pack_07_scans_rotated_low_quality: viewer usable; RH1 perf evidence recorded; highlight behavior honest (aligned or explicit cut/patch)."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript) + pdf.js; packages/core domain logic",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/matters/:folderId",
+      "name": "Matter Detail",
+      "purpose": "Extend an existing Matter detail surface with: seeded report rows table, citation chips, row statuses + failure journeys, export gate UI, and trace export button."
+    },
+    {
+      "path": "/viewer/:documentId",
+      "name": "Document Viewer",
+      "purpose": "Render a single PDF page via pdf.js with page nav + zoom; accepts searchParams (page, optional citation). Fetches citation payload and renders overlay + snippet/hash; fail closed on invariant failures."
+    },
+    {
+      "path": "/documents/:id/render",
+      "name": "Render URL Contract",
+      "purpose": "GET /documents/:id/render?page=N returns { document_id, page, render_url } where page is 1-indexed and render_url is a short-lived signed URL."
+    },
+    {
+      "path": "/citations/:id",
+      "name": "Citations API",
+      "purpose": "Fetch a locked citation payload { citation: { id, document_id, page_number, polygons, snippet, snippet_hash } } (immutable) for viewer rendering and integrity checks."
+    },
+    {
+      "path": "/export/csv",
+      "name": "CSV Export API",
+      "purpose": "Server-enforced export gating: block when any row is citation_failed unless an explicit demo-only unsafe override is enabled."
+    },
+    {
+      "path": "/runs/:id/trace",
+      "name": "Trace Export API",
+      "purpose": "Return a safe JSON trace for a selected run_id (admin-token gated) using an explicit allowlist schema; must use the standard error envelope on failures."
+    },
+    {
+      "path": "/spikes/rh1-pdf-perf",
+      "name": "RH1 PDF Perf Harness (Dev-Only)",
+      "purpose": "Run serial/spam page-jump tests and download results JSON for pack_07 scans."
+    },
+    {
+      "path": "/spikes/rh2-overlay",
+      "name": "RH2 Overlay Harness (Dev-Only)",
+      "purpose": "Fixture-backed mini-eval for highlight alignment at 100% zoom only (cut) + rotation + fail-closed cases."
+    },
+    {
+      "path": "/spikes/local-pdf",
+      "name": "Local PDF Fixture Route (Dev-Only)",
+      "purpose": "Serve fixture PDFs to the RH2 harness for deterministic testing (implementation detail)."
+    }
+  ],
+  "uiNotes": [
+    "Viewer renders PDFs via pdf.js and supports page navigation (jump + next/prev) and zoom 50/100/150.",
+    "Zoom must re-render (no CSS-scale drift).",
+    "Use server-first fetch of render_url (no client-side fetch-by-default).",
+    "Citation chips are derived from citation_id values only (no free-text citations).",
+    "Viewer overlays locked citation polygon(s) and shows snippet + snippet_hash.",
+    "Fail closed: if any invariant fails (doc mismatch, page out of range, invalid polygons, snippet_hash mismatch, render_url missing), render no overlay and show explicit failure UI.",
+    "Report table shows terminal status badges: needs_review, reviewed, missing_input, citation_failed.",
+    "Missing-doc journey: missing_input rows show an actionable checklist with concrete evidence signals.",
+    "Citation failure journey: citation_failed rows show explicit safe reason codes and are non-exportable by default.",
+    "Export UI shows blocked state and why; links to failing rows.",
+    "Developer-facing trace export only (no dashboards).",
+    "All failures use the standard error envelope and include trace_id."
+  ],
+  "prereqs": {
+    "ownedBy": "0001a Matter + Documents",
+    "notes": [
+      "Matter list/detail route shells exist and can be extended.",
+      "Documents can be uploaded into a Matter and have stable document_id values.",
+      "Document ingest populates documents.page_count and documents.storage_key (object storage).",
+      "Object storage posture exists (S3-compatible; signed URL generation helpers)."
+    ]
+  },
+  "securityPosture": {
+    "signedUrls": [
+      "Generate render_url/download_url on demand with short TTL (target 5-15 minutes).",
+      "Never persist signed URLs in DB.",
+      "Never include signed URLs in provenance or trace exports.",
+      "Never log signed URLs; treat X-Amz-* query params as secrets."
+    ],
+    "adminTokenGating": [
+      "Require X-Orbital-Admin-Token to match env ORBITAL_ADMIN_TOKEN.",
+      "Missing/mismatched returns 403 with standard error envelope.",
+      "Token must never be stored, returned, or logged."
+    ],
+    "devOnlyEndpoints": [
+      "Dev-only endpoints must live under /spikes/* and return 404 outside dev.",
+      "Validate inputs with Zod; avoid filesystem traversal patterns."
+    ],
+    "traceRedaction": [
+      "Trace exports are shareable artifacts and must contain only ids, timings, counts, code enums, and hashes by default.",
+      "Do not export raw PDF bytes, extracted text, prompts, provider payloads/headers, file paths, signed URLs, auth tokens, or PII."
+    ],
+    "storageLogging": [
+      "Extracted text in Postgres is sensitive; avoid logging raw document content.",
+      "Object storage holds raw PDFs and artifacts; logs/traces/analytics must redact tokens and signed URLs."
+    ]
+  },
+  "nextjsBoundaries": [
+    "Default to RSC for route shells under apps/web/app/(app)/**; keep client components small.",
+    "Use Next.js Route Handlers under apps/web/app/(api)/**/route.ts for client->server calls.",
+    "pdf.js is client-only: keep imports behind a client boundary and use dynamic import.",
+    "Avoid passing large payloads through RSC props; prefer ids + client/server fetch."
+  ],
+  "spikeGates": {
+    "blockedBy": [
+      "RH1 (pdf.js perf on scans) blocks US-001/US-002",
+      "RH2 (overlay transforms) blocks US-005/US-006",
+      "RH3 (snippet hash stability) blocks US-003/US-004",
+      "RH4 (verification precision/latency) blocks US-008",
+      "RH5 (missing-doc heuristics) blocks US-007"
+    ],
+    "passCriteria": {
+      "RH1": [
+        "Range precondition: target PDF URL returns Accept-Ranges: bytes and honors Range: bytes=0-10 with 206 Partial Content (record header proof).",
+        "Define totalMs as time from request page N to renderTask.promise resolve (exclude initial PDF load).",
+        "Serial test (N=20, 100% zoom): p95(totalMs) < 1000ms and max(totalMs) < 1500ms.",
+        "Spam test (N=30 @ 200ms): maxLongTaskMs < 250ms and final requested page completes < 1500ms after its request timestamp.",
+        "Cancellation requirement: >= 70% intermediate renders are cancelled (from harness output).",
+        "Evidence committed: downloaded run JSON(s) + summary table in spike-investigation.md.",
+        "Range proof must be for the viewer's actual render_url target, not just /spikes/local-pdf."
+      ],
+      "RH2": [
+        "pack_01: one commitment anchor and one survey anchor align at 100% zoom.",
+        "Cut: highlight overlay is verified at 100% zoom only (ADR-0020) and viewer enforces 100% zoom while highlight is active.",
+        "Rotation: at least one rotated/scanned case in pack_07, or an explicit cut/patch is recorded.",
+        "Fail-closed proof: invalid polygon and wrong page show explicit failure UI and render no overlay.",
+        "Evidence committed: screenshots with HUD + bbox log JSON."
+      ],
+      "RH3": [
+        "hashSnippet() and normaliseSnippet() are single-sourced (core) and unit tested.",
+        "Harness packages/core/src/spikes/rh3_snippet_hash_harness.ts run twice yields identical hashes across runs for the same extracted snippets.",
+        "Evidence committed: two JSON outputs + a stability note/table in spike-investigation.md."
+      ],
+      "RH4": [
+        "Dataset: docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json (>= 20 bad examples).",
+        "Pass criteria (integrity-only): false_passes = 0.",
+        "Latency budget: p95 <= 8s per row on dev machine (record p50/p95/max).",
+        "Evidence committed: results summary + raw results JSON (and any rubric/prompt notes if used later)."
+      ],
+      "RH5": [
+        "pack_02_missing_rea: flags REA.pdf as missing with an actionable checklist.",
+        "pack_01_clean: false positives are zero (FP=0).",
+        "Only high-confidence candidates shown by default (confidence >= 0.8).",
+        "Evidence committed: harness output + a short note describing signals and candidate confidence."
+      ]
+    },
+    "evidence": "See docs/04-projects/02-features/0001_trust-substrate/plan.md and spike-investigation.md for PASS criteria and evidence locations."
+  },
+  "dataModel": [
+    {
+      "entity": "Document (prereq)",
+      "fields": [
+        "id",
+        "folder_id",
+        "filename",
+        "storage_key",
+        "page_count"
+      ]
+    },
+    {
+      "entity": "RenderContract",
+      "fields": [
+        "GET /documents/:id/render?page=N returns { document_id, page, render_url }",
+        "page is 1-indexed and used for initial viewer state/validation",
+        "render_url is a short-lived signed URL and is never persisted"
+      ]
+    },
+    {
+      "entity": "Citation (locked, immutable)",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "polygons (normalized [0..1], origin top-left)",
+        "snippet",
+        "snippet_hash",
+        "index_version",
+        "chunk_id (optional)",
+        "created_at"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "folder_id",
+        "run_id",
+        "question_id",
+        "answer",
+        "status (needs_review|reviewed|missing_input|citation_failed)",
+        "citation_ids[]",
+        "provenance_json (missing-doc checklist, reason codes, retrieved chunks, etc)"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "folder_id",
+        "state (running|completed|failed)",
+        "trace_id",
+        "index_version"
+      ]
+    },
+    {
+      "entity": "RunStep",
+      "fields": [
+        "run_id",
+        "step_key",
+        "step_type",
+        "state",
+        "attempt",
+        "duration_ms",
+        "metrics_json (timings, token/cost usage, chunk counts)",
+        "error_json (safe; no stack traces/provider payloads)"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "folder_id",
+        "run_id",
+        "kind",
+        "schema_version",
+        "filename",
+        "storage_key",
+        "metadata_json (unsafe_override, reason codes)",
+        "created_at",
+        "download_url (generated on demand; never persisted)"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture packs under docs/08-example-data/ validate viewer usability/perf (PDF packs), highlight alignment (anchors), and failure journeys. Trace export exports internal provenance/traces (no fixture input needed).",
+    "example": {
+      "packs": [
+        "pack_01_clean",
+        "pack_02_missing_rea",
+        "pack_07_scans_rotated_low_quality"
+      ],
+      "anchorsGlob": "docs/08-example-data/*/layout/*.anchors.json"
+    }
+  },
+  "rules": [
+    "Canonical contracts must not drift: docs/03-architecture/50_api_surface.md, docs/03-architecture/20_state_model.md, docs/03-architecture/30_data_model.md, docs/03-architecture/DECISIONS.md.",
+    "Validate all external inputs at route/API boundaries with Zod and return the standard safe error envelope (no internal leak).",
+    "All failures return the standard error envelope and include trace_id for debugging.",
+    "Viewer is client-only; keep pdf.js imports behind a client boundary and cancel in-flight renders on navigation.",
+    "Viewer rendering rules: use viewport CSS px for layout; keep canvas backing store scaled by devicePixelRatio for crispness; handle rotation safely (respect page.rotate); render a single page at a time in this slice.",
+    "Citations are immutable after insert; fixing creates a new citation and updates the owning row to reference the new id.",
+    "snippet_hash uses canonical rule: sha256: + sha256_hex(normalise(snippet)) (lowercase hex); normalise(snippet): trim; CRLF->LF; collapse whitespace runs to a single space.",
+    "Fixture convention: fixtures may reference documents by filename; the fixture seeder maps filename -> documents.id and citations persist documents.id in citations.document_id (never persist filename in citations.document_id).",
+    "Highlight renderer is a pure mapping util (unit-testable) and reused in viewer overlay rendering.",
+    "Canonical polygon spec: store polygons as normalized [0..1] coords (origin top-left, relative to unrotated viewBox); map to viewport CSS px via viewBox -> viewport.convertToViewportPoint(); render overlay in viewport CSS px space.",
+    "Fail-closed highlight: if any citation invariant fails (doc mismatch, wrong page, invalid polygons, snippet_hash mismatch), render no overlay and show explicit citation_failed UI.",
+    "missing_input invariant: answer is exactly 'Not found in provided documents.' and citations are empty.",
+    "Export gating is server-enforced: block export when any row is citation_failed by default (EXPORT_BLOCKED); exports allowed only when runs.state = completed; unsafe_override is demo-only and admin-token gated.",
+    "Reason codes recorded in provenance align with docs/03-architecture/60_observability_and_evals.md where possible.",
+    "Trace export uses an explicit allowlist schema and is safe/redacted by default; never includes signed URLs, auth tokens, raw PDFs, provider payloads, or full extracted doc text.",
+    "Dev-only harness endpoints live under /spikes/* and return 404 outside dev."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Open and view a PDF",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to open a PDF so that I can inspect evidence.",
+      "acceptanceCriteria": [
+        "AC-001: From Matter detail, I can open a viewer route for a selected document.",
+        "AC-002: Viewer fetches render_url via GET /documents/:id/render?page=N (1-indexed page) and renders via pdf.js.",
+        "AC-003: Viewer shows an explicit error state if render_url is unavailable or the document is not found.",
+        "Example: Open commitment and survey PDFs from pack_01_clean and confirm they render.",
+        "Negative case: Unknown document_id returns NOT_FOUND (safe envelope) and the UI shows an explicit error + retry/back affordance."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Page navigation and zoom stays responsive on scans",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspect evidence in low-quality packs.",
+      "acceptanceCriteria": [
+        "AC-004: PDFs served to pdf.js support Range requests (Accept-Ranges: bytes; Range: bytes=... returns 206 Partial Content). Without this, RH1 perf numbers are invalid.",
+        "AC-004a: Capture Range precondition proof for the viewer's actual render_url target (Range: bytes=0-10 returns 206 Partial Content).",
+        "AC-005: Define totalMs as time from request page N to renderTask.promise resolve (exclude initial PDF load). Serial test (N=20, 100% zoom): p95(totalMs) < 1000ms and max(totalMs) < 1500ms.",
+        "AC-006: Spam test (N=30 @ 200ms): viewer remains responsive (maxLongTaskMs < 250ms) and final requested page completes < 1500ms after its request timestamp; intermediate renders are cancelled (>=70% cancellation rate).",
+        "AC-007: Zoom 50/100/150 re-renders consistently (no CSS-scaling drift).",
+        "Example: Run /spikes/rh1-pdf-perf against pack_07 and record results JSON + summary stats in spike-investigation.md.",
+        "Negative case: If Range support is missing for the viewer's actual render_url target, the harness reports the precondition failure and RH1 is NO-GO."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Fetch a locked citation by ID",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want to fetch a citation payload so that I can inspect evidence reliably.",
+      "acceptanceCriteria": [
+        "AC-001: GET /citations/:id returns { citation: { id, document_id, page_number, polygons, snippet, snippet_hash } } (response shape per API surface).",
+        "AC-002: Errors use the standard error envelope with safe code/message (no leaks).",
+        "Example: Fetch a known seeded citation_id from pack_01_clean and confirm the response contains snippet + snippet_hash + geometry.",
+        "Negative case: Unknown citation_id returns 404 NOT_FOUND using the standard error envelope.",
+        "Negative case: Invalid id format returns VALIDATION_ERROR using the standard error envelope."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Canonical snippet hashing is stable",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want one canonical hashing implementation so that citation integrity checks are reliable.",
+      "acceptanceCriteria": [
+        "AC-003: normaliseSnippet() + hashSnippet() are implemented once in packages/core and reused everywhere (no duplicate implementations); unit tests cover whitespace invariance per the canonical rule.",
+        "AC-004: RH3 harness (packages/core/src/spikes/rh3_snippet_hash_harness.ts) produces identical hashes across two runs using snippets from pack_01_clean.",
+        "AC-004a: Evidence committed: two harness JSON outputs + a stability note/table in spike-investigation.md.",
+        "Example: A snippet with CRLF newlines and multiple whitespace runs hashes identically to the normalized LF + single-space form.",
+        "Negative case: Attempting to introduce a second hashing implementation is blocked by tests or code review (single source of truth)."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Click citation chip -> open viewer at cited evidence",
+      "status": "open",
+      "dependsOn": [
+        "US-001",
+        "US-003"
+      ],
+      "description": "As a reviewer, I want to click a citation chip and jump to the cited PDF page so that I can inspect evidence quickly.",
+      "acceptanceCriteria": [
+        "AC-001: Seeded report rows render citation chips derived from citation_id values only (no free-text citations).",
+        "AC-002: Clicking a chip navigates to the viewer with the correct document_id and page (1-indexed) and includes the citation id in the URL/search params.",
+        "Example: In pack_01_clean, click chips across at least two documents and confirm navigation lands on the correct page.",
+        "Negative case: If the citation fetch fails or is invalid, the viewer renders an explicit citation_failed state and does not attempt best-effort overlay."
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Evidence highlights align across zoom + rotation",
+      "status": "open",
+      "dependsOn": [
+        "US-005"
+      ],
+      "description": "As a reviewer, I want the highlight to stay glued to the clause across zoom and rotation so that I can trust what I am seeing.",
+      "acceptanceCriteria": [
+        "AC-003: Highlight aligns at 100% zoom for at least one commitment anchor and one survey anchor (pack_01).",
+        "AC-004: Highlight overlay is verified at 100% zoom only (cut) and the viewer enforces this (snap/disable zoom or require reset to 100%).",
+        "AC-005: Highlight remains aligned on at least one rotated/scanned page (pack_07) or an explicit cut/patch is enforced and documented.",
+        "AC-006: Fail-closed: deliberate invalid polygon or wrong page yields explicit failure UI and no overlay.",
+        "AC-006a: Evidence committed: screenshots with HUD + bbox log JSON.",
+        "Example: Use /spikes/rh2-overlay to capture screenshots at 100% with HUD visible for pack_01 anchors.",
+        "Negative case: Inject an out-of-range polygon (violates [0..1]) or wrong page and confirm citation_failed + no overlay."
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Missing docs yields missing_input with checklist",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want missing inputs to be explicit and actionable so that I can upload the right documents.",
+      "acceptanceCriteria": [
+        "AC-001: Rows with no supporting evidence resolve to missing_input.",
+        "AC-002: missing_input rows have answer exactly 'Not found in provided documents.', zero citations, and a checklist with concrete evidence signals ({label, confidence, signals[]}); only show high-confidence candidates by default (confidence >= 0.8).",
+        "AC-003: Missing-doc detection flags REA.pdf in pack_02_missing_rea and produces no missing-doc flags in pack_01_clean (FP=0).",
+        "AC-003a: Evidence committed: harness output + a short note describing signals and candidate confidence.",
+        "Example: On pack_02_missing_rea, open the report table and confirm the missing-doc checklist is visible and actionable.",
+        "Negative case: On pack_01_clean, no rows are marked missing_input due to false missing-doc detection (FP=0)."
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Bad evidence yields citation_failed and blocks export",
+      "status": "open",
+      "dependsOn": [
+        "US-007",
+        "US-003",
+        "US-004"
+      ],
+      "description": "As a reviewer, I want evidence failures to block export so that we don't ship untrusted outputs.",
+      "acceptanceCriteria": [
+        "AC-004: A deliberate bad citation yields citation_failed with a safe reason_code; integrity checks are fail-closed and deterministic (no entailment model).",
+        "AC-005: Export is blocked by default when any row is citation_failed: POST /export/csv returns non-2xx with error.code=EXPORT_BLOCKED; gating is server-enforced.",
+        "AC-005a: POST /export/csv matches API surface: request { folder_id, run_id, kind, unsafe_override } and success { artefact: { id, kind, filename, storage_key, download_url, created_at } }.",
+        "AC-006: Unsafe override is demo-only and admin-token gated: unsafe_override=true returns 403 UNAUTHORISED when demo mode is not enabled; if allowed, artefact is visibly labelled unsafe and metadata records the override.",
+        "AC-006a: Export is allowed only when runs.state=completed; otherwise return a conflict and create no artefact.",
+        "AC-007: Flag citation wrong action records a safe feedback event with citation_id + reason code (no sensitive payloads).",
+        "AC-007a: RH4 PASS criteria are met and evidence is recorded: false_passes=0; p95 <= 8s per row; dataset >= 20 bad examples; results summary + raw results JSON committed.",
+        "Example: In pack_01_clean, a deliberately corrupted citation yields citation_failed and export attempts return EXPORT_BLOCKED.",
+        "Negative case: When runs.state != completed, export requests are rejected (conflict) and no artefact is created."
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "needs_review -> reviewed is explicit and persisted",
+      "status": "open",
+      "dependsOn": [
+        "US-008"
+      ],
+      "description": "As a reviewer, I want to mark a row as reviewed so that the table reflects what I've checked.",
+      "acceptanceCriteria": [
+        "AC-008: Rows can transition needs_review -> reviewed only via explicit user action.",
+        "AC-009: Status invariants hold: needs_review and reviewed rows have >=1 locked citation.",
+        "Example: Click Mark reviewed on a needs_review row and confirm the status persists after refresh.",
+        "Negative case: Attempt to mark reviewed on a row with zero citations is rejected and the UI shows an explicit safe reason."
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Download run trace JSON",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want to download a run trace so that I can debug failures deterministically.",
+      "acceptanceCriteria": [
+        "AC-001: Trace export includes run metadata (run_id, folder_id, state, index_version, agent_bundle_version, question_set_version), step records (step_key, step_type, state, attempt, duration_ms, safe error_json), and per-row provenance (question_id, retrieved {chunk_id, score} list, verification verdict + reason codes, citation_ids).",
+        "AC-002: Trace export is safe by default: no raw PDF bytes, avoid full extracted document text, no provider payload dumps, and no signed URLs/auth tokens.",
+        "AC-003: Failures return the standard error envelope with trace_id.",
+        "Example: Download a trace JSON for a known run_id and spot-check required keys + safety rules.",
+        "Negative case: Request trace export for an unknown run_id returns NOT_FOUND (safe envelope) and the UI surfaces the trace_id."
+      ]
+    }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft (Reconciled snapshot; excludes 0001a scope)",
+    "date": "2026-02-08",
+    "slug": "0001b-f-trust-substrate-slices",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001b-f_trust-substrate-slices/prd.reconciled.md"
+  }
+}
+
