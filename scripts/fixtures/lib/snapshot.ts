@@ -23,6 +23,7 @@ export type SnapshotRow = {
 };
 
 export type SnapshotCitation = {
+  document_id?: string;
   document_filename: string;
   page_number: number;
   polygons: NormPolygons;

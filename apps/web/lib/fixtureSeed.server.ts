@@ -5,10 +5,17 @@ import path from "node:path";
 
 import { z } from "zod";
 
+import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+
 const SeedStatusSchema = z.enum(["needs_review", "reviewed", "missing_input", "citation_failed"]);
 
 export const SeedCitationSchema = z.object({
-  document_filename: z.string().min(1),
+  // Back-compat: older snapshots may not include document_id yet.
+  document_id: z.string().min(1).optional(),
+  document_filename: z
+    .string()
+    .min(1)
+    .regex(/^[A-Za-z0-9_-]+\.pdf$/i, "Invalid document filename"),
   page_number: z.number().int().positive(),
   polygons: z
     .array(
@@ -22,6 +29,8 @@ export const SeedCitationSchema = z.object({
 });
 
 export type SeedCitation = z.infer<typeof SeedCitationSchema>;
+
+export type ResolvedSeedCitation = Omit<SeedCitation, "document_id"> & { document_id: string };
 
 export const SeedSnapshotSchema = z.object({
   meta: z
@@ -45,6 +54,7 @@ export const SeedSnapshotSchema = z.object({
 });
 
 export type SeedSnapshot = z.infer<typeof SeedSnapshotSchema>;
+export type ResolvedSeedSnapshot = Omit<SeedSnapshot, "citations"> & { citations: Record<string, ResolvedSeedCitation> };
 
 function seedRoot(): string {
   // In Next dev, `process.cwd()` resolves to `apps/web`.
@@ -66,7 +76,7 @@ export function seedSnapshotPath(packId: string): string {
   return path.join(seedRoot(), packId, "snapshot.json");
 }
 
-export function loadSeedSnapshot(packId: string): SeedSnapshot | null {
+export function loadSeedSnapshot(packId: string): ResolvedSeedSnapshot | null {
   const filePath = seedSnapshotPath(packId);
   if (!fs.existsSync(filePath)) return null;
 
@@ -76,7 +86,16 @@ export function loadSeedSnapshot(packId: string): SeedSnapshot | null {
     // Keep errors explicit in dev; this is a dev-only tracer bullet.
     throw new Error(`Invalid seed snapshot (${filePath}): ${parsed.error.message}`);
   }
-  return parsed.data;
+
+  const citations: Record<string, ResolvedSeedCitation> = {};
+  for (const [citationId, cit] of Object.entries(parsed.data.citations ?? {})) {
+    citations[citationId] = {
+      ...cit,
+      document_id: cit.document_id ?? fixtureDocumentId({ packId, filename: cit.document_filename }),
+    };
+  }
+
+  return { ...parsed.data, citations };
 }
 
 export function saveSeedSnapshot(packId: string, snapshot: SeedSnapshot): void {

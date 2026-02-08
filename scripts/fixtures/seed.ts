@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { AnchorFileSchema, anchorBoxToPolygons, type AnchorBox } from "../../packages/core/src/geometry/anchors.ts";
 import { hashSnippet } from "../../packages/core/src/citations/snippet.ts";
+import { fixtureDocumentId } from "../../packages/core/src/fixtures/fixtureIds.ts";
 import { detectMissingDocs } from "../../packages/core/src/missing-docs/detectMissingDocs.ts";
 import { matchExceptionToInstrumentDocs } from "../../packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.ts";
 import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "../../packages/core/src/schemas/list_payload_v0.ts";
@@ -51,6 +52,7 @@ type SeedSnapshot = {
   citations: Record<
     string,
     {
+      document_id: string;
       document_filename: string;
       page_number: number;
       polygons: ReturnType<typeof anchorBoxToPolygons>;
@@ -475,7 +477,9 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
 
       const polygons = anchorBoxToPolygons(anchorResult.anchor);
       const snippet = snippetFor(q, c);
+      const document_id = fixtureDocumentId({ packId, filename: c.doc });
       snapshot.citations[cid] = {
+        document_id,
         document_filename: c.doc,
         page_number: anchorResult.anchor.page,
         polygons,
@@ -825,7 +829,9 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
 
       if (anchorResult.ok) {
         const snippet = `${base.doc}#${base.anchor}: (intentionally corrupted snippet_hash for fail-closed UX)`;
+        const document_id = fixtureDocumentId({ packId, filename: base.doc });
         snapshot.citations[badId] = {
+          document_id,
           document_filename: base.doc,
           page_number: anchorResult.anchor.page,
           polygons: anchorBoxToPolygons(anchorResult.anchor),
