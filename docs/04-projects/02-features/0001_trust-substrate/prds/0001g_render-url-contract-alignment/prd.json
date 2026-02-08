@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "project": "0001g-render-url-contract-alignment",
+  "overview": "Close contract drift by implementing GET /documents/:id/render?page=N and making the viewer + RH1 proof use the returned render_url (signed, Range-capable).",
+  "goals": [
+    "Implement the canonical render_url contract so 0001b viewer acceptance criteria are verifiable against the real API.",
+    "Ensure the render_url target supports Range requests so RH1 evidence is meaningful for the real pipeline."
+  ],
+  "nonGoals": [
+    "Citation overlay changes (US-005/US-006).",
+    "Migrating fixture seed snapshots from filename-based document identifiers to DB document ids.",
+    "Production S3 presigning integration (PoC can use an app-signed URL; production can swap behind the contract later)."
+  ],
+  "successMetrics": [
+    "RH1 evidence is re-recorded for the actual render_url target and meets thresholds.",
+    "0001b viewer PRD US-001 AC-002 and US-002 AC-004 are unblocked by contract-aligned implementation."
+  ],
+  "openQuestions": [
+    "For PoC, should render_url be a query-signed app route (presigned-style) or should pdf.js use header-signed requests (httpHeaders)?",
+    "Should /matters/viewer be replaced by /viewer/:documentId, or keep both and deprecate later?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 (App Router) + React 19 (TypeScript)",
+    "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
+    "database": "Postgres (pgvector) via Docker Compose",
+    "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
+  },
+  "routes": [
+    {
+      "path": "/documents/:id/render",
+      "name": "Render URL",
+      "purpose": "GET /documents/:id/render?page=N returns { document_id, page, render_url } (page is 1-indexed)."
+    },
+    {
+      "path": "/viewer/:documentId",
+      "name": "Document Viewer",
+      "purpose": "Fetch render_url server-first and render via pdf.js with page + zoom."
+    },
+    {
+      "path": "/spikes/rh1-pdf-perf",
+      "name": "RH1 PDF Perf Harness (Dev-Only)",
+      "purpose": "Run serial/spam page-jump tests and download results JSON; must prove Range on render_url target."
+    }
+  ],
+  "uiNotes": [
+    "Viewer must use server-first fetch of render_url; no client-side fetch-by-default.",
+    "render_url target must be Range-capable (Accept-Ranges: bytes; Range returns 206).",
+    "Feature-flagged rollout: FEATURE_PDF_VIEWER gates /viewer/* entry points."
+  ],
+  "dataModel": [
+    {
+      "entity": "Document",
+      "fields": [
+        "id",
+        "folder_id",
+        "filename",
+        "page_count",
+        "storage_key"
+      ]
+    },
+    {
+      "entity": "RenderContract",
+      "fields": [
+        "GET /documents/:id/render?page=N returns { document_id, page, render_url }",
+        "render_url is a signed URL to the whole PDF (what pdf.js loads)",
+        "page is 1-indexed and used for initial viewer state/validation"
+      ]
+    },
+    {
+      "entity": "SignedPdfEndpoint",
+      "fields": [
+        "render_url target validates signature + expiry",
+        "supports Range and returns 206 Partial Content"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Verification uses fixture PDFs under docs/08-example-data/* and the existing upload flow (scripts/us002_smoke.ts) to create DB documents with storage_key.",
+    "example": {
+      "fixturePack": "pack_07_scans_rotated_low_quality",
+      "fixturePdf": "TitleCommitment_SCANNED_ROTATED.pdf",
+      "smokeScript": "scripts/us002_smoke.ts"
+    }
+  },
+  "rules": [
+    "Signed URLs (render_url) are generated on demand with short TTL; never persisted; never included in traces/provenance; never logged.",
+    "render_url target must serve the whole PDF and support Range (pdf.js compatible).",
+    "The PDF bytes endpoint validates storage keys (allowlist) and prevents path traversal; no arbitrary filesystem reads.",
+    "All route boundaries use Zod validation and the standard safe error envelope (include trace_id).",
+    "Dev-only endpoints remain under /spikes/* and return 404 outside development."
+  ],
+  "qualityGates": [
+    "pnpm verify",
+    "pnpm typecheck"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Fetch a signed render URL for a document",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer/developer, I want to request a render_url for a document so that pdf.js can load it safely.",
+      "acceptanceCriteria": [
+        "AC-001: GET /documents/:id/render?page=N returns { document_id, page, render_url } and validates document exists; page is 1-indexed and within [1..page_count] when page_count is known.",
+        "AC-002: render_url points to a URL that serves the whole PDF and supports Range: Accept-Ranges: bytes and Range: bytes=0-10 returns 206 Partial Content with Content-Range.",
+        "AC-003: Errors use the standard safe error envelope and include trace_id.",
+        "Example: Upload a PDF via the existing upload flow, then fetch render_url for page 1 and confirm the Range precheck passes against the returned render_url.",
+        "Negative case: Unknown document id returns NOT_FOUND (safe envelope).",
+        "Negative case: Page out of range returns VALIDATION_ERROR (safe envelope)."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Viewer and RH1 harness use the render_url target",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As a reviewer, I want the viewer and RH1 harness to use render_url so performance evidence matches the real pipeline.",
+      "acceptanceCriteria": [
+        "AC-004: /viewer/:documentId?page=N fetches render_url server-first and loads the PDF in pdf.js using that URL.",
+        "AC-005: RH1 harness can be run against the render_url target and records Range proof + serial/spam perf JSON artifacts under docs/04-projects/02-features/0001_trust-substrate/spike-proofs/ and an updated summary/decision in spike-investigation.md.",
+        "Example: Run RH1 on pack_07_scans_rotated_low_quality via render_url and record evidence.",
+        "Negative case: If Range support is missing on the render_url target, the harness reports NO-GO and does not emit misleading perf numbers."
+      ]
+    }
+  ],
+  "meta": {
+    "owner": "marc",
+    "status": "Draft",
+    "date": "2026-02-08",
+    "slug": "0001g-render-url-contract-alignment",
+    "sourceMarkdownPath": "docs/04-projects/02-features/0001_trust-substrate/prds/0001g_render-url-contract-alignment/prd.md"
+  },
+  "primaryObservableEffect": "Viewer and RH1 proof run against the real render_url target (signed + Range-capable), eliminating contract drift from 0001b.",
+  "inScope": [
+    "API: GET /documents/:id/render?page=N per API surface.",
+    "A signed PDF bytes endpoint used as the render_url target (Range + 206).",
+    "Viewer route /viewer/:documentId that fetches render_url server-first and renders via pdf.js.",
+    "RH1 proof updated to run against render_url target (not just /spikes/local-pdf)."
+  ],
+  "functionalRequirements": [
+    "FR-001: Signed URLs (render_url) are generated on demand with short TTL; never persisted; never included in traces/provenance; never logged.",
+    "FR-002: The PDF bytes endpoint validates storage keys (allowlist) and prevents path traversal; no arbitrary filesystem reads.",
+    "FR-003: The PDF bytes endpoint supports single-range requests and returns correct 206 responses (pdf.js compatible).",
+    "FR-004: Viewer remains client-only for pdf.js imports (dynamic import boundary); server components fetch render_url server-first.",
+    "FR-005: All route boundaries use Zod validation and the standard safe error envelope."
+  ],
+  "failureStatesUx": [
+    "Render URL fetch fails: explicit error panel with safe code + retry/back.",
+    "Render URL expired/unauthorised: explicit error panel instructing retry (server will mint a new URL).",
+    "Range request invalid: return 416 and surface a viewer error state (no silent partial rendering)."
+  ],
+  "metricsLogging": {
+    "events": [
+      "document.render_url_issued",
+      "document.pdf_range_served"
+    ],
+    "metrics": [
+      "render_url_issue_latency_ms",
+      "pdf_range_served_bytes",
+      "RH1 totalMs p50/p95/max on render_url target"
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag: FEATURE_PDF_VIEWER gates /viewer/* entry points.",
+    "Safe fallback: keep /spikes/local-pdf for local debugging, but treat it as non-authoritative for RH1 closure once render_url exists."
+  ],
+  "risksDependencies": {
+    "blockedBy": [
+      "RH1 pdf.js performance on scanned/rotated PDFs (must be proven on render_url target)"
+    ],
+    "dependencies": [
+      "Documents have storage_key (object store) and ideally page_count for bounds validation."
+    ],
+    "risks": [
+      "Signed URL leakage via logs/traces if not treated as secret.",
+      "Range implementation bugs can break pdf.js or invalidate RH1 measurements."
+    ]
+  },
+  "sources": [
+    "docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.md",
+    "docs/04-projects/02-features/0001_trust-substrate/prds/0001b-f_trust-substrate-slices/prd.reconciled.md",
+    "docs/04-projects/02-features/0001_trust-substrate/plan.md",
+    "docs/03-architecture/50_api_surface.md",
+    "docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md",
+    "docs/04-projects/02-features/0001_trust-substrate/risk-register.md"
+  ]
+}
+
