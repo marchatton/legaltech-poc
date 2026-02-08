@@ -1,94 +1,94 @@
 # Drift Report: `0001_trust-substrate` (Docs ↔ PRDs ↔ Code)
 
 ## Scope + constraints
-Compared sources (in selected context):
+Compared sources:
 - Architecture docs: `docs/03-architecture/*`
 - PRDs (JSON): `docs/04-projects/02-features/0001_trust-substrate/prds/*/prd.json` + `docs/04-projects/02-features/0001_trust-substrate/prd-overall.json`
 - Implementation: `apps/web/app`, `apps/web/lib`, `packages/core/src`
-- Fixture tooling: `scripts/fixtures/*` + smoke scripts
+- Smoke scripts: `scripts/us00*_smoke.ts`
 
 Notes:
-- Some docs may be slightly stale (per your note); this report treats docs/PRDs as the *target contract* and code as “what’s true today.”
-- Sequencing note you requested: 0002a first → 0002b–f → 0002g (gaps). That sequencing reduces drift confidence for any 0001 behavior that will later be re-grounded in the 0002 canonical run model.
+- Some docs may be slightly stale (per your note); this report treats docs/PRDs as the target contract and code as “what’s true today.”
+- Sequencing note: 0002a first → 0002b–f → 0002g (gaps). This reduces drift confidence for any 0001 behavior that will later be re-grounded in the 0002 canonical run model.
 
 ---
 
 ## Requirements Checklist (Implemented / Partial / Missing / Extra)
 
-### Safe error envelope + `trace_id` (contract)
+### Safe error envelope + `trace_id` correlation
+- **Status:** Implemented (across route handlers)
 - **Spec:** non-2xx uses envelope; server includes `trace_id` in body and `X-Trace-Id` header. `docs/03-architecture/50_api_surface.md:38`, `docs/03-architecture/50_api_surface.md:42`
-- **Core support (envelope includes trace_id):** `packages/core/src/safe-error.ts:10`
-- **Implemented (some endpoints):**
-  - `GET /documents/:id/render`: `traceId` minted + `X-Trace-Id` header + error envelope uses `traceId`. `apps/web/app/(api)/documents/[id]/render/route.ts:22`, `apps/web/app/(api)/documents/[id]/render/route.ts:25`, `apps/web/app/(api)/documents/[id]/render/route.ts:32`
-  - `GET /runs/:id/trace`: `traceId` minted + `X-Trace-Id` header + error envelope uses `traceId`. `apps/web/app/(api)/runs/[id]/trace/route.ts:131`, `apps/web/app/(api)/runs/[id]/trace/route.ts:135`, `apps/web/app/(api)/runs/[id]/trace/route.ts:140`
-- **Partial / drift (many endpoints omit `trace_id`):**
-  - `POST /folders`: errors use envelope but no trace. `apps/web/app/(api)/folders/route.ts:49`
-  - `GET /folders/:id`: errors use envelope but no trace. `apps/web/app/(api)/folders/[id]/route.ts:21`
-  - `GET /citations/:id`: errors use envelope but no trace. `apps/web/app/(api)/citations/[id]/route.ts:93`
+- **Core support:** envelope supports `trace_id`. `packages/core/src/safe-error.ts:10`
+- **Web helper:** `createTraceContext()` mints `traceId` and sets `X-Trace-Id`. `apps/web/lib/trace.server.ts:3`
+- **Evidence (examples):**
+  - `GET /citations/:id`: `apps/web/app/(api)/citations/[id]/route.ts:89`
+  - `POST /folders`: `apps/web/app/(api)/folders/route.ts:47`
+  - `GET /folders/:id`: `apps/web/app/(api)/folders/[id]/route.ts:15`
 
 ### Admin token (`X-Orbital-Admin-Token`)
-- **Spec:** require header matching env `ORBITAL_ADMIN_TOKEN`, else `403 UNAUTHORISED`. `docs/03-architecture/50_api_surface.md:33`
-- **Implemented (trace export checks token):** `apps/web/app/(api)/runs/[id]/trace/route.ts:48`, `apps/web/app/(api)/runs/[id]/trace/route.ts:50`
-- **Partial / drift:** dev-bypass when admin token not configured. `apps/web/app/(api)/runs/[id]/trace/route.ts:41`, `apps/web/app/(api)/runs/[id]/trace/route.ts:44`
+- **Status:** Implemented (strict by default) + **Extra:** explicit dev-only bypass when token is unset
+- **Spec:** require header matching env `ORBITAL_ADMIN_TOKEN`, else `403 UNAUTHORISED`. `docs/03-architecture/50_api_surface.md:33`, `docs/03-architecture/50_api_surface.md:36`
+- **Implementation:** `GET /runs/:id/trace` checks token. `apps/web/app/(api)/runs/[id]/trace/route.ts:38`, `apps/web/app/(api)/runs/[id]/trace/route.ts:50`
+- **Extra (dev only):** allow bypass only when `NODE_ENV=development` and `ALLOW_ADMIN_BYPASS=1`. `apps/web/app/(api)/runs/[id]/trace/route.ts:44`
 
 ### Spike endpoint gating (`/spikes/*` requires `SPIKES_ENABLED=1`)
-- **Spec:** `/spikes/*` gated behind `SPIKES_ENABLED=1`, else `404`. `docs/03-architecture/50_api_surface.md:81`, `docs/03-architecture/50_api_surface.md:83`
-- **Missing / drift:** current spike endpoints gate on `NODE_ENV === "development"` only:
-  - `GET /spikes/local-pdf`: `apps/web/app/(api)/spikes/local-pdf/route.ts:12`
-  - `POST /spikes/rh4-verify`: `apps/web/app/(api)/spikes/rh4-verify/route.ts:7`
-  - `POST /spikes/export/csv`: `apps/web/app/(api)/spikes/export/csv/route.ts:24`
+- **Status:** Implemented (works in any env where `SPIKES_ENABLED=1`, including a separate dev env)
+- **Spec:** `/spikes/*` gated behind `SPIKES_ENABLED=1`, else `404`. `docs/03-architecture/50_api_surface.md:5`, `docs/03-architecture/50_api_surface.md:83`
+- **Shared gate:** `assertSpikesEnabled()` returns `404` with a safe envelope. `apps/web/lib/spikes.server.ts:3`
+- **Applied to spikes routes:**
+  - `GET /spikes/local-pdf`: `apps/web/app/(api)/spikes/local-pdf/route.ts:13`
+  - `POST /spikes/rh4-verify`: `apps/web/app/(api)/spikes/rh4-verify/route.ts:9`
+  - `POST /spikes/export/csv`: `apps/web/app/(api)/spikes/export/csv/route.ts:134`
 
 ### Render URL contract (`GET /documents/:id/render?page=N`)
+- **Status:** Implemented
 - **Spec:** returns `{document_id,page,render_url}`; `page` 1-indexed; `render_url` is signed URL to whole PDF. `docs/03-architecture/50_api_surface.md:226`, `docs/03-architecture/50_api_surface.md:231`, `docs/03-architecture/50_api_surface.md:235`
-- **Implemented:** response shape matches.
-  - Fixture-doc branch: `apps/web/app/(api)/documents/[id]/render/route.ts:96`
-  - DB-doc branch: `apps/web/app/(api)/documents/[id]/render/route.ts:173`
-- **Implemented:** out-of-range page validation when `page_count` known. `apps/web/app/(api)/documents/[id]/render/route.ts:153`, `apps/web/app/(api)/documents/[id]/render/route.ts:154`
+- **Implementation:**
+  - Fixture-doc branch: `apps/web/app/(api)/documents/[id]/render/route.ts:92`
+  - DB-doc branch: `apps/web/app/(api)/documents/[id]/render/route.ts:169`
+  - Out-of-range page validation when `page_count` known: `apps/web/app/(api)/documents/[id]/render/route.ts:149`
 
 ### Range support for PDFs (pdf.js requirement)
-- **Implemented (signed PDF endpoint supports Range):**
-  - Sets `Accept-Ranges: bytes`: `apps/web/app/(api)/documents/[id]/pdf/route.ts:209`
-  - Returns `206` for valid ranges: `apps/web/app/(api)/documents/[id]/pdf/route.ts:229`
-- **Implemented (local spike PDF endpoint supports Range):**
-  - Sets `Accept-Ranges: bytes`: `apps/web/app/(api)/spikes/local-pdf/route.ts:51`
-  - Returns `206` for valid ranges: `apps/web/app/(api)/spikes/local-pdf/route.ts:72`
-- **Implemented (smoke proof exists):** range precheck asserts `206`, `Accept-Ranges`, and `Content-Range`. `scripts/us001_render_smoke.ts:100`, `scripts/us001_render_smoke.ts:106`, `scripts/us001_render_smoke.ts:111`, `scripts/us001_render_smoke.ts:116`
+- **Status:** Implemented
+- **Implementation (signed PDF endpoint supports Range):** `apps/web/app/(api)/documents/[id]/pdf/route.ts:205`, `apps/web/app/(api)/documents/[id]/pdf/route.ts:225`
+- **Implementation (local spike PDF endpoint supports Range):** `apps/web/app/(api)/spikes/local-pdf/route.ts:61`, `apps/web/app/(api)/spikes/local-pdf/route.ts:83`
+- **Smoke proof exists:** range precheck asserts `206`, `Accept-Ranges`, and `Content-Range`. `scripts/us001_render_smoke.ts:100`, `scripts/us001_render_smoke.ts:116`
 
 ### Trace export (`GET /runs/:id/trace`)
+- **Status:** Partial (fixture-backed; not yet the canonical persisted run model)
 - **PRD:** feature-flagged, admin-only, off by default (`FEATURE_TRACE_EXPORT`). `docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.json:30`, `docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.json:41`
-- **Implemented:** feature flag gate. `apps/web/app/(api)/runs/[id]/trace/route.ts:138`
-- **Implemented:** response is an attachment. `apps/web/app/(api)/runs/[id]/trace/route.ts:289`
-- **Partial / drift:** trace is fixture-backed and “steps” are synthesized, not persisted (no DB runs/steps tables). `apps/web/app/(api)/runs/[id]/trace/route.ts:184`, `apps/web/app/(api)/runs/[id]/trace/route.ts:258`
+- **Spec:** safe-by-default trace export. `docs/03-architecture/50_api_surface.md:335`, `docs/03-architecture/50_api_surface.md:341`
+- **Implementation:** `apps/web/app/(api)/runs/[id]/trace/route.ts:132`
+- **Drift:** trace is fixture-backed and “steps” are synthesized; not persisted (no DB `runs/run_steps/...`). `apps/web/lib/db.server.ts:45`, `docs/03-architecture/30_data_model.md:18`
 
-### Export gating (`POST /export/csv` blocks on `citation_failed`)
-- **Spec:** default `EXPORT_BLOCKED` when any row is `citation_failed`. `docs/03-architecture/50_api_surface.md:62`, `docs/03-architecture/50_api_surface.md:405`
-- **State model:** export blocked unless unsafe override; intended demo-only. `docs/03-architecture/20_state_model.md:158`, `docs/03-architecture/20_state_model.md:160`
-- **Implemented (fixture-backed):** detects failures and returns `EXPORT_BLOCKED`. `apps/web/app/(api)/export/csv/route.ts:82`, `apps/web/app/(api)/export/csv/route.ts:173`
-- **Partial / drift:** uses `folder_id` as allowlisted `pack_id` (dev scaffold), not a DB folder id. `apps/web/app/(api)/export/csv/route.ts:17`
+### CSV export (`POST /export/csv`)
+- **Status:** Missing (target contract reserved) + **Extra:** fixture-backed spike implementation
+- **Spec:** default `EXPORT_BLOCKED` when any row is `citation_failed`. `docs/03-architecture/50_api_surface.md:403`, `docs/03-architecture/50_api_surface.md:409`
+- **Current behavior:** canonical endpoint returns `NOT_FOUND` and points to spike route. `apps/web/app/(api)/export/csv/route.ts:7`
+- **Spike implementation:** `POST /spikes/export/csv` implements fail-closed verification + artefact creation. `apps/web/app/(api)/spikes/export/csv/route.ts:134`, `apps/web/app/(api)/spikes/export/csv/route.ts:187`
+- **Download endpoint (signed):** `GET /export/csv/download?expires&sig=...` is implemented. `apps/web/app/(api)/export/csv/download/route.ts:37`
 
 ### Canonical snippet hashing (single source of truth)
-- **PRD:** must be implemented once in core + reused, with tests for invariance. `docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.json:104`
+- **Status:** Implemented
 - **Spec (hashing rule):** `docs/03-architecture/30_data_model.md:210`, `docs/03-architecture/30_data_model.md:214`
-- **Implemented:** `packages/core/src/citations/snippet.ts:3`, `packages/core/src/citations/snippet.ts:7`
-- **Implemented (tests):**
+- **Core implementation:** `packages/core/src/citations/snippet.ts:3`, `packages/core/src/citations/snippet.ts:7`
+- **Tests:**
   - Single-source guardrail: `packages/core/src/citations/snippet.single-source.test.ts:43`
-  - Whitespace invariance: `packages/core/src/citations/snippet.test.ts:5`, `packages/core/src/citations/snippet.test.ts:11`
+  - Whitespace invariance: `packages/core/src/citations/snippet.test.ts:5`
 
 ### Deterministic verification v1 (integrity-only)
-- **Implemented:** `verifyRow()` integrity-only invariants:
-  - missing_input invariant: `packages/core/src/verify/verifier.ts:35`
-  - non-missing_input must have citations: `packages/core/src/verify/verifier.ts:44`
-  - snippet_hash match: `packages/core/src/verify/verifier.ts:53`
-  - deterministic-only mode: `packages/core/src/verify/verifier.ts:67`
+- **Status:** Implemented
+- **Core invariants:** `packages/core/src/verify/verifier.ts:35`, `packages/core/src/verify/verifier.ts:53`, `packages/core/src/verify/verifier.ts:67`
 
 ### Canonical persistence (trust spine tables)
+- **Status:** Missing (major structural drift)
 - **Spec:** ERD expects `runs`, `run_steps`, `report_rows`, `citations`, `artefacts`. `docs/03-architecture/30_data_model.md:18`, `docs/03-architecture/30_data_model.md:23`
-- **Missing in current DB schema:** only `folders`, `documents`, `document_pages`, `chunks`. `apps/web/lib/db.server.ts:48`, `apps/web/lib/db.server.ts:96`
+- **Current DB schema:** only `folders`, `documents`, `document_pages`, `chunks`. `apps/web/lib/db.server.ts:48`, `apps/web/lib/db.server.ts:96`
 
 ### Extra (present in code, not in target contract)
-- Fixture-driven scaffold paths and IDs (e.g. `pack_*` used as `folder_id` for export/trace/citations) that behave “contract-like” but are not the canonical run model.
-  - Export: `apps/web/app/(api)/export/csv/route.ts:17`
-  - Trace: `apps/web/app/(api)/runs/[id]/trace/route.ts:184`
+- Fixture-driven scaffold IDs (e.g. `pack_*` used as `folder_id` in spikes and `pack` query escape hatches).
+  - Spike export expects `folder_id` to be `pack_*`: `apps/web/app/(api)/spikes/export/csv/route.ts:21`
+  - Citations API uses seeded packs to resolve IDs: `apps/web/app/(api)/citations/[id]/route.ts:92`
 
 ---
 
@@ -102,74 +102,59 @@ Notes:
 
 ### Report-row invariants (aligned in core, not persisted)
 - Doc invariants for `missing_input` and locked citations exist. `docs/03-architecture/20_state_model.md:145`, `docs/03-architecture/20_state_model.md:148`
-- Core verifier enforces key integrity constraints, but it runs against fixture snapshots or request-time computed structures (no persisted `report_rows`/`citations` tables yet). `packages/core/src/verify/verifier.ts:35`, `packages/core/src/verify/verifier.ts:53`, `apps/web/lib/db.server.ts:45`
+- Core verifier enforces key integrity constraints, but it runs against fixture snapshots or request-time computed structures (no persisted `report_rows`/`citations` tables yet). `packages/core/src/verify/verifier.ts:35`, `apps/web/lib/db.server.ts:45`
 
 ### API surface mismatches
-- `trace_id` correlation is inconsistent across endpoints (see checklist). The spec expects correlation to be ubiquitous. `docs/03-architecture/50_api_surface.md:38`
-- Spike gating is not implemented per spec (`SPIKES_ENABLED=1`). `docs/03-architecture/50_api_surface.md:83`
+- Target export contract is defined at `POST /export/csv`, but current working export implementation is under `/spikes/export/csv`. `docs/03-architecture/50_api_surface.md:403`, `apps/web/app/(api)/export/csv/route.ts:7`
 
 ### Data model mismatch (major)
 - Docs/PRDs assume append-only execution persistence for auditability and replay (`runs/run_steps/report_rows/citations/artefacts`). `docs/03-architecture/30_data_model.md:18`, `docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.json:43`
-- Code today is mostly “fixture mode” for citations/trace/export, with DB schema stopping at chunks. `apps/web/lib/db.server.ts:94`
+- Code today is primarily “fixture mode” for citations/trace/export, with DB schema stopping at chunks. `apps/web/lib/db.server.ts:94`
 
 ---
 
 ## Generated-Code Notes
-- No OpenAPI/GraphQL/proto/codegen inputs were found in the selected context.
-- Generated artifacts likely present in the repo but not relevant to trust substrate drift:
-  - `apps/web/next-env.d.ts` (Next.js)
-  - `apps/web/tsconfig.tsbuildinfo` (TypeScript incremental)
+- No OpenAPI/GraphQL/proto/codegen inputs were found in the reviewed areas.
 
 ---
 
 ## Risks (Security / Data / Perf / Compat)
 
 ### Security
-- Spike endpoints are dev-gated only; missing the required `SPIKES_ENABLED=1` gate increases accidental exposure risk. `docs/03-architecture/50_api_surface.md:83`, `apps/web/app/(api)/spikes/local-pdf/route.ts:12`
-- Trace export admin bypass in dev can normalize a weaker posture than PRD intent unless explicitly documented as a dev-only concession. `apps/web/app/(api)/runs/[id]/trace/route.ts:41`
+- Spike endpoints are now gated by `SPIKES_ENABLED=1` (reduces accidental exposure risk), but this is still a footgun if enabled in the wrong environment. `apps/web/lib/spikes.server.ts:4`
+- Trace export is admin-only by default; the only bypass is explicit and dev-only (`ALLOW_ADMIN_BYPASS=1`). `apps/web/app/(api)/runs/[id]/trace/route.ts:44`
 
 ### Data integrity
 - Fixture-mode can diverge from canonical DB-backed behavior once 0002 lands; without persisted trust spine tables, “what happened” is not auditable beyond a snapshot file.
 
 ### Compatibility
-- Signed render_url + Range semantics are validated by smoke script. `scripts/us001_render_smoke.ts:93`, `scripts/us001_render_smoke.ts:106`
+- Signed `render_url` + Range semantics are validated by smoke script. `scripts/us001_render_smoke.ts:93`, `scripts/us001_render_smoke.ts:106`
 
 ### Operational ergonomics
-- Object-store signing secret defaults to a per-process dev value if `OBJECT_STORE_SIGNING_SECRET` is unset; signed URLs will break across restarts. `apps/web/lib/objectStore.server.ts:42`, `apps/web/lib/objectStore.server.ts:46`, `apps/web/lib/objectStore.server.ts:49`
+- Object-store signing secret defaults to a per-process dev value if `OBJECT_STORE_SIGNING_SECRET` is unset; signed URLs will break across restarts. `apps/web/lib/objectStore.server.ts:42`, `apps/web/lib/objectStore.server.ts:46`
+- Sprite dev environments may require `localhost`→`127.0.0.1` normalization for Postgres. `apps/web/lib/db.server.ts:14`
 
 ---
 
 ## Test Gaps
 
-Unit / integration gaps (vs contract):
-- `trace_id` standardization: add tests asserting all non-2xx responses include `error.trace_id` + `X-Trace-Id` for canonical endpoints (e.g. folders/citations).
+- `trace_id` standardization: add tests asserting all non-2xx responses include `error.trace_id` + `X-Trace-Id` for key endpoints.
 - Spike gating: add tests asserting `/spikes/*` returns `404` unless `SPIKES_ENABLED=1`.
-- Admin token posture: add tests asserting `GET /runs/:id/trace` is admin-only outside of explicit dev/demo bypass.
+- Admin token posture: add tests asserting `GET /runs/:id/trace` is admin-only unless the explicit dev bypass is enabled.
 
-Existing smoke tests:
-- Render_url + Range proof: `scripts/us001_render_smoke.ts:93` and the Range assertions at `scripts/us001_render_smoke.ts:100`.
-- Ingest state transitions + ready check proof: `scripts/us002_smoke.ts:145`, `scripts/us002_smoke.ts:153`.
+Existing smoke proof:
+- Render_url + Range proof: `scripts/us001_render_smoke.ts:93`.
 
 ---
 
 ## Next Steps (Smallest-First)
 
-1. Standardize `trace_id` everywhere
-- Add a small helper to mint `traceId` + set `X-Trace-Id`, and use it in all route handlers.
-- Start with: `apps/web/app/(api)/folders/route.ts:19`, `apps/web/app/(api)/folders/[id]/route.ts:14`, `apps/web/app/(api)/citations/[id]/route.ts:88`.
+1. Decide how to handle export surface drift
+- Either implement `POST /export/csv` per `docs/03-architecture/50_api_surface.md:403`, or explicitly move the contract under `/spikes/*` and update docs.
 
-2. Enforce `/spikes/*` gating per contract
-- Introduce `assertSpikesEnabled()` that checks `SPIKES_ENABLED === "1"` and returns `404` envelope otherwise.
-- Apply to: `apps/web/app/(api)/spikes/local-pdf/route.ts:12`, `apps/web/app/(api)/spikes/rh4-verify/route.ts:7`, `apps/web/app/(api)/spikes/export/csv/route.ts:24`.
+2. Make fixture mode explicit
+- Add a short “fixture mode vs canonical mode” section to `docs/03-architecture/50_api_surface.md:5` and/or move remaining fixture-backed endpoints under `/spikes/*`.
 
-3. Tighten admin-token posture for trace export
-- Replace implicit dev-bypass with explicit env (e.g. `ALLOW_ADMIN_BYPASS=1`) so “admin-only by default” stays true. `apps/web/app/(api)/runs/[id]/trace/route.ts:41`.
-
-4. Make “fixture mode” explicit
-- Either:
-  - Docs: add a short “fixture mode vs canonical mode” section to `docs/03-architecture/50_api_surface.md:5`.
-  - Code: move fixture-backed versions under `/spikes/*` and keep canonical paths reserved for DB-backed implementations.
-
-5. Close the largest structural drift: persist trust spine tables
-- Extend `apps/web/lib/db.server.ts` to add `runs`, `run_steps`, `report_rows`, `citations`, `artefacts` as in `docs/03-architecture/30_data_model.md:18`.
+3. Close the largest structural drift: persist trust spine tables
+- Extend `apps/web/lib/db.server.ts:45` to add `runs`, `run_steps`, `report_rows`, `citations`, `artefacts` per `docs/03-architecture/30_data_model.md:18`.
 - Migrate `GET /runs/:id/trace` and `POST /export/csv` to read from persisted run state.
