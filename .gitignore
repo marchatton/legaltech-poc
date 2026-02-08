@@ -23,6 +23,7 @@ docs/04-projects/**/throwaway/
 **.firecrawl/
 **.parallel/
 **.probe/
+/.agents/backup/
 /.agents/skills/00-product-sense/
 tmp/fixture-seed/
 
