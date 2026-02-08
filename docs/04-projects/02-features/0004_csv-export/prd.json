@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "project": "0004 CSV Exports + Artefacts List (Requirements / Exceptions / Survey Issues)",
-  "overview": "Ship deterministic, demo-grade CSV exports (requirements_tracker, exceptions_table, survey_issues) aligned with canonical architecture contracts: strict fail-closed gating (blocked on citation_failed by default with a guarded demo-only unsafe override), artefact persistence + listing, and reliable downloads via fresh signed URLs.",
+  "project": "0004 CSV Exports (Requirements / Exceptions / Survey Issues)",
+  "overview": "Ship deterministic, demo-grade CSV exports (requirements_tracker, exceptions_table, survey_issues) aligned with canonical architecture contracts: strict fail-closed gating (blocked on citation_failed by default with a guarded demo-only unsafe override) and persistence as artefacts (listed/downloaded via 0008 with fresh signed URLs).",
   "goals": [
     "A demo operator can export all 3 CSV artefacts from docs/08-example-data/pack_01_clean.",
     "Export is deterministic (locked headers + deterministic row ordering).",
     "Export is only available when runs.state = completed.",
     "Export is blocked by default when any row is citation_failed unless demo-only unsafe_override=true is explicitly used.",
-    "Exported artefacts are listed for the matter and downloadable via fresh signed URLs.",
+    "Exported CSVs are persisted as artefacts and can be downloaded via the matter's artefacts list (0008).",
     "Exports include row status and citations rendered as filename:page plus citation_ids."
   ],
   "nonGoals": [
@@ -19,13 +19,13 @@
     "Any destructive reset tooling."
   ],
   "successMetrics": [
-    "From pack_01_clean, exports and downloads work end-to-end for all 3 CSV kinds.",
+    "From pack_01_clean, exports work end-to-end for all 3 CSV kinds and persist artefacts successfully.",
     "CSV outputs match the spike-locked schemas and deterministic ordering rules.",
-    "Default trust posture is preserved: citation_failed blocks exports unless explicitly unsafe in demo mode.",
-    "Artefact list produces fresh download URLs and remains refresh-safe."
+    "Default trust posture is preserved: citation_failed blocks exports unless explicitly unsafe in demo mode."
   ],
   "openQuestions": [
-    "Dependency: Initiative 002 must persist structured payload_json + payload_schema_version; exports fail closed until present."
+    "Dependency: Initiative 002 must persist structured payload_json + payload_schema_version; exports fail closed until present.",
+    "Dependency: 0008 must provide artefacts persistence + listing/download via GET /folders/:id/artefacts (fresh signed URLs)."
   ],
   "stack": {
     "framework": "Next.js (apps/web) + packages/core",
@@ -38,7 +38,6 @@
     "UI includes export buttons for the 3 CSV kinds.",
     "UI disables export until run completion.",
     "UI shows a blocked banner on EXPORT_BLOCKED with counts and next action.",
-    "UI includes an artefacts list with working download links (fresh signed URLs).",
     "Unsafe override CTA exists only when DEMO_MODE && ALLOW_UNSAFE_EXPORTS and must be clearly labelled UNSAFE."
   ],
   "dataModel": [
@@ -98,7 +97,7 @@
       "dependsOn": [],
       "description": "As a demo operator, I can export the requirements tracker, exceptions table, and survey issues CSVs for a completed run so I can share outputs outside the UI.",
       "acceptanceCriteria": [
-        "Example: From docs/08-example-data/pack_01_clean, operator can export all 3 CSV kinds (requirements_tracker, exceptions_table, survey_issues) and download them successfully.",
+        "Example: From docs/08-example-data/pack_01_clean, operator can export all 3 CSV kinds (requirements_tracker, exceptions_table, survey_issues) and download them successfully via the artefacts list (0008).",
         "Each CSV output matches the spike-locked header list + ordering and has deterministic row ordering.",
         "Exports include row_status, citations rendered as filename:page, and citation_ids.",
         "Negative: Export consumes structured row payload (payload_json + payload_schema_version) and fails closed if payload is missing (no prose parsing fallback).",
@@ -117,23 +116,11 @@
         "Negative: unsafe_override=true is demo-only; when DEMO_MODE and ALLOW_UNSAFE_EXPORTS are not enabled, API returns 403 UNAUTHORISED and the UI does not expose an unsafe CTA.",
         "Negative: Unsafe exports are clearly labelled (filename + metadata_json) and do not export untrusted evidence for citation_failed-derived items (citations/citation_ids empty, notes prefixed UNSAFE: )."
       ]
-    },
-    {
-      "id": "US-003",
-      "title": "View And Download Artefacts",
-      "status": "open",
-      "dependsOn": ["US-001"],
-      "description": "As a demo operator, I can see previously exported artefacts for a matter and download them reliably.",
-      "acceptanceCriteria": [
-        "Example: Export persists an artefact record with storage_key, source_run_id, kind, schema_version, and filename; it appears in GET /folders/:id/artefacts.",
-        "Example: GET /folders/:id/artefacts includes a fresh signed download_url (not persisted) and download links still work after refresh.",
-        "Negative: No signed URLs are persisted; only storage_key + metadata are stored, and download_url is generated on demand."
-      ]
     }
   ],
   "metadata": {
     "owner": "TBD",
-    "status": "DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)",
+    "status": "DRAFT (GO: spike outcomes locked; remaining dependencies are Initiative 002 structured row payload persistence + 0008 artefacts foundation)",
     "date": "2026-02-07"
   },
   "lockedDecisions": {
@@ -203,9 +190,8 @@
       "Export gating: require runs.state=completed (else 409 CONFLICT); block on citation_failed unless unsafe_override=true.",
       "unsafe_override=true guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS; unsafe exports labelled *.UNSAFE.csv and recorded in metadata_json.",
       "CSV schemas v1 with locked header list + ordering and deterministic row ordering rules.",
-      "Artefact persistence: persist storage_key + metadata (kind, schema_version, filename, source_run_id); do not persist signed URLs.",
-      "GET /folders/:id/artefacts returns list with fresh download_url values.",
-      "UI export buttons + disabled/blocked states + artefacts list.",
+      "Persist created CSVs as artefacts using 0008 (storage_key + metadata; signed URLs generated via GET /folders/:id/artefacts).",
+      "UI export buttons + disabled/blocked states.",
       "Logging: export attempt + success/blocked/failure with trace_id."
     ],
     "outOfScope": [
@@ -217,17 +203,16 @@
     "parts": [
       "F1 (export endpoints)",
       "F2 (CSV schemas + mappers)",
-      "F4 (artefacts list)",
       "F5 (export UI states)"
     ],
-    "affordances": ["U1", "U2", "U4", "U5"],
+    "affordances": ["U1", "U2", "U5"],
     "codeAffordances": ["N1", "N2", "N3", "N5", "N6"]
   },
   "verificationPlan": [
     "Fixture packs: docs/08-example-data/pack_01_clean and docs/08-example-data/pack_02_missing_rea.",
     "Contract checks: API request/response shapes match docs/03-architecture/50_api_surface.md; export gating matches docs/03-architecture/20_state_model.md.",
     "Snapshot tests: CSV headers + ordering per kind; deterministic row ordering per kind.",
-    "Manual smoke: export works twice in a row for the same completed run; artefact list download links work after refresh (fresh signed URLs)."
+    "Manual smoke: export works twice in a row for the same completed run; created artefacts are visible/downloadable via the artefacts list (0008)."
   ],
   "failureStatesUx": [
     "Export not ready: run not completed -> export disabled; API returns 409 CONFLICT if called anyway.",
