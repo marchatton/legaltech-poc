@@ -280,3 +280,40 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter
   - Useful context
     - Mapping remains stable across intrinsic `page.rotate` when using `viewport.convertToViewportPoint()` and sizing overlays in viewport CSS px.
 ---
+## [2026-02-08 12:33 UTC] - US-007: Missing docs yields missing_input with checklist
+Thread: 
+Run: 20260208-082954-32669 (iteration 11)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-11.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-11.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: a70df77 feat(missing-docs): add missing_input checklist
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: dev-browser (headless) /matters pack_02 + pack_01 -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-082954-32669-iter-10.md
+  - apps/web/app/(app)/matters/page.tsx
+  - docs/04-projects/02-features/0001_trust-substrate/prds/0001b-f_trust-substrate-slices/prd.json
+  - packages/core/src/missing-docs/detectMissingDocs.fixtures.test.ts
+  - packages/core/src/missing-docs/detectMissingDocs.ts
+  - scripts/fixtures/assert_row_invariants.ts
+  - scripts/fixtures/seed.ts
+- What was implemented
+  - Fixed missing-doc detection to correctly match file refs/acronyms/phrases.
+  - Seeded a canonical `missing_input` row when high-confidence missing docs are detected (answer is exactly `Not found in provided documents.`, zero citations), with a structured checklist in provenance.
+  - Rendered the missing-doc checklist panel for `missing_input` rows in the Matters report UI (high-confidence by default; low-confidence hidden).
+  - Added a fixture-pack test asserting REA.pdf is flagged in `pack_02_missing_rea` and no missing-doc flags occur in `pack_01_clean` (FP=0).
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Keeping the missing-doc checklist shape aligned to the core schema (label/confidence/signals) makes it easy to render and validate end-to-end.
+  - Gotchas encountered
+    - dev-browser must run headless in this environment (no X server).
+    - Regex literals should not be double-escaped; tests on fixture packs catch silent FN/FP drift quickly.
+  - Useful context
+    - Browser screenshots saved under `.agents/skills/00-utilities/dev-browser/tmp/us007-pack02-matters.png` and `.agents/skills/00-utilities/dev-browser/tmp/us007-pack01-matters.png`.
+---
