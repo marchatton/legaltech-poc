@@ -126,3 +126,8 @@
 [2026-02-08 13:14:29] US-010: running pnpm verify
 [2026-02-08 13:15:28] US-010: starting dev server on :3001 for browser verification
 [2026-02-08 13:16:06] ITERATION 13 end (duration=935s)
+[2026-02-08 14:37:08] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 14:37:27] US-001 start: implement GET /documents/:id/render
+[2026-02-08 14:50:01] US-001: added /documents/:id/render and /documents/:id/pdf endpoints + smoke script
+[2026-02-08 14:51:11] US-001: pnpm typecheck PASS; pnpm verify PASS
+[2026-02-08 14:53:03] US-001: manual smoke (scripts/us001_render_smoke.ts) PASS

@@ -97,7 +97,7 @@
     {
       "id": "US-001",
       "title": "Fetch a signed render URL for a document",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a reviewer/developer, I want to request a render_url for a document so that pdf.js can load it safely.",
       "acceptanceCriteria": [
@@ -107,7 +107,10 @@
         "Example: Upload a PDF via the existing upload flow, then fetch render_url for page 1 and confirm the Range precheck passes against the returned render_url.",
         "Negative case: Unknown document id returns NOT_FOUND (safe envelope).",
         "Negative case: Page out of range returns VALIDATION_ERROR (safe envelope)."
-      ]
+      ],
+      "startedAt": "2026-02-08T14:37:08.458707+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T14:37:08.458741+00:00"
     },
     {
       "id": "US-002",
@@ -187,4 +190,3 @@
     "docs/04-projects/02-features/0001_trust-substrate/risk-register.md"
   ]
 }
-

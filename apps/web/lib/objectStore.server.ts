@@ -73,7 +73,7 @@ export function verifySignature(args: { storageKey: string; expiresAtMs: number;
   return timingSafeEqual(a, b);
 }
 
-export function createSignedPutHeaders(args: {
+function createSignedHeaders(args: {
   storageKey: string;
   expiresInSeconds?: number;
 }): { expires_at_ms: number; signature: string } {
@@ -81,6 +81,20 @@ export function createSignedPutHeaders(args: {
   const expiresAtMs = Date.now() + expiresInSeconds * 1000;
   const signature = sign(args.storageKey, expiresAtMs);
   return { expires_at_ms: expiresAtMs, signature };
+}
+
+export function createSignedPutHeaders(args: {
+  storageKey: string;
+  expiresInSeconds?: number;
+}): { expires_at_ms: number; signature: string } {
+  return createSignedHeaders(args);
+}
+
+export function createSignedGetHeaders(args: {
+  storageKey: string;
+  expiresInSeconds?: number;
+}): { expires_at_ms: number; signature: string } {
+  return createSignedHeaders(args);
 }
 
 export function objectExists(storageKey: string): boolean {
@@ -105,4 +119,17 @@ export async function readObject(storageKey: string): Promise<Uint8Array> {
   const p = resolveObjectPath(storageKey);
   const buf = await fs.promises.readFile(p);
   return new Uint8Array(buf);
+}
+
+export async function statObject(storageKey: string): Promise<fs.Stats> {
+  const p = resolveObjectPath(storageKey);
+  return fs.promises.stat(p);
+}
+
+export function createObjectReadStream(
+  storageKey: string,
+  opts?: { start?: number; end?: number },
+): fs.ReadStream {
+  const p = resolveObjectPath(storageKey);
+  return fs.createReadStream(p, opts);
 }
