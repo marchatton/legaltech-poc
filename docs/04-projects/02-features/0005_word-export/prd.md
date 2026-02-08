@@ -1,7 +1,7 @@
 # PRD: Word Export (.docx) Single Memo Template
 
 Owner: TBD
-Status: DRAFT (GO: spike outcomes locked; remaining dependency is Initiative 002 structured row payload persistence: payload_json + payload_schema_version)
+Status: DRAFT (GO: spike outcomes locked; remaining dependencies are Initiative 002 structured row payload persistence + 0008 artefacts foundation)
 Date: 2026-02-07
 
 ## Summary
@@ -9,7 +9,7 @@ Date: 2026-02-07
 Generate one demo-grade Word artefact from a completed Quick Start run:
 - `POST /export/docx` with `kind=memo`
 - strict export gating (fail-closed on `citation_failed`, with demo-only unsafe override behind guardrails: DEMO_MODE + ALLOW_UNSAFE_EXPORTS + admin token; API-only per ADR-0019)
-- artefact persistence + artefacts list/download (fresh signed URLs)
+- persist memo as an artefact. Artefacts list/download (fresh signed URLs) is handled by 0008.
 - minimal docx viewer sanity check across Word + Google Docs + Preview
 
 ## Problem
@@ -20,7 +20,7 @@ We need to export a defensible Word artefact without weakening the trust posture
 
 ## Goals
 
-- From `docs/08-example-data/pack_01_clean`, operator can export `memo.docx` from a completed run and download it successfully.
+- From `docs/08-example-data/pack_01_clean`, operator can export `memo.docx` from a completed run and download it successfully via the artefacts list (0008).
 - Memo includes the spike-locked sections in deterministic order, with inline citations.
 - Export is only available when `runs.state = completed`.
 - Export is blocked by default when any row is `citation_failed` (`EXPORT_BLOCKED`), unless demo-only `unsafe_override=true` is explicitly used via API-only unsafe override per ADR-0019.
@@ -78,7 +78,7 @@ Viewer sanity constraints:
 Implement the canonical docx export contract from `docs/03-architecture/50_api_surface.md`:
 - `POST /export/docx` with `{ folder_id, run_id, kind: "memo", unsafe_override }`
 
-Renderer consumes structured row payloads (`payload_schema_version` + `payload_json`) (no prose parsing) plus locked citations and produces a single `.docx` byte stream, stored as an artefact in object storage with metadata in Postgres.
+Renderer consumes structured row payloads (`payload_schema_version` + `payload_json`) (no prose parsing) plus locked citations and produces a single `.docx` byte stream, persisted as an artefact via 0008 (object storage + metadata in Postgres).
 
 ## Scope
 
@@ -98,8 +98,7 @@ In scope:
   - deterministic section ordering and stable formatting rules
   - citations rendered in a consistent format (spike outcome)
 - Artefacts:
-  - persist `storage_key` + metadata (`kind=memo`, template version id, filename, source_run_id)
-  - do not persist signed URLs; generate fresh `download_url` via list endpoint
+  - persist via 0008 (storage_key + metadata; signed URLs via `GET /folders/:id/artefacts`)
 - UI:
   - “Export memo (Word)” button
   - disabled until run completes
@@ -112,8 +111,8 @@ Out of scope:
 ## Breadboard Mapping
 
 From `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`:
-- Parts: F1 (export endpoints), F3 (Word renderer + template), F4 (artefacts list), F5 (export UI states)
-- Affordances: U1, U3, U4, U5
+- Parts: F1 (export endpoints), F3 (Word renderer + template), F5 (export UI states) (F4 artefacts list is handled by 0008)
+- Affordances: U1, U3, U5 (U4 is handled by 0008)
 - Code affordances: N1, N2, N4, N5, N6
 
 ## User Stories
@@ -124,18 +123,14 @@ As a demo operator, I can export a Word memo from a completed run so I can share
 ### US-002 See Not-Ready/Blocked States
 As a demo operator, I can see when Word export is not ready or blocked so I don’t create inconsistent artefacts.
 
-### US-003 View And Download Artefacts
-As a demo operator, I can see and download the exported memo artefact reliably from the matter.
-
 ## Acceptance Criteria
 
-- AC-001: From `docs/08-example-data/pack_01_clean`, operator can export `memo.docx` and download it successfully.
+- AC-001: From `docs/08-example-data/pack_01_clean`, operator can export `memo.docx` and download it successfully via the artefacts list (0008).
 - AC-002: If `runs.state != completed`, export is disabled and API returns `409 CONFLICT` if called anyway.
 - AC-003: If any row is `citation_failed` and `unsafe_override != true`, API returns `EXPORT_BLOCKED` and UI shows blocked banner with counts and next action.
 - AC-004: Memo contains the spike-locked sections in deterministic order and renders citations in the agreed format.
 - AC-005: Memo renders “not broken” in Word + Google Docs + Preview for the representative sample.
-- AC-006: Artefact is persisted and appears in `GET /folders/:id/artefacts` with a fresh signed `download_url`.
-- AC-007: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled and a valid `X-Orbital-Admin-Token` is provided (ADR-0019), an admin can export with `unsafe_override=true` (API-only) and the resulting filename is labelled `memo.UNSAFE.docx`.
+- AC-006: When `DEMO_MODE` and `ALLOW_UNSAFE_EXPORTS` are enabled and a valid `X-Orbital-Admin-Token` is provided (ADR-0019), an admin can export with `unsafe_override=true` (API-only) and the resulting filename is labelled `memo.UNSAFE.docx`.
 
 ## Verification Plan
 
@@ -156,12 +151,14 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 
 - None for slice 0005 (spike outcomes locked).
 - Dependency remains: Initiative 002 must persist structured `payload_json` + `payload_schema_version` (no prose parsing).
+- Dependency: 0008 must provide artefacts foundation (list/download via fresh signed URLs).
 
 ## Links
 
 - `docs/04-projects/02-features/0003_demo-grade-outputs/brief.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md`
 - `docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md`
+- `docs/04-projects/02-features/0008_artefacts-foundation/prd.md`
 - `docs/03-architecture/20_state_model.md`
 - `docs/03-architecture/30_data_model.md`
 - `docs/03-architecture/50_api_surface.md`
