@@ -14,6 +14,8 @@ Implement the deterministic-ish “Quick Start: Title + Survey” run that turns
 
 This `prd-overall.md` is the initiative-level overall (spine) PRD. Implementation should happen via the thin slice PRDs listed below.
 
+If you want a single PRD to run a single Ralph loop against, use the consolidated dossier PRD: `docs/04-projects/02-features/0002_quick-start-engine/prd.md` (and `prd.json`).
+
 ## Non-negotiable constraints (from architecture)
 
 From `docs/03-architecture/*` and `docs/03-architecture/DECISIONS.md`:

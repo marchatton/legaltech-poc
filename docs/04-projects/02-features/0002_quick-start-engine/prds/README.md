@@ -2,6 +2,8 @@
 
 Overall PRD (initiative-level overview): `../prd-overall.md`
 
+Consolidated PRD (single-loop input): `../prd.md`
+
 These are thin slice PRDs derived from the breadboard parts list (`../breadboard-pack.md`) and aligned to the canonical architecture contracts under `docs/03-architecture/`.
 
 ## Slices
