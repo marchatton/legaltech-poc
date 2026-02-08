@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 09:49:20 | run=20260208-082954-32669 | iter=4 | mode=build | story=US-004 | duration=1078s | status=success
 - 2026-02-08 09:18:53 | run=20260208-082954-32669 | iter=2 | mode=build | story=US-002 | duration=2538s | status=success
 - 2026-02-08 08:36:32 | run=20260208-082954-32669 | iter=1 | mode=build | story=US-001 | duration=398s | status=success
 - 2026-02-08 01:15:50 | run=20260208-002520-10946 | iter=2 | mode=build | story=US-002 | duration=2989s | status=success
@@ -49,3 +50,9 @@
 [2026-02-08 09:43:12] US-004: verification PASS (pnpm typecheck, pnpm verify); RH3 harness run1/run2 stable
 [2026-02-08 09:44:44] US-004: updated .ralph/progress.md entry
 [2026-02-08 09:47:31] US-004: wrote iter-4 run summary
+[2026-02-08 09:49:20] ITERATION 4 end (duration=1078s)
+[2026-02-08 09:49:23] ITERATION 5 start (mode=build story=US-003)
+[2026-02-08 09:50:22] US-003 start: implement GET /citations/:id with standard error envelope
+[2026-02-08 09:57:36] US-003: added /citations/:id route handler (seed snapshot lookup + validation + safe errors)
+[2026-02-08 10:00:13] US-003: verification complete (pnpm typecheck, pnpm verify)
+[2026-02-08 10:01:04] US-003: dev server smoke - GET /citations/cit_TS-04_1 returned snippet/snippet_hash/polygons; 404 + 400 cases verified

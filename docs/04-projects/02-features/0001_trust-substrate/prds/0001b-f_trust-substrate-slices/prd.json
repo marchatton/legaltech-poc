@@ -325,7 +325,7 @@
     {
       "id": "US-003",
       "title": "Fetch a locked citation by ID",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a reviewer, I want to fetch a citation payload so that I can inspect evidence reliably.",
       "acceptanceCriteria": [
@@ -334,12 +334,15 @@
         "Example: Fetch a known seeded citation_id from pack_01_clean and confirm the response contains snippet + snippet_hash and geometry.",
         "Negative case: Unknown citation id returns 404 NOT_FOUND using the standard error envelope.",
         "Negative case: Invalid id format returns VALIDATION_ERROR using the standard error envelope."
-      ]
+      ],
+      "startedAt": "2026-02-08T09:49:22.632717+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T09:49:22.632730+00:00"
     },
     {
       "id": "US-004",
       "title": "Canonical snippet hashing is stable",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want one canonical hashing implementation so that citation integrity checks are reliable.",
       "acceptanceCriteria": [
@@ -347,7 +350,10 @@
         "AC-004: RH3 harness (packages/core/src/spikes/rh3_snippet_hash_harness.ts) produces identical hashes across two runs (run1 vs run2) using snippets extracted from docs/08-example-data/pack_01_clean/docs/.",
         "Example: A snippet with CRLF newlines and multiple whitespace runs hashes identically to the normalized LF + single-space form.",
         "Negative case: Attempting to introduce a second hashing implementation is blocked by tests or code review (single source of truth)."
-      ]
+      ],
+      "updatedAt": "2026-02-08T09:49:20.405396+00:00",
+      "completedAt": "2026-02-08T09:49:20.405432+00:00",
+      "startedAt": "2026-02-08T09:49:20.405436+00:00"
     },
     {
       "id": "US-005",
