@@ -86,3 +86,40 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260207-233425-3805-iter-
   - Useful context
     - `pnpm verify` already runs lint/test/build; warnings from fixture scripts are non-fatal.
 ---
+## [2026-02-08 09:17 UTC] - US-002: Page navigation and zoom stays responsive on scans
+Thread: 
+Run: 20260208-082954-32669 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: fe38cea perf(rh1): enforce Range and cancel renders
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .gitignore
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-002520-10946-iter-2.md
+  - .ralph/runs/run-20260208-082954-32669-iter-1.md
+  - apps/web/app/(app)/spikes/rh1-pdf-perf/PdfPerfClient.tsx
+  - docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.json
+  - docs/04-projects/02-features/0001_trust-substrate/prds/0001b-f_trust-substrate-slices/prd.json
+  - docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md
+  - docs/04-projects/02-features/0001_trust-substrate/spike-proofs/RH1_pdfjs_perf_pack_07_TitleCommitment_SCANNED_ROTATED_100_serial.json
+  - docs/04-projects/02-features/0001_trust-substrate/spike-proofs/RH1_pdfjs_perf_pack_07_TitleCommitment_SCANNED_ROTATED_100_spam.json
+  - docs/04-projects/02-features/0001_trust-substrate/spike-proofs/RH1_zoom_rerender_pack_07_TitleCommitment_SCANNED_ROTATED.json
+- What was implemented
+  - RH1 harness now verifies Range support (Accept-Ranges + 206) and reports a fail-closed NO-GO when missing.
+  - Page jump rendering cancels in-flight work via request supersession and renderTask.cancel.
+  - Serial/spam tests export stable results JSON with summaries (p95/max, long tasks, cancellation rate, thresholds).
+  - Spam test includes a configurable simulated delay to make cancellation behavior measurable on fast local fixtures.
+  - Captured RH1 proof artefacts under spike-proofs/ and recorded results in spike-investigation.md.
+  - Ignored dev-browser tmp/profile artefacts to prevent accidental commits.
+- **Learnings for future iterations:**
+  - pack_07 PDFs are only 3-4 pages; using wrap-around sequences avoids clamping into repeated max-page renders.
+  - In fast local/headless runs, cancellation may not naturally occur at 200ms intervals; simulating Range/network latency keeps the spam test meaningful.
+  - dev-browser requires `--headless` and Playwright system deps (installed via `playwright install-deps chromium`).
+---
