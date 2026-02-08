@@ -1,6 +1,9 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 11:31:30 | run=20260208-082954-32669 | iter=9 | mode=build | story=US-008 | duration=1351s | status=success
+- 2026-02-08 11:08:57 | run=20260208-082954-32669 | iter=8 | mode=build | story=US-007 | duration=1205s | status=success
+- 2026-02-08 10:48:47 | run=20260208-082954-32669 | iter=7 | mode=build | story=US-006 | duration=1168s | status=success
 - 2026-02-08 10:29:13 | run=20260208-082954-32669 | iter=6 | mode=build | story=US-005 | duration=1284s | status=success
 - 2026-02-08 10:07:46 | run=20260208-082954-32669 | iter=5 | mode=build | story=US-003 | duration=1104s | status=success
 - 2026-02-08 09:49:20 | run=20260208-082954-32669 | iter=4 | mode=build | story=US-004 | duration=1078s | status=success
@@ -75,3 +78,22 @@
 [2026-02-08 10:37:40] US-006: verification PASS (pnpm typecheck, pnpm verify)
 [2026-02-08 10:42:34] US-006: browser verified RH2 overlay + viewer at 100% zoom (screenshots in .agents/skills/00-utilities/dev-browser/tmp/US-006_*.png)
 [2026-02-08 10:46:09] US-006: appended progress entry to .ralph/progress.md
+[2026-02-08 10:48:47] ITERATION 7 end (duration=1168s)
+[2026-02-08 10:48:53] ITERATION 8 start (mode=build story=US-007)
+[2026-02-08 10:49:36] US-007 start: implement missing_input + missing-doc checklist
+[2026-02-08 11:00:51] US-007: added missing_input seed row + missing-doc checklist UI + core fixture test
+[2026-02-08 11:08:52] US-007: verification PASS (pnpm typecheck, pnpm verify)
+[2026-02-08 11:08:57] ITERATION 8 end (duration=1205s)
+[2026-02-08 11:09:00] ITERATION 9 start (mode=build story=US-008)
+[2026-02-08 11:09:46] Start US-008: evidence failures block export
+[2026-02-08 11:10:05] Audit existing export + citation integrity code
+[2026-02-08 11:22:09] Implement /export/csv (fail-closed gating + unsafe override) and wire UI
+[2026-02-08 11:30:27] Verification: pnpm typecheck PASS; pnpm verify PASS
+[2026-02-08 11:31:30] ITERATION 9 end (duration=1351s)
+[2026-02-08 11:31:33] ITERATION 10 start (mode=build story=US-009)
+[2026-02-08 11:32:05] Start US-009 implementation (needs_review -> reviewed explicit + persisted)
+[2026-02-08 11:37:03] US-009: implementing server action + snapshot persistence for Mark reviewed
+[2026-02-08 11:42:03] US-009: cleaning unrelated working-tree changes (restore to HEAD)
+[2026-02-08 11:44:48] US-009: removing untracked artefacts from prior iterations
+[2026-02-08 11:53:30] US-009: verification PASS (pnpm typecheck, pnpm verify); browser verified mark reviewed persistence + NO_LOCKED_CITATIONS rejection
+[2026-02-08 12:00:51] US-009: pre-commit audit (security/perf/regression) complete

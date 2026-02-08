@@ -78,3 +78,20 @@ export function loadSeedSnapshot(packId: string): SeedSnapshot | null {
   }
   return parsed.data;
 }
+
+export function saveSeedSnapshot(packId: string, snapshot: SeedSnapshot): void {
+  // Keep this dev-only tracer bullet strict: refuse to persist invalid snapshots.
+  const parsed = SeedSnapshotSchema.safeParse(snapshot);
+  if (!parsed.success) {
+    throw new Error(`Refusing to save invalid seed snapshot (${packId}): ${parsed.error.message}`);
+  }
+
+  const filePath = seedSnapshotPath(packId);
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+
+  // Best-effort atomic write on POSIX: write temp file then rename.
+  const tmpPath = path.join(dir, `.snapshot.tmp.${process.pid}.${Date.now()}`);
+  fs.writeFileSync(tmpPath, JSON.stringify(parsed.data, null, 2) + "\n", "utf8");
+  fs.renameSync(tmpPath, filePath);
+}

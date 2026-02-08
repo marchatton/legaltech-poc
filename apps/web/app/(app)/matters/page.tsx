@@ -5,6 +5,7 @@ import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.se
 
 import { ExportCsvButton } from "./ExportCsvButton";
 import { MattersToolbar } from "./MattersToolbar";
+import { markRowReviewed } from "./actions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,9 @@ const SearchSchema = z.object({
     .string()
     .regex(/^pack_\d{2}_[a-z0-9_]+$/i)
     .optional(),
+  reviewed: z.string().min(1).max(200).optional(),
+  review_error: z.string().min(1).max(200).optional(),
+  qid: z.string().min(1).max(200).optional(),
 });
 
 function statusClass(status: string): string {
@@ -22,6 +26,15 @@ function statusClass(status: string): string {
   if (status === "missing_input") return "bg-slate-100 text-slate-800 ring-slate-200";
   if (status === "citation_failed") return "bg-red-50 text-red-800 ring-red-200";
   return "bg-slate-100 text-slate-800 ring-slate-200";
+}
+
+function reviewErrorMessage(code: string): string {
+  if (code === "NO_LOCKED_CITATIONS") return "Cannot mark reviewed: row has no locked citations.";
+  if (code === "NOT_NEEDS_REVIEW") return "Cannot mark reviewed: only needs_review rows can be reviewed.";
+  if (code === "ROW_NOT_FOUND") return "Cannot mark reviewed: row not found.";
+  if (code === "SNAPSHOT_NOT_FOUND") return "Cannot mark reviewed: seed snapshot not found.";
+  if (code === "INVALID_REQUEST") return "Cannot mark reviewed: invalid request.";
+  return "Cannot mark reviewed.";
 }
 
 export default async function MattersPage(props: {
@@ -37,6 +50,10 @@ export default async function MattersPage(props: {
 
   const snapshot = loadSeedSnapshot(packId);
 
+  const reviewedQid = parsed.success ? parsed.data.reviewed : undefined;
+  const reviewErrorCode = parsed.success ? parsed.data.review_error : undefined;
+  const reviewErrorQid = parsed.success ? parsed.data.qid : undefined;
+
   return (
     <main className="mx-auto max-w-5xl p-6">
       <h1 className="text-2xl font-semibold">Matters</h1>
@@ -48,6 +65,13 @@ export default async function MattersPage(props: {
       <div className="mt-6">
         <MattersToolbar packIds={seeded} selectedPackId={packId} />
       </div>
+
+      {reviewErrorCode && !reviewErrorQid ? (
+        <section className="mt-6 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <div className="font-semibold">Review not saved</div>
+          <div className="mt-1 text-xs">{reviewErrorMessage(reviewErrorCode)}</div>
+        </section>
+      ) : null}
 
       {!snapshot ? (
         <section className="mt-6 rounded border border-slate-200 bg-white p-4">
@@ -86,7 +110,34 @@ export default async function MattersPage(props: {
                   >
                     {row.status}
                   </div>
+
+                  {row.status === "needs_review" ? (
+                    <div className="ml-auto flex items-center gap-2">
+                      <form action={markRowReviewed}>
+                        <input type="hidden" name="pack" value={packId} />
+                        <input type="hidden" name="question_id" value={row.question_id} />
+                        <button
+                          className="rounded bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700"
+                          type="submit"
+                        >
+                          Mark reviewed
+                        </button>
+                      </form>
+                    </div>
+                  ) : null}
                 </div>
+
+                {reviewErrorCode && reviewErrorQid === row.question_id ? (
+                  <div className="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                    <div className="font-semibold">Review not saved</div>
+                    <div className="mt-1 text-xs">{reviewErrorMessage(reviewErrorCode)}</div>
+                  </div>
+                ) : reviewedQid === row.question_id && row.status === "reviewed" ? (
+                  <div className="mt-3 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+                    <div className="font-semibold">Saved</div>
+                    <div className="mt-1 text-xs">Marked as reviewed.</div>
+                  </div>
+                ) : null}
 
                 <div className="mt-2 text-sm text-slate-700">{row.answer}</div>
 
