@@ -1,6 +1,6 @@
 # Spike investigation — Trust substrate
 
-> Status: planned only. No spikes executed yet.
+> Status: RH1 executed (2026-02-08). Others planned.
 > Oracle pass: RH2 highlight overlay reviewed (2026-02-06). See `tmp-oracle/oracle_response_0001.md`.
 > Proof artefacts: commit under `spike-proofs/` and link them from the report stubs at the end of this doc.
 
@@ -37,6 +37,31 @@ Exclude:
 - Step 1: Load the scanned PDF in a minimal viewer page
 - Step 2: Implement page-jump control + measure render times
 - Step 3: Record timing + responsiveness results
+
+### Results (2026-02-08)
+Harness:
+- Route: `/spikes/rh1-pdf-perf` (dev-only)
+- Pack/doc: `pack_07_scans_rotated_low_quality` / `TitleCommitment_SCANNED_ROTATED.pdf`
+- Proof JSON: `spike-proofs/RH1_pdfjs_perf_pack_07_TitleCommitment_SCANNED_ROTATED_100_serial.json`
+- Proof JSON: `spike-proofs/RH1_pdfjs_perf_pack_07_TitleCommitment_SCANNED_ROTATED_100_spam.json`
+- Proof JSON: `spike-proofs/RH1_zoom_rerender_pack_07_TitleCommitment_SCANNED_ROTATED.json`
+
+Precondition (Range support):
+- PASS (`Accept-Ranges: bytes` present; `Range: bytes=0-1023` returns `206 Partial Content`)
+- Harness is fail-closed: if Range support is missing, RH1 is reported as NO-GO (perf numbers invalid).
+
+Serial test (N=20, zoom=100%):
+- `p95(totalMs)=~96ms` (threshold: `<1000ms`)
+- `max(totalMs)=~106ms` (threshold: `<1500ms`)
+
+Spam test (N=30 @ 200ms, zoom=100%):
+- `maxLongTaskMs=0ms` (threshold: `<250ms`)
+- Final requested page `totalMs=~332ms` (threshold: `<1500ms`)
+- Cancellation rate: `29/29=100%` (threshold: `>=70%`)
+- Spam test note: harness uses `spamSimulatedDelayMs=250` to simulate Range/network latency and force overlapping requests so cancellation behavior is measurable on fast local fixtures.
+
+Zoom re-render (50/100/150):
+- PASS: canvas CSS size matches viewport size; backing-store-to-CSS ratio matches `devicePixelRatio` with zero drift in the proof JSON.
 
 ### Artefacts
 Keep:

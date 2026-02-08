@@ -1,0 +1,309 @@
+{
+  "createdAt": "2026-02-08T09:13:11.629Z",
+  "pdfjsVersion": "4.10.38",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
+  "devicePixelRatio": 1,
+  "doc": {
+    "pack": "pack_07_scans_rotated_low_quality",
+    "filename": "TitleCommitment_SCANNED_ROTATED.pdf",
+    "url": "/spikes/local-pdf?pack=pack_07_scans_rotated_low_quality&filename=TitleCommitment_SCANNED_ROTATED.pdf"
+  },
+  "zoomPercent": 100,
+  "pageRotate": 0,
+  "viewport": {
+    "width": 612,
+    "height": 792
+  },
+  "canvas": {
+    "width": 612,
+    "height": 792,
+    "cssWidth": 612,
+    "cssHeight": 792
+  },
+  "test": {
+    "type": "serial",
+    "n": 20,
+    "pageSequence": [
+      1,
+      2,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      4,
+      4,
+      2,
+      4,
+      4,
+      2,
+      2,
+      2,
+      4,
+      3,
+      2,
+      4
+    ]
+  },
+  "rows": [
+    {
+      "requestedPage": 1,
+      "cancelledPrevious": false,
+      "t_request": 1309.2999999970198,
+      "t_gotPage": 1318.1000000014901,
+      "t_renderStart": 1318.7000000029802,
+      "t_renderEnd": 1415.3999999985099,
+      "getPageMs": 8.800000004470348,
+      "renderMs": 96.69999999552965,
+      "totalMs": 106.10000000149012
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 1415.6000000014901,
+      "t_gotPage": 1423.7999999970198,
+      "t_renderStart": 1423.8999999985099,
+      "t_renderEnd": 1503.8999999985099,
+      "getPageMs": 8.199999995529652,
+      "renderMs": 80,
+      "totalMs": 88.29999999701977
+    },
+    {
+      "requestedPage": 3,
+      "cancelledPrevious": false,
+      "t_request": 1504.1000000014901,
+      "t_gotPage": 1508.3999999985099,
+      "t_renderStart": 1508.5,
+      "t_renderEnd": 1599.7000000029802,
+      "getPageMs": 4.299999997019768,
+      "renderMs": 91.20000000298023,
+      "totalMs": 95.60000000149012
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 1599.7999999970198,
+      "t_gotPage": 1599.7999999970198,
+      "t_renderStart": 1599.8999999985099,
+      "t_renderEnd": 1637.2000000029802,
+      "getPageMs": 0,
+      "renderMs": 37.30000000447035,
+      "totalMs": 37.400000005960464
+    },
+    {
+      "requestedPage": 1,
+      "cancelledPrevious": false,
+      "t_request": 1637.2000000029802,
+      "t_gotPage": 1637.2000000029802,
+      "t_renderStart": 1637.2999999970198,
+      "t_renderEnd": 1682.3999999985099,
+      "getPageMs": 0,
+      "renderMs": 45.100000001490116,
+      "totalMs": 45.19999999552965
+    },
+    {
+      "requestedPage": 1,
+      "cancelledPrevious": false,
+      "t_request": 1682.5,
+      "t_gotPage": 1682.5,
+      "t_renderStart": 1682.6000000014901,
+      "t_renderEnd": 1719,
+      "getPageMs": 0,
+      "renderMs": 36.399999998509884,
+      "totalMs": 36.5
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 1719.2000000029802,
+      "t_gotPage": 1719.2000000029802,
+      "t_renderStart": 1719.2000000029802,
+      "t_renderEnd": 1766,
+      "getPageMs": 0,
+      "renderMs": 46.79999999701977,
+      "totalMs": 46.79999999701977
+    },
+    {
+      "requestedPage": 3,
+      "cancelledPrevious": false,
+      "t_request": 1766.1000000014901,
+      "t_gotPage": 1766.1000000014901,
+      "t_renderStart": 1766.1000000014901,
+      "t_renderEnd": 1802.2999999970198,
+      "getPageMs": 0,
+      "renderMs": 36.19999999552965,
+      "totalMs": 36.19999999552965
+    },
+    {
+      "requestedPage": 4,
+      "cancelledPrevious": false,
+      "t_request": 1802.3999999985099,
+      "t_gotPage": 1806.6000000014901,
+      "t_renderStart": 1806.7000000029802,
+      "t_renderEnd": 1896.6000000014901,
+      "getPageMs": 4.200000002980232,
+      "renderMs": 89.89999999850988,
+      "totalMs": 94.20000000298023
+    },
+    {
+      "requestedPage": 4,
+      "cancelledPrevious": false,
+      "t_request": 1896.7000000029802,
+      "t_gotPage": 1896.7000000029802,
+      "t_renderStart": 1896.7999999970198,
+      "t_renderEnd": 1931.7000000029802,
+      "getPageMs": 0,
+      "renderMs": 34.900000005960464,
+      "totalMs": 35
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 1931.7999999970198,
+      "t_gotPage": 1931.7999999970198,
+      "t_renderStart": 1931.8999999985099,
+      "t_renderEnd": 1967.5,
+      "getPageMs": 0,
+      "renderMs": 35.600000001490116,
+      "totalMs": 35.70000000298023
+    },
+    {
+      "requestedPage": 4,
+      "cancelledPrevious": false,
+      "t_request": 1967.6000000014901,
+      "t_gotPage": 1967.6000000014901,
+      "t_renderStart": 1967.6000000014901,
+      "t_renderEnd": 2019.6000000014901,
+      "getPageMs": 0,
+      "renderMs": 52,
+      "totalMs": 52
+    },
+    {
+      "requestedPage": 4,
+      "cancelledPrevious": false,
+      "t_request": 2019.7999999970198,
+      "t_gotPage": 2019.7999999970198,
+      "t_renderStart": 2019.7999999970198,
+      "t_renderEnd": 2064.89999999851,
+      "getPageMs": 0,
+      "renderMs": 45.100000001490116,
+      "totalMs": 45.100000001490116
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 2065,
+      "t_gotPage": 2065,
+      "t_renderStart": 2065,
+      "t_renderEnd": 2101.10000000149,
+      "getPageMs": 0,
+      "renderMs": 36.100000001490116,
+      "totalMs": 36.100000001490116
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 2101.2000000029802,
+      "t_gotPage": 2101.2000000029802,
+      "t_renderStart": 2101.2999999970198,
+      "t_renderEnd": 2146.39999999851,
+      "getPageMs": 0,
+      "renderMs": 45.100000001490116,
+      "totalMs": 45.19999999552965
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 2146.5,
+      "t_gotPage": 2146.60000000149,
+      "t_renderStart": 2146.60000000149,
+      "t_renderEnd": 2189.2999999970198,
+      "getPageMs": 0.10000000149011612,
+      "renderMs": 42.69999999552965,
+      "totalMs": 42.79999999701977
+    },
+    {
+      "requestedPage": 4,
+      "cancelledPrevious": false,
+      "t_request": 2189.2999999970198,
+      "t_gotPage": 2189.2999999970198,
+      "t_renderStart": 2189.39999999851,
+      "t_renderEnd": 2230.60000000149,
+      "getPageMs": 0,
+      "renderMs": 41.20000000298023,
+      "totalMs": 41.30000000447035
+    },
+    {
+      "requestedPage": 3,
+      "cancelledPrevious": false,
+      "t_request": 2230.7000000029802,
+      "t_gotPage": 2230.7000000029802,
+      "t_renderStart": 2230.7000000029802,
+      "t_renderEnd": 2266.2000000029802,
+      "getPageMs": 0,
+      "renderMs": 35.5,
+      "totalMs": 35.5
+    },
+    {
+      "requestedPage": 2,
+      "cancelledPrevious": false,
+      "t_request": 2266.39999999851,
+      "t_gotPage": 2266.39999999851,
+      "t_renderStart": 2266.39999999851,
+      "t_renderEnd": 2297.2999999970198,
+      "getPageMs": 0,
+      "renderMs": 30.899999998509884,
+      "totalMs": 30.899999998509884
+    },
+    {
+      "requestedPage": 4,
+      "cancelledPrevious": false,
+      "t_request": 2297.39999999851,
+      "t_gotPage": 2297.39999999851,
+      "t_renderStart": 2297.5,
+      "t_renderEnd": 2327.7999999970198,
+      "getPageMs": 0,
+      "renderMs": 30.299999997019768,
+      "totalMs": 30.399999998509884
+    }
+  ],
+  "longTasks": {
+    "longTaskCount": 0,
+    "maxLongTaskMs": 0,
+    "totalLongTaskMs": 0
+  },
+  "preconditions": {
+    "range": {
+      "kind": "pass",
+      "acceptRanges": "bytes",
+      "rangeStatus": 206,
+      "contentRange": "bytes 0-1023/2147752"
+    }
+  },
+  "summary": {
+    "totalMs": {
+      "p50": 41.30000000447035,
+      "p95": 95.60000000149012,
+      "max": 106.10000000149012
+    },
+    "goNoGo": "GO",
+    "reasons": [],
+    "thresholds": {
+      "serial": {
+        "p95LtMs": 1000,
+        "maxLtMs": 1500
+      },
+      "spam": {
+        "maxLongTaskLtMs": 250,
+        "finalTotalLtMs": 1500,
+        "cancellationRateGte": 0.7
+      }
+    },
+    "longTasks": {
+      "longTaskCount": 0,
+      "maxLongTaskMs": 0,
+      "totalLongTaskMs": 0
+    }
+  }
+}

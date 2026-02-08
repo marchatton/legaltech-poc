@@ -1,6 +1,8 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 08:36:32 | run=20260208-082954-32669 | iter=1 | mode=build | story=US-001 | duration=398s | status=success
+- 2026-02-08 01:15:50 | run=20260208-002520-10946 | iter=2 | mode=build | story=US-002 | duration=2989s | status=success
 - 2026-02-08 00:25:59 | run=20260208-002520-10946 | iter=1 | mode=build | story=US-001 | duration=39s | status=success
 - 2026-02-07 23:47:34 | run=20260207-233425-3805 | iter=1 | mode=build | story=US-001 | duration=789s | status=success
 - 2026-02-07 23:26:30 | run=20260207-232621-3352 | iter=1 | mode=build | story=US-001 | duration=9s | status=error
@@ -29,3 +31,13 @@
 [2026-02-08 01:01:41] US-002 smoke script PASS (upload + complete + status polling + folder ready/indexed)
 [2026-02-08 01:07:33] Quality gates PASS: pnpm typecheck, pnpm verify
 [2026-02-08 01:11:20] Updated .ralph/progress.md for US-002 and wrote iter-2 run summary
+[2026-02-08 01:15:50] ITERATION 2 end (duration=2989s)
+[2026-02-08 08:29:55] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 08:32:02] US-001: begin implementation
+[2026-02-08 08:36:32] ITERATION 1 end (duration=398s)
+[2026-02-08 08:36:35] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 08:37:23] Start US-002 work (iter 2): ensure Range support + RH1 perf harness + responsive nav/zoom
+[2026-02-08 08:46:54] US-002: auditing RH1 harness + local PDF Range handler; implementing Range precheck + better cancellation + run summaries
+[2026-02-08 08:50:41] US-002: updated RH1 PdfPerfClient with Range precondition check, request supersession cancellation, and GO/NO-GO summaries
+[2026-02-08 09:14:45] US-002: reran RH1 harness via dev-browser; recorded spike proof JSONs and updated spike-investigation.md with results
+[2026-02-08 09:15:57] US-002: verification complete (pnpm typecheck PASS, pnpm verify PASS)

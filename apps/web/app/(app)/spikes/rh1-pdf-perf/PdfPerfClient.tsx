@@ -9,6 +9,17 @@ import { PdfPerfRunSchema } from "@orbital-poc/core";
 
 type DocRef = { pack: string; filename: string };
 
+type RangePrecondition =
+  | { kind: "checking" }
+  | { kind: "pass"; acceptRanges: string | null; rangeStatus: number | null; contentRange: string | null }
+  | {
+      kind: "fail";
+      acceptRanges: string | null;
+      rangeStatus: number | null;
+      contentRange: string | null;
+      reason: string;
+    };
+
 type PdfJsModule = {
   version?: string;
   GlobalWorkerOptions?: { workerSrc: string };
@@ -25,24 +36,46 @@ const DEFAULT_PAGE_SEQUENCE = [
   1, 2, 3, 10, 25, 5, 30, 15, 40, 12, 50, 20, 60, 22, 70, 30, 80, 35, 90, 40,
 ];
 
-function clampToMaxPages(seq: number[], maxPages: number): number[] {
-  return seq.map((p) => Math.max(1, Math.min(maxPages, p)));
+function wrapToMaxPages(seq: number[], maxPages: number): number[] {
+  if (maxPages <= 0) return [];
+  return seq.map((p) => 1 + ((p - 1) % maxPages));
 }
 
 function p50p95max(values: number[]) {
   const sorted = [...values].sort((a, b) => a - b);
   const at = (pct: number) => {
     if (!sorted.length) return null;
-    const idx = Math.min(sorted.length - 1, Math.floor((pct / 100) * sorted.length));
+    // "Nearest rank" method: https://en.wikipedia.org/wiki/Percentile#The_nearest-rank_method
+    const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil((pct / 100) * sorted.length) - 1));
     return sorted[idx];
   };
   return { p50: at(50), p95: at(95), max: sorted.length ? sorted[sorted.length - 1] : null };
+}
+
+function packShort(packId: string): string {
+  const m = /^pack_\d{2}/i.exec(packId);
+  return m ? m[0] : packId;
+}
+
+function docBase(filename: string): string {
+  return filename.replace(/\.pdf$/i, "");
+}
+
+function isRenderCancelledError(err: any): boolean {
+  const name = typeof err?.name === "string" ? err.name : "";
+  const message = typeof err?.message === "string" ? err.message : String(err);
+  return name === "RenderingCancelledException" || /render(ing)? cancelled/i.test(message);
+}
+
+function rowWasCancelled(row: { error?: string }): boolean {
+  return row.error === "RENDER_CANCELLED" || row.error === "REQUEST_SUPERSEDED";
 }
 
 export function PdfPerfClient(props: { initialDoc: DocRef }) {
   const [doc, setDoc] = useState<DocRef>(props.initialDoc);
   const [zoomPercent, setZoomPercent] = useState<number>(100);
   const [pageInput, setPageInput] = useState<number>(1);
+  const [spamSimulatedDelayMs, setSpamSimulatedDelayMs] = useState<number>(250);
 
   const [pdfjs, setPdfjs] = useState<PdfJsModule | null>(null);
   const [pdf, setPdf] = useState<any>(null);
@@ -58,7 +91,10 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
   const [lastRun, setLastRun] = useState<PdfPerfRun | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const [rangePrecondition, setRangePrecondition] = useState<RangePrecondition>({ kind: "checking" });
+
   const renderTaskRef = useRef<any>(null);
+  const requestSeqRef = useRef(0);
 
   const longTasksRef = useRef({ longTaskCount: 0, maxLongTaskMs: 0, totalLongTaskMs: 0 });
   const resetLongTasks = () => {
@@ -69,6 +105,64 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     const params = new URLSearchParams({ pack: doc.pack, filename: doc.filename });
     return `/spikes/local-pdf?${params.toString()}`;
   }, [doc]);
+
+  // Preconditions: Range support (required for valid perf numbers)
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      setRangePrecondition({ kind: "checking" });
+
+      try {
+        const res = await fetch(pdfUrl, { headers: { Range: "bytes=0-1023" } });
+        const acceptRanges = res.headers.get("accept-ranges");
+        const contentRange = res.headers.get("content-range");
+
+        const ok =
+          res.status === 206 && typeof acceptRanges === "string" && acceptRanges.toLowerCase().includes("bytes");
+
+        if (cancelled) return;
+
+        if (ok) {
+          setRangePrecondition({
+            kind: "pass",
+            acceptRanges,
+            rangeStatus: res.status,
+            contentRange,
+          });
+          return;
+        }
+
+        const reasonParts: string[] = [];
+        if (res.status !== 206) reasonParts.push(`expected 206, got ${res.status}`);
+        if (!acceptRanges) reasonParts.push("missing Accept-Ranges");
+        else if (!acceptRanges.toLowerCase().includes("bytes")) reasonParts.push(`Accept-Ranges=${acceptRanges}`);
+
+        setRangePrecondition({
+          kind: "fail",
+          acceptRanges,
+          rangeStatus: res.status,
+          contentRange,
+          reason: reasonParts.join("; ") || "Range precondition failed.",
+        });
+      } catch (err: any) {
+        if (cancelled) return;
+        setRangePrecondition({
+          kind: "fail",
+          acceptRanges: null,
+          rangeStatus: null,
+          contentRange: null,
+          reason: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pdfUrl]);
 
   // Long-task / stall monitor
   useEffect(() => {
@@ -140,6 +234,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
       setPageRotate(null);
       setLastTimings(null);
       setLastRun(null);
+      requestSeqRef.current = 0;
 
       const mod: any = await import("pdfjs-dist/build/pdf.mjs");
       const m = mod as PdfJsModule;
@@ -172,7 +267,10 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     };
   }, [pdfUrl]);
 
-  async function renderPage(pageNumber: number): Promise<{
+  async function renderPage(
+    pageNumber: number,
+    args?: { simulateDelayMs?: number },
+  ): Promise<{
     requestedPage: number;
     cancelledPrevious: boolean;
     t_request: number;
@@ -187,6 +285,8 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     canvas?: { width: number; height: number; cssWidth: number; cssHeight: number };
     pageRotate?: number;
   }> {
+    const simulateDelayMs =
+      typeof args?.simulateDelayMs === "number" ? Math.max(0, Math.floor(args.simulateDelayMs)) : 0;
     const canvas = document.getElementById("pdfperf-canvas") as HTMLCanvasElement | null;
     if (!pdf || !pdfjs || !canvas) {
       return {
@@ -211,6 +311,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
       // ignore
     }
 
+    const requestSeq = (requestSeqRef.current += 1);
     const t_request = performance.now();
     let t_gotPage: number | null = null;
     let t_renderStart: number | null = null;
@@ -218,7 +319,41 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     let thisTask: any = null;
 
     try {
+      if (simulateDelayMs > 0) {
+        await new Promise((r) => window.setTimeout(r, simulateDelayMs));
+        if (requestSeq !== requestSeqRef.current) {
+          const t_now = performance.now();
+          return {
+            requestedPage: pageNumber,
+            cancelledPrevious,
+            t_request,
+            t_gotPage: t_now,
+            t_renderStart: null,
+            t_renderEnd: null,
+            getPageMs: t_now - t_request,
+            renderMs: null,
+            totalMs: null,
+            error: "REQUEST_SUPERSEDED",
+          };
+        }
+      }
+
       const page = await pdf.getPage(pageNumber);
+      if (requestSeq !== requestSeqRef.current) {
+        const t_now = performance.now();
+        return {
+          requestedPage: pageNumber,
+          cancelledPrevious,
+          t_request,
+          t_gotPage: t_now,
+          t_renderStart: null,
+          t_renderEnd: null,
+          getPageMs: t_now - t_request,
+          renderMs: null,
+          totalMs: null,
+          error: "REQUEST_SUPERSEDED",
+        };
+      }
       t_gotPage = performance.now();
 
       const pageRotate = Number(page.rotate ?? 0);
@@ -244,6 +379,21 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
       renderTaskRef.current = renderTask;
 
       await renderTask.promise;
+      if (requestSeq !== requestSeqRef.current) {
+        const t_now = performance.now();
+        return {
+          requestedPage: pageNumber,
+          cancelledPrevious,
+          t_request,
+          t_gotPage,
+          t_renderStart,
+          t_renderEnd: t_now,
+          getPageMs: t_gotPage - t_request,
+          renderMs: null,
+          totalMs: null,
+          error: "REQUEST_SUPERSEDED",
+        };
+      }
       t_renderEnd = performance.now();
 
       const getPageMs = t_gotPage - t_request;
@@ -272,6 +422,20 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
         pageRotate,
       };
     } catch (err: any) {
+      if (isRenderCancelledError(err)) {
+        return {
+          requestedPage: pageNumber,
+          cancelledPrevious,
+          t_request,
+          t_gotPage,
+          t_renderStart,
+          t_renderEnd,
+          getPageMs: t_gotPage ? t_gotPage - t_request : null,
+          renderMs: t_renderEnd && t_renderStart ? t_renderEnd - t_renderStart : null,
+          totalMs: t_renderEnd ? t_renderEnd - t_request : null,
+          error: "RENDER_CANCELLED",
+        };
+      }
       return {
         requestedPage: pageNumber,
         cancelledPrevious,
@@ -291,11 +455,15 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
   }
 
   async function runSerialTest() {
+    if (rangePrecondition.kind !== "pass") {
+      setLastRun(null);
+      return;
+    }
     if (!pdf || !pdfPageCount || busy) return;
     setBusy(true);
     resetLongTasks();
 
-    const pageSequence = clampToMaxPages(DEFAULT_PAGE_SEQUENCE, pdfPageCount);
+    const pageSequence = wrapToMaxPages(DEFAULT_PAGE_SEQUENCE, pdfPageCount);
     const rows = [];
     let lastViewport: { width: number; height: number } | undefined;
     let lastCanvas: { width: number; height: number; cssWidth: number; cssHeight: number } | undefined;
@@ -343,18 +511,23 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
   }
 
   async function runSpamTest() {
+    if (rangePrecondition.kind !== "pass") {
+      setLastRun(null);
+      return;
+    }
     if (!pdf || !pdfPageCount || busy) return;
     setBusy(true);
     resetLongTasks();
 
-    const pageSequence = clampToMaxPages(DEFAULT_PAGE_SEQUENCE.slice(0, 30), pdfPageCount);
+    const spamBase = Array.from({ length: 30 }, (_, i) => DEFAULT_PAGE_SEQUENCE[i % DEFAULT_PAGE_SEQUENCE.length] + i);
+    const pageSequence = wrapToMaxPages(spamBase, pdfPageCount);
     const rowPromises: Array<Promise<any>> = [];
 
     const intervalMs = 200;
 
     for (let i = 0; i < pageSequence.length; i += 1) {
       // Fire requests at a fixed interval; cancellation should keep things responsive.
-      rowPromises.push(renderPage(pageSequence[i]));
+      rowPromises.push(renderPage(pageSequence[i], { simulateDelayMs: spamSimulatedDelayMs }));
       await new Promise((r) => window.setTimeout(r, intervalMs));
     }
 
@@ -390,21 +563,91 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     setBusy(false);
   }
 
+  const lastSummary = useMemo(() => {
+    if (!lastRun) return null;
+    const totalMs = lastRun.rows.map((r) => r.totalMs ?? 0).filter((n) => n > 0);
+    const totalStats = p50p95max(totalMs);
+
+    if (lastRun.test.type === "serial") {
+      const reasons: string[] = [];
+      const ok =
+        rangePrecondition.kind === "pass" &&
+        (totalStats.p95 ?? Infinity) < 1000 &&
+        (totalStats.max ?? Infinity) < 1500;
+
+      if (rangePrecondition.kind !== "pass") reasons.push("RANGE_UNSUPPORTED");
+      if ((totalStats.p95 ?? Infinity) >= 1000) reasons.push("P95_SLOW");
+      if ((totalStats.max ?? Infinity) >= 1500) reasons.push("MAX_SLOW");
+
+      return { kind: "serial" as const, totalStats, ok, reasons };
+    }
+
+    const intermediate = lastRun.rows.slice(0, -1);
+    const cancelledCount = intermediate.filter(rowWasCancelled).length;
+    const cancellationRate = intermediate.length ? cancelledCount / intermediate.length : 0;
+    const finalRow = lastRun.rows[lastRun.rows.length - 1];
+    const finalTotalMs = finalRow?.totalMs ?? null;
+
+    const reasons: string[] = [];
+    const ok =
+      rangePrecondition.kind === "pass" &&
+      longTasksRef.current.maxLongTaskMs < 250 &&
+      typeof finalTotalMs === "number" &&
+      finalTotalMs < 1500 &&
+      cancellationRate >= 0.7;
+
+    if (rangePrecondition.kind !== "pass") reasons.push("RANGE_UNSUPPORTED");
+    if (longTasksRef.current.maxLongTaskMs >= 250) reasons.push("LONG_TASKS");
+    if (typeof finalTotalMs !== "number") reasons.push("FINAL_PAGE_NO_TIMING");
+    else if (finalTotalMs >= 1500) reasons.push("FINAL_PAGE_SLOW");
+    if (cancellationRate < 0.7) reasons.push("LOW_CANCELLATION_RATE");
+
+    return {
+      kind: "spam" as const,
+      totalStats,
+      cancellation: { cancelledCount, totalCount: intermediate.length, rate: cancellationRate },
+      final: { requestedPage: finalRow?.requestedPage ?? null, totalMs: finalTotalMs },
+      ok,
+      reasons,
+    };
+  }, [lastRun, rangePrecondition.kind]);
+
   function downloadResults() {
     if (!lastRun) return;
     const totalMs = lastRun.rows.map((r) => r.totalMs ?? 0).filter((n) => n > 0);
     const stats = p50p95max(totalMs);
 
+    const goNoGo = lastSummary?.ok ? "GO" : "NO-GO";
+
     const payload = {
       ...lastRun,
-      summary: { totalMs: stats },
+      preconditions: {
+        range: rangePrecondition,
+      },
+      summary: {
+        totalMs: stats,
+        goNoGo,
+        reasons: lastSummary?.reasons ?? [],
+        thresholds: {
+          serial: { p95LtMs: 1000, maxLtMs: 1500 },
+          spam: { maxLongTaskLtMs: 250, finalTotalLtMs: 1500, cancellationRateGte: 0.7 },
+        },
+        ...(lastSummary?.kind === "spam"
+          ? {
+              spamSimulatedDelayMs,
+              cancellation: lastSummary.cancellation,
+              final: lastSummary.final,
+            }
+          : {}),
+        longTasks: { ...longTasksRef.current },
+      },
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
     const href = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = href;
-    a.download = `rh1_${doc.filename.replace(/\.pdf$/i, "")}_${zoomPercent}_${lastRun.test.type}.json`;
+    a.download = `RH1_pdfjs_perf_${packShort(doc.pack)}_${docBase(doc.filename)}_${zoomPercent}_${lastRun.test.type}.json`;
     a.click();
     URL.revokeObjectURL(href);
   }
@@ -486,14 +729,14 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
           <button
             className="rounded bg-slate-700 px-3 py-2 text-sm text-white disabled:opacity-50"
             onClick={() => void runSerialTest()}
-            disabled={busy || !pdf}
+            disabled={busy || !pdf || rangePrecondition.kind !== "pass"}
           >
             Run serial test (N=20)
           </button>
           <button
             className="rounded bg-slate-700 px-3 py-2 text-sm text-white disabled:opacity-50"
             onClick={() => void runSpamTest()}
-            disabled={busy || !pdf}
+            disabled={busy || !pdf || rangePrecondition.kind !== "pass"}
           >
             Run spam test (N=30, interval=200ms)
           </button>
@@ -506,7 +749,43 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
           </button>
         </div>
 
+        <div className="mt-3 flex flex-wrap items-end gap-3">
+          <label className="grid gap-1 text-xs">
+            <span className="text-slate-600">Spam simulated delay (ms)</span>
+            <input
+              className="w-40 rounded border border-slate-300 bg-white p-2 text-sm"
+              type="number"
+              min={0}
+              step={50}
+              value={spamSimulatedDelayMs}
+              onChange={(e) => setSpamSimulatedDelayMs(Number(e.currentTarget.value))}
+              disabled={busy}
+            />
+          </label>
+          <div className="text-xs text-slate-500">
+            Adds async delay per request (simulated Range/network latency) to force cancellation behavior.
+          </div>
+        </div>
+
         <div className="mt-4 grid gap-1 text-sm text-slate-700">
+          <div>
+            <span className="font-medium">Range:</span>{" "}
+            {rangePrecondition.kind === "checking"
+              ? "checking…"
+              : rangePrecondition.kind === "pass"
+                ? `PASS (Accept-Ranges=${rangePrecondition.acceptRanges ?? "?"})`
+                : `FAIL (${rangePrecondition.reason})`}
+          </div>
+          {rangePrecondition.kind === "fail" ? (
+            <div className="mt-2 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+              <div className="font-semibold">RH1 NO-GO</div>
+              <div className="mt-1">
+                Range requests are required for valid perf numbers. Fix the PDF serving path to return{" "}
+                <span className="font-mono">Accept-Ranges: bytes</span> and{" "}
+                <span className="font-mono">206 Partial Content</span> for Range requests.
+              </div>
+            </div>
+          ) : null}
           <div>
             <span className="font-medium">pdfjsVersion:</span> {pdfjs?.version ?? "(loading)"}
           </div>
@@ -531,6 +810,34 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
             <span className="font-medium">long tasks:</span>{" "}
             count={longTasksRef.current.longTaskCount}, max={Math.round(longTasksRef.current.maxLongTaskMs)}ms
           </div>
+          {lastSummary ? (
+            <div className="mt-2 rounded border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+              <div className="font-semibold text-slate-900">
+                {lastSummary.ok ? "GO" : "NO-GO"}{" "}
+                <span className="ml-2 font-normal text-slate-600">({lastRun?.test.type})</span>
+              </div>
+              <div className="mt-1">
+                totalMs: p50={lastSummary.totalStats.p50 ? Math.round(lastSummary.totalStats.p50) : "?"}ms, p95=
+                {lastSummary.totalStats.p95 ? Math.round(lastSummary.totalStats.p95) : "?"}ms, max=
+                {lastSummary.totalStats.max ? Math.round(lastSummary.totalStats.max) : "?"}ms
+              </div>
+              {lastSummary.kind === "spam" ? (
+                <div className="mt-1">
+                  cancellation (intermediate): {lastSummary.cancellation.cancelledCount}/{lastSummary.cancellation.totalCount} (
+                  {Math.round(lastSummary.cancellation.rate * 100)}%)
+                </div>
+              ) : null}
+              {lastSummary.kind === "spam" && lastSummary.final.requestedPage ? (
+                <div className="mt-1">
+                  final page {lastSummary.final.requestedPage}: totalMs=
+                  {typeof lastSummary.final.totalMs === "number" ? `${Math.round(lastSummary.final.totalMs)}ms` : "?"}
+                </div>
+              ) : null}
+              {lastSummary.reasons.length ? (
+                <div className="mt-1 text-slate-600">reasons: {lastSummary.reasons.join(", ")}</div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </section>
 

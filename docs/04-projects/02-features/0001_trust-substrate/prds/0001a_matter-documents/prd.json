@@ -117,7 +117,7 @@
     {
       "id": "US-002",
       "title": "Upload PDFs and observe ingest status",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -132,8 +132,8 @@
         "Verification: Upload 2+ PDFs from pack_01_clean and pack_07_scans_rotated_low_quality; confirm statuses progress and failures show a safe error code/message."
       ],
       "startedAt": "2026-02-08T00:26:01.948646+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T00:26:01.948657+00:00"
+      "completedAt": "2026-02-08T01:15:50.954513+00:00",
+      "updatedAt": "2026-02-08T01:15:50.954477+00:00"
     }
   ],
   "meta": {

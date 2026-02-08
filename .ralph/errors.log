@@ -5,3 +5,5 @@
 [2026-02-07 23:26:30] ITERATION 1 command failed (status=1)
 [2026-02-07 23:26:30] ITERATION 1 exited non-zero; review /home/sprite/orbital-poc/.ralph/runs/run-20260207-232621-3352-iter-1.log
 [2026-02-08 00:25:59] ITERATION 1 left uncommitted changes; review run summary at /home/sprite/orbital-poc/.ralph/runs/run-20260208-002520-10946-iter-1.md
+[2026-02-08 01:15:50] ITERATION 2 left uncommitted changes; review run summary at /home/sprite/orbital-poc/.ralph/runs/run-20260208-002520-10946-iter-2.md
+[2026-02-08 08:36:32] ITERATION 1 left uncommitted changes; review run summary at /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-1.md

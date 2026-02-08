@@ -27,6 +27,8 @@ docs/04-projects/**/throwaway/
 /.agents/skills/00-product-sense/
 tmp/fixture-seed/
 tmp/object-store/
+.agents/skills/00-utilities/dev-browser/tmp/
+.agents/skills/00-utilities/dev-browser/profiles/
 
 # macOS
 .DS_Store

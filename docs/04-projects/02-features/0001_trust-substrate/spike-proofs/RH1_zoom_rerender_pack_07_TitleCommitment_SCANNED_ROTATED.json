@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-02-08T09:00:46.634Z",
+  "url": "http://localhost:3001/spikes/rh1-pdf-perf",
+  "zooms": {
+    "50": {
+      "dpr": 1,
+      "cssWidth": 306,
+      "cssHeight": 396,
+      "rectWidth": 306,
+      "rectHeight": 396,
+      "backingWidth": 306,
+      "backingHeight": 396,
+      "ratioW": 1,
+      "ratioH": 1,
+      "driftW": 0,
+      "driftH": 0
+    },
+    "100": {
+      "dpr": 1,
+      "cssWidth": 612,
+      "cssHeight": 792,
+      "rectWidth": 612,
+      "rectHeight": 792,
+      "backingWidth": 612,
+      "backingHeight": 792,
+      "ratioW": 1,
+      "ratioH": 1,
+      "driftW": 0,
+      "driftH": 0
+    },
+    "150": {
+      "dpr": 1,
+      "cssWidth": 918,
+      "cssHeight": 1188,
+      "rectWidth": 918,
+      "rectHeight": 1188,
+      "backingWidth": 918,
+      "backingHeight": 1188,
+      "ratioW": 1,
+      "ratioH": 1,
+      "driftW": 0,
+      "driftH": 0
+    }
+  }
+}
