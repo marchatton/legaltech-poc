@@ -1,6 +1,8 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 14:57:43 | run=20260208-143708-105964 | iter=2 | mode=build | story=US-002 | duration=45s | status=success
+- 2026-02-08 14:56:56 | run=20260208-143708-105964 | iter=1 | mode=build | story=US-001 | duration=1188s | status=success
 - 2026-02-08 13:16:06 | run=20260208-082954-32669 | iter=13 | mode=build | story=US-010 | duration=935s | status=success
 - 2026-02-08 13:00:29 | run=20260208-082954-32669 | iter=12 | mode=build | story=US-008 | duration=1294s | status=success
 - 2026-02-08 12:38:52 | run=20260208-082954-32669 | iter=11 | mode=build | story=US-007 | duration=1987s | status=success
@@ -132,3 +134,7 @@
 [2026-02-08 14:51:11] US-001: pnpm typecheck PASS; pnpm verify PASS
 [2026-02-08 14:53:03] US-001: manual smoke (scripts/us001_render_smoke.ts) PASS
 [2026-02-08 14:55:46] US-001: progress log updated
+[2026-02-08 14:56:56] ITERATION 1 end (duration=1188s)
+[2026-02-08 14:56:59] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 14:57:29] US-002 start: audit viewer + RH1 harness for render_url alignment
+[2026-02-08 14:57:43] ITERATION 2 end (duration=45s)
