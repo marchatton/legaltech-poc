@@ -57,3 +57,4 @@
 [2026-02-08 10:00:13] US-003: verification complete (pnpm typecheck, pnpm verify)
 [2026-02-08 10:01:04] US-003: dev server smoke - GET /citations/cit_TS-04_1 returned snippet/snippet_hash/polygons; 404 + 400 cases verified
 [2026-02-08 10:03:05] US-003: appended progress entry to .ralph/progress.md
+[2026-02-08 10:05:10] US-003: wrote iter-5 run summary (.ralph/runs/run-20260208-082954-32669-iter-5.md)
