@@ -546,3 +546,29 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-163923-131740-ite
   - Vitest runs from package cwd under `pnpm -r`; fixture-path tests should resolve repo root via `import.meta.url`.
   - dev-browser in Sprite needs `--headless` (no X server); keep screenshots in skill tmp (already gitignored).
 ---
+## [2026-02-08 17:13 UTC] - US-001: Match Exceptions To Instrument PDFs (Clean Pack)
+Thread: 
+Run: 20260208-163923-131740 (iteration 3)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-163923-131740-iter-3.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-163923-131740-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: f3ebe26 test(exception-matching): use REC_INFO candidates
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/core test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-163923-131740-iter-2.md
+  - docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.json
+  - packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.test.ts
+- What was implemented
+  - Confirmed `pack_01_clean` exception items resolve to `match_status=matched` with instrument REC_INFO evidence citations, and tightened fixture matching tests to only consider PDFs with a `REC_INFO` anchor as instrument-doc candidates.
+  - Browser verification: expanded an exceptions item and opened the match evidence citation in the viewer (screenshot: tmp/screens/us001_ex12_match.png).
+- **Learnings for future iterations:**
+  - The most reliable instrument-doc candidate filter in fixture packs is the `REC_INFO` anchor (avoids non-instrument PDFs containing instrument numbers).
+  - Next dev may auto-shift ports (3000 was in use; ran on 3001).
+  - Repo-local `dev-browser` skill doc exists but runtime isn’t available in this environment; `agent-browser` is a workable fallback for headless UI verification.
+---
