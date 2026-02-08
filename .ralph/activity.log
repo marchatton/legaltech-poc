@@ -66,3 +66,4 @@
 [2026-02-08 10:17:32] US-005: pnpm typecheck PASS; pnpm verify PASS
 [2026-02-08 10:23:33] US-005: re-ran pnpm verify after URL param validation tweak (PASS)
 [2026-02-08 10:24:55] US-005: browser verified /matters chips navigate to /matters/viewer with document_id+page (TitleCommitment p1; ALTA_Survey p3). Screenshots saved under .agents/skills/00-utilities/dev-browser/tmp
+[2026-02-08 10:27:44] US-005: appended progress entry to .ralph/progress.md

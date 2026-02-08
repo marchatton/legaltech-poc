@@ -179,3 +179,35 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter
   - Seeded citation IDs are not UUID-based (e.g. cit_TS-04_1); validate by prefix + safe charset, not UUID shape.
   - When multiple packs are seeded, citation IDs can collide; failing closed (409 CONFLICT) avoids returning the wrong evidence.
 ---
+## [2026-02-08 10:27 UTC] - US-005: Click citation chip -> open viewer at cited evidence
+Thread: 
+Run: 20260208-082954-32669 (iteration 6)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-6.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-6.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 1484dc5 feat(matters): link citation chips to viewer page
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/(app)/matters/viewer/page.tsx
+  - docs/04-projects/02-features/0001_trust-substrate/prds/0001b-f_trust-substrate-slices/prd.json
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-082954-32669-iter-5.md
+  - .ralph/progress.md
+- What was implemented
+  - Citation chips now deep-link to the viewer with `document_id` + `page` derived from the row's `citation_ids` (no free-text citations).
+  - Viewer validates `document_id`/`page` match the locked citation and uses them to open the cited PDF page (1-indexed).
+  - Browser verified on `pack_01_clean` across two documents: `TitleCommitment.pdf` and `ALTA_Survey.pdf`.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Passing `document_id` + `page` through the URL makes citation navigation verifiable and shareable.
+  - Gotchas encountered
+    - `dev-browser` must run headless in this environment (no X server).
+  - Useful context
+    - Constrain document identifiers in query params to a safe charset even in dev-only routes.
+---
