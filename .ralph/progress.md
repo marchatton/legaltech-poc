@@ -5,6 +5,34 @@ Started: Sat Feb  7 11:26:21 PM UTC 2026
 - (add reusable patterns here)
 
 ---
+## [2026-02-08 16:20 UTC] - US-001: Artefact rows have a versioned list payload
+Thread: 
+Run: 20260208-160632-123841 (iteration 1)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-160632-123841-iter-1.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-160632-123841-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: e22563f feat(rows): add list_payload_v0 payload contract
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/progress.md
+  - apps/web/app/(api)/folders/[id]/report/route.ts
+  - apps/web/lib/quickStartRunQueue.server.ts
+  - docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
+  - packages/core/src/index.ts
+  - packages/core/src/schemas/list_payload_v0.test.ts
+  - packages/core/src/schemas/list_payload_v0.ts
+  - scripts/fixtures/assert_row_invariants.ts
+- What was implemented
+  - Added a strict `list_payload_v0` Zod schema in `@orbital-poc/core` with stable `item_id` + `citation_ids[]` per item and list payload `kind` + `items[]`.
+  - Persisted `report_rows.payload_schema_version` + `report_rows.payload_json` for list-shaped artefact questions (TS-03/TS-04/TS-09) with an empty `items[]` payload in this slice.
+  - Added API validation that rejects inconsistent/invalid payload states and returns the standard safe error envelope with `trace_id`.
+- **Learnings for future iterations:**
+  - Next.js `next build` typecheck/lint catches `no-explicit-any`; prefer `Parameters<typeof sql.json>[0]` for safe casts when writing JSONB.
+---
 ## [2026-02-08 14:55 UTC] - US-001: Fetch a signed render URL for a document
 Thread: 
 Run: 20260208-143708-105964 (iteration 1)
