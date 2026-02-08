@@ -152,3 +152,30 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter
   - Useful context
     - A lightweight repo scan test can prevent accidental duplicate hashing implementations from creeping in.
 ---
+## [2026-02-08 10:02 UTC] - US-003: Fetch a locked citation by ID
+Thread: 
+Run: 20260208-082954-32669 (iteration 5)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-5.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-5.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: cdd534d feat(citations): add GET /citations/:id route
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: curl -sS "http://localhost:3001/citations/cit_TS-04_1?pack=pack_01_clean" -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-082954-32669-iter-4.md
+  - apps/web/app/(api)/citations/[id]/route.ts
+  - docs/04-projects/02-features/0001_trust-substrate/prds/0001b-f_trust-substrate-slices/prd.json
+- What was implemented
+  - Added GET /citations/:id returning the locked citation payload shape from docs/03-architecture/50_api_surface.md.
+  - Implemented Zod validation for citation IDs and safe error envelopes for invalid/unknown IDs.
+  - Backed the endpoint with fixture seed snapshots (tmp/fixture-seed/*) and fail-closed on ambiguous IDs across packs.
+- **Learnings for future iterations:**
+  - Seeded citation IDs are not UUID-based (e.g. cit_TS-04_1); validate by prefix + safe charset, not UUID shape.
+  - When multiple packs are seeded, citation IDs can collide; failing closed (409 CONFLICT) avoids returning the wrong evidence.
+---
