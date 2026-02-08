@@ -5,6 +5,39 @@ Started: Sat Feb  7 11:26:21 PM UTC 2026
 - (add reusable patterns here)
 
 ---
+## [2026-02-08 17:45 UTC] - US-001: Extract Certification Parties With Citations
+Thread: 69151
+Run: 20260208-171524-140451 (iteration 3)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-171524-140451-iter-3.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-171524-140451-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 5800e77 feat(survey): extract cert parties with citations
+- Post-commit status: `clean`
+- Verification:
+  - Command: node --experimental-strip-types scripts/fixtures/seed.ts pack_01_clean --out-root tmp/us001 --overwrite --no-bad-citation -> PASS
+  - Command: node --experimental-strip-types scripts/fixtures/assert_row_invariants.ts --snapshot tmp/us001/pack_01_clean/snapshot.json -> PASS
+  - Command: node --experimental-strip-types scripts/fixtures/compare_truth.ts --snapshot tmp/us001/pack_01_clean/snapshot.json --datasets survey_certification_parties,golden_scalar -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260208-171524-140451-iter-2.md
+  - docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.json
+  - docs/08-example-data/pack_01_clean/truth/expected_survey_certification_parties.csv
+  - packages/core/src/schemas/list_payload_v0.test.ts
+  - packages/core/src/schemas/list_payload_v0.ts
+  - packages/core/src/spikes/us001_pack01_cert_parties.e2e.test.ts
+  - scripts/fixtures/compare_truth.ts
+  - scripts/fixtures/seed.ts
+- What was implemented
+  - Added `survey_certification_parties` list payload kind and item schema, allowing per-party locked citations.
+  - Seeded TS-05 (pack_01_clean) from the `SURVEY_CERT_PARTIES` anchored layout line into a deterministic parties list payload, with one locked citation per party.
+  - Added fixture truth + comparator diff for certification parties and an e2e test proving seed + compare-truth PASS.
+- **Learnings for future iterations:**
+  - Don’t run dependent fixture commands in parallel (seed must complete before invariants/comparator).
+  - Gate new comparator datasets behind pack-level truth files to avoid accidental failures on packs that don’t yet define truth for that dataset.
+---
 ## [2026-02-08 16:20 UTC] - US-001: Artefact rows have a versioned list payload
 Thread: 
 Run: 20260208-160632-123841 (iteration 1)
