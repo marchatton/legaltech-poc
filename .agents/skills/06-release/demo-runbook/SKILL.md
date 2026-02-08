@@ -11,8 +11,8 @@ Create a demo package that is demo-first, user-empathy-led, and technically cred
 
 Use this skill when asked to create or refresh a demo (often a PoC demo) that:
 - Starts with an end-to-end live demo before explaining why, what, and how
-- Includes a competitive landscape comparison using April Dunford’s respectful approach framing
-- Includes technical architecture details, especially LLM patterns (RAG, evals, observability)
+- Includes an approach landscape (alternatives + status quo) grounded in April Dunford’s positioning-first framing
+- Includes technical architecture details (pipeline + decisions + trade-offs; LLM patterns where relevant)
 - Produces both a talk track and a navigable runbook page
 
 Example triggering requests:
@@ -31,7 +31,7 @@ HTML runbook must:
 - Be single-file HTML (no build step required) with custom CSS styling (cards/callouts/layout), not a plain document.
 - Include Mermaid diagrams (at least one flowchart and one sequence diagram).
 - Include navigation between sections (hash router is fine) and “Back to Home” affordances.
-- Include an app links section with real links or TODO placeholders.
+- Include a live demo scenarios section with real links or TODO placeholders.
 
 When returning outputs, format as:
 - `=== demo-script.md ===` then the markdown
@@ -75,11 +75,22 @@ Minimum inputs to request are not required. Proceed with placeholders.
   - Goal was mini Orbital Copilot PoC with special feature X (citation optional, otherwise evidence preliminary)
   - US only
 
-### Competitive landscape
+### Approach landscape (alternatives + status quo)
 - `competitors`: Optional list of competitor names
 - `competitor_patterns`: Optional list describing market approaches (use when competitor names are unknown)
 - `our_approach_summary`: How the PoC approach differs and why
 - `tradeoffs`: Explicit trade-offs accepted
+
+### Our approach (runbook page content)
+- `approach`:
+  - `problem`: One paragraph describing the core problem (why the status quo fails)
+  - `alternatives`: 3 tiles `{title, desc}` describing what teams try today (neutral)
+  - `category`:
+    - `headline`: e.g. “A different category”
+    - `one_liner`: The category one-liner (positioning)
+    - `explainer`: 1 paragraph explaining what this is and is not
+  - `pillars`: 3 cards `{title, desc}` (differentiation pillars)
+  - `value`: 4 items `{strong, rest}` (value claims; keep concrete)
 
 ### Tech stack
 - `tech_stack`:
@@ -104,9 +115,33 @@ Minimum inputs to request are not required. Proceed with placeholders.
   - `observability`: traces, prompt/versioning, cost/latency, failure modes
   - `security_privacy_notes`: even for synthetic data, log redaction and separation of secrets
 
+### Runbook architecture (visual diagrams + decisions)
+- `runbook_architecture`:
+  - `ingestion_title`, `execution_title`, `citations_title`, `deployment_title`
+  - `mermaid`: object containing Mermaid strings for diagrams:
+    - `ingestion_pipeline` (flowchart)
+    - `run_execution` (flowchart)
+    - `citation_verification` (sequenceDiagram)
+    - `deployment` (flowchart)
+    - `state_machine_1` (stateDiagram-v2)
+    - `state_machine_2` (stateDiagram-v2)
+  - `adrs`: list of `{id, text}` “key decisions”
+
 ### Demo links
-- `app_links`: List of `{label, url, note}` for in-app pages to click during demo
+- `scenarios`: List of `{label, desc, url, tag, tagLabel}` used for the live demo section
+- `app_links`: Legacy list of `{label, url, note}` (still accepted; convert to `scenarios` when generating)
 - `runbook_links`: Optional external links to supporting docs (PRD, repo, design, etc.)
+
+### Stack tiles (runbook page content)
+- `stack_tiles`: List of `{icon, title, libs}` where `libs` is a list of strings (render as `<br>` in HTML)
+
+### Preflight (optional hidden page)
+- `preflight`: `{seed_command, dev_command, link_label, link_desc, link_url}`
+
+### Runbook visual (optional)
+- `runbook_visual`:
+  - `poc_name_prefix`: First token of the title (non-italic)
+  - `poc_name_emphasis`: Second token of the title (italic)
 
 ### Risks and next steps
 - `known_limitations`: hallucination risks, coverage gaps, latency/cost concerns, reliability risks
@@ -121,7 +156,7 @@ Follow this workflow in order.
 - If `special_feature.citation` is missing, set `special_feature.evidence_note` to “Evidence is preliminary.”
 - If competitors are missing, use `competitor_patterns` or generate neutral market patterns with TODO markers.
 - If tech stack fields are missing, insert TODO placeholders.
-- If app links are missing, create 3 placeholder links with TODO URLs.
+- If scenarios are missing, create 3 placeholder scenarios with TODO URLs.
 
 Optional: Run `scripts/validate_inputs.py` to normalise a JSON input payload and produce a filled structure.
 
@@ -143,12 +178,24 @@ Optional: Run `scripts/validate_inputs.py` to normalise a JSON input payload and
   - Product level, what components do
   - Technical level, architecture and LLM specifics
 
-### Step 5: Add competitive landscape section
-- Compare approaches, priorities, and trade-offs.
-- Avoid dunking on competitors.
+### Step 5: Add approach landscape section (Dunford: alternatives + status quo)
+This section is not a vendor shootout. Treat it as an **approach landscape** (April Dunford: positioning-first) so buyers can decide.
+
+Required moves (Dunford-style):
+- **Start with positioning, not product**: set context so the buyer knows what kind of thing this is and what assumptions to make.
+- **Alternatives include status quo + “no decision”**: name the approaches people use today and what they optimise for.
+- **Make it interactive (discovery)**: ask what they do today, what they have tried, and what constraints matter (risk, compliance, latency, change management).
+- **Define “perfect world” criteria**: align on what good looks like before listing features.
+- **Anchor on differentiated value**: answer “why pick this approach vs the alternatives?” (not a firehose of features).
+- **Bring proof**: cite customer-relevant evidence if you have it; otherwise label evidence as preliminary / TODO.
+- **Plan for objections + end with an ask**: handle likely objections conversationally and agree next step.
+
+Guardrails:
+- Avoid dunking on competitors or implying they are “bad”, “wrong”, or “behind”.
+- Avoid using the investor pitch as the sales pitch (TAM, disruption theatre, 5-year destiny).
 - Frame differences as “different constraints” and “optimising for X”.
 
-Use `references/competitive-template.md`.
+Use the “Our approach” framing in the HTML runbook (positioning, alternatives, differentiated value). If you need extra talk-track structure, use `references/competitive-template.md` as a prompt scaffold.
 
 ### Step 6: Add technical architecture section
 - Include RAG, grounding, citations policy.
@@ -162,11 +209,11 @@ Use `references/architecture-template.md`.
 - Generate `demo-script.md` using `references/demo-script-template.md`.
 - Generate `demo-runbook.html` by copying `assets/runbook-template.html` and filling placeholders:
   - PoC name, tagline, narrative, caveats
-  - Segment (organisation, buyer, end-user) and business success outcome
-  - App links
-  - Tech stack and architecture content
-  - Competitive section content
-  - Mermaid diagrams (flowchart and sequence diagram) and custom CSS styling (keep it visual, not a plain document)
+  - Live demo scenarios
+  - Our approach (problem, alternatives, category, pillars, value)
+  - Architecture (diagrams, key decisions, state machines)
+  - Stack tiles
+  - Mermaid diagrams and custom CSS styling (keep it visual, not a plain document)
 
 ### Step 8: Quality check before returning
 Confirm:
@@ -183,7 +230,6 @@ Confirm:
 
 Load as needed:
 - `references/demo-script-template.md` for the script structure
-- `references/competitive-template.md` for respectful comparison framing
 - `references/architecture-template.md` for the LLM architecture talk track
 - `assets/runbook-template.html` for a navigable, visual-first runbook shell
 - `scripts/validate_inputs.py` for deterministic input normalisation (optional)

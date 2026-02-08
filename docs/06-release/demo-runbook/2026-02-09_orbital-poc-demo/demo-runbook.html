@@ -113,10 +113,11 @@
     /* ─── Section title ─── */
     .stitle { font-family: var(--serif); font-size: 24px; font-weight: 400; margin-bottom: 20px; letter-spacing: -0.01em; }
 
-    /* ─── Grids ─── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+	    /* ─── Grids ─── */
+	    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+	    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+	    .arch-stack { display: grid; grid-template-columns: 1fr; gap: 16px; }
+	    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
     /* ─── Cards ─── */
     .card {
@@ -129,17 +130,67 @@
     .full { grid-column: 1 / -1; }
     .hr { height: 1px; background: var(--border); margin: 14px 0; }
 
-    /* ─── Stack tile ─── */
-    .stack-tile {
-      border: 1px solid var(--border); background: var(--card);
-      border-radius: var(--radius-xl); padding: 16px 18px; box-shadow: var(--shadow-sm);
-    }
-    .stack-tile .icon { font-size: 20px; margin-bottom: 6px; display: block; }
-    .stack-tile h4 { font-size: 12px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
-    .stack-tile .libs {
-      font-size: 12px; color: var(--muted-fg); line-height: 1.55;
-      font-family: var(--mono);
-    }
+	    /* ─── Stack tile ─── */
+	    .stack-tile {
+	      border: 1px solid var(--border); background: var(--card);
+	      border-radius: var(--radius-xl); padding: 16px 18px; box-shadow: var(--shadow-sm);
+	      position: relative;
+	    }
+	    .stack-tile .icon { font-size: 20px; margin-bottom: 6px; display: block; }
+	    .stack-tile .icon.icon-text {
+	      font-family: var(--mono);
+	      font-size: 13px;
+	      font-weight: 700;
+	      letter-spacing: 0.02em;
+	      color: var(--muted-fg);
+	    }
+	    .stack-tile h4 { font-size: 12px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+	    .stack-tile .libs {
+	      font-size: 12px; color: var(--muted-fg); line-height: 1.55;
+	      font-family: var(--mono);
+	    }
+	    .why {
+	      position: absolute;
+	      top: 12px;
+	      right: 12px;
+	      width: 22px;
+	      height: 22px;
+	      border-radius: 9999px;
+	      border: 1px solid var(--border);
+	      background: var(--bg);
+	      color: var(--muted-fg);
+	      font-size: 12px;
+	      font-weight: 700;
+	      display: inline-flex;
+	      align-items: center;
+	      justify-content: center;
+	      cursor: help;
+	      appearance: none;
+	      -webkit-appearance: none;
+	      line-height: 1;
+	    }
+	    .why:focus { outline: 2px solid rgba(251,99,27,0.35); outline-offset: 2px; }
+	    .why::after {
+	      content: attr(data-tooltip);
+	      position: absolute;
+	      right: 0;
+	      top: 28px;
+	      width: min(280px, 72vw);
+	      padding: 10px 12px;
+	      background: var(--card);
+	      border: 1px solid var(--border-strong);
+	      border-radius: var(--radius-lg);
+	      box-shadow: var(--shadow-md);
+	      color: var(--fg);
+	      font-size: 12px;
+	      line-height: 1.45;
+	      opacity: 0;
+	      transform: translateY(-4px);
+	      pointer-events: none;
+	      transition: opacity 120ms ease, transform 120ms ease;
+	      z-index: 30;
+	    }
+	    .why:hover::after, .why:focus::after { opacity: 1; transform: translateY(0); }
 
     /* ─── Scenario rows ─── */
     .scenario {
@@ -169,11 +220,17 @@
     }
     .btn:hover { transform: translateY(-1px); border-color: var(--border-strong); text-decoration: none; }
 
-    /* ─── Diagram ─── */
-    .diagram {
-      border: 1px solid var(--border); background: var(--bg);
-      border-radius: var(--radius-xl); padding: 16px; overflow: auto;
-    }
+	    /* ─── Diagram ─── */
+	    .diagram {
+	      border: 1px solid var(--border); background: var(--bg);
+	      border-radius: var(--radius-xl); padding: 12px; overflow: hidden;
+	    }
+	    pre.mermaid { margin: 0; }
+	    .diagram svg {
+	      display: block;
+	      width: 100%;
+	      height: auto;
+	    }
 
     /* ─── Placeholder page ─── */
     .placeholder {
@@ -281,132 +338,174 @@
       <div id="scenarioList"></div>
     </section>
 
-    <!-- ═══ OUR APPROACH ═══ -->
-    <section class="page" id="page-approach" data-page="/approach">
-      <h2 class="stitle">Our approach</h2>
+	    <!-- ═══ OUR APPROACH ═══ -->
+	    <section class="page" id="page-approach" data-page="/approach">
+	      <h2 class="stitle">Our approach</h2>
 
-      <div class="card" style="margin-bottom:16px;">
-        <h3>The problem</h3>
-        <p>
-          CRE diligence is time-sensitive, but a single miss can blow up insurability, lender comfort, or value.
-          The bottleneck isn't writing or summarizing &mdash; it's converting a messy doc pack into
-          <strong style="color:var(--fg);">checkable work product</strong> that a senior reviewer can sign off on.
-        </p>
-      </div>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>Positioning</h3>
+	        <p style="font-size:15px; color:var(--fg); font-weight:500; font-family:var(--serif); margin-bottom:8px;">
+	          CRE diligence work-product automation.
+	        </p>
+	        <p>
+	          Orbital is not a general legal AI. It turns messy title, survey, and deal document packs into
+	          <strong style="color:var(--fg);">checkable work product</strong> with locked evidence.
+	        </p>
+	        <div class="hr"></div>
+	        <ul>
+	          <li><strong style="color:var(--fg);">Best fit:</strong> US CRE law firm practice groups doing repeatable acquisition/financing diligence.</li>
+	          <li><strong style="color:var(--fg);">Primary user:</strong> junior associate/paralegal doing first-pass extraction and issue spotting.</li>
+	          <li><strong style="color:var(--fg);">Validator/buyer:</strong> senior associate/partner signing off on risk and insurability.</li>
+	        </ul>
+	      </div>
 
-      <div class="card" style="margin-bottom:16px;">
-        <h3>What teams try today</h3>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:4px;">
-          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Manual</p>
-            <p style="font-size:12px;">Junior associate checklist + copy/paste into Word templates.</p>
-          </div>
-          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Horizontal copilots</p>
-            <p style="font-size:12px;">ChatGPT, Claude, Copilot. Good at summarizing. No repeatable deliverables or evidence trail.</p>
-          </div>
-          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Contract review tools</p>
-            <p style="font-size:12px;">Kira, Luminance. Strong at clause extraction. Not built for title/survey and CRE deliverables.</p>
-          </div>
-        </div>
-      </div>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>The problem</h3>
+	        <p>
+	          CRE diligence is time-sensitive, but a single miss can blow up insurability, lender comfort, or value.
+	          The bottleneck is not drafting &mdash; it is turning a messy pack into artefacts a senior can review
+	          without hunting for evidence.
+	        </p>
+	        <p style="margin-top:8px;">
+	          The real competitor is often <strong style="color:var(--fg);">no decision</strong>: teams stick with the manual workflow
+	          because the risk of changing tools feels higher than the pain of the status quo.
+	        </p>
+	      </div>
 
-      <div class="card" style="margin-bottom:16px;">
-        <h3>Orbital is a different category</h3>
-        <p style="font-size:15px; color:var(--fg); font-weight:500; font-family:var(--serif); margin-bottom:8px;">
-          CRE diligence work-product automation.
-        </p>
-        <p>
-          Not "chat with PDFs" and not contract review.
-          The product is designed around the outputs you already produce
-          and the evidence you must be able to defend.
-        </p>
-      </div>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>Approach landscape (what teams do instead)</h3>
+	        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:4px;">
+	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Status quo (manual)</p>
+	            <p style="font-size:12px;">Juniors read PDFs, track requirements/exceptions in Excel, draft in Word; seniors verify by hunting passages.</p>
+	          </div>
+	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Horizontal copilots</p>
+	            <p style="font-size:12px;">ChatGPT/Claude/M365 are great at drafting. The diligence system is still DIY, and auditability is inconsistent.</p>
+	          </div>
+	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Legal AI platforms</p>
+	            <p style="font-size:12px;">Harvey/Legora can become workflow builders. Getting to CRE-native outputs can turn into a configuration project.</p>
+	          </div>
+	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
+	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Contract review tools</p>
+	            <p style="font-size:12px;">Kira/Luminance excel at clause extraction. Title commitments, exception instruments, and survey reconciliation are not the centre of gravity.</p>
+	          </div>
+	        </div>
+	      </div>
 
-      <div class="grid-3" style="margin-bottom:16px;">
-        <div class="card">
-          <h3>Work product, not chat</h3>
-          <p>
-            Issues lists, requirement trackers, exception tables, objection/cure asks &mdash; in your structure.
-          </p>
-        </div>
-        <div class="card">
-          <h3>Evidence-first</h3>
-          <p>
-            Every claim is backed by locked citations.
-            Click to verify instead of trusting the AI.
-          </p>
-        </div>
-        <div class="card">
-          <h3>Real-world packs</h3>
-          <p>
-            Messy scans, missing exhibits, inconsistent formatting.
-            Orbital is built for that reality.
-          </p>
-        </div>
-      </div>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>"Perfect world" criteria</h3>
+	        <ul>
+	          <li>Outputs match your deliverables (structure and tone), not generic summaries.</li>
+	          <li>Every material claim is backed by evidence you can click to verify.</li>
+	          <li>Missing evidence is explicit (fail-closed), not hand-waved.</li>
+	          <li>Exports drop into Word/Excel without copy/paste glue.</li>
+	        </ul>
+	      </div>
 
-      <div class="card">
-        <h3>Value</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;">
-          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-            <p style="font-size:12px;"><strong style="color:var(--fg);">Faster first pass</strong> without sacrificing defensibility</p>
-          </div>
-          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-            <p style="font-size:12px;"><strong style="color:var(--fg);">Lower review friction</strong> &mdash; less time hunting for evidence</p>
-          </div>
-          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-            <p style="font-size:12px;"><strong style="color:var(--fg);">Reduced miss risk</strong> &mdash; exceptions and requirements made explicit</p>
-          </div>
-          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-            <p style="font-size:12px;"><strong style="color:var(--fg);">Consistency</strong> across a practice group</p>
-          </div>
-        </div>
-      </div>
-    </section>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>Orbital is a different category</h3>
+	        <p>
+	          Not "chat with PDFs" and not legal research. Orbital is designed around the outputs you already produce
+	          and the evidence you must be able to defend.
+	        </p>
+	      </div>
 
-    <!-- ═══ ARCHITECTURE ═══ -->
-    <section class="page" id="page-architecture" data-page="/architecture">
-      <h2 class="stitle">Architecture</h2>
+	      <div class="grid-3" style="margin-bottom:16px;">
+	        <div class="card">
+	          <h3>Work product, not chat</h3>
+	          <p>Issues lists, requirement trackers, exception tables, objection/cure asks &mdash; in your structure.</p>
+	        </div>
+	        <div class="card">
+	          <h3>Evidence-first UX</h3>
+	          <p>Every material claim is backed by locked citations. Click-to-verify instead of "trust the model".</p>
+	        </div>
+	        <div class="card">
+	          <h3>Document reality</h3>
+	          <p>Built for messy scans, missing exhibits, and inconsistent formatting. Orbital assumes that reality.</p>
+	        </div>
+	      </div>
 
-      <div class="grid-2">
-        <div class="card">
-          <h3>Ingestion pipeline</h3>
-          <div class="diagram">
-            <pre class="mermaid">
-flowchart LR
-  A["Upload"] --> B["OCR +\nlayout"]
-  B --> C["Chunk +\nembed"]
-  C --> D["Index"]
-  D --> E["Ready"]
-            </pre>
-          </div>
-        </div>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>PoC scope (truthfulness)</h3>
+	        <p>
+	          This demo leads with evidence-first, artefact-first outputs for title + survey quick-start. It does not claim
+	          SSO/RBAC, multi-tenant, or deep integrations.
+	        </p>
+	      </div>
 
-        <div class="card">
-          <h3>Run execution</h3>
-          <div class="diagram">
-            <pre class="mermaid">
-flowchart LR
-  A["Retrieve"] --> B["Hydrate\nevidence"]
-  B --> C["Draft\nanswer"]
-  C --> D["Lock\ncitations"]
-  D --> E["Verify\nintegrity"]
-  E --> F["Write\nrow"]
-            </pre>
-          </div>
-        </div>
+	      <div class="card" style="margin-bottom:16px;">
+	        <h3>Value</h3>
+	        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;">
+	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+	            <p style="font-size:12px;"><strong style="color:var(--fg);">Faster first pass</strong> without sacrificing defensibility</p>
+	          </div>
+	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+	            <p style="font-size:12px;"><strong style="color:var(--fg);">Lower review friction</strong> &mdash; less time hunting for evidence</p>
+	          </div>
+	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+	            <p style="font-size:12px;"><strong style="color:var(--fg);">Reduced miss risk</strong> &mdash; exceptions and requirements made explicit</p>
+	          </div>
+	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
+	            <p style="font-size:12px;"><strong style="color:var(--fg);">Consistency</strong> across a practice group</p>
+	          </div>
+	        </div>
+	      </div>
 
-        <div class="card">
-          <h3>Citation verification</h3>
-          <div class="diagram">
-            <pre class="mermaid">
-sequenceDiagram
-  participant R as Reviewer
-  participant W as Workspace
-  participant A as API
-  participant V as Viewer
+	      <div class="card">
+	        <h3>Discovery prompts (keep it interactive)</h3>
+	        <ul>
+	          <li>What are your must-have deliverables per deal (exceptions table, requirements tracker, survey memo)?</li>
+	          <li>Who does first pass, and who signs off?</li>
+	          <li>Where does time actually go: first pass, senior review, or chasing missing docs/exhibits?</li>
+	          <li>What have you tried: manual only, ChatGPT/Claude/M365, Harvey/Legora, Kira/Luminance?</li>
+	          <li>If we only improved one thing in the next 30 days, what would it be?</li>
+	        </ul>
+	      </div>
+	    </section>
+
+		    <!-- ═══ ARCHITECTURE ═══ -->
+		    <section class="page" id="page-architecture" data-page="/architecture">
+		      <h2 class="stitle">Architecture</h2>
+
+		      <div class="arch-stack">
+		        <div class="card full">
+		          <h3>Ingestion pipeline</h3>
+		          <div class="diagram">
+		            <pre class="mermaid">
+		flowchart LR
+	  A["Upload"] --> B["OCR +\nlayout"]
+	  B --> C["Chunk +\nembed"]
+	  C --> D["Index"]
+	  D --> E["Ready"]
+	            </pre>
+	          </div>
+	        </div>
+
+	        <div class="card full">
+	          <h3>Run execution</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">
+	flowchart LR
+	  A["Retrieve"] --> B["Hydrate\nevidence"]
+	  B --> C["Draft\nanswer"]
+	  C --> D["Lock\ncitations"]
+	  D --> E["Verify\nintegrity"]
+	  E --> F["Write\nrow"]
+	            </pre>
+	          </div>
+	        </div>
+
+	        <div class="card full">
+	          <h3>Citation verification</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">
+	sequenceDiagram
+	  participant R as Reviewer
+	  participant W as Workspace
+	  participant A as API
+	  participant V as Viewer
 
   R->>W: Click citation
   W->>A: Fetch citation + polygons
@@ -419,35 +518,35 @@ sequenceDiagram
   else Failed
     V-->>R: Failure + reason
   end
-            </pre>
-          </div>
-        </div>
+	            </pre>
+	          </div>
+	        </div>
 
-        <div class="card">
-          <h3>Deployment</h3>
-          <div class="diagram">
-            <pre class="mermaid">
-flowchart TB
-  subgraph Vercel["Web tier (Vercel)"]
-    W["Next.js App Router"]
-    W --> S["Streaming UI"]
-    W --> H["Route handlers"]
-  end
-  subgraph Hetzner["Worker tier (Hetzner)"]
-    WDK["Workflow DevKit"]
-    WDK --> OCR["OCR steps"]
-    WDK --> LLM["LLM steps"]
-    WDK --> EMB["Embedding steps"]
-  end
-  subgraph Data["Data plane"]
-    PG["Postgres + pgvector"]
-    OBJ["Object storage"]
-  end
-  Vercel --> Data
-  Hetzner --> Data
-            </pre>
-          </div>
-        </div>
+	        <div class="card full">
+	          <h3>Deployment</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">
+	flowchart TB
+	  subgraph Vercel["Web tier (Vercel)"]
+	    W["Next.js App Router"]
+	    W --> S["Streaming UI"]
+	    W --> H["Route handlers"]
+	  end
+	  subgraph Hetzner["Worker tier (Hetzner)"]
+	    WDK["Workflow DevKit"]
+	    WDK --> OCR["OCR steps"]
+	    WDK --> LLM["LLM steps"]
+	    WDK --> EMB["Embedding steps"]
+	  end
+	  subgraph Data["Data plane"]
+	    PG["Postgres + pgvector"]
+	    OBJ["Object storage"]
+	  end
+	  Vercel --> Data
+	  Hetzner --> Data
+	            </pre>
+	          </div>
+	        </div>
 
         <div class="card full">
           <h3>Key decisions</h3>
@@ -512,42 +611,48 @@ stateDiagram-v2
       </div>
     </section>
 
-    <!-- ═══ STACK ═══ -->
-    <section class="page" id="page-stack" data-page="/stack">
-      <h2 class="stitle">Stack</h2>
-      <div class="grid-3">
-        <div class="stack-tile">
-          <span class="icon" aria-hidden="true">&#9671;</span>
-          <h4>Frontend</h4>
-          <div class="libs">Next.js 15 (App Router)<br>React 19<br>Tailwind CSS<br>TanStack Table<br>pdf.js + overlay layer</div>
-        </div>
-        <div class="stack-tile">
-          <span class="icon" aria-hidden="true">&#9881;</span>
-          <h4>Orchestration</h4>
-          <div class="libs">Workflow DevKit (WDK)<br>Postgres-backed state<br>Retryable idempotent steps<br>Row-by-row progress</div>
-        </div>
-        <div class="stack-tile">
-          <span class="icon" aria-hidden="true">&#10024;</span>
-          <h4>AI</h4>
-          <div class="libs">Vercel AI SDK<br>AI Gateway (model router)<br>Claude for drafting<br>text-embedding-3-large</div>
-        </div>
-        <div class="stack-tile">
-          <span class="icon" aria-hidden="true">&#9638;</span>
-          <h4>Data</h4>
-          <div class="libs">Postgres<br>pgvector (semantic)<br>tsvector (lexical)<br>S3-compatible objects</div>
-        </div>
-        <div class="stack-tile">
-          <span class="icon" aria-hidden="true">&#9744;</span>
-          <h4>OCR</h4>
-          <div class="libs">Azure Document Intelligence<br>Per-page text + geometry<br>Scan-resilient extraction</div>
-        </div>
-        <div class="stack-tile">
-          <span class="icon" aria-hidden="true">&#9673;</span>
-          <h4>Infra</h4>
-          <div class="libs">Vercel (web tier)<br>Hetzner (worker + DB)<br>Zod validation<br>AI SDK telemetry</div>
-        </div>
-      </div>
-    </section>
+	    <!-- ═══ STACK ═══ -->
+	    <section class="page" id="page-stack" data-page="/stack">
+	      <h2 class="stitle">Stack</h2>
+	      <div class="grid-3">
+	        <div class="stack-tile">
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Next.js App Router gives fast iteration and a streaming UI. pdf.js + an overlay layer keeps citation verification in-page.">?</button>
+	          <span class="icon" aria-hidden="true">&#9671;</span>
+	          <h4>Frontend</h4>
+	          <div class="libs">Next.js 15 (App Router)<br>React 19<br>Tailwind CSS<br>TanStack Table<br>pdf.js + overlay layer</div>
+	        </div>
+	        <div class="stack-tile">
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Durable, retryable workflows for OCR/LLM steps. Postgres-backed state makes runs observable, resumable, and idempotent.">?</button>
+	          <span class="icon" aria-hidden="true">&#9881;</span>
+	          <h4>Orchestration</h4>
+	          <div class="libs">Workflow DevKit (WDK)<br>Postgres-backed state<br>Retryable idempotent steps<br>Row-by-row progress</div>
+	        </div>
+	        <div class="stack-tile">
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Vercel AI SDK keeps streaming and tool calls consistent. A gateway/router makes it easy to swap models without rewriting the app.">?</button>
+	          <span class="icon icon-text" aria-hidden="true">LLM</span>
+	          <h4>LLM</h4>
+	          <div class="libs">Vercel AI SDK<br>AI Gateway (model router)<br>Claude for drafting<br>text-embedding-3-large</div>
+	        </div>
+	        <div class="stack-tile">
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Postgres keeps one source of truth for runs and artefacts. Hybrid lexical + vector retrieval improves recall on messy packs.">?</button>
+	          <span class="icon" aria-hidden="true">&#9638;</span>
+	          <h4>Data</h4>
+	          <div class="libs">Postgres<br>pgvector (semantic)<br>tsvector (lexical)<br>S3-compatible objects</div>
+	        </div>
+	        <div class="stack-tile">
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Azure Document Intelligence returns text plus layout geometry, which we need for polygon highlights. Strong on scan-heavy PDFs.">?</button>
+	          <span class="icon" aria-hidden="true">&#9744;</span>
+	          <h4>OCR</h4>
+	          <div class="libs">Azure Document Intelligence<br>Per-page text + geometry<br>Scan-resilient extraction</div>
+	        </div>
+	        <div class="stack-tile">
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Vercel handles short-lived web requests; workers handle long-running steps. Keeping the data plane close to workers reduces latency and cost.">?</button>
+	          <span class="icon" aria-hidden="true">&#9673;</span>
+	          <h4>Infra</h4>
+	          <div class="libs">Vercel (web tier)<br>Hetzner (worker + DB)<br>Zod validation<br>AI SDK telemetry</div>
+	        </div>
+	      </div>
+	    </section>
 
     <!-- ═══ PREFLIGHT (hidden from nav) ═══ -->
     <section class="page" id="page-preflight" data-page="/preflight">

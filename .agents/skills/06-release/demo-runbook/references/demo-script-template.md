@@ -84,12 +84,12 @@ Include:
 - Geography: {{geography}} only
 - Data caveat reminder: synthetic packs and customers
 
-## 6) Competitive landscape (1 to 2 mins)
-Use `references/competitive-template.md`.
+## 6) Our approach (positioning + alternatives + differentiated value) (1 to 2 mins)
 Ensure:
-- respectful, trade-off based
-- “different constraints” framing
-- no dunking
+- start with positioning context (what category this is and what assumptions to make)
+- include alternatives (including status quo / no decision) and ask 1 to 2 discovery questions
+- define “perfect world” criteria briefly, then anchor on differentiated value
+- respectful, trade-off based, “different constraints” framing, no dunking
 
 ## 7) Technical architecture and stack (2 to 3 mins)
 Use `references/architecture-template.md`.
@@ -115,4 +115,4 @@ Prepare answers for:
 - “How do we stop hallucinations?”
 - “What is the evaluation plan?”
 - “What is the cost and latency profile?”
-- “What competitors do differently, and why?”
+- “What approaches are the main alternatives (including status quo), and why did you choose this one?”

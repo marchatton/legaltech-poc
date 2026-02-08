@@ -53,9 +53,9 @@ DEFAULTS: Dict[str, Any] = {
     ],
     "competitors": [],
     "competitor_patterns": [
-        "Some competitors optimise for speed and breadth, accepting more variance in grounding.",
-        "Some competitors optimise for deterministic workflows, accepting less flexibility.",
-        "Some competitors optimise for deep provenance, accepting more complexity and sometimes more latency.",
+        "Some approaches optimise for speed and breadth, accepting more variance in grounding.",
+        "Some approaches optimise for deterministic workflows, accepting less flexibility.",
+        "Some approaches optimise for deep provenance, accepting more complexity and sometimes more latency.",
     ],
     "our_approach_summary": TODO,
     "tradeoffs": [TODO],
@@ -110,6 +110,77 @@ DEFAULTS: Dict[str, Any] = {
         {"label": "Copilot", "url": TODO, "note": "Core query and answer"},
         {"label": "Feature X", "url": TODO, "note": "Wow moment"},
     ],
+    "scenarios": [
+        {"label": "Happy path", "desc": TODO, "url": TODO, "tag": "pass", "tagLabel": "Happy path"},
+        {"label": "Missing input", "desc": TODO, "url": TODO, "tag": "warn", "tagLabel": "Missing input"},
+        {"label": "Verification failure", "desc": TODO, "url": TODO, "tag": "fail", "tagLabel": "Fail-closed"},
+    ],
+    "runbook_visual": {
+        # Home title is split to allow italic emphasis for the second token.
+        "poc_name_prefix": TODO,
+        "poc_name_emphasis": TODO,
+    },
+    "approach": {
+        "problem": TODO,
+        "alternatives": [
+            {"title": "Manual", "desc": TODO},
+            {"title": "Horizontal copilots", "desc": TODO},
+            {"title": "Specialised tools", "desc": TODO},
+        ],
+        "category": {
+            "headline": "A different category",
+            "one_liner": TODO,
+            "explainer": TODO,
+        },
+        "pillars": [
+            {"title": TODO, "desc": TODO},
+            {"title": TODO, "desc": TODO},
+            {"title": TODO, "desc": TODO},
+        ],
+        "value": [
+            {"strong": TODO, "rest": TODO},
+            {"strong": TODO, "rest": TODO},
+            {"strong": TODO, "rest": TODO},
+            {"strong": TODO, "rest": TODO},
+        ],
+    },
+    "runbook_architecture": {
+        "ingestion_title": "Ingestion pipeline",
+        "execution_title": "Run execution",
+        "citations_title": "Citation verification",
+        "deployment_title": "Deployment",
+        "mermaid": {
+            "ingestion_pipeline": "flowchart LR\n  A[Upload] --> B[OCR +\\nlayout]\n  B --> C[Chunk +\\nembed]\n  C --> D[Index]\n  D --> E[Ready]",
+            "run_execution": "flowchart LR\n  A[Retrieve] --> B[Hydrate\\nevidence]\n  B --> C[Draft\\nanswer]\n  C --> D[Lock\\ncitations]\n  D --> E[Verify\\nintegrity]\n  E --> F[Write\\nrow]",
+            "citation_verification": "sequenceDiagram\n  participant R as Reviewer\n  participant W as Workspace\n  participant A as API\n  participant V as Viewer\n\n  R->>W: Click citation\n  W->>A: Fetch citation + polygons\n  A-->>W: Locked citation object\n  W->>A: Document render (page N)\n  A-->>V: Signed PDF URL\n  V->>V: Verify hash\n  alt Verified\n    V-->>R: Highlighted passage\n  else Failed\n    V-->>R: Failure + reason\n  end",
+            "deployment": "flowchart TB\n  subgraph Web[Web tier]\n    W[Next.js] --> H[Route handlers]\n  end\n  subgraph Worker[Worker tier]\n    O[Orchestration] --> Steps[Retryable steps]\n  end\n  subgraph Data[Data plane]\n    PG[Postgres + pgvector]\n    OBJ[Object storage]\n  end\n  Web --> Data\n  Worker --> Data",
+            "state_machine_1": "stateDiagram-v2\n  [*] --> empty\n  empty --> ingesting\n  ingesting --> indexed\n  indexed --> ready\n  ingesting --> failed",
+            "state_machine_2": "stateDiagram-v2\n  [*] --> needs_review\n  needs_review --> reviewed\n  [*] --> missing_input\n  [*] --> citation_failed",
+        },
+        "adrs": [
+            {"id": "ADR-01", "text": TODO},
+            {"id": "ADR-02", "text": TODO},
+        ],
+        "state_machines": [
+            {"title": "Folder", "which": "state_machine_1"},
+            {"title": "Report row", "which": "state_machine_2"},
+        ],
+    },
+    "stack_tiles": [
+        {"icon": "◇", "title": "Frontend", "libs": ["Next.js", "React", "Tailwind CSS"]},
+        {"icon": "⚙", "title": "Orchestration", "libs": ["TODO"]},
+        {"icon": "✨", "title": "AI", "libs": ["TODO"]},
+        {"icon": "▢", "title": "Data", "libs": ["Postgres", "pgvector"]},
+        {"icon": "□", "title": "OCR", "libs": ["TODO"]},
+        {"icon": "○", "title": "Infra", "libs": ["TODO"]},
+    ],
+    "preflight": {
+        "seed_command": "pnpm fixture:seed [TODO] --overwrite",
+        "dev_command": "pnpm dev",
+        "link_label": "Demo (happy path)",
+        "link_desc": TODO,
+        "link_url": "http://localhost:3000/[TODO]",
+    },
     "runbook_links": [],
     "known_limitations": [
         "Coverage gaps due to synthetic data and limited corpus.",
@@ -185,6 +256,80 @@ def normalise(payload: Dict[str, Any]) -> Dict[str, Any]:
             else:
                 norm_links.append({"label": "TODO link label", "url": TODO, "note": ""})
         out["app_links"] = norm_links
+
+    scenarios = out.get("scenarios")
+    if not isinstance(scenarios, list) or not scenarios:
+        # If scenarios missing but app_links present, derive a simple scenario list.
+        # Keep tags generic; callers can override.
+        derived: List[Dict[str, Any]] = []
+        for i, item in enumerate(out.get("app_links") or []):
+            if not isinstance(item, dict):
+                continue
+            derived.append(
+                {
+                    "label": item.get("label") or f"Scenario {i+1}",
+                    "desc": item.get("note") or "",
+                    "url": item.get("url") or TODO,
+                    "tag": "pass",
+                    "tagLabel": "Scenario",
+                }
+            )
+        out["scenarios"] = derived if derived else deepcopy(DEFAULTS["scenarios"])
+    else:
+        norm_scenarios: List[Dict[str, Any]] = []
+        for s in scenarios:
+            if isinstance(s, dict):
+                norm_scenarios.append(
+                    {
+                        "label": s.get("label") or "TODO scenario",
+                        "desc": s.get("desc") or "",
+                        "url": s.get("url") or TODO,
+                        "tag": s.get("tag") or "pass",
+                        "tagLabel": s.get("tagLabel") or "Scenario",
+                    }
+                )
+            else:
+                norm_scenarios.append(
+                    {"label": "TODO scenario", "desc": "", "url": TODO, "tag": "pass", "tagLabel": "Scenario"}
+                )
+        out["scenarios"] = norm_scenarios
+
+    stack_tiles = out.get("stack_tiles")
+    if not isinstance(stack_tiles, list) or not stack_tiles:
+        out["stack_tiles"] = deepcopy(DEFAULTS["stack_tiles"])
+    else:
+        norm_tiles: List[Dict[str, Any]] = []
+        for t in stack_tiles:
+            if isinstance(t, dict):
+                libs = t.get("libs")
+                if not isinstance(libs, list) or not libs:
+                    libs = [TODO]
+                norm_tiles.append(
+                    {
+                        "icon": t.get("icon") or "",
+                        "title": t.get("title") or TODO,
+                        "libs": [str(x) if x is not None else TODO for x in libs],
+                    }
+                )
+            else:
+                norm_tiles.append({"icon": "", "title": TODO, "libs": [TODO]})
+        out["stack_tiles"] = norm_tiles
+
+    preflight = out.get("preflight")
+    if not isinstance(preflight, dict):
+        out["preflight"] = deepcopy(DEFAULTS["preflight"])
+
+    rv = out.get("runbook_visual")
+    if not isinstance(rv, dict):
+        out["runbook_visual"] = deepcopy(DEFAULTS["runbook_visual"])
+
+    ra = out.get("runbook_architecture")
+    if not isinstance(ra, dict):
+        out["runbook_architecture"] = deepcopy(DEFAULTS["runbook_architecture"])
+    else:
+        adrs = ra.get("adrs")
+        if not isinstance(adrs, list) or not adrs:
+            ra["adrs"] = deepcopy(DEFAULTS["runbook_architecture"]["adrs"])
 
     return out
 

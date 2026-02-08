@@ -131,39 +131,66 @@ Pulled from the competitor overviews; treat these as "likely true but verify" be
 
 ---
 
-## 2) Pitch Script (first call, ~5 minutes)
+## 2) Pitch Flow (Dunford checklist, interactive, ~5-7 minutes)
 
-### 0. One-line opener (10 seconds)
-"Orbital isn't a general legal AI. It's a **CRE diligence work-product engine**: it turns messy title, survey, and deal docs into **checkable, client-ready outputs with locked evidence**, so you get a defensible first pass in hours, not days."
+### 0) Opener (10 seconds)
+"Orbital isn't a general legal AI. It's **CRE diligence work-product automation**: we turn messy title, survey, and deal docs into **checkable outputs with locked evidence**, so you get a defensible first pass faster."
 
-### 1. Start with a POV (30-60 seconds): "what's broken"
-"CRE diligence has a weird constraint: it's time-sensitive, but a single miss can blow up insurability, lender comfort, or value. The bottleneck isn't 'writing' or 'summarizing' - it's converting a messy doc pack into **checkable work product** that a senior reviewer can sign off on."
+### 1) Market insight (your POV)
+"CRE diligence has a weird constraint: it's time-sensitive, but a single miss can blow up insurability, lender comfort, or value. The real enemy is often 'no decision': teams keep the manual workflow because the risk of changing tools feels higher than the pain of the status quo."
 
-### 2. Name the alternatives (30 seconds): "what people try"
-"Most teams do one of three things:
-1) run the junior-associate checklist + copy/paste into Word,
-2) use a horizontal copilot to summarize PDFs,
-3) use contract review tools that extract clauses well but weren't built for title/survey and CRE deliverables."
+### 2) Alternatives (include status quo) + discovery (make this interactive)
+"Before I show anything, can I sanity-check how you do this today?"
+- What are the must-have deliverables per deal (exceptions table, requirements tracker, survey memo, objections/cure asks)?
+- Who does first pass, and who signs off?
+- What's the slowest part: first pass, senior review, or chasing missing docs/exhibits?
+- What have you tried (manual only, ChatGPT/Claude/M365, Harvey/Legora, Kira/Luminance)?
 
-### 3. Reframe the category (15 seconds): "what we are"
-"Orbital is in a different category: **CRE diligence work-product automation**. The product is designed around the outputs you already produce, and the evidence you must be able to defend."
+### 3) "Perfect world" (align on what good looks like)
+"In a perfect world, a junior can produce the core diligence artefacts quickly, and a senior can verify the top risks without hunting."
+- Outputs match your deliverables (structure and tone), not generic summaries.
+- Every material claim is backed by evidence you can click and verify.
+- Missing evidence is explicit (fail closed), not hand-waved.
+- Exports drop into Word/Excel without copy/paste glue.
 
-### 4. Show the differentiation (60-90 seconds): "why we win"
-"Three things make Orbital different:
-1) **Work product, not chat**: issues lists, requirement trackers, exception tables, objection/cure asks, and drafts in your structure.
-2) **Evidence-first**: every claim is backed by citations so reviewers can click-to-verify instead of 'trusting the AI.'
-3) **Real-world packs**: messy scans, missing exhibits, inconsistent formatting are the norm in CRE; Orbital is built for that reality.
-Optional fourth (if relevant): **land + language**. For title/survey workflows, plotting legal descriptions and reconciling title <-> survey visually is a true wedge."
+"If we could only improve one thing in the next 30 days, what would it be?"
 
-### 5. Offer a concrete pilot (30-45 seconds): "how we'll prove it"
-"Let's do a pilot on a real pack. We'll measure:
-- time to first-pass artefacts,
-- time to verify (click citation, confirm),
-- what percentage of rows are fully evidenced,
-- what edits are needed before you'd send it to a client."
+### 4) Your differentiated value (and where the demo fits)
+"Orbital is built around that perfect world:
+1) **Work product, not chat**: exceptions/requirements/survey reconciliation issues and draft artefacts in your structure.
+2) **Evidence-first**: claims are tied to citations so review is fast and auditable.
+3) **Real-world packs**: designed for messy diligence inputs, not ideal PDFs.
+Optional: **land + language** for title/survey workflows (legal descriptions and title <-> survey reconciliation)."
 
-### 6. Close (10 seconds): "next step"
-"If you give us one representative pack and your preferred deliverable template, we'll show you a defensible first pass and you can judge it the way you judge an associate: by the work product."
+Demo beats (keep it inside the value narrative):
+- Start with the pack: title commitment, exception instruments, survey.
+- Show the outputs: requirements tracker, exception table, survey reconciliation issues.
+- Click-to-verify: pick one high-risk row and jump to the cited evidence in the PDF.
+- Show failure modes: "missing input" / "citation failed" and how that blocks unsafe exports by default.
+- Show export: Word/Excel deliverable format (if available).
+
+### 5) Proof (case study/results, plus "prove it on your data")
+Pick proof that reduces risk for the buyer:
+- "Let's run this on one representative pack and measure time-to-first-pass and time-to-verify."
+- Reference customers and security posture (only what you can substantiate).
+- A before/after example output (manual vs Orbital) with the same pack.
+
+### 6) Objections (optional, conversational)
+Common objections to invite (and how to respond):
+- "We already have ChatGPT/Claude/M365."
+  - Question: "Is the gap drafting/summaries, or producing evidence-backed diligence deliverables you can sign off on?"
+- "We already have Harvey/Legora/Kira/Luminance."
+  - Question: "Are you getting CRE-native title/survey depth and reviewable outputs out of the box, or is it a build/tune project?"
+- "Accuracy/hallucinations scare us."
+  - Response: "Same. That's why the workflow is evidence-first and fail-closed. If it's not cited, it's not shippable."
+- "We don't want disruption."
+  - Response: "This should sit inside existing deliverables (Word/Excel) so you can adopt it as first pass without ripping out anything."
+
+### 7) The ask (agree next step)
+"If this sounds directionally right, I'd suggest a minimal pilot:"
+- You provide 1 representative pack (sanitized is fine) and your preferred deliverable template.
+- We produce 3 outputs (requirements, exceptions, survey reconciliation) with citations.
+- We review with a senior for 30 minutes and decide if it's worth expanding.
 
 ---
 

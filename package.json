@@ -14,5 +14,8 @@
     "fixtures:verify-pack-names": "node --experimental-strip-types scripts/fixtures/verify_pack_names.ts",
     "fixtures:assert-row-invariants": "node --experimental-strip-types scripts/fixtures/assert_row_invariants.ts",
     "fixtures:compare-truth": "node --experimental-strip-types scripts/fixtures/compare_truth.ts"
+  },
+  "devDependencies": {
+    "beautiful-mermaid": "^0.1.3"
   }
 }
