@@ -40,6 +40,8 @@ const ExceptionItemV0Schema = BaseItemV0Schema.extend({
   kind: z.literal("exceptions_table_item"),
   bii_item: z.number().int().nonnegative(),
   type: z.string().min(1),
+  // Item-level only (do not reuse report-row statuses). Comparator expects this field.
+  item_status: z.enum(["needs_review", "missing_input"]),
   instrument_no: z.string().min(1).nullable().optional(),
   recorded_date: z
     .string()

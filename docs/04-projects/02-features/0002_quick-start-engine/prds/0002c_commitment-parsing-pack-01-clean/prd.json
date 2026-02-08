@@ -27,7 +27,7 @@
     {
       "id": "US-001",
       "title": "Extract B-I requirements tracker (clean pack)",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a user, I can see a B-I requirements tracker table derived from the commitment and backed by evidence.",
       "acceptanceCriteria": [
@@ -36,12 +36,15 @@
         "Negative: Precision rule holds: no extra items not present in truth by item number; comparator reports extra_keys.length=0 and any mismatch fails closed.",
         "For pack_01_clean, every extracted item has the correct truth item number and required key fields as defined by the comparator.",
         "Each extracted item has item-level citation_ids[] that lock and verify (no header-only evidence for item content)."
-      ]
+      ],
+      "startedAt": "2026-02-08T16:24:38.680265+00:00",
+      "completedAt": "2026-02-08T16:25:02.336189+00:00",
+      "updatedAt": "2026-02-08T16:25:02.336175+00:00"
     },
     {
       "id": "US-002",
       "title": "Extract B-II exceptions table (clean pack)",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a user, I can see a B-II exceptions table derived from the commitment and backed by evidence.",
       "acceptanceCriteria": [
@@ -50,7 +53,10 @@
         "Negative: Instrument references are normalised to a single canonical form; conflicting formats do not create duplicates and do not cause truth mismatches.",
         "For pack_01_clean, every extracted exception has the correct item number and required key fields as defined by the comparator.",
         "Each extracted exception item has item-level citation_ids[] that lock and verify."
-      ]
+      ],
+      "startedAt": "2026-02-08T16:25:04.576555+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T16:25:04.576569+00:00"
     }
   ],
   "meta": {

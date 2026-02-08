@@ -38,6 +38,7 @@ describe("list_payload_v0", () => {
           citation_ids: ["cit_123"],
           bii_item: 1,
           type: "REA",
+          item_status: "needs_review",
           match_status: "matched",
           // must not smuggle report-row statuses into the item contract
           status: "needs_review",
@@ -46,5 +47,21 @@ describe("list_payload_v0", () => {
     };
     expect(ListPayloadV0Schema.safeParse(bad).success).toBe(false);
   });
-});
 
+  test("exceptions items require item_status", () => {
+    const bad = {
+      kind: "exceptions_table",
+      items: [
+        {
+          kind: "exceptions_table_item",
+          item_id: "bii:1",
+          citation_ids: ["cit_123"],
+          bii_item: 1,
+          type: "REA",
+          match_status: "matched",
+        },
+      ],
+    };
+    expect(ListPayloadV0Schema.safeParse(bad).success).toBe(false);
+  });
+});

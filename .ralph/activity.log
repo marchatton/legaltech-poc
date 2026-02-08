@@ -1,6 +1,9 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 16:25:02 | run=20260208-162438-128744 | iter=1 | mode=build | story=US-001 | duration=24s | status=success
+- 2026-02-08 16:22:15 | run=20260208-160632-123841 | iter=2 | mode=build | story=US-002 | duration=20s | status=success
+- 2026-02-08 16:21:52 | run=20260208-160632-123841 | iter=1 | mode=build | story=US-001 | duration=920s | status=success
 - 2026-02-08 15:51:24 | run=20260208-151217-112794 | iter=4 | mode=build | story=US-002 | duration=639s | status=success
 - 2026-02-08 15:40:43 | run=20260208-151217-112794 | iter=3 | mode=build | story=US-001 | duration=331s | status=success
 - 2026-02-08 15:35:09 | run=20260208-151217-112794 | iter=2 | mode=build | story=US-002 | duration=826s | status=success
@@ -176,3 +179,16 @@
 [2026-02-08 16:19:04] US-001: cleaning unrelated PRD/errors artifacts from working tree
 [2026-02-08 16:19:44] US-001: committing changes
 [2026-02-08 16:21:08] US-001: progress log updated
+[2026-02-08 16:21:52] ITERATION 1 end (duration=920s)
+[2026-02-08 16:21:55] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 16:22:10] US-002 start: audit guardrails/errors/PRD
+[2026-02-08 16:22:15] ITERATION 2 end (duration=20s)
+[2026-02-08 16:24:39] ITERATION 1 start (mode=build story=US-001)
+[2026-02-08 16:24:49] US-001 start: requirements tracker extraction (pack_01_clean)
+[2026-02-08 16:25:02] ITERATION 1 end (duration=24s)
+[2026-02-08 16:25:05] ITERATION 2 start (mode=build story=US-002)
+[2026-02-08 16:25:14] US-002 start: implement B-II exceptions table extraction for pack_01_clean
+[2026-02-08 16:29:55] US-002: implementing exceptions_table_item payload + citations in fixtures seed
+[2026-02-08 16:31:02] US-002: code changes applied (schema + fixture seed exceptions payload)
+[2026-02-08 16:33:45] US-002: running verification (pnpm verify + fixtures compare-truth exceptions)
+[2026-02-08 16:34:35] US-002: verification complete (pnpm verify + fixtures compare-truth exceptions PASS)

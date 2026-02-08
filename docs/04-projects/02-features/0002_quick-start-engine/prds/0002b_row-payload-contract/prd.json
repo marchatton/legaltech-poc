@@ -26,7 +26,7 @@
     {
       "id": "US-001",
       "title": "Artefact rows have a versioned list payload",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a user, I want B-I/B-II/issues to be structured so the UI can render them as tables and evals can compare them reliably.",
       "acceptanceCriteria": [
@@ -35,12 +35,15 @@
         "Negative: payload_schema_version and payload_json are both present or both absent; inconsistent states are rejected/flagged and surfaced via a safe error envelope with trace_id.",
         "Item-level states (e.g. match_status, depicted|not_depicted|unknown) do not invent or reuse report-row statuses.",
         "Keep report_rows.answer as a human-readable summary; provenance_json remains debug-only (not a product contract)."
-      ]
+      ],
+      "updatedAt": "2026-02-08T16:21:53.196992+00:00",
+      "completedAt": "2026-02-08T16:21:53.197034+00:00",
+      "startedAt": "2026-02-08T16:21:53.197039+00:00"
     },
     {
       "id": "US-002",
       "title": "UI renders artefact tables from payload and locked citations",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -51,7 +54,10 @@
         "Negative: If payload is missing or invalid, UI shows a safe, non-leaky error state (standard error envelope + trace_id) and the row remains inspectable.",
         "GET /folders/:id/report?run_id=... includes payload fields (nullable) in each row response without breaking existing clients.",
         "Item-level citations sent to the UI are locked citation_id values only; chunk IDs are not exposed."
-      ]
+      ],
+      "startedAt": "2026-02-08T16:21:55.426505+00:00",
+      "completedAt": "2026-02-08T16:22:16.058015+00:00",
+      "updatedAt": "2026-02-08T16:22:16.058001+00:00"
     }
   ],
   "meta": {

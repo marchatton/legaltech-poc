@@ -22,6 +22,9 @@ export function parseArgs(argv: string[]): ParsedArgs {
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--") {
+      // pnpm forwards a leading "--" sentinel through to the script; treat it as a no-op
+      // so `pnpm run <script> -- --flag value` works as expected.
+      if (i === 0) continue;
       out._.push(...argv.slice(i + 1));
       break;
     }
@@ -74,4 +77,3 @@ export function requireStringArg(args: ParsedArgs, key: string): string {
   if (!val) throw new Error(`Missing required arg --${key}`);
   return val;
 }
-

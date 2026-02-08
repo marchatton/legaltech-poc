@@ -4,8 +4,10 @@ import path from "node:path";
 import { AnchorFileSchema, anchorBoxToPolygons, type AnchorBox } from "../../packages/core/src/geometry/anchors.ts";
 import { hashSnippet } from "../../packages/core/src/citations/snippet.ts";
 import { detectMissingDocs } from "../../packages/core/src/missing-docs/detectMissingDocs.ts";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "../../packages/core/src/schemas/list_payload_v0.ts";
 
 import { parseArgs, getBoolArg, getStringArg } from "./lib/args.ts";
+import { parseCsv } from "./lib/csv.ts";
 
 type FixtureManifest = {
   pack_id: string;
@@ -233,6 +235,73 @@ function snippetFor(q: GoldenQuestion, c: { doc: string; anchor: string }): stri
   return `${c.doc}#${c.anchor}: ${expected}`;
 }
 
+function norm_ws(input: string): string {
+  return input.replace(/\r\n/g, "\n").trim().replace(/\s+/g, " ");
+}
+
+function norm_instrument_no(input: string): string {
+  return input.toUpperCase().replace(/\s+/g, "").replace(/[^A-Z0-9-]/g, "");
+}
+
+const MONTHS: Record<string, number> = {
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
+};
+
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : String(n);
+}
+
+function norm_date(input: string): string | null {
+  const s = norm_ws(input);
+  if (!s) return null;
+
+  // ISO
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+
+  // MM/DD/YYYY
+  const mdY = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mdY) {
+    const mm = Number(mdY[1]);
+    const dd = Number(mdY[2]);
+    const yyyy = Number(mdY[3]);
+    if (!mm || !dd || !yyyy) return null;
+    return `${yyyy}-${pad2(mm)}-${pad2(dd)}`;
+  }
+
+  // "Month DD, YYYY"
+  const m = s.match(/^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})$/);
+  if (m) {
+    const month = MONTHS[m[1].toLowerCase()];
+    const day = Number(m[2]);
+    const year = Number(m[3]);
+    if (!month || !day || !year) return null;
+    return `${year}-${pad2(month)}-${pad2(day)}`;
+  }
+
+  return null;
+}
+
+function norm_tags(input: string): string[] {
+  const parts = input
+    .split(";")
+    .map((p) => p.trim().toLowerCase())
+    .filter(Boolean)
+    .sort();
+  return parts;
+}
+
 function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; includeBadCitationRow: boolean }) {
   const repoRoot = process.cwd();
   const packRoot = path.resolve(repoRoot, "docs/08-example-data", packId);
@@ -329,6 +398,75 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
         snippet_hash: hashSnippet(snippet),
       };
       row.citation_ids.push(cid);
+    }
+
+    // For list-payload questions, attach a deterministic payload derived from fixture truth,
+    // backed by item-level citations anchored in the commitment.
+    if (q.question_id === "TS-04") {
+      const truthPath = path.join(packRoot, "truth", "expected_exceptions_table.csv");
+      if (fs.existsSync(truthPath)) {
+        const truth = parseCsv(fs.readFileSync(truthPath, "utf8")).rows;
+
+        const items: any[] = [];
+        for (const t of truth) {
+          const bii = Number(t.bii_item);
+          if (!Number.isFinite(bii)) continue;
+
+          const itemAnchorId = String(t.citation_anchor ?? "").trim();
+          const itemDoc = String(t.citation_doc ?? "").trim();
+          const itemCid = `cit_TS-04_ITEM_${bii}`;
+
+          const anchorResult = loadAnchorBbox({
+            manifest,
+            packRoot,
+            docFilename: itemDoc,
+            anchorId: itemAnchorId,
+          });
+          if (!anchorResult.ok) {
+            row.status = "citation_failed";
+            row.answer = "Citation verification failed.";
+            row.provenance_json = { reason_code: anchorResult.reason };
+            break;
+          }
+
+          const polygons = anchorBoxToPolygons(anchorResult.anchor);
+          const snippet = `${itemDoc}#${itemAnchorId}: B-II ${bii} ${String(t.type ?? "").trim()}`;
+          snapshot.citations[itemCid] = {
+            document_filename: itemDoc,
+            page_number: anchorResult.anchor.page,
+            polygons,
+            snippet,
+            snippet_hash: hashSnippet(snippet),
+          };
+
+          const instrumentNoRaw = String(t.instrument_no ?? "").trim();
+          const recordedRaw = String(t.recorded ?? "").trim();
+          const tagsRaw = String(t.risk_tags ?? "");
+
+          items.push({
+            kind: "exceptions_table_item",
+            item_id: `bii:${bii}`,
+            citation_ids: [itemCid],
+            bii_item: bii,
+            type: String(t.type ?? "").trim() || "Unknown",
+            item_status: String(t.status ?? "").trim() || "needs_review",
+            instrument_no: instrumentNoRaw ? norm_instrument_no(instrumentNoRaw) : null,
+            recorded_date: norm_date(recordedRaw),
+            doc: String(t.doc ?? "").trim() || null,
+            risk_tags: norm_tags(tagsRaw),
+            match_status: "matched",
+          });
+        }
+
+        if (row.status !== "citation_failed") {
+          const payload = { kind: "exceptions_table", items };
+          // Fail loudly if fixtures drift from the payload contract.
+          ListPayloadV0Schema.parse(payload);
+          row.payload_schema_version = LIST_PAYLOAD_V0_SCHEMA_VERSION;
+          row.payload_json = payload;
+          row.answer = "Extracted exceptions table (see payload).";
+        }
+      }
     }
 
     snapshot.rows.push(row);
