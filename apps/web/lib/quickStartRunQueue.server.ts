@@ -258,6 +258,16 @@ async function executeOne(runId: string): Promise<void> {
     });
 
     if (wrote) {
+      // eslint-disable-next-line no-console
+      console.info("run.step", {
+        run_id: runId,
+        trace_id: run.trace_id ?? null,
+        step_key: stepKey,
+        question_id: q.question_id,
+        row_status: row.status,
+        reason_code: reasonCode,
+      });
+
       // Yield a small window so polling clients can observe incremental row writes.
       await new Promise((r) => setTimeout(r, 150));
     }

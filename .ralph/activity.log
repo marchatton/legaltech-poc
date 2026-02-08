@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 15:35:09 | run=20260208-151217-112794 | iter=2 | mode=build | story=US-002 | duration=826s | status=success
 - 2026-02-08 15:21:21 | run=20260208-151217-112794 | iter=1 | mode=build | story=US-001 | duration=544s | status=success
 - 2026-02-08 14:57:43 | run=20260208-143708-105964 | iter=2 | mode=build | story=US-002 | duration=45s | status=success
 - 2026-02-08 14:56:56 | run=20260208-143708-105964 | iter=1 | mode=build | story=US-001 | duration=1188s | status=success
@@ -150,3 +151,9 @@
 [2026-02-08 15:25:35] US-002 implementing: report_rows schema + report endpoint + run queue
 [2026-02-08 15:28:29] US-002 verification: pnpm verify
 [2026-02-08 15:34:23] US-002: progress log updated
+[2026-02-08 15:35:09] ITERATION 2 end (duration=826s)
+[2026-02-08 15:35:12] ITERATION 3 start (mode=build story=US-001)
+[2026-02-08 15:35:24] US-001 start: audit guardrails/errors/PRD and current API surface
+[2026-02-08 15:38:17] US-001: restoring unrelated modified files (PRD + prior run summary + errors log)
+[2026-02-08 15:38:31] US-001: added run.step correlation logging for write_row steps
+[2026-02-08 15:38:34] US-001: running verification (pnpm verify)
