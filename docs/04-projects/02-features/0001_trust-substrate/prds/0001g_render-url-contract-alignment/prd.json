@@ -97,7 +97,7 @@
     {
       "id": "US-001",
       "title": "Fetch a signed render URL for a document",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a reviewer/developer, I want to request a render_url for a document so that pdf.js can load it safely.",
       "acceptanceCriteria": [
@@ -109,13 +109,13 @@
         "Negative case: Page out of range returns VALIDATION_ERROR (safe envelope)."
       ],
       "startedAt": "2026-02-08T14:37:08.458707+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T14:37:08.458741+00:00"
+      "completedAt": "2026-02-08T14:56:56.430660+00:00",
+      "updatedAt": "2026-02-08T14:56:56.430621+00:00"
     },
     {
       "id": "US-002",
       "title": "Viewer and RH1 harness use the render_url target",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -125,7 +125,10 @@
         "AC-005: RH1 harness can be run against the render_url target and records Range proof + serial/spam perf JSON artifacts under docs/04-projects/02-features/0001_trust-substrate/spike-proofs/ and an updated summary/decision in spike-investigation.md.",
         "Example: Run RH1 on pack_07_scans_rotated_low_quality via render_url and record evidence.",
         "Negative case: If Range support is missing on the render_url target, the harness reports NO-GO and does not emit misleading perf numbers."
-      ]
+      ],
+      "startedAt": "2026-02-08T14:56:58.679123+00:00",
+      "completedAt": "2026-02-08T14:57:43.620494+00:00",
+      "updatedAt": "2026-02-08T14:57:43.620468+00:00"
     }
   ],
   "meta": {
