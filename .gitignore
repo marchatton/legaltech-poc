@@ -30,6 +30,10 @@ tmp/object-store/
 .agents/skills/00-utilities/dev-browser/tmp/
 .agents/skills/00-utilities/dev-browser/profiles/
 
+# Ralph agent run artefacts
+/.ralph/
+/.ralph.bad*/
+
 # macOS
 .DS_Store
 **/.DS_Store
