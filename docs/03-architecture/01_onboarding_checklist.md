@@ -1,6 +1,6 @@
 # Onboarding checklist
 
-Last updated: 2026-02-07
+Last updated: 2026-02-08
 
 Use this when setting up a new machine, or when onboarding someone new to this repo.
 
@@ -9,7 +9,7 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] Confirm deployment posture (ADR-0009, accepted): Hetzner-first (single VM) until proven otherwise; Vercel optional for previews/later.
 - [ ] Hetzner account + SSH access (if deploying to Hetzner; ADR-0009, accepted).
 - [ ] Vercel account (optional; preview deploys and/or later; ADR-0009, accepted).
-- [ ] Local Postgres available (Docker Compose or Supabase local; ADR-0011, accepted).
+- [ ] Local Postgres available (Docker Compose mode or Sprite mode; ADR-0011, accepted; ADR-0022, accepted).
 - [ ] Deployment Postgres plan confirmed (self-host on VM unless explicitly choosing managed; ADR-0011, accepted).
 - [ ] Local object storage ready: MinIO (or local filesystem for ultra-simple early dev) (ADR-0010, accepted).
 - [ ] Deployment object storage ready: managed S3-compatible storage unless explicitly "single VM only" (ADR-0010, accepted).
@@ -19,7 +19,7 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 ## 2) Local tooling
 - [ ] Node.js installed (LTS recommended). If `.nvmrc` / `.node-version` appears in the repo later, follow it.
 - [ ] pnpm available (prefer Corepack: `corepack enable`).
-- [ ] Docker installed (for local Postgres/MinIO).
+- [ ] Docker installed (for Docker Compose mode; Sprite mode may also use it depending on implementation).
 - [ ] `psql` installed (for DB debugging).
 - [ ] Vercel CLI installed (optional; only if you’re using Vercel).
 - [ ] Optional: `aws` CLI or `az` CLI (if testing OCR/storage against cloud locally).
@@ -67,7 +67,9 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 ## 6) Run locally (when code is present)
 - [ ] Fast local smoke test (ADR-0020, ADR-0014):
 - [ ] `pnpm install`
-- [ ] `docker compose up -d`
+- [ ] Start local services (pick one):
+  - [ ] Docker Compose mode: `docker compose up -d`
+  - [ ] Sprite mode: start the Sprite sandbox for this repo (see ADR-0022)
 - [ ] `pnpm fixture:seed pack_01_clean`
 - [ ] `pnpm dev`
 - [ ] Open `http://localhost:3000/matters`
@@ -84,13 +86,15 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 Once the ADR-0014 scaffold code is present, this is the fastest end-to-end slice to validate the “trust moment” (citation chip → viewer → highlight overlay) without wiring OCR, embeddings, or LLM credentials.
 
 Prereqs:
-- [ ] Postgres is running locally and `pgvector` is available (e.g. via `docker compose` once scaffolded).
+- [ ] Postgres is running locally and `pgvector` is available (via Docker Compose mode or Sprite mode).
 - [ ] Database env var is set (expected shape: `DATABASE_URL=postgresql://...`).
 - [ ] PDF access is configured for the viewer (expected default for the tracer bullet: serve PDFs directly from fixture files on disk; no MinIO required).
 - [ ] Fixture packs exist under `docs/08-example-data/` (at minimum: `pack_01_clean`, `pack_02_missing_rea`).
 
 Run it:
-- [ ] Start local services: `docker compose up -d`
+- [ ] Start local services (pick one):
+  - [ ] Docker Compose mode: `docker compose up -d`
+  - [ ] Sprite mode: start the Sprite sandbox for this repo (see ADR-0022)
 - [ ] Install deps: `pnpm install`
 - [ ] Seed fixtures:
   - [ ] `pnpm fixture:seed pack_01_clean`

@@ -17,7 +17,7 @@
   "stack": {
     "framework": "Next.js 15 route handlers + React 19 UI (TypeScript)",
     "hosting": "Local dev; default deployment target is a Hetzner VM (Vercel optional for previews)",
-    "database": "Postgres (pgvector) via Docker Compose",
+    "database": "Postgres (pgvector) via Docker Compose mode or Sprite mode",
     "auth": "PoC can run without auth in local/dev; production-minded deployments should enable auth"
   },
   "routes": [

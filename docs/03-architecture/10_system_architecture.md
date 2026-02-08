@@ -235,7 +235,7 @@ Export is a step-driven process (can be immediate or async):
 ### Local dev (expected once scaffold exists)
 - Web server: Next.js dev server.
 - Worker: WDK worker process.
-- Postgres: docker compose or Supabase local (ADR-0011).
+- Postgres: docker compose mode or Sprite mode (ADR-0011, ADR-0022).
 - Object storage: local filesystem (ultra-simple) or MinIO for S3 parity (ADR-0010).
 
 ### Single VM (Hetzner-first; ADR-0009)

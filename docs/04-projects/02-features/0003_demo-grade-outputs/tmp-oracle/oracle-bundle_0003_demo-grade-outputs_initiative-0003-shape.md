@@ -1881,7 +1881,7 @@ Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/storage.md`
 
-## ADR-0011: Postgres is the primary datastore (local compose; Hetzner in deploy)
+## ADR-0011: Postgres is the primary datastore (local dev; Hetzner in deploy)
 - Status: proposed
 - Date: 2026-02-06
 
@@ -1890,7 +1890,7 @@ Context
 - The PoC is single-tenant and can start with a single Postgres instance.
 
 Decision
-- Local dev: Postgres via Docker Compose (or Supabase local).
+- Local dev: Postgres via Docker Compose mode or Sprite mode.
 - Deployment: self-host Postgres on the Hetzner VM with automated backups and monitoring.
 
 Consequences
@@ -1951,7 +1951,7 @@ Decision
 - Add a minimal pnpm workspace scaffold:
   - `apps/web`: Next.js App Router app
   - `packages/core`: Zod schemas + core contracts
-  - `docker-compose.yml`: local Postgres + MinIO (optional)
+  - `docker-compose.yml`: local Postgres (pgvector) (MinIO optional later)
   - wire `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`
 
 Consequences

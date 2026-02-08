@@ -212,7 +212,7 @@ Links
 - Related docs: `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
 - Investigation: `docs/98-tmp/2026-02-06_infra-investigation/storage.md`
 
-## ADR-0011: Postgres is the primary datastore (local compose; Hetzner in deploy)
+## ADR-0011: Postgres is the primary datastore (local dev; Hetzner in deploy)
 - Status: accepted
 - Date: 2026-02-06
 
@@ -221,7 +221,7 @@ Context
 - The PoC is single-tenant and can start with a single Postgres instance.
 
 Decision
-- Local dev: Postgres via Docker Compose (or Supabase local).
+- Local dev: Postgres via Docker Compose or Sprite (ADR-0022).
 - Deployment: self-host Postgres on the Hetzner VM with automated backups and monitoring.
 
 Consequences
@@ -288,7 +288,7 @@ Decision
 - Add a minimal pnpm workspace scaffold:
   - `apps/web`: Next.js App Router app
   - `packages/core`: Zod schemas + core contracts
-  - `docker-compose.yml`: local Postgres + MinIO (optional)
+  - `docker-compose.yml`: local Postgres (pgvector) (MinIO optional later)
   - wire `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`
 
 Consequences
@@ -561,3 +561,30 @@ Links
   - `docs/03-architecture/50_api_surface.md`
   - `docs/03-architecture/60_observability_and_evals.md`
   - `docs/03-architecture/30_data_model.md`
+
+## ADR-0022: Docker Compose usage (local services) and Sprite as a dev sandbox (both supported)
+- Status: accepted
+- Date: 2026-02-08
+
+Context
+- We need a single, boring way to bring up local dependencies (especially Postgres + pgvector) without turning the entire app into a container-first workflow.
+- Some contributors may prefer a more isolated local dev sandbox than "run services with compose, run app on host".
+
+Decision
+- We support two local dev modes:
+  - Docker Compose mode: use Compose for **local dependency services** (currently `docker-compose.yml` provisions Postgres: pg16 + pgvector); run the app/worker on the host for day-to-day development.
+  - Sprite mode: use Sprite as a **local dev sandbox** to run the same dev setup in a more isolated/reproducible environment.
+- We do not require containerizing the web app / worker for development, but Sprite mode may choose to do so as an implementation detail of the sandbox.
+
+Consequences
+- Local onboarding can match preference:
+  - Compose is the simplest path when you only need Postgres running quickly.
+  - Sprite is the best path when you want stronger isolation/reproducibility.
+- We keep production deployment/containerization decisions separate from local dev ergonomics.
+
+Links
+- PR:
+- Related docs:
+  - `docker-compose.yml`
+  - `docs/03-architecture/01_onboarding_checklist.md`
+  - `docs/03-architecture/05_tech_stack_and_dev_workflow.md`

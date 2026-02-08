@@ -249,7 +249,7 @@ availableModels.models.forEach(m => console.log(m.id));
 ## Dev workflow (how to run locally)
 
 ### Local services
-- Postgres (docker compose or Supabase local)
+- Postgres (docker compose mode or Sprite mode)
 - Redis only if you introduce a separate queue outside WDK (prefer not)
 - Object storage:
   - local filesystem in dev (if acceptable)
