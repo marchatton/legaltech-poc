@@ -22,9 +22,10 @@ function readJson(filePath: string): any {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-function extractInstrumentNoFromLayout(layout: LayoutFile): string | null {
+function extractInstrumentNoFromRecInfo(layout: LayoutFile): string | null {
   for (const p of layout.pages ?? []) {
     for (const l of p.lines ?? []) {
+      if (l?.anchor !== "REC_INFO") continue;
       const t = String(l?.text ?? "");
       const m = t.match(/\bInstrument\s+No\.\s*:?\s*([A-Za-z0-9-]+)\b/i);
       if (m?.[1]) return m[1];
@@ -56,9 +57,11 @@ describe("matchExceptionToInstrumentDocs", () => {
       .filter((d) => typeof d?.filename === "string" && /\.pdf$/i.test(d.filename) && typeof d?.layout_file === "string")
       .map((d) => {
         const layout = readJson(path.join(packRoot, String(d.layout_file))) as LayoutFile;
-        return { doc: String(d.filename), instrument_no: extractInstrumentNoFromLayout(layout) };
+        // Treat only PDFs with a REC_INFO anchor as instrument candidates. This excludes
+        // TitleCommitment.pdf, which can contain instrument numbers but is not an instrument.
+        return { doc: String(d.filename), instrument_no: extractInstrumentNoFromRecInfo(layout) };
       })
-      // Only instrument PDFs have an instrument number in the synthetic pack.
+      // Only instrument PDFs have a REC_INFO anchor in the synthetic pack.
       .filter((d) => d.instrument_no);
 
     const expectations: Array<{ instrument_no: string; doc: string }> = [
@@ -85,7 +88,7 @@ describe("matchExceptionToInstrumentDocs", () => {
       .filter((d) => typeof d?.filename === "string" && /\.pdf$/i.test(d.filename) && typeof d?.layout_file === "string")
       .map((d) => {
         const layout = readJson(path.join(packRoot, String(d.layout_file))) as LayoutFile;
-        return { doc: String(d.filename), instrument_no: extractInstrumentNoFromLayout(layout) };
+        return { doc: String(d.filename), instrument_no: extractInstrumentNoFromRecInfo(layout) };
       })
       .filter((d) => d.instrument_no);
 

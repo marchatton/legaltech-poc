@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 17:02:12 | run=20260208-163923-131740 | iter=2 | mode=build | story=US-002 | duration=769s | status=success
 - 2026-02-08 16:49:21 | run=20260208-163923-131740 | iter=1 | mode=build | story=US-001 | duration=598s | status=success
 - 2026-02-08 16:36:51 | run=20260208-162438-128744 | iter=2 | mode=build | story=US-002 | duration=707s | status=success
 - 2026-02-08 16:25:02 | run=20260208-162438-128744 | iter=1 | mode=build | story=US-001 | duration=24s | status=success
@@ -209,3 +210,9 @@
 [2026-02-08 16:57:37] US-002: verification complete (pnpm verify PASS)
 [2026-02-08 17:00:01] US-002: browser verification PASS (/matters pack_02_missing_rea); screenshot at .agents/skills/00-utilities/dev-browser/tmp/matters_pack_02_missing_rea.png
 [2026-02-08 17:01:35] US-002: progress log updated
+[2026-02-08 17:02:12] ITERATION 2 end (duration=769s)
+[2026-02-08 17:02:17] ITERATION 3 start (mode=build story=US-001)
+[2026-02-08 17:02:27] US-001 start: audit guardrails/errors/prd and existing matching
+[2026-02-08 17:07:27] US-001: tighten exception matching fixture tests to use REC_INFO anchors
+[2026-02-08 17:08:55] Browser verify US-001: install agent-browser (dev-browser skill missing runtime)
+[2026-02-08 17:11:13] US-001: run pnpm verify

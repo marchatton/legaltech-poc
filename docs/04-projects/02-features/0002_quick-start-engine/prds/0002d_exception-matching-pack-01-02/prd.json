@@ -55,12 +55,14 @@
     "Missing-doc checklist behavior for pack_02_missing_rea; include expected filename when known (e.g. REA.pdf).",
     "Evidence-first: matching references are backed by locked citations; if citations can't be locked, downgrade to ambiguous or missing_doc (no fabricated match)."
   ],
-  "qualityGates": ["pnpm verify"],
+  "qualityGates": [
+    "pnpm verify"
+  ],
   "stories": [
     {
       "id": "US-001",
       "title": "Match Exceptions To Instrument PDFs (Clean Pack)",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a user, I can click an exception item and see which instrument it matched to, with evidence.",
       "acceptanceCriteria": [
@@ -72,12 +74,15 @@
       "verification": [
         "Pack: docs/08-example-data/pack_01_clean",
         "Automated: spot-check candidate lists vs expected; ensure no items are marked matched when multiple candidates exist."
-      ]
+      ],
+      "startedAt": "2026-02-08T17:02:16.795552+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T17:02:16.795576+00:00"
     },
     {
       "id": "US-002",
       "title": "Surface Missing-Doc Journey (pack_02_missing_rea)",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a user, I see missing instrument docs called out explicitly with a checklist so I can fix the pack.",
       "acceptanceCriteria": [
@@ -89,7 +94,10 @@
       "verification": [
         "Pack: docs/08-example-data/pack_02_missing_rea",
         "Manual: verify checklist copy is actionable and specific."
-      ]
+      ],
+      "updatedAt": "2026-02-08T17:02:14.523777+00:00",
+      "completedAt": "2026-02-08T17:02:14.523867+00:00",
+      "startedAt": "2026-02-08T17:02:14.523871+00:00"
     }
   ],
   "metadata": {
