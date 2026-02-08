@@ -131,10 +131,11 @@
     /* Section title */
     .stitle { font-family: var(--serif); font-size: 24px; font-weight: 400; margin-bottom: 20px; letter-spacing: -0.01em; }
 
-    /* Grids */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+	    /* Grids */
+	    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+	    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+	    .arch-stack { display: grid; grid-template-columns: 1fr; gap: 16px; }
+	    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
     /* Cards */
     .card {
@@ -191,11 +192,29 @@
 
     .btn:hover { transform: translateY(-1px); border-color: var(--border-strong); text-decoration: none; }
 
-    /* Diagram */
-    .diagram {
-      border: 1px solid var(--border); background: var(--bg);
-      border-radius: var(--radius-xl); padding: 16px; overflow: auto;
-    }
+	    /* Diagram */
+	    .diagram {
+	      border: 1px solid var(--border); background: var(--bg);
+	      border-radius: var(--radius-xl); padding: 12px; overflow: hidden;
+	    }
+	    pre.mermaid { margin: 0; }
+	    pre.mermaid-source { display: none; }
+	    .diagram svg {
+	      display: block;
+	      width: 100%;
+	      height: auto;
+	      font-family: var(--sans);
+	    }
+	    .mermaid-svg svg {
+	      /* Override Beautiful Mermaid defaults to match this runbook palette */
+	      --bg: #FFFBF5 !important;
+	      --fg: #1A1A1A !important;
+	      --accent: #FB631B !important;
+	      --line: #B7B2AA !important;
+	      --surface: #FFFBF5 !important;
+	      --border: rgba(26,26,26,0.12) !important;
+	      background: transparent !important;
+	    }
 
     /* ADR table */
     .adr-list { display: grid; gap: 6px; }
@@ -228,8 +247,7 @@
     }
   </style>
 
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-</head>
+	</head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
@@ -384,38 +402,38 @@
       </div>
     </section>
 
-    <!-- ARCHITECTURE -->
-    <section class="page" id="page-architecture" data-page="/architecture">
-      <h2 class="stitle">Architecture</h2>
+	    <!-- ARCHITECTURE -->
+	    <section class="page" id="page-architecture" data-page="/architecture">
+	      <h2 class="stitle">Architecture</h2>
 
-      <div class="grid-2">
-        <div class="card">
-          <h3>{{ARCH_INGESTION_TITLE}}</h3>
-          <div class="diagram">
-            <pre class="mermaid">{{MERMAID_INGESTION_PIPELINE}}</pre>
-          </div>
-        </div>
+	      <div class="arch-stack">
+	        <div class="card full">
+	          <h3>{{ARCH_INGESTION_TITLE}}</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">{{MERMAID_INGESTION_PIPELINE}}</pre>
+	          </div>
+	        </div>
 
-        <div class="card">
-          <h3>{{ARCH_EXECUTION_TITLE}}</h3>
-          <div class="diagram">
-            <pre class="mermaid">{{MERMAID_RUN_EXECUTION}}</pre>
-          </div>
-        </div>
+	        <div class="card full">
+	          <h3>{{ARCH_EXECUTION_TITLE}}</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">{{MERMAID_RUN_EXECUTION}}</pre>
+	          </div>
+	        </div>
 
-        <div class="card">
-          <h3>{{ARCH_CITATIONS_TITLE}}</h3>
-          <div class="diagram">
-            <pre class="mermaid">{{MERMAID_CITATION_VERIFICATION}}</pre>
-          </div>
-        </div>
+	        <div class="card full">
+	          <h3>{{ARCH_CITATIONS_TITLE}}</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">{{MERMAID_CITATION_VERIFICATION}}</pre>
+	          </div>
+	        </div>
 
-        <div class="card">
-          <h3>{{ARCH_DEPLOYMENT_TITLE}}</h3>
-          <div class="diagram">
-            <pre class="mermaid">{{MERMAID_DEPLOYMENT}}</pre>
-          </div>
-        </div>
+	        <div class="card full">
+	          <h3>{{ARCH_DEPLOYMENT_TITLE}}</h3>
+	          <div class="diagram">
+	            <pre class="mermaid">{{MERMAID_DEPLOYMENT}}</pre>
+	          </div>
+	        </div>
 
         <div class="card full">
           <h3>Key decisions</h3>
@@ -536,10 +554,10 @@
     const pages = Array.from(document.querySelectorAll(".page"));
     const navLinks = Array.from(document.querySelectorAll(".pill[data-route]"));
 
-    function show(route) {
-      let found = false;
-      pages.forEach((p) => {
-        const m = p.dataset.page === route;
+	    function show(route) {
+	      let found = false;
+	      pages.forEach((p) => {
+	        const m = p.dataset.page === route;
         p.classList.toggle("active", m);
         if (m) found = true;
       });
@@ -547,55 +565,21 @@
         pages.forEach((p) => p.classList.toggle("active", p.dataset.page === "/"));
         route = "/";
       }
-      navLinks.forEach((a) => {
-        if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
-        else a.removeAttribute("aria-current");
-      });
-      window.scrollTo({ top: 0, behavior: "instant" });
-      renderMermaid();
-    }
+	      navLinks.forEach((a) => {
+	        if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
+	        else a.removeAttribute("aria-current");
+	      });
+	      window.scrollTo({ top: 0, behavior: "instant" });
+	    }
 
-    function currentRoute() { return (location.hash || "#/").replace("#", "") || "/"; }
-
-    function initMermaid() {
-      if (!window.mermaid) return;
-      window.mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "loose",
-        theme: "base",
-        themeVariables: {
-          fontFamily: "Inter, system-ui, sans-serif",
-          fontSize: "12px",
-          primaryColor: "#FFFFFF",
-          primaryTextColor: "#1A1A1A",
-          primaryBorderColor: "rgba(26,26,26,0.12)",
-          lineColor: "#B7B2AA",
-          secondaryColor: "#F0EDE8",
-          tertiaryColor: "#FFFBF5",
-          noteBkgColor: "#FFFBF5",
-          noteTextColor: "#1A1A1A",
-        },
-      });
-    }
-
-    async function renderMermaid() {
-      try {
-        if (!window.mermaid) return;
-        const active = document.querySelector(".page.active");
-        if (!active) return;
-        const nodes = Array.from(active.querySelectorAll('pre.mermaid:not([data-processed="true"])'));
-        if (!nodes.length) return;
-        await window.mermaid.run({ nodes });
-      } catch {}
-    }
+	    function currentRoute() { return (location.hash || "#/").replace("#", "") || "/"; }
 
     window.addEventListener("hashchange", () => show(currentRoute()));
 
-    renderScenarios();
-    renderAdrs();
-    renderStackTiles();
-    initMermaid();
-    show(currentRoute());
-  </script>
+	    renderScenarios();
+	    renderAdrs();
+	    renderStackTiles();
+	    show(currentRoute());
+	  </script>
 </body>
 </html>

@@ -25,11 +25,11 @@ Example triggering requests:
 
 Always produce both:
 1) **Demo script** as markdown (talk track + what to click + timings)
-2) **Single-file HTML runbook** (visual-first with custom CSS, navigable sections, Mermaid diagrams (flowchart + sequence), in-app hyperlinks, back-to-home navigation)
+2) **Single-file HTML runbook** (visual-first with custom CSS, navigable sections, diagrams rendered from Mermaid source to inline SVG with `beautiful-mermaid`, in-app hyperlinks, back-to-home navigation)
 
 HTML runbook must:
 - Be single-file HTML (no build step required) with custom CSS styling (cards/callouts/layout), not a plain document.
-- Include Mermaid diagrams (at least one flowchart and one sequence diagram).
+- Include diagrams (at least one flowchart and one sequence diagram) rendered from Mermaid source to inline SVG (no in-browser Mermaid runtime).
 - Include navigation between sections (hash router is fine) and “Back to Home” affordances.
 - Include a live demo scenarios section with real links or TODO placeholders.
 
@@ -213,7 +213,10 @@ Use `references/architecture-template.md`.
   - Our approach (problem, alternatives, category, pillars, value)
   - Architecture (diagrams, key decisions, state machines)
   - Stack tiles
-  - Mermaid diagrams and custom CSS styling (keep it visual, not a plain document)
+  - Mermaid source blocks (flowcharts + sequence) and custom CSS styling (keep it visual, not a plain document)
+
+- Render Mermaid source to inline SVG in the generated HTML (required):
+  - `node --experimental-strip-types scripts/render_mermaid_svgs.ts path/to/demo-runbook.html`
 
 ### Step 8: Quality check before returning
 Confirm:
@@ -233,3 +236,4 @@ Load as needed:
 - `references/architecture-template.md` for the LLM architecture talk track
 - `assets/runbook-template.html` for a navigable, visual-first runbook shell
 - `scripts/validate_inputs.py` for deterministic input normalisation (optional)
+- `scripts/render_mermaid_svgs.ts` for converting Mermaid source blocks into inline SVG

@@ -225,12 +225,24 @@
 	      border: 1px solid var(--border); background: var(--bg);
 	      border-radius: var(--radius-xl); padding: 12px; overflow: hidden;
 	    }
-	    pre.mermaid { margin: 0; }
-	    .diagram svg {
-	      display: block;
-	      width: 100%;
-	      height: auto;
-	    }
+		    pre.mermaid { margin: 0; }
+		    pre.mermaid-source { display: none; }
+		    .diagram svg {
+		      display: block;
+		      width: 100%;
+		      height: auto;
+		      font-family: var(--sans);
+		    }
+		    .mermaid-svg svg {
+		      /* Override Beautiful Mermaid defaults to match this runbook palette */
+		      --bg: #FFFBF5 !important;
+		      --fg: #1A1A1A !important;
+		      --accent: #FB631B !important;
+		      --line: #B7B2AA !important;
+		      --surface: #FFFBF5 !important;
+		      --border: rgba(26,26,26,0.12) !important;
+		      background: transparent !important;
+		    }
 
     /* ─── Placeholder page ─── */
     .placeholder {
@@ -259,8 +271,7 @@
     details { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 12px; background: var(--card); }
     summary { cursor: pointer; font-size: 13px; font-weight: 600; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-</head>
+	</head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
@@ -473,20 +484,66 @@
 		        <div class="card full">
 		          <h3>Ingestion pipeline</h3>
 		          <div class="diagram">
-		            <pre class="mermaid">
+		            <pre class="mermaid mermaid-source">
 		flowchart LR
 	  A["Upload"] --> B["OCR +\nlayout"]
 	  B --> C["Chunk +\nembed"]
 	  C --> D["Index"]
 	  D --> E["Ready"]
 	            </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 778.95 116" width="778.95" height="116" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm1-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm1-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="129.2,58 169.2,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="308.45,58 348.45,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="494.84999999999997,58 534.85,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="616.9,58 656.9000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<rect x="39.99999999999999" y="40" width="89.2" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="169.2" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="348.45" y="40" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="534.85" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="656.9000000000001" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="84.6" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Upload&quot;</text>
+<text x="238.825" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;OCR +\nlayout&quot;</text>
+<text x="421.65" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Chunk +\nembed&quot;</text>
+<text x="575.875" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Index&quot;</text>
+<text x="697.9250000000001" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Ready&quot;</text>
+</svg>
+</div>
+<!--bm:svg:end-->
 	          </div>
 	        </div>
 
 	        <div class="card full">
 	          <h3>Run execution</h3>
 	          <div class="diagram">
-	            <pre class="mermaid">
+	            <pre class="mermaid mermaid-source">
 	flowchart LR
 	  A["Retrieve"] --> B["Hydrate\nevidence"]
 	  B --> C["Draft\nanswer"]
@@ -494,13 +551,62 @@
 	  D --> E["Verify\nintegrity"]
 	  E --> F["Write\nrow"]
 	            </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1129.8000000000002 116" width="1129.8000000000002" height="116" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm2-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm2-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="143.5,58 183.5,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="351.35,58 391.35,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="530.6,58 570.6,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="724.15,58 764.1500000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="932,58 972.0000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<rect x="40" y="40" width="103.5" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="183.5" y="40" width="167.85000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="391.35" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="570.6" y="40" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="764.1500000000001" y="40" width="167.85000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="972.0000000000001" y="40" width="117.80000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="91.75" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Retrieve&quot;</text>
+<text x="267.425" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Hydrate\nevidence&quot;</text>
+<text x="460.975" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Draft\nanswer&quot;</text>
+<text x="647.375" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Lock\ncitations&quot;</text>
+<text x="848.075" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Verify\nintegrity&quot;</text>
+<text x="1030.9" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Write\nrow&quot;</text>
+</svg>
+</div>
+<!--bm:svg:end-->
 	          </div>
 	        </div>
 
 	        <div class="card full">
 	          <h3>Citation verification</h3>
 	          <div class="diagram">
-	            <pre class="mermaid">
+	            <pre class="mermaid mermaid-source">
 	sequenceDiagram
 	  participant R as Reviewer
 	  participant W as Workspace
@@ -519,13 +625,78 @@
     V-->>R: Failure + reason
   end
 	            </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 584.6 522" width="584.6" height="522" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm3-seq-arrow" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm3-seq-arrow-open" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.4, 0 4.8" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<rect x="30" y="348" width="524.6" height="124" rx="0" ry="0" fill="none" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="30" y="348" width="105.32" height="18" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="36" y="357" dy="0.35em" font-size="11" font-weight="600" fill="var(--_text-sec)">alt [Verified]</text>
+<line x1="30" y1="424" x2="554.6" y2="424" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<text x="38" y="438" font-size="11" font-weight="400" fill="var(--_text-muted)">[Failed]</text>
+<line x1="84.6" y1="70" x2="84.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="224.6" y1="70" x2="224.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="364.6" y1="70" x2="364.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="504.6" y1="70" x2="504.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="84.6" y1="90" x2="224.6" y2="90" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<text x="154.6" y="84" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Click citation</text>
+<line x1="224.6" y1="130" x2="364.6" y2="130" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<text x="294.6" y="124" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Fetch citation + polygons</text>
+<line x1="364.6" y1="170" x2="224.6" y2="170" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<text x="294.6" y="164" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Locked citation object</text>
+<line x1="224.6" y1="210" x2="364.6" y2="210" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<text x="294.6" y="204" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Document render (page N)</text>
+<line x1="364.6" y1="250" x2="504.6" y2="250" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<text x="434.6" y="244" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Signed PDF URL</text>
+<polyline points="504.6,290 534.6,290 534.6,310 504.6,310" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<text x="540.6" y="300" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Verify hash</text>
+<line x1="504.6" y1="388" x2="84.6" y2="388" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<text x="294.6" y="382" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Highlighted passage</text>
+<line x1="504.6" y1="452" x2="84.6" y2="452" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<text x="294.6" y="446" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Failure + reason</text>
+<rect x="39.99999999999999" y="30" width="89.2" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="84.6" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Reviewer</text>
+<rect x="176.42499999999998" y="30" width="96.35000000000001" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="224.6" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Workspace</text>
+<rect x="324.6" y="30" width="80" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="364.6" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">API</text>
+<rect x="464.6" y="30" width="80" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="504.6" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Viewer</text>
+</svg>
+</div>
+<!--bm:svg:end-->
 	          </div>
 	        </div>
 
 	        <div class="card full">
 	          <h3>Deployment</h3>
 	          <div class="diagram">
-	            <pre class="mermaid">
+	            <pre class="mermaid mermaid-source">
 	flowchart TB
 	  subgraph Vercel["Web tier (Vercel)"]
 	    W["Next.js App Router"]
@@ -545,6 +716,72 @@
 	  Vercel --> Data
 	  Hetzner --> Data
 	            </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 994.9125000000001 504" width="994.9125000000001" height="504" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm4-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm4-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<rect x="40" y="40" width="364.375" height="268" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="40" y="40" width="364.375" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="52" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Web tier (Vercel)&quot;</text>
+<rect x="424.37499999999994" y="40" width="466.85" height="268" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="424.37499999999994" y="40" width="466.85" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="436.37499999999994" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Worker tier (Hetzner)&quot;</text>
+<rect x="225.4875" y="352" width="729.4250000000001" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="225.4875" y="352" width="729.4250000000001" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="237.4875" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Data plane&quot;</text>
+<polyline points="220.40000000000003,132 220.40000000000003,152 138.77499999999998,152 138.77499999999998,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="220.40000000000003,132 220.40000000000003,152 302.02500000000003,152 302.02500000000003,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="657.8000000000001,132 657.8000000000001,152 501.70000000000005,152 501.70000000000005,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="657.8000000000001,132 657.8000000000001,152 636.35,152 636.35,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="657.8000000000001,132 657.8000000000001,152 792.45,152 792.45,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="302.02500000000003,288 302.02500000000003,426 459.7375,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="792.45,288 792.45,426 641.8875,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<rect x="132.90000000000003" y="96" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="72.72499999999997" y="252" width="132.10000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="228.82500000000005" y="252" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="581.0250000000001" y="96" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="446.37500000000006" y="252" width="110.65" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="581.025" y="252" width="110.65" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="715.6750000000001" y="252" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="459.7375" y="408" width="182.15" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="786.5125" y="408" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="220.40000000000003" y="114" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Next.js App Router&quot;</text>
+<text x="138.77499999999998" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Streaming UI&quot;</text>
+<text x="302.02500000000003" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Route handlers&quot;</text>
+<text x="657.8000000000001" y="114" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Workflow DevKit&quot;</text>
+<text x="501.70000000000005" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;OCR steps&quot;</text>
+<text x="636.35" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;LLM steps&quot;</text>
+<text x="792.45" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Embedding steps&quot;</text>
+<text x="550.8125" y="426" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Postgres + pgvector&quot;</text>
+<text x="859.7125000000001" y="426" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Object storage&quot;</text>
+</svg>
+</div>
+<!--bm:svg:end-->
 	          </div>
 	        </div>
 
@@ -584,7 +821,7 @@
             <div>
               <p style="font-size:13px;"><strong>Folder</strong></p>
               <div class="diagram" style="margin-top:6px;">
-                <pre class="mermaid">
+                <pre class="mermaid mermaid-source">
 stateDiagram-v2
   [*] --> empty
   empty --> ingesting
@@ -592,18 +829,117 @@ stateDiagram-v2
   indexed --> ready
   ingesting --> failed
                 </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260.95000000000005 420" width="260.95000000000005" height="420" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm5-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm5-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="132.26250000000002,76 132.26250000000002,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="132.26250000000002,152 132.26250000000002,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="132.26250000000002,228 132.26250000000002,248 81.025,248 81.025,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="81.025,304 81.025,344" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="132.26250000000002,228 132.26250000000002,248 183.5,248 183.5,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<circle cx="132.26250000000002" cy="58" r="16" fill="var(--_text)" stroke="none" />
+<rect x="98.38750000000002" y="116" width="67.75" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="84.0875" y="192" width="96.35000000000001" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="40" y="268" width="82.05000000000001" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="47.150000000000006" y="344" width="67.75" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="146.05" y="268" width="74.9" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+
+<text x="132.26250000000002" y="134" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">empty</text>
+<text x="132.26250000000002" y="210" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">ingesting</text>
+<text x="81.025" y="286" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">indexed</text>
+<text x="81.025" y="362" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">ready</text>
+<text x="183.5" y="286" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">failed</text>
+</svg>
+</div>
+<!--bm:svg:end-->
               </div>
             </div>
             <div>
               <p style="font-size:13px;"><strong>Report row</strong></p>
               <div class="diagram" style="margin-top:6px;">
-                <pre class="mermaid">
+                <pre class="mermaid mermaid-source">
 stateDiagram-v2
   [*] --> needs_review
   needs_review --> reviewed
   [*] --> missing_input
   [*] --> citation_failed
                 </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 268" width="510" height="268" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm6-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm6-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="98.9,76 98.9,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="98.9,152 98.9,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="244.27499999999998,76 244.27499999999998,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="400.375,76 400.375,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<circle cx="98.9" cy="58" r="16" fill="var(--_text)" stroke="none" />
+<rect x="40" y="116" width="117.80000000000001" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="54.300000000000004" y="192" width="89.2" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<circle cx="244.27499999999998" cy="58" r="16" fill="var(--_text)" stroke="none" />
+<rect x="181.79999999999998" y="116" width="124.95" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<circle cx="400.375" cy="58" r="16" fill="var(--_text)" stroke="none" />
+<rect x="330.75" y="116" width="139.25" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+
+<text x="98.9" y="134" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">needs_review</text>
+<text x="98.9" y="210" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">reviewed</text>
+
+<text x="244.27499999999998" y="134" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">missing_input</text>
+
+<text x="400.375" y="134" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">citation_failed</text>
+</svg>
+</div>
+<!--bm:svg:end-->
               </div>
             </div>
           </div>
@@ -710,50 +1046,23 @@ stateDiagram-v2
     const pages = Array.from(document.querySelectorAll(".page"));
     const navLinks = Array.from(document.querySelectorAll(".pill[data-route]"));
 
-    function show(route) {
-      let found = false;
-      pages.forEach((p) => { const m = p.dataset.page === route; p.classList.toggle("active", m); if (m) found = true; });
-      if (!found) { pages.forEach((p) => p.classList.toggle("active", p.dataset.page === "/")); route = "/"; }
-      navLinks.forEach((a) => {
-        if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
-        else a.removeAttribute("aria-current");
-      });
-      window.scrollTo({ top: 0, behavior: "instant" });
-      renderMermaid();
-    }
+	    function show(route) {
+	      let found = false;
+	      pages.forEach((p) => { const m = p.dataset.page === route; p.classList.toggle("active", m); if (m) found = true; });
+	      if (!found) { pages.forEach((p) => p.classList.toggle("active", p.dataset.page === "/")); route = "/"; }
+	      navLinks.forEach((a) => {
+	        if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
+	        else a.removeAttribute("aria-current");
+	      });
+	      window.scrollTo({ top: 0, behavior: "instant" });
+	    }
 
     function go(route) { location.hash = "#" + route; }
     function currentRoute() { return (location.hash || "#/").replace("#", "") || "/"; }
 
-    function initMermaid() {
-      if (!window.mermaid) return;
-      window.mermaid.initialize({
-        startOnLoad: false, securityLevel: "loose", theme: "base",
-        themeVariables: {
-          fontFamily: "Inter, system-ui, sans-serif", fontSize: "12px",
-          primaryColor: "#FFFFFF", primaryTextColor: "#1A1A1A",
-          primaryBorderColor: "rgba(26,26,26,0.12)", lineColor: "#B7B2AA",
-          secondaryColor: "#F0EDE8", tertiaryColor: "#FFFBF5",
-          noteBkgColor: "#FFFBF5", noteTextColor: "#1A1A1A",
-        },
-      });
-    }
-
-    async function renderMermaid() {
-      try {
-        if (!window.mermaid) return;
-        const active = document.querySelector(".page.active");
-        if (!active) return;
-        const nodes = Array.from(active.querySelectorAll('pre.mermaid:not([data-processed="true"])'));
-        if (!nodes.length) return;
-        await window.mermaid.run({ nodes });
-      } catch {}
-    }
-
-    window.addEventListener("hashchange", () => show(currentRoute()));
-    renderScenarios();
-    initMermaid();
-    show(currentRoute());
+	    window.addEventListener("hashchange", () => show(currentRoute()));
+	    renderScenarios();
+	    show(currentRoute());
   </script>
 </body>
 </html>
