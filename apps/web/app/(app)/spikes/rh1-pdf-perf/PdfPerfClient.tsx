@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { PdfPerfRun } from "@orbital-poc/core";
 import { PdfPerfRunSchema } from "@orbital-poc/core";
+import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 type DocRef = { pack: string; filename: string };
 
@@ -71,6 +72,10 @@ function rowWasCancelled(row: { error?: string }): boolean {
   return row.error === "RENDER_CANCELLED" || row.error === "REQUEST_SUPERSEDED";
 }
 
+function isRecord(val: unknown): val is Record<string, unknown> {
+  return !!val && typeof val === "object" && !Array.isArray(val);
+}
+
 export function PdfPerfClient(props: { initialDoc: DocRef }) {
   const [doc, setDoc] = useState<DocRef>(props.initialDoc);
   const [zoomPercent, setZoomPercent] = useState<number>(100);
@@ -101,17 +106,77 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     longTasksRef.current = { longTaskCount: 0, maxLongTaskMs: 0, totalLongTaskMs: 0 };
   };
 
-  const pdfUrl = useMemo(() => {
-    const params = new URLSearchParams({ pack: doc.pack, filename: doc.filename });
-    return `/spikes/local-pdf?${params.toString()}`;
-  }, [doc]);
+  const documentId = useMemo(() => fixtureDocumentId({ packId: doc.pack, filename: doc.filename }), [doc]);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfUrlError, setPdfUrlError] = useState<string | null>(null);
+
+  // Reset harness state when switching documents (before fetching a new signed URL).
+  useEffect(() => {
+    setPdf(null);
+    setPdfPageCount(null);
+    setPageRotate(null);
+    setLastTimings(null);
+    setLastRun(null);
+    requestSeqRef.current = 0;
+    setBusy(false);
+  }, [documentId]);
+
+  // Fetch canonical render_url for this fixture doc (signed, Range-capable).
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      setPdfUrl(null);
+      setPdfUrlError(null);
+      setRangePrecondition({ kind: "checking" });
+
+      try {
+        const res = await fetch(`/documents/${encodeURIComponent(documentId)}/render?page=1`, { cache: "no-store" });
+        const json: unknown = await res.json().catch(() => null);
+        if (!res.ok) {
+          const env = isRecord(json) && isRecord(json.error) ? json.error : null;
+          const code = env && typeof env.code === "string" ? env.code : "RENDER_URL_FAILED";
+          const message =
+            env && typeof env.message === "string" ? env.message : `Request failed (${res.status})`;
+          if (!cancelled) setPdfUrlError(`${code}: ${message}`);
+          return;
+        }
+
+        const renderUrl = isRecord(json) && typeof json.render_url === "string" ? json.render_url : null;
+        if (!renderUrl) {
+          if (!cancelled) setPdfUrlError("Missing render_url in response.");
+          return;
+        }
+
+        if (!cancelled) setPdfUrl(renderUrl);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (!cancelled) setPdfUrlError(message);
+      }
+    }
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId]);
 
   // Preconditions: Range support (required for valid perf numbers)
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
-      setRangePrecondition({ kind: "checking" });
+      if (!pdfUrl) {
+        setRangePrecondition({
+          kind: "fail",
+          acceptRanges: null,
+          rangeStatus: null,
+          contentRange: null,
+          reason: pdfUrlError ?? "Missing render_url.",
+        });
+        return;
+      }
 
       try {
         const res = await fetch(pdfUrl, { headers: { Range: "bytes=0-1023" } });
@@ -162,7 +227,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     return () => {
       cancelled = true;
     };
-  }, [pdfUrl]);
+  }, [pdfUrl, pdfUrlError]);
 
   // Long-task / stall monitor
   useEffect(() => {
@@ -228,6 +293,8 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
     let cancelled = false;
 
     async function run() {
+      if (!pdfUrl) return;
+
       setBusy(true);
       setPdf(null);
       setPdfPageCount(null);
@@ -482,7 +549,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
       pdfjsVersion: pdfjs?.version,
       userAgent: navigator.userAgent,
       devicePixelRatio: window.devicePixelRatio || 1,
-      doc: { ...doc, url: pdfUrl },
+      doc: { ...doc, document_id: documentId },
       zoomPercent,
       pageRotate: lastRotate,
       viewport: lastViewport,
@@ -538,7 +605,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
       pdfjsVersion: pdfjs?.version,
       userAgent: navigator.userAgent,
       devicePixelRatio: window.devicePixelRatio || 1,
-      doc: { ...doc, url: pdfUrl },
+      doc: { ...doc, document_id: documentId },
       zoomPercent,
       pageRotate: pageRotate ?? undefined,
       test: { type: "spam", n: pageSequence.length, intervalMs, pageSequence },
@@ -852,7 +919,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
 
       <section className="text-xs text-slate-600">
         <div>
-          <span className="font-medium">PDF URL:</span> <code>{pdfUrl}</code>
+          <span className="font-medium">document_id:</span> <code>{documentId}</code>
         </div>
       </section>
     </div>

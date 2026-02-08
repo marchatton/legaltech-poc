@@ -45,7 +45,7 @@ export const PdfPerfRunSchema = z.object({
   doc: z.object({
     pack: z.string(),
     filename: z.string(),
-    url: z.string(),
+    document_id: z.string(),
   }),
 
   zoomPercent: z.number(),
