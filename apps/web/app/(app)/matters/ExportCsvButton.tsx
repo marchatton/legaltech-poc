@@ -3,7 +3,8 @@
 import { useState } from "react";
 
 type Props = {
-  packId: string;
+  folderId: string;
+  runId: string | null;
 };
 
 type ExportState =
@@ -13,18 +14,32 @@ type ExportState =
   | { kind: "error"; message: string }
   | { kind: "downloaded"; message: string };
 
+function isRecord(val: unknown): val is Record<string, unknown> {
+  return !!val && typeof val === "object" && !Array.isArray(val);
+}
+
 export function ExportCsvButton(props: Props) {
   const [state, setState] = useState<ExportState>({ kind: "idle" });
 
   async function run() {
+    if (!props.runId) {
+      setState({ kind: "error", message: "Missing run_id." });
+      return;
+    }
+
     setState({ kind: "loading" });
 
     let res: Response;
     try {
-      res = await fetch("/spikes/export/csv", {
+      res = await fetch("/export/csv", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pack_id: props.packId }),
+        body: JSON.stringify({
+          folder_id: props.folderId,
+          run_id: props.runId,
+          kind: "requirements_tracker",
+          unsafe_override: false,
+        }),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -33,21 +48,26 @@ export function ExportCsvButton(props: Props) {
     }
 
     if (!res.ok) {
-      const json = await res.json().catch(() => null);
-      const code = json?.error?.code ? String(json.error.code) : "UNKNOWN_ERROR";
-      const message = json?.error?.message ? String(json.error.message) : `Request failed (${res.status})`;
+      const json: unknown = await res.json().catch(() => null);
+      const env = isRecord(json) && isRecord(json.error) ? json.error : null;
+      const code = env && typeof env.code === "string" ? env.code : "UNKNOWN_ERROR";
+      const message = env && typeof env.message === "string" ? env.message : `Request failed (${res.status})`;
       setState({ kind: code === "EXPORT_BLOCKED" ? "blocked" : "error", message: `${code}: ${message}` });
       return;
     }
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    const json: unknown = await res.json().catch(() => null);
+    const artefact = isRecord(json) && isRecord(json.artefact) ? json.artefact : null;
+    const downloadUrl = artefact && typeof artefact.download_url === "string" ? artefact.download_url : null;
+    if (!downloadUrl) {
+      setState({ kind: "error", message: "Missing artefact.download_url." });
+      return;
+    }
+
     const a = document.createElement("a");
-    a.href = url;
-    a.download = `${props.packId}.csv`;
+    a.href = downloadUrl;
     a.click();
-    URL.revokeObjectURL(url);
-    setState({ kind: "downloaded", message: "Downloaded CSV." });
+    setState({ kind: "downloaded", message: "Export created. Download started." });
   }
 
   return (

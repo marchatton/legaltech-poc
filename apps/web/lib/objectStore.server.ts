@@ -9,6 +9,8 @@ type GlobalObj = typeof globalThis & {
 };
 
 const STORAGE_KEY_RE = /^folders\/[A-Za-z0-9_-]+\/documents\/[A-Za-z0-9_-]+\.pdf$/;
+const ARTEFACT_CSV_KEY_RE = /^folders\/[A-Za-z0-9_-]+\/artefacts\/art_[0-9a-f-]+\.csv$/i;
+const ARTEFACT_META_KEY_RE = /^folders\/[A-Za-z0-9_-]+\/artefacts\/art_[0-9a-f-]+\.meta\.json$/i;
 
 function objectStoreRoot(): string {
   // In Next dev, `process.cwd()` resolves to `apps/web`.
@@ -17,6 +19,16 @@ function objectStoreRoot(): string {
 
 export function validateStorageKey(storageKey: string): { ok: true } | { ok: false; reason: string } {
   if (!STORAGE_KEY_RE.test(storageKey)) return { ok: false, reason: "INVALID_STORAGE_KEY" };
+  return { ok: true };
+}
+
+export function validateArtefactCsvStorageKey(storageKey: string): { ok: true } | { ok: false; reason: string } {
+  if (!ARTEFACT_CSV_KEY_RE.test(storageKey)) return { ok: false, reason: "INVALID_STORAGE_KEY" };
+  return { ok: true };
+}
+
+export function validateArtefactMetadataStorageKey(storageKey: string): { ok: true } | { ok: false; reason: string } {
+  if (!ARTEFACT_META_KEY_RE.test(storageKey)) return { ok: false, reason: "INVALID_STORAGE_KEY" };
   return { ok: true };
 }
 

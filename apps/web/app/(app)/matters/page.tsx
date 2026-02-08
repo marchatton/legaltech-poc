@@ -6,6 +6,7 @@ import { assertDevOnly } from "../../../lib/devOnly";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
 
 import { ExportCsvButton } from "./ExportCsvButton";
+import { ExportTraceButton } from "./ExportTraceButton";
 import { MattersToolbar } from "./MattersToolbar";
 import { markRowReviewed } from "./actions";
 
@@ -123,6 +124,11 @@ export default async function MattersPage(props: {
   const packId = selected ?? seeded[0] ?? "pack_01_clean";
 
   const snapshot = loadSeedSnapshot(packId);
+  const runId =
+    snapshot && typeof snapshot.meta.run_id === "string"
+      ? snapshot.meta.run_id
+      : null;
+  const traceExportEnabled = process.env.FEATURE_TRACE_EXPORT === "1";
 
   const reviewedQid = parsed.success ? parsed.data.reviewed : undefined;
   const reviewErrorCode = parsed.success ? parsed.data.review_error : undefined;
@@ -164,8 +170,9 @@ export default async function MattersPage(props: {
             <div className="text-sm text-slate-700">
               <span className="font-medium text-slate-900">run_id:</span> {String(snapshot.meta.run_id ?? "(none)")}
             </div>
-            <div className="ml-auto">
-              <ExportCsvButton packId={packId} />
+            <div className="ml-auto flex items-start gap-4">
+              <ExportCsvButton folderId={packId} runId={runId} />
+              {traceExportEnabled ? <ExportTraceButton folderId={packId} runId={runId} /> : null}
             </div>
           </section>
 
