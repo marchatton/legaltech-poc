@@ -110,17 +110,36 @@ export function objectExists(storageKey: string): boolean {
   return fs.existsSync(p);
 }
 
+function sha256Digest(bytes: Uint8Array): string {
+  const hash = createHash("sha256").update(bytes).digest("hex");
+  return `sha256:${hash}`;
+}
+
+async function writeObjectFile(p: string, bytes: Uint8Array, opts?: { writeOnce?: boolean }): Promise<void> {
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  if (opts?.writeOnce) {
+    await fs.promises.writeFile(p, bytes, { flag: "wx" });
+    return;
+  }
+  await fs.promises.writeFile(p, bytes);
+}
+
 export async function putObject(args: {
   storageKey: string;
   bytes: Uint8Array;
 }): Promise<{ bytesWritten: number; sha256: string }> {
   const p = resolveObjectPath(args.storageKey);
-  fs.mkdirSync(path.dirname(p), { recursive: true });
-  await fs.promises.writeFile(p, args.bytes);
+  await writeObjectFile(p, args.bytes);
+  return { bytesWritten: args.bytes.byteLength, sha256: sha256Digest(args.bytes) };
+}
 
-  // Hash in-process to avoid extra reads.
-  const hash = createHash("sha256").update(args.bytes).digest("hex");
-  return { bytesWritten: args.bytes.byteLength, sha256: `sha256:${hash}` };
+export async function putObjectWriteOnce(args: {
+  storageKey: string;
+  bytes: Uint8Array;
+}): Promise<{ bytesWritten: number; sha256: string }> {
+  const p = resolveObjectPath(args.storageKey);
+  await writeObjectFile(p, args.bytes, { writeOnce: true });
+  return { bytesWritten: args.bytes.byteLength, sha256: sha256Digest(args.bytes) };
 }
 
 export async function readObject(storageKey: string): Promise<Uint8Array> {
