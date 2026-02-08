@@ -5,6 +5,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 import { verifyRow } from "@orbital-poc/core/server";
 
+import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
 import { newId } from "../../../../../lib/ids";
 import {
@@ -136,6 +137,8 @@ export async function POST(req: Request): Promise<Response> {
   const spikesGate = assertSpikesEnabled(traceId, headers);
   if (spikesGate) return spikesGate;
 
+  await ensureSchema();
+
   let body: unknown;
   try {
     body = await req.json();
@@ -213,7 +216,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const artefactId = newId("art");
-  const createdAt = new Date().toISOString();
+  const createdAt = new Date();
   const csv = snapshotToCsv(snapshot);
 
   const filename = unsafeOverride ? `UNSAFE_${kind}.csv` : `${kind}.csv`;
@@ -248,7 +251,7 @@ export async function POST(req: Request): Promise<Response> {
           filename,
           storage_key: storageKey,
           source_run_id: runId,
-          created_at: createdAt,
+          created_at: createdAt.toISOString(),
           unsafe_override: unsafeOverride,
           blocked: failures.length > 0,
           citation_failed_count: failures.length,
@@ -261,6 +264,47 @@ export async function POST(req: Request): Promise<Response> {
       "utf8",
     ),
   });
+
+  // Persist the artefact record so it can be listed after a refresh.
+  // Pack IDs are treated as folder IDs in the fixture-backed dev UI.
+  await sql`
+    INSERT INTO folders (id, name, state, latest_index_version, created_at, updated_at)
+    VALUES (${packId}, ${packId}, 'ready', 'v1', now(), now())
+    ON CONFLICT (id) DO NOTHING
+  `;
+
+  await sql`
+    INSERT INTO artefacts (
+      id,
+      folder_id,
+      type,
+      kind,
+      filename,
+      storage_key,
+      source_run_id,
+      metadata_json,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      ${artefactId},
+      ${packId},
+      'csv',
+      ${kind},
+      ${filename},
+      ${storageKey},
+      ${runId},
+      ${sql.json({
+        unsafe_override: unsafeOverride,
+        blocked: failures.length > 0,
+        citation_failed_count: failures.length,
+        failed_question_ids: failures.map((f) => f.question_id),
+        reason_codes: Array.from(new Set(failures.map((f) => f.reason_code))).sort(),
+      })},
+      ${createdAt},
+      ${createdAt}
+    )
+  `;
 
   const signed = createSignedGetHeaders({ storageKey });
   const downloadUrl = `/export/csv/download?${new URLSearchParams({
@@ -279,7 +323,7 @@ export async function POST(req: Request): Promise<Response> {
         filename,
         storage_key: storageKey,
         source_run_id: runId,
-        created_at: createdAt,
+        created_at: createdAt.toISOString(),
         download_url: downloadUrl,
       },
     },

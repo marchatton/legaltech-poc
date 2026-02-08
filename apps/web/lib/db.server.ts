@@ -71,8 +71,27 @@ function createSql(): Sql {
 
 const g = globalThis as GlobalDb;
 
-export const sql: Sql = g.__orbitalSql ?? createSql();
-if (!g.__orbitalSql) g.__orbitalSql = sql;
+function getSql(): Sql {
+  if (!g.__orbitalSql) g.__orbitalSql = createSql();
+  return g.__orbitalSql;
+}
+
+// Lazy, build-safe SQL client.
+// Next.js may import route modules during `next build` without runtime env vars.
+export const sql: Sql = new Proxy((() => {}) as unknown as Sql, {
+  apply(_target, _thisArg, argArray) {
+    const real = getSql() as unknown as (...args: unknown[]) => unknown;
+    return real(...argArray);
+  },
+  get(_target, prop) {
+    const real = getSql() as unknown as Record<string | symbol, unknown>;
+    const value = real[prop];
+    if (typeof value === "function") {
+      return (value as (...args: unknown[]) => unknown).bind(real);
+    }
+    return value;
+  },
+});
 
 async function ensureSchemaInner(): Promise<void> {
   // Folders (Matters)
@@ -238,6 +257,28 @@ async function ensureSchemaInner(): Promise<void> {
   await sql`
     CREATE INDEX IF NOT EXISTS citations_report_row_idx
     ON citations(report_row_id);
+  `;
+
+  // Exported artefacts (CSV, docx, etc).
+  // Signed download URLs are generated at read-time and are never persisted.
+  await sql`
+    CREATE TABLE IF NOT EXISTS artefacts (
+      id TEXT PRIMARY KEY,
+      folder_id TEXT NOT NULL REFERENCES folders(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      filename TEXT NOT NULL,
+      storage_key TEXT NOT NULL UNIQUE,
+      source_run_id TEXT NULL,
+      metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS artefacts_folder_created_idx
+    ON artefacts(folder_id, created_at);
   `;
 }
 

@@ -64,7 +64,9 @@
     "Unsafe artefacts must be clearly labelled: filename contains .UNSAFE. and metadata_json.unsafe_override=true (when applicable).",
     "Artefacts list sorts newest-first (created_at desc)."
   ],
-  "qualityGates": ["pnpm verify"],
+  "qualityGates": [
+    "pnpm verify"
+  ],
   "scope": {
     "inScope": [
       "Data model: artefacts table/entity.",
@@ -99,7 +101,7 @@
     {
       "id": "US-001",
       "title": "List Artefacts With Fresh Signed URLs",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a demo operator, I can view a folder's exported artefacts and download them reliably so I can retrieve outputs during demos.",
       "acceptanceCriteria": [
@@ -107,13 +109,18 @@
         "Example: Repeating the list call after a refresh returns new download_url values and downloads still succeed.",
         "Negative: Signed URLs are not persisted in Postgres; only storage_key + metadata are stored.",
         "Negative: Responses are marked no-store/no-cache to avoid caching download_url values."
-      ]
+      ],
+      "startedAt": "2026-02-08T22:56:21.824120+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T22:56:21.824152+00:00"
     },
     {
       "id": "US-002",
       "title": "Render Artefacts List In Folder UI",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a demo operator, I can see an Artefacts list in the folder UI and download each artefact so I can access outputs without leaving the app.",
       "acceptanceCriteria": [
         "Example: Folder UI shows an Artefacts list (filename, kind, created_at) and a Download action that uses the latest download_url.",
