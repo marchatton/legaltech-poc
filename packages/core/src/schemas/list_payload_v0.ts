@@ -2,7 +2,12 @@ import { z } from "zod";
 
 export const LIST_PAYLOAD_V0_SCHEMA_VERSION = "list_payload_v0" as const;
 
-export const ListPayloadV0KindSchema = z.enum(["requirements_tracker", "exceptions_table", "survey_issues"]);
+export const ListPayloadV0KindSchema = z.enum([
+  "requirements_tracker",
+  "exceptions_table",
+  "survey_issues",
+  "survey_certification_parties",
+]);
 
 const LockedCitationIdSchema = z.string().min(1);
 
@@ -72,10 +77,16 @@ const SurveyIssueItemV0Schema = BaseItemV0Schema.extend({
   item_classification: z.enum(["depicted", "not_depicted", "unknown"]).optional(), // item-level only
 }).strict();
 
+const SurveyCertificationPartyItemV0Schema = BaseItemV0Schema.extend({
+  kind: z.literal("survey_certification_party_item"),
+  party_name: z.string().min(1),
+}).strict();
+
 export const ListPayloadV0ItemSchema = z.discriminatedUnion("kind", [
   RequirementsItemV0Schema,
   ExceptionItemV0Schema,
   SurveyIssueItemV0Schema,
+  SurveyCertificationPartyItemV0Schema,
 ]);
 
 export const ListPayloadV0Schema = z

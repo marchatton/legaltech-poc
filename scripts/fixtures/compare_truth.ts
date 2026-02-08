@@ -452,6 +452,88 @@ async function diffSurveyIssues(packId: string, snapshot: any): Promise<DatasetD
   };
 }
 
+async function diffSurveyCertificationParties(packId: string, snapshot: any): Promise<DatasetDiff> {
+  const truthPath = resolve(`docs/08-example-data/${packId}/truth/expected_survey_certification_parties.csv`);
+  const truth = parseCsv(await readFile(truthPath, "utf8")).rows;
+
+  const row = findPayloadRow(snapshot, "survey_certification_parties");
+  if (!row) {
+    return {
+      dataset: "survey_certification_parties",
+      pass: false,
+      expected_count: truth.length,
+      actual_count: 0,
+      missing_keys: truth.map((t) => norm_ws(String(t.party_name ?? ""))),
+      extra_keys: [],
+      field_mismatches: [],
+      citation_mismatches: [],
+    };
+  }
+
+  const payload = row.payload_json as any;
+  const items = Array.isArray(payload.items)
+    ? payload.items.filter((i: any) => i?.kind === "survey_certification_party_item")
+    : [];
+
+  const keyForTruth = (t: any) => norm_ws(String(t.party_name ?? ""));
+  const keyForItem = (it: any) => norm_ws(String(it.party_name ?? ""));
+
+  const byKey = new Map<string, any>();
+  for (const it of items) {
+    const k = keyForItem(it);
+    if (k) byKey.set(k, it);
+  }
+
+  const missingKeys: string[] = [];
+  const fieldMismatches: DiffItem[] = [];
+  const citationMismatches: CitationMismatch[] = [];
+
+  for (const t of truth) {
+    const key = keyForTruth(t);
+    const it = byKey.get(key);
+    if (!it) {
+      missingKeys.push(key);
+      continue;
+    }
+
+    if (norm_ws(asString(it.party_name) ?? "") !== norm_ws(String(t.party_name ?? ""))) {
+      fieldMismatches.push({ key, field: "party_name", expected: asString(t.party_name), actual: asString(it.party_name) });
+    }
+
+    const overlap = await citationOverlapsAnchor({
+      pack_id: packId,
+      expected_doc: String(t.citation_doc ?? ""),
+      expected_anchor: String(t.citation_anchor ?? ""),
+      citation_ids: Array.isArray(it.citation_ids) ? it.citation_ids : [],
+      citations: snapshot.citations,
+    });
+    if (!overlap.ok) {
+      citationMismatches.push({ ...overlap.mismatch, key });
+    }
+  }
+
+  const expectedKeySet = new Set(truth.map((t) => keyForTruth(t)));
+  const extraKeys = Array.from(byKey.keys()).filter((k) => !expectedKeySet.has(k));
+
+  const pass =
+    missingKeys.length === 0 &&
+    extraKeys.length === 0 &&
+    fieldMismatches.length === 0 &&
+    citationMismatches.length === 0 &&
+    items.length === truth.length;
+
+  return {
+    dataset: "survey_certification_parties",
+    pass,
+    expected_count: truth.length,
+    actual_count: items.length,
+    missing_keys: missingKeys,
+    extra_keys: extraKeys,
+    field_mismatches: fieldMismatches,
+    citation_mismatches: citationMismatches,
+  };
+}
+
 async function diffScalarGoldenQuestions(packId: string, snapshot: any): Promise<DatasetDiff> {
   const truthPath = resolve(`docs/08-example-data/${packId}/truth/golden_questions.json`);
   const golden = await readJson<any[]>(truthPath);
@@ -546,6 +628,9 @@ async function main() {
   if (want("survey_issues") && (!autoMode || findPayloadRow(snapshot, "survey_issues"))) {
     diffs.push(await diffSurveyIssues(packId, snapshot));
   }
+  if (want("survey_certification_parties") && (!autoMode || findPayloadRow(snapshot, "survey_certification_parties"))) {
+    diffs.push(await diffSurveyCertificationParties(packId, snapshot));
+  }
   if (want("golden_scalar")) {
     const truthPath = resolve(`docs/08-example-data/${packId}/truth/golden_questions.json`);
     const golden = await readJson<any[]>(truthPath);
@@ -560,7 +645,7 @@ async function main() {
 
   if (diffs.length === 0) {
     throw new Error(
-      `No comparable datasets found in snapshot. Provide list payload rows (payload_schema_version=list_payload_v0) or pass --datasets requirements,exceptions,survey_issues,golden_scalar`,
+      `No comparable datasets found in snapshot. Provide list payload rows (payload_schema_version=list_payload_v0) or pass --datasets requirements,exceptions,survey_issues,survey_certification_parties,golden_scalar`,
     );
   }
 

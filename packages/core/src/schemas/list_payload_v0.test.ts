@@ -7,6 +7,10 @@ describe("list_payload_v0", () => {
     expect(ListPayloadV0Schema.parse(emptyListPayloadV0("requirements_tracker"))).toEqual({ kind: "requirements_tracker", items: [] });
     expect(ListPayloadV0Schema.parse(emptyListPayloadV0("exceptions_table"))).toEqual({ kind: "exceptions_table", items: [] });
     expect(ListPayloadV0Schema.parse(emptyListPayloadV0("survey_issues"))).toEqual({ kind: "survey_issues", items: [] });
+    expect(ListPayloadV0Schema.parse(emptyListPayloadV0("survey_certification_parties"))).toEqual({
+      kind: "survey_certification_parties",
+      items: [],
+    });
     expect(LIST_PAYLOAD_V0_SCHEMA_VERSION).toBe("list_payload_v0");
   });
 

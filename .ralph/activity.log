@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-08 17:36:14 | run=20260208-171524-140451 | iter=2 | mode=build | story=US-002 | duration=882s | status=success
 - 2026-02-08 17:21:29 | run=20260208-171524-140451 | iter=1 | mode=build | story=US-001 | duration=364s | status=success
 - 2026-02-08 17:14:25 | run=20260208-163923-131740 | iter=3 | mode=build | story=US-001 | duration=729s | status=success
 - 2026-02-08 17:02:12 | run=20260208-163923-131740 | iter=2 | mode=build | story=US-002 | duration=769s | status=success
@@ -252,3 +253,11 @@
 [2026-02-08 17:35:00] US-002: amending commit message to remove literal \n sequences
 [2026-02-08 17:35:35] US-002: appending progress entry
 [2026-02-08 17:35:53] US-002: committing progress/activity logs
+[2026-02-08 17:36:14] ITERATION 2 end (duration=882s)
+[2026-02-08 17:36:17] ITERATION 3 start (mode=build story=US-001)
+[2026-02-08 17:36:27] US-001 start: audit guardrails/errors/PRD and existing extraction pipeline
+[2026-02-08 17:36:36] US-001 audit: locate certification/citation/comparator code and example fixtures
+[2026-02-08 17:40:36] US-001 implement: add survey certification parties list payload + fixture seeding + comparator + e2e test
+[2026-02-08 17:43:35] US-001 verify (local): seed pack_01_clean + row invariants + compare truth for certification parties
+[2026-02-08 17:43:52] US-001 running quality gate: pnpm verify
+[2026-02-08 17:44:43] US-001 pre-commit review: security/perf/regression scan of diff

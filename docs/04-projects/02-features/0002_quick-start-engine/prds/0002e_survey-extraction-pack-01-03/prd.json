@@ -58,12 +58,14 @@
     "Verification is fail-closed (ADR-0002) and uses taxonomy reason codes from docs/03-architecture/60_observability_and_evals.md.",
     "On low-quality behavior where no citations can be locked, row falls back safely to missing_input with remediation checklist (no invented callouts)."
   ],
-  "qualityGates": ["pnpm verify"],
+  "qualityGates": [
+    "pnpm verify"
+  ],
   "stories": [
     {
       "id": "US-001",
       "title": "Extract Certification Parties With Citations",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a user, I can see certification parties (where present) backed by evidence so I can trust the survey extraction.",
       "acceptanceCriteria": [
@@ -74,12 +76,15 @@
       "verification": [
         "Packs: pack_01_clean",
         "Automated: comparator against truth key fields (rules in docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md); citation integrity checks."
-      ]
+      ],
+      "startedAt": "2026-02-08T17:36:17.256414+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T17:36:17.256427+00:00"
     },
     {
       "id": "US-002",
       "title": "Flag Certification Gap As Structured Issue Code",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a user, I see a structured cert gap issue (missing lender) backed by evidence, not a vague note.",
       "acceptanceCriteria": [
@@ -89,7 +94,10 @@
       "verification": [
         "Pack: pack_03_mismatch_and_cert_gap",
         "Manual: open row drawer and confirm issue code + evidence jump."
-      ]
+      ],
+      "updatedAt": "2026-02-08T17:36:15.001643+00:00",
+      "completedAt": "2026-02-08T17:36:15.001685+00:00",
+      "startedAt": "2026-02-08T17:36:15.001689+00:00"
     }
   ],
   "metadata": {

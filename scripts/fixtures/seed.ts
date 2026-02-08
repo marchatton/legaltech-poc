@@ -347,6 +347,46 @@ function norm_tags(input: string): string[] {
   return parts;
 }
 
+function extractSurveyCertificationPartiesFromText(text: string): string[] {
+  const s = norm_ws(String(text ?? ""));
+  if (!s) return [];
+
+  // Common fixture layout line:
+  // "This survey is made for the benefit of: A; B; C.."
+  let list = s;
+  const colon = list.indexOf(":");
+  if (colon >= 0 && colon < list.length - 1) list = list.slice(colon + 1);
+
+  // If no obvious delimiter, attempt a softer split after "benefit of".
+  if (!/[;,\u2022]/.test(list) && /benefit of/i.test(s)) {
+    const m = s.match(/benefit of\s*:?\s*(.+)$/i);
+    if (m?.[1]) list = m[1];
+  }
+
+  const parts = list
+    .split(";")
+    .map((p) => p.trim())
+    .flatMap((p) => (p ? [p] : []))
+    .map((p) => p.replace(/^and\s+/i, "").trim())
+    .map((p) => p.replace(/,+$/g, "").trim())
+    // Keep a single trailing "." (e.g. "N.A.") but drop accidental doubled sentence punctuation.
+    .map((p) => p.replace(/\.{2,}$/g, ".").trim())
+    .filter(Boolean);
+
+  // If there were no semicolons, fall back to comma splitting (but preserve commas inside abbreviations poorly).
+  if (parts.length <= 1 && list.includes(",")) {
+    const byComma = list
+      .split(",")
+      .map((p) => p.trim())
+      .map((p) => p.replace(/^and\s+/i, "").trim())
+      .map((p) => p.replace(/\.{2,}$/g, ".").trim())
+      .filter(Boolean);
+    return byComma;
+  }
+
+  return parts;
+}
+
 function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; includeBadCitationRow: boolean }) {
   const repoRoot = process.cwd();
   const packRoot = path.resolve(repoRoot, "docs/08-example-data", packId);
@@ -616,6 +656,67 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
                 return `- [ ] Add ${expected} (Instrument No. ${inst}), then re-run this workflow.`;
               }),
             ].join("\n");
+          }
+        }
+      }
+    }
+
+    // US-001: extract survey certification parties with item-level citations (only when truth exists for the pack).
+    if (q.question_id === "TS-05" && row.status !== "citation_failed") {
+      const truthPath = path.join(packRoot, "truth", "expected_survey_certification_parties.csv");
+      if (!fs.existsSync(truthPath)) {
+        snapshot.rows.push(row);
+        continue;
+      }
+
+      const survey = manifest.documents.find((d) => d.role === "alta_survey") ?? manifest.documents.find((d) => /Survey\.pdf$/i.test(d.filename));
+      const surveyDoc = survey?.filename ?? "ALTA_Survey.pdf";
+
+      const layoutPath = layoutPathFor(manifest, packRoot, surveyDoc);
+      if (layoutPath && fs.existsSync(layoutPath)) {
+        const layout = readJsonFile(layoutPath) as LayoutFile;
+        const certLine = findLayoutLineByAnchor(layout, "SURVEY_CERT_PARTIES");
+        const parties = certLine?.text ? extractSurveyCertificationPartiesFromText(certLine.text) : [];
+
+        if (parties.length) {
+          const anchorResult = loadAnchorBbox({
+            manifest,
+            packRoot,
+            docFilename: surveyDoc,
+            anchorId: "SURVEY_CERT_PARTIES",
+          });
+
+          if (!anchorResult.ok) {
+            row.status = "citation_failed";
+            row.answer = "Citation verification failed.";
+            row.provenance_json = { reason_code: anchorResult.reason };
+          } else {
+            const polygons = anchorBoxToPolygons(anchorResult.anchor);
+
+            const items = parties.map((party_name, idx) => {
+              const itemCid = `cit_${q.question_id}_PARTY_${idx + 1}`;
+              const snippet = `${surveyDoc}#SURVEY_CERT_PARTIES: ${party_name}`;
+              snapshot.citations[itemCid] = {
+                document_filename: surveyDoc,
+                page_number: anchorResult.anchor.page,
+                polygons,
+                snippet,
+                snippet_hash: hashSnippet(snippet),
+              };
+              return {
+                kind: "survey_certification_party_item",
+                item_id: `party:${idx + 1}`,
+                citation_ids: [itemCid],
+                party_name,
+              };
+            });
+
+            const payload = { kind: "survey_certification_parties", items };
+            ListPayloadV0Schema.parse(payload);
+            row.payload_schema_version = LIST_PAYLOAD_V0_SCHEMA_VERSION;
+            row.payload_json = payload;
+
+            row.answer = `Survey certified to: ${items.map((it) => it.party_name).join("; ")}`;
           }
         }
       }
