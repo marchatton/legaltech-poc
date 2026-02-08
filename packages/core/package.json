@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./citations/snippet": "./src/citations/snippet.ts",
+    "./fixtures/fixtureIds": "./src/fixtures/fixtureIds.ts",
     "./geometry/anchors": "./src/geometry/anchors.ts",
     "./geometry/mapToViewport": "./src/geometry/mapToViewport.ts",
     "./missing-docs/detectMissingDocs": "./src/missing-docs/detectMissingDocs.ts",
