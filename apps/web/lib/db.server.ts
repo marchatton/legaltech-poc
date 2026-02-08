@@ -25,11 +25,43 @@ function databaseUrl(): string {
     return "postgresql://orbital:orbital@127.0.0.1:5432/orbital";
   }
 
-  throw new Error("DATABASE_URL is required in production.");
+  // Important: Next.js evaluates route modules at build time with
+  // `NODE_ENV=production`, even when a database is not available/required.
+  // Defer the hard failure until the first DB operation is attempted.
+  return "";
+}
+
+function createThrowingSql(message: string): Sql {
+  const err = new Error(message);
+  const fn = (() => {
+    throw err;
+  }) as unknown as Sql;
+
+  return new Proxy(fn, {
+    apply() {
+      throw err;
+    },
+    get(_target, prop) {
+      // Ensure even helper calls like `sql.json()` fail loudly and consistently.
+      if (prop === "unsafe") return createThrowingSql(message);
+      return new Proxy(() => {
+        throw err;
+      }, {
+        apply() {
+          throw err;
+        },
+      });
+    },
+  });
 }
 
 function createSql(): Sql {
-  return postgres(databaseUrl(), {
+  const url = databaseUrl();
+  if (!url) {
+    return createThrowingSql("DATABASE_URL is required in production.");
+  }
+
+  return postgres(url, {
     // Keep the pool small; Next dev reloads modules frequently.
     max: 10,
     idle_timeout: 20,

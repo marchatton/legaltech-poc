@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-3xl p-6">
@@ -8,19 +10,19 @@ export default function HomePage() {
 
       <ul className="mt-6 list-disc pl-5 text-slate-800">
         <li>
-          <a className="underline" href="/matters">
+          <Link className="underline" href="/matters">
             Matters: tracer bullet (citation chips → viewer → overlay)
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="underline" href="/spikes/rh1-pdf-perf">
+          <Link className="underline" href="/spikes/rh1-pdf-perf">
             RH1: pdf.js perf harness
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="underline" href="/spikes/rh2-overlay">
+          <Link className="underline" href="/spikes/rh2-overlay">
             RH2: highlight overlay harness
-          </a>
+          </Link>
         </li>
       </ul>
     </main>

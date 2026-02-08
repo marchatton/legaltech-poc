@@ -35,7 +35,13 @@
   "dataModel": [
     {
       "entity": "folders",
-      "fields": ["id", "name", "state", "created_at", "updated_at"]
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "created_at",
+        "updated_at"
+      ]
     },
     {
       "entity": "documents",
@@ -63,12 +69,14 @@
     "Pack loading is allowlisted by pack_id only; reject free-form filesystem paths and path traversal attempts.",
     "Deterministic seeding: the same pack produces the same seeded state shape."
   ],
-  "qualityGates": ["pnpm verify"],
+  "qualityGates": [
+    "pnpm verify"
+  ],
   "stories": [
     {
       "id": "US-001",
       "title": "Load A Demo Pack",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a demo operator, I can load a known fixture pack and land in the created matter so I can start a demo quickly.",
       "acceptanceCriteria": [
@@ -76,13 +84,18 @@
         "Example: With demo mode enabled, operator can load pack_02_missing_rea and the system creates a fresh matter seeded with documents and navigates to it.",
         "Negative: Demo toolbar does not render unless the demo flag is enabled, and any pack-load action is rejected when demo mode is off.",
         "Negative: pack_id is allowlisted to known values only (pack_01_clean, pack_02_missing_rea); reject free-form paths and path traversal attempts."
-      ]
+      ],
+      "startedAt": "2026-02-08T22:59:34.492353+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-08T22:59:34.492382+00:00"
     },
     {
       "id": "US-002",
       "title": "Run The Demo Twice Without Cleanup",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a demo operator, I can run the same demo twice in a row without manual cleanup because each run starts from a fresh seeded matter.",
       "acceptanceCriteria": [
         "Example: Loading the same pack twice creates two distinct matters; operator can run Quick Start in each without manual cleanup.",
@@ -93,7 +106,9 @@
       "id": "US-003",
       "title": "Follow A Demo Checklist",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a demo operator, I have a short checklist that makes the demo repeatable and reduces tribal knowledge.",
       "acceptanceCriteria": [
         "Example: A demo checklist exists at docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md and matches the actual operator flow in the UI.",
@@ -122,9 +137,20 @@
     ]
   },
   "breadboardMapping": {
-    "parts": ["F8 (demo mode controls)", "F9 (demo checklist)"],
-    "affordances": ["U6", "U7", "U8"],
-    "codeAffordances": ["N7", "N8", "N9"]
+    "parts": [
+      "F8 (demo mode controls)",
+      "F9 (demo checklist)"
+    ],
+    "affordances": [
+      "U6",
+      "U7",
+      "U8"
+    ],
+    "codeAffordances": [
+      "N7",
+      "N8",
+      "N9"
+    ]
   },
   "verificationPlan": [
     "Manual smoke in dev: toggle demo flag off and confirm toolbar absent and pack load rejected.",
