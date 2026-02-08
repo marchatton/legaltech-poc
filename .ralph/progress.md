@@ -349,3 +349,32 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter
   - Useful context
     - Browser screenshots saved under `.agents/skills/00-utilities/dev-browser/tmp/us007-pack02-matters.png` and `.agents/skills/00-utilities/dev-browser/tmp/us007-pack01-matters.png`.
 ---
+## [2026-02-08 15:20:28 UTC] - US-001: Start Quick Start run and observe progress
+Thread: 77337
+Run: 20260208-151217-112794 (iteration 1)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-151217-112794-iter-1.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-151217-112794-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: a1c11e7 feat(api): add run start and progress endpoints
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/app/(api)/runs/[id]/route.ts
+  - apps/web/lib/db.server.ts
+  - apps/web/lib/questionSet.server.ts
+- What was implemented
+  - Added persisted `runs` + `run_steps` tables (schema-on-read via `ensureSchema`) including `trace_id`, version pins, and idempotency support.
+  - Implemented `POST /folders/:id/runs` (Quick Start) with folder-state precondition (`indexed|ready`), safe error envelope (incl `trace_id`), and `Idempotency-Key` retries.
+  - Implemented `GET /runs/:id` returning pinned versions plus progress and failure taxonomy counts (per `docs/03-architecture/50_api_surface.md`).
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Caching file-backed question set parsing + canonical hash in a server-only module keeps run pinning deterministic without repeated IO.
+  - Gotchas encountered
+    - `Idempotency-Key` needs header-level validation (not body) to avoid unsafe characters/newlines.
+  - Useful context
+    - Next.js route handlers under `apps/web/app/(api)` can set `X-Trace-Id` headers per-request even without global middleware.
+---
