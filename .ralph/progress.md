@@ -123,3 +123,32 @@ Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter
   - In fast local/headless runs, cancellation may not naturally occur at 200ms intervals; simulating Range/network latency keeps the spam test meaningful.
   - dev-browser requires `--headless` and Playwright system deps (installed via `playwright install-deps chromium`).
 ---
+## [2026-02-08 09:44 UTC] - US-004: Canonical snippet hashing is stable
+Thread: 
+Run: 20260208-082954-32669 (iteration 4)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-4.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260208-082954-32669-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 1f9558a test(citations): prevent duplicate snippet hashing
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: node --experimental-strip-types packages/core/src/spikes/rh3_snippet_hash_harness.ts --run run1 --outDir tmp/rh3-test -> PASS
+  - Command: node --experimental-strip-types packages/core/src/spikes/rh3_snippet_hash_harness.ts --run run2 --outDir tmp/rh3-test --compareWith run1 -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - packages/core/src/citations/snippet.single-source.test.ts
+  - packages/core/src/spikes/rh3_snippet_hash_harness.ts
+- What was implemented
+  - Added a unit test to enforce a single source of truth for normaliseSnippet()/hashSnippet() in packages/core.
+  - Fixed RH3 harness to run under Node + pdfjs-dist v4 (Uint8Array input) and added a compare mode to assert stable hashes across runs.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Self-importing via a package export path avoids Node ESM relative specifier issues while keeping TypeScript happy.
+  - Gotchas encountered
+    - pdfjs-dist v4 rejects Buffer inputs; always pass a plain Uint8Array view for getDocument({ data }).
+  - Useful context
+    - A lightweight repo scan test can prevent accidental duplicate hashing implementations from creeping in.
+---
