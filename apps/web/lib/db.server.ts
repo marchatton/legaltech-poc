@@ -107,6 +107,47 @@ async function ensureSchemaInner(): Promise<void> {
       UNIQUE (document_id, index_version, chunk_index)
     );
   `;
+
+  // Runs (Quick Start execution attempts)
+  await sql`
+    CREATE TABLE IF NOT EXISTS runs (
+      id TEXT PRIMARY KEY,
+      folder_id TEXT NOT NULL REFERENCES folders(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('created','running','completed','partial','failed','cancelled')),
+      index_version TEXT NOT NULL,
+      agent_bundle_version TEXT NOT NULL,
+      question_set_version TEXT NOT NULL,
+      idempotency_key TEXT NULL,
+      trace_id TEXT NULL,
+      questions_total INT NOT NULL DEFAULT 0,
+      questions_done INT NOT NULL DEFAULT 0,
+      failure_counts_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      error_json JSONB NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (folder_id, idempotency_key)
+    );
+  `;
+
+  // Durable step execution log. Steps are responsible for idempotency via step_key.
+  await sql`
+    CREATE TABLE IF NOT EXISTS run_steps (
+      id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
+      step_type TEXT NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('queued','running','succeeded','failed')),
+      attempt INT NOT NULL DEFAULT 1,
+      step_key TEXT NOT NULL,
+      trace_id TEXT NULL,
+      question_id TEXT NULL,
+      metrics_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      error_json JSONB NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (run_id, step_key)
+    );
+  `;
 }
 
 export async function ensureSchema(): Promise<void> {
