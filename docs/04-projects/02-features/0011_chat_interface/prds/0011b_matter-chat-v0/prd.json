@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "project": "0011b Matter Chat v0 (Streaming + Locked Sources)",
+  "overview": "Add per-matter chat that streams assistant responses and shows locked, clickable sources per assistant message, preserving the evidence-first trust posture.",
+  "goals": [
+    "Enable a chat panel in the Matter detail view where users can send messages and receive streaming assistant replies.",
+    "Persist chat threads and messages, including correct streaming/complete terminal states.",
+    "Lock sources (citations) per assistant message and render them under the assistant bubble.",
+    "Provide an evidence viewer page for chat citations without conflicting with the existing /citations/:id API route.",
+    "Preserve evidence-first behavior: if evidence is insufficient, respond exactly 'Not found in provided documents.' and show no sources."
+  ],
+  "nonGoals": [
+    "Cross-matter chat.",
+    "Inline citations inside generated text (sources are rendered separately in v0).",
+    "Precise OCR/layout geometry highlights.",
+    "Reranking models or advanced retrieval eval harnesses.",
+    "Full auth/RBAC implementation."
+  ],
+  "successMetrics": [
+    "A user can send a message and see first tokens streamed in under 2 seconds on a dev laptop (best-effort target).",
+    "Assistant messages include at least one locked source when retrieval finds evidence; sources are clickable to an evidence viewer.",
+    "When retrieval finds no evidence, the assistant returns exactly 'Not found in provided documents.' and sources are empty.",
+    "API failures are explicit and safe: standard error envelope only, no stack traces or provider payloads returned."
+  ],
+  "openQuestions": [
+    "Should chat be enabled dev-only first, or also in a production-build demo mode (e.g., ORBITAL_MODE=demo-prod)?",
+    "Should there be one thread per matter (simplest) or multiple threads with a list and titles (more scope)?",
+    "Do we later unify chat_citations with the existing citations table, or keep them separate long-term?"
+  ],
+  "stack": {
+    "framework": "Next.js App Router (apps/web) + TypeScript",
+    "hosting": "Local dev today; target deployments vary. Chat should be feature-flagged so enablement can be controlled per environment.",
+    "database": "Postgres",
+    "auth": "PoC: no end-user auth; some endpoints are admin-token gated and spike endpoints require SPIKES_ENABLED=1."
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Matter Detail",
+      "purpose": "Hosts the chat panel UI for a specific folder/matter."
+    },
+    {
+      "path": "/folders/:id/chat",
+      "name": "Chat Message API",
+      "purpose": "Accept a user message and stream an assistant response for a matter."
+    },
+    {
+      "path": "/chat-citations/:id",
+      "name": "Chat Citation API",
+      "purpose": "Return locked citation payload for a chat citation id."
+    },
+    {
+      "path": "/evidence/:id",
+      "name": "Evidence Viewer",
+      "purpose": "PDF viewer page that loads a chat citation and highlights the cited page (coarse v0 polygon)."
+    }
+  ],
+  "uiNotes": [
+    "Sources render under assistant messages as chips (doc id + page number).",
+    "v0 highlight polygons are coarse full-page boxes; UI labels as page-level until OCR geometry exists.",
+    "Chat is embedded as a panel in the Matter detail page (server-first; keep client islands small)."
+  ],
+  "dataModel": [
+    {
+      "entity": "chat_threads",
+      "fields": ["id", "folder_id", "title", "created_at", "updated_at"]
+    },
+    {
+      "entity": "chat_messages",
+      "fields": ["id", "thread_id", "role", "content", "status", "created_at"]
+    },
+    {
+      "entity": "chat_citations",
+      "fields": [
+        "id",
+        "chat_message_id",
+        "document_id",
+        "page_number",
+        "snippet",
+        "snippet_hash",
+        "polygons_json",
+        "created_at"
+      ]
+    }
+  ],
+  "assistantBehavior": {
+    "model": "anthropic/claude-haiku-4.5",
+    "evidenceFirst": true,
+    "missingEvidenceExactString": "Not found in provided documents.",
+    "promptRules": [
+      "Answer using only the provided sources.",
+      "If not supported by sources, respond exactly with the missingEvidenceExactString.",
+      "Be concise."
+    ]
+  },
+  "citationGeometry": {
+    "v0": "full_page_box",
+    "polygonsExample": [[[0, 0], [1, 0], [1, 1], [0, 1]]],
+    "note": "Until OCR/layout geometry lands, citations use a coarse full-page polygon and UI labels it as page-level highlight."
+  },
+  "wdkWorkflow": {
+    "shape": "One workflow per assistant response",
+    "constraints": [
+      "Workflow entrypoint uses 'use workflow' and does not perform side effects directly.",
+      "Steps use 'use step' and own DB writes, retrieval, and model calls.",
+      "Streams are writable inside steps only."
+    ],
+    "steps": [
+      {
+        "key": "load_thread_context",
+        "purpose": "Fetch last N messages (e.g., N=20) from chat_messages for prompt context."
+      },
+      {
+        "key": "hybrid_retrieve",
+        "purpose": "Call hybridSearch() (slice 0011a) for the latest user message query."
+      },
+      {
+        "key": "hydrate_chunks",
+        "purpose": "Fetch chunk text + doc/page metadata for top K hits to use as sources."
+      },
+      {
+        "key": "stream_answer",
+        "purpose": "Call the model and stream tokens to the client via the WDK stream."
+      },
+      {
+        "key": "lock_citations",
+        "purpose": "Persist chat_citations for the assistant message, including snippet_hash and polygons_json."
+      },
+      {
+        "key": "finalise_message",
+        "purpose": "Mark assistant chat_messages.status='complete' (or a terminal failure status)."
+      }
+    ],
+    "idempotency": "Each step has a deterministic step_key to prevent duplicate writes on retries."
+  },
+  "featureFlags": [
+    "CHAT_ENABLED (or equivalent): when disabled, the chat panel is hidden and /folders/:id/chat returns 404/disabled response.",
+    "Optional: enable chat in dev first; do not require completing the broader dev-only route migration unless explicitly required for demo/prod."
+  ],
+  "rules": [
+    "Evidence-first: assistant answers must be grounded in retrieved chunks; if not supported, respond exactly 'Not found in provided documents.'.",
+    "Locked sources are immutable: once an assistant message is complete, its citations do not change silently.",
+    "Evidence viewer must not conflict with existing /citations/:id API route; use /evidence/:id (or similar) for the page.",
+    "Chat feature is flaggable so it can ship dev-first without forcing completion of broader 'dev-only route migration' work."
+  ],
+  "qualityGates": [
+    "pnpm -r typecheck",
+    "pnpm -r lint",
+    "pnpm -r test",
+    "pnpm -r build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Send a message and stream an assistant reply",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I want to send a chat message in a Matter and receive a streaming reply so that I can explore the documents quickly.",
+      "acceptanceCriteria": [
+        "Example: On /matters/:id, the chat panel shows prior messages and an input; submitting 'What is the closing date?' starts streaming an assistant reply without a page refresh.",
+        "Example: A user message is persisted immediately; an assistant message is created with status='streaming' and transitions to status='complete' when finished; refreshing the page shows the same message history.",
+        "Negative: If the request body is missing or message is empty/invalid, POST /folders/:id/chat returns 400 with the standard safe error envelope."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Locked sources render and open an evidence viewer",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a user, I want clickable sources under assistant messages that open an evidence viewer so that I can verify the answer.",
+      "acceptanceCriteria": [
+        "Example: After an assistant reply completes, the UI renders a 'Sources' section with one or more chips (document_id + page_number).",
+        "Example: Clicking a source navigates to /evidence/:id which loads citation payload from GET /chat-citations/:id and then loads render_url via GET /documents/:id/render?page=N; a highlight overlay renders using polygons_json (v0 full-page box).",
+        "Negative: If the citation id is not found, GET /chat-citations/:id returns 404 with a safe error envelope and /evidence/:id shows an explicit not-found state (no blank screen)."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Evidence-first behavior and safe failures",
+      "status": "open",
+      "dependsOn": ["US-001", "US-002"],
+      "description": "As a user, I want the assistant to be honest about missing evidence and for failures to be explicit so that the system remains trustworthy.",
+      "acceptanceCriteria": [
+        "Example: When retrieval returns no chunks, the assistant response is exactly 'Not found in provided documents.' and the Sources section is empty.",
+        "Example: If the model call fails mid-stream, the assistant message transitions to a terminal failure status (e.g., 'citation_failed') and the UI shows an explicit error state with guidance to retry.",
+        "Negative: When chat is disabled via feature flag, /folders/:id/chat returns 404/disabled response and the UI hides the chat panel."
+      ]
+    }
+  ]
+}

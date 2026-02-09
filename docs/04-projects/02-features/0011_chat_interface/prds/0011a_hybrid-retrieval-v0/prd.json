@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "project": "0011a Hybrid Retrieval Substrate v0",
+  "overview": "Make chunks searchable via hybrid lexical + semantic retrieval (tsvector + pgvector IVFFlat) and expose a deterministic IDs-only hybridSearch() contract for downstream features like chat.",
+  "goals": [
+    "Upgrade chunking from per-page chunks to small deterministic chunks suitable for citations.",
+    "Enable lexical retrieval via tsvector + GIN for chunks.",
+    "Enable semantic retrieval via pgvector embeddings + IVFFlat with conservative, data-aware index creation.",
+    "Provide a single hybridSearch() function that returns ranked chunk IDs + metadata (IDs-only contract).",
+    "Provide a dev-only debug spike endpoint to make retrieval tuning and failures visible."
+  ],
+  "nonGoals": [
+    "Reranking models or entailment verification.",
+    "Cross-folder retrieval.",
+    "OCR/layout geometry and precise highlight polygons.",
+    "A full retrieval eval harness beyond minimal tests/debug endpoint."
+  ],
+  "successMetrics": [
+    "For a seeded pack folder, a representative query retrieves relevant chunk(s) in the top K results (manual proof acceptable for v0).",
+    "Chunks are materially smaller than whole pages and carry deterministic metadata for citations.",
+    "Debug endpoint outputs tuning context (lists/probes/hit counts) so retrieval can be tuned without guesswork."
+  ],
+  "openQuestions": [
+    "Do we add a golden-questions Recall@K fixture now, or defer to a later retrieval quality slice?",
+    "Where should hybridSearch() live long-term: apps/web (web-only) or packages/core (shared) with adapters?"
+  ],
+  "stack": {
+    "framework": "Next.js App Router (apps/web) + TypeScript",
+    "hosting": "Local dev (docker-compose) today; target deployments vary but must support Postgres + pgvector.",
+    "database": "Postgres with pgvector extension",
+    "auth": "PoC: no end-user auth; dev-only spike endpoints are gated (SPIKES_ENABLED) and some admin-only endpoints require X-Orbital-Admin-Token."
+  },
+  "routes": [
+    {
+      "path": "/spikes/retrieval/hybrid-search",
+      "name": "Hybrid Search Debug (Spike)",
+      "purpose": "Dev-only endpoint to run hybridSearch() for a folder/index_version/query and inspect hits + tuning knobs."
+    }
+  ],
+  "uiNotes": [],
+  "dataModel": [
+    {
+      "entity": "chunks",
+      "fields": [
+        "id",
+        "document_id",
+        "index_version",
+        "chunk_index",
+        "page_start",
+        "page_end",
+        "text",
+        "metadata_json (includes chunker_id, page_number, char_start, char_end)",
+        "text_hash",
+        "text_tsv (tsvector)",
+        "embedding (vector(1536))",
+        "embedding_model",
+        "embedded_at"
+      ]
+    }
+  ],
+  "chunking": {
+    "chunkerId": "char_window_v0",
+    "maxChars": 1500,
+    "overlapChars": 200,
+    "metadataFields": ["page_number", "char_start", "char_end"],
+    "determinism": "Deterministic for (document_id, index_version); re-ingest produces identical chunk boundaries and hashes."
+  },
+  "retrievalContract": {
+    "idsOnly": true,
+    "hitShape": {
+      "chunk_id": "string",
+      "document_id": "string",
+      "page_start": "number|null",
+      "page_end": "number|null",
+      "score": "number",
+      "lex_score": "number|undefined",
+      "sem_score": "number|undefined"
+    }
+  },
+  "retrievalDefaults": {
+    "kLex": 20,
+    "kSem": 20,
+    "kFinal": 10,
+    "lexWeight": 0.55,
+    "semWeight": 0.45
+  },
+  "ivfflatIndexingStrategy": {
+    "distance": "cosine",
+    "operators": "embedding <=> query_vector",
+    "createIndexWhenVectorCountAtLeast": 500,
+    "listsFormula": "lists = clamp(1, 100, floor(nVectors / 1000))",
+    "probesDefault": "probes = min(10, lists)",
+    "notes": "Avoid creating IVFFlat with unrealistic lists on tiny datasets; log lists/probes/nVectors for tuning."
+  },
+  "sqlStrategy": {
+    "lexical": {
+      "query": "websearch_to_tsquery('english', query)",
+      "score": "ts_rank_cd(text_tsv, query)",
+      "limit": "kLex"
+    },
+    "semantic": {
+      "queryVector": "embed(queryText)",
+      "orderBy": "embedding <=> $qvec",
+      "limit": "kSem",
+      "similarity": "sem_similarity = 1 - cosine_distance"
+    },
+    "merge": {
+      "dedupe": "by chunk_id",
+      "finalScore": "score = lexWeight*lex + semWeight*sem",
+      "limit": "kFinal"
+    }
+  },
+  "rules": [
+    "Chunking must be deterministic for a given (document_id, index_version) input.",
+    "hybridSearch() must return an IDs-only contract (chunk IDs + metadata), not hydrated chunk text.",
+    "Vector indexing must avoid IVFFlat tiny-dataset footguns by creating the index conservatively and logging tuning context (lists/probes/nVectors).",
+    "Debug-only routes must live under /spikes/* and be gated; do not add new dev-only endpoints at target paths."
+  ],
+  "qualityGates": [
+    "pnpm -r typecheck",
+    "pnpm -r lint",
+    "pnpm -r test",
+    "pnpm -r build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Deterministic small chunking on ingest",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want ingest to produce small deterministic chunks per page so that citations and retrieval operate on meaningful units.",
+      "acceptanceCriteria": [
+        "Example: Given a two-page PDF with ~3000 chars per page, ingest persists more than 2 chunks total for index_version=v1; each chunk has metadata_json.chunker_id='char_window_v0' with page_number and char_start/char_end.",
+        "Example: Re-ingesting the same document_id for the same index_version produces identical chunk boundaries and identical text_hash values (idempotent by unique (document_id, index_version, chunk_index)).",
+        "Negative: If a PDF exceeds ingest caps (e.g., > MAX_PAGES), ingest fails closed with a safe error and does not write partial chunk rows for that document/index_version."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Lexical + vector fields exist on chunks and are indexed safely",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a developer, I want chunks to support both lexical and semantic retrieval so that exact-term and conceptual queries can find evidence.",
+      "acceptanceCriteria": [
+        "Example: Schema includes chunks.text_tsv (tsvector) with a GIN index, and lexical queries use websearch_to_tsquery('english', query) and ts_rank_cd for scoring.",
+        "Example: Schema includes embedding vector(1536), embedding_model, embedded_at; embeddings are written for chunks during ingest, and IVFFlat index creation is deferred until nVectors >= 500 with lists computed as clamp(1,100,floor(nVectors/1000)).",
+        "Negative: If pgvector extension is missing/unavailable, semantic retrieval fails closed with a safe error (and does not silently pretend semantic search is working)."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "hybridSearch() returns ranked chunk hits and a debug endpoint makes tuning visible",
+      "status": "open",
+      "dependsOn": ["US-001", "US-002"],
+      "description": "As a feature builder (chat, quick start), I want a single hybridSearch() function that returns ranked chunk IDs so that downstream features can rely on one retrieval contract.",
+      "acceptanceCriteria": [
+        "Example: hybridSearch({folderId,indexVersion,queryText}) returns a deterministic ordered list of hits including chunk_id/document_id/page_start/page_end plus score and optional lex_score/sem_score; default tuning is kLex=20, kSem=20, kFinal=10, lexWeight=0.55, semWeight=0.45.",
+        "Example: A dev-only spike endpoint /spikes/retrieval/hybrid-search returns the top K hits for a query and includes tuning context (nVectors, lists, probes, kLex/kSem/kFinal, hitCountsLex/hitCountsSem).",
+        "Negative: If queryText is empty/invalid, the endpoint returns 400 with the standard safe error envelope and no internal stack trace or provider payload."
+      ]
+    }
+  ]
+}
