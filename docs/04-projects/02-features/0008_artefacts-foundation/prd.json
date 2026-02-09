@@ -117,7 +117,7 @@
     {
       "id": "US-002",
       "title": "Render Artefacts List In Folder UI",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -129,8 +129,8 @@
         "Negative: The UI does not display raw storage_key values."
       ],
       "startedAt": "2026-02-08T23:23:09.957004+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T23:23:09.957043+00:00"
+      "completedAt": "2026-02-08T23:50:57.925754+00:00",
+      "updatedAt": "2026-02-08T23:50:57.925715+00:00"
     }
   ]
 }

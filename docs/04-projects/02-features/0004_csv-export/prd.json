@@ -74,7 +74,9 @@
     "description": "CSV mapper consumes structured artefact row payloads (payload_schema_version + payload_json) plus locked citations; it does not parse report_rows.answer prose.",
     "example": {
       "payload_schema_version": "list_payload_v0",
-      "payload_json": { "items": [] }
+      "payload_json": {
+        "items": []
+      }
     }
   },
   "rules": [
@@ -88,7 +90,9 @@
     "Deterministic row ordering: sort by source_question_id asc, then *_id asc, then citations asc as tie-breaker.",
     "Canonical missing_input answer text is preserved: 'Not found in provided documents.'."
   ],
-  "qualityGates": ["pnpm verify"],
+  "qualityGates": [
+    "pnpm verify"
+  ],
   "stories": [
     {
       "id": "US-001",
@@ -108,7 +112,9 @@
       "id": "US-002",
       "title": "See Not-Ready And Blocked States",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a demo operator, I can clearly see when export is not ready (run still running) or blocked (citation failures) so I don't create inconsistent artefacts.",
       "acceptanceCriteria": [
         "Example: Export buttons are disabled until runs.state=completed; if called anyway, API returns 409 with error.code=CONFLICT.",
@@ -205,8 +211,18 @@
       "F2 (CSV schemas + mappers)",
       "F5 (export UI states)"
     ],
-    "affordances": ["U1", "U2", "U5"],
-    "codeAffordances": ["N1", "N2", "N3", "N5", "N6"]
+    "affordances": [
+      "U1",
+      "U2",
+      "U5"
+    ],
+    "codeAffordances": [
+      "N1",
+      "N2",
+      "N3",
+      "N5",
+      "N6"
+    ]
   },
   "verificationPlan": [
     "Fixture packs: docs/08-example-data/pack_01_clean and docs/08-example-data/pack_02_missing_rea.",
