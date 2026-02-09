@@ -1,5 +1,8 @@
 # API surface (PoC)
 
+> Note: This document describes the **target** HTTP contract. For what is implemented today (including dev-only and
+> fixture-backed routes), see `docs/03-architecture/07_current_poc_runtime.md`.
+
 This doc is the canonical HTTP contract for the PoC. Keep it small, but explicit.
 
 Important: This is the **target** API surface. During development we may ship dev-only spike endpoints, but they must live under `/spikes/*`, be gated behind `SPIKES_ENABLED=1`, and return `404` unless spikes are explicitly enabled.

@@ -1,5 +1,8 @@
 # Tech stack + dev workflow (PoC)
 
+> Note: This document describes the **target** stack and workflows. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
 This doc pins the stack and how we build, run, debug, and regression-test the PoC.
 
 ## PoC posture (constraints)

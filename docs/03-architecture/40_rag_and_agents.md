@@ -1,5 +1,8 @@
 # RAG + agents (Quick Start)
 
+> Note: This document describes the **target** RAG/agent pipeline. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
 This doc describes the end-to-end "evidence-first" pipeline for Quick Start. It is intentionally implementation-oriented.
 
 Canonical related docs:
@@ -7,6 +10,19 @@ Canonical related docs:
 - `docs/03-architecture/20_state_model.md` (statuses + invariants)
 - `docs/03-architecture/30_data_model.md` (tables + hashing + immutability rules)
 - `docs/03-architecture/60_observability_and_evals.md` (failure taxonomy + eval posture)
+
+## Current PoC status (implemented today)
+The repo does not yet implement the end-to-end retrieve/draft/lock pipeline described below.
+
+Current behavior:
+- Ingest extracts text via pdf.js (not OCR) and stores per-page text with `has_geometry=false`.
+  - Code: `apps/web/lib/ingest/ingestQueue.server.ts`
+- Quick Start runs are executed in-process and write placeholder terminal `report_rows` (no retrieval/draft/lock).
+  - Code: `apps/web/lib/quickStartRunQueue.server.ts`
+- Citations/highlights and trace export are fixture-backed for demos (seed snapshots under `tmp/fixture-seed`).
+  - Code: `apps/web/lib/fixtureSeed.server.ts`, `apps/web/app/(api)/citations/[id]/route.ts`
+
+Treat the remainder of this doc as the **target** pipeline to build towards.
 
 ## Why RAG exists here
 RAG is the mechanism that makes “evidence-first” possible:
@@ -22,7 +38,7 @@ RAG is the mechanism that makes “evidence-first” possible:
 - No external web research inside a run (ADR-0007).
 
 ## Ingestion (RAG substrate)
-PoC default: OCR everything for consistent geometry
+Target default: OCR everything for consistent geometry
 - store per-page text + polygons (`document_pages.layout_json`)
 - chunk into citable units
 - index:

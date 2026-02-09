@@ -1,6 +1,9 @@
 # System architecture
 
-This doc is the canonical high-level map of the Orbital Copilot PoC runtime. It should stay stable while code is added.
+> Note: This document describes the **target** architecture. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
+This doc is the canonical high-level map of the Orbital Copilot PoC **target** runtime. It should stay stable while code is added.
 
 Goals (PoC)
 - Evidence-first UX: click `citation_id` -> see highlighted PDF evidence.
@@ -16,7 +19,7 @@ Non-goals (for now)
 ## Glossary
 - Folder: DB/API name for a workspace container. UI calls it a Matter.
 - Run: one execution of a Quick Start workflow for a folder.
-- Step: a single side-effect boundary executed durably by Workflow DevKit (WDK).
+- Step: a single side-effect boundary. Target execution is durable via Workflow DevKit (WDK); current PoC execution is in-process and documented in `docs/03-architecture/07_current_poc_runtime.md`.
 - Index version: identifies the retrieval substrate built for a folder (chunks + indices).
 - Agent bundle version: pins prompts + schemas + logic used by a run (git SHA is fine for PoC).
 - Question set version: pins the question set used by a run (see `docs/03-architecture/20_state_model.md` and `docs/03-architecture/30_data_model.md`).
@@ -26,6 +29,8 @@ Non-goals (for now)
 
 Conventions:
 - The meaning of `(use workflow)` / `(use step)` is defined in `docs/03-architecture/06_frameworks_agents_rag_evals.md`.
+
+Target (aspirational):
 
 ```mermaid
 flowchart LR
@@ -83,7 +88,8 @@ draft only (no verify model v1)"]
 ```
 
 Notes:
-- WDK owns durability, retries, resumability, and step-level progress events (ADR-0005).
+- Target: WDK owns durability, retries, resumability, and step-level progress events (ADR-0005).
+- Current: ingest and quick-start execution is in-process (non-durable) and does not yet implement the retrieve/draft/lock pipeline. See `docs/03-architecture/07_current_poc_runtime.md`.
 - Domain logic should live outside the WDK integration layer (eg `packages/core`) and be called from steps.
 - This repo started docs-first; keep the same conceptual boundaries even if directories differ.
 

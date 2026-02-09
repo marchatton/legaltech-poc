@@ -1,5 +1,8 @@
 # Data model (Postgres + pgvector)
 
+> Note: This document describes the **target** data model. The current PoC schema is created at runtime in
+> `apps/web/lib/db.server.ts` and may be a minimal subset (and therefore drift from the recommendations below).
+
 This is the canonical DB shape for the PoC “trust spine”: ingest → retrieve → draft → verify → report rows with locked citations.
 
 Design rules (PoC)

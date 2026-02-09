@@ -1,5 +1,8 @@
 # Observability and evals
 
+> Note: This document describes the **target** observability/evals posture. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
 This PoC lives or dies on debuggability and demo reliability. "Trust UX" requires that we can:
 - explain what happened (runs + steps + rows)
 - prove evidence integrity (citations + hashing)

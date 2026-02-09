@@ -1,5 +1,8 @@
 # Frameworks, agents, RAG, and evals
 
+> Note: This document describes the **target** framework posture. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
 This doc answers:
 - why we picked Workflow DevKit for orchestration
 - what we do (and do not) use agent frameworks for
@@ -8,7 +11,7 @@ This doc answers:
 
 ## Framework selection
 
-### Chosen for PoC: Workflow DevKit (WDK)
+### Target for PoC: Workflow DevKit (WDK)
 Why:
 - Our core requirement is a durable, resumable, deterministic-ish workflow:
   `retrieve → draft → lock → verify → write` per row

@@ -1,5 +1,8 @@
 # State model
 
+> Note: This document describes the **target** state model. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
 This doc defines the state machines and invariants for the PoC. Keep this as the canonical reference and link to it from other docs.
 
 ## Principles (why these states exist)
@@ -81,9 +84,12 @@ Invariants (must hold):
 - `extraction_quality` is only meaningful when `ocr_status = done` (else set NULL or 0 and do not use it for decisions).
 
 ### extraction_quality (PoC definition)
-`documents.extraction_quality` is a normalised 0..1 score derived from OCR/layout output.
+`documents.extraction_quality` is a normalised 0..1 score derived from extraction output.
 
-PoC default (until pinned):
+Current PoC (pdf.js text extraction):
+- chars-per-page heuristic (see `documents.metadata_json.extraction_quality_method`, e.g. `pdfjs_text_chars_per_page_v2`)
+
+Target PoC (OCR/layout provider):
 - provider mean line confidence (or equivalent), clamped to [0..1]
 
 Rules:

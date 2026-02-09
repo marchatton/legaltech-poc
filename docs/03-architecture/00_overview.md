@@ -1,6 +1,9 @@
 # Orbital Copilot PoC Architecture
 US CRE Title + Survey Quick Start (evidence-first, artefact-first)
 
+> Note: This folder documents the **target** architecture. For what is implemented today, see
+> `docs/03-architecture/07_current_poc_runtime.md`.
+
 This is the top-level architecture summary. For deeper detail, see:
 - System map + trust boundaries: `docs/03-architecture/10_system_architecture.md`
 - State machines + invariants: `docs/03-architecture/20_state_model.md`

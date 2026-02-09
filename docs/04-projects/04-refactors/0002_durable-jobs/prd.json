@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "project": "Durable Jobs (P1)",
+  "overview": "Replace in-memory ingest and quick-start run queues with a minimal Postgres-backed jobs table and a worker loop (with dev inline kick and a standalone worker entrypoint).",
+  "goals": [
+    "Make ingest and runs durable across server restarts by persisting queued work in Postgres.",
+    "Make job enqueue idempotent by (type, job_key) so route handlers can be retried safely.",
+    "Support safe multi-worker concurrency via FOR UPDATE SKIP LOCKED.",
+    "Add bounded retries with exponential backoff and clear terminal failure states.",
+    "Update current runtime docs to reflect the durable job model."
+  ],
+  "nonGoals": [
+    "Implement full WDK durable orchestration and step graphs.",
+    "Add priority scheduling, cancellation, cron, or a dead-letter queue.",
+    "Replace runtime DDL with migrations (separate slice)."
+  ],
+  "successMetrics": [
+    "Queued ingest/run work persists in Postgres across server restarts.",
+    "Multiple workers can run without double-processing jobs.",
+    "Development UX remains simple: pnpm dev still processes jobs via dev-only inline kick.",
+    "docs/03-architecture/07_current_poc_runtime.md accurately describes jobs + worker."
+  ],
+  "openQuestions": [
+    "Should we add a stale running job reaper for safety, or keep PoC minimal?",
+    "Do we want env-configurable retry/backoff tuning for demos?"
+  ],
+  "stack": {
+    "framework": "Next.js (App Router, Node runtime)",
+    "database": "Postgres (runtime DDL via ensureSchema)",
+    "objectStore": "Local filesystem object store (tmp/object-store) with signed URL headers",
+    "queue": "Postgres-backed jobs table + worker loop (dev inline kick + standalone worker)"
+  },
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @orbital-poc/web build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Durable job enqueue is idempotent",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want to enqueue the same logical job repeatedly without creating duplicates so that route handlers can be safely retried.",
+      "acceptanceCriteria": [
+        "enqueueJob({type, jobKey}) does not create duplicate rows for the same (type, job_key).",
+        "If a job is running, enqueue does not overwrite payload_json or reset attempts.",
+        "If a job is terminal (succeeded/failed), enqueue re-queues it (state becomes queued, attempts resets to 0)."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Workers can safely claim jobs without double-processing",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want multiple worker processes to run concurrently without two workers claiming the same job.",
+      "acceptanceCriteria": [
+        "claimNextJob() uses a FOR UPDATE SKIP LOCKED claim pattern.",
+        "A claimed job transitions queued -> running and records locked_at and locked_by.",
+        "Job attempts increments on claim (1-based)."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Ingest runs via durable jobs",
+      "status": "open",
+      "dependsOn": [
+        "US-001",
+        "US-002"
+      ],
+      "description": "As a user, I want document ingest to complete even if the Next.js server restarts mid-ingest.",
+      "acceptanceCriteria": [
+        "Enqueueing ingest inserts/updates a job with type=ingest_document and payload {document_id}.",
+        "Ingest execution logic lives in processDocumentIngest(documentId) and is invoked by the worker.",
+        "On handler failures, the job is retried up to 3 attempts with exponential backoff; otherwise marked failed."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Quick Start runs via durable jobs",
+      "status": "open",
+      "dependsOn": [
+        "US-001",
+        "US-002"
+      ],
+      "description": "As a user, I want a run to complete even if the Next.js server restarts after I click Run.",
+      "acceptanceCriteria": [
+        "Enqueueing a quick-start run inserts/updates a job with type=execute_run and payload {run_id}.",
+        "Run execution logic lives in processQuickStartRun(runId) and is invoked by the worker.",
+        "Worker retries do not duplicate report_rows (idempotency preserved)."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Dev inline worker kick preserves pnpm dev UX",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want jobs to run automatically during local development without a second terminal.",
+      "acceptanceCriteria": [
+        "In NODE_ENV=development, enqueueing a job kicks an inline worker drainer that processes a bounded number of jobs.",
+        "In non-development environments, the inline kick is a no-op.",
+        "A standalone worker can be started via pnpm --filter @orbital-poc/web worker."
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Current runtime docs are updated",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a contributor, I want docs/03-architecture/07_current_poc_runtime.md to reflect the durable job model so I can reason correctly about runtime behavior.",
+      "acceptanceCriteria": [
+        "The doc no longer states in-memory queues; it describes Postgres-backed jobs and a worker.",
+        "The component map diagram reflects a jobs table and worker process."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/98-tmp/oracle/oracle-arch-drift.md",
+    "apps/web/lib/db.server.ts",
+    "apps/web/lib/jobs/jobQueue.server.ts",
+    "apps/web/lib/jobs/jobWorker.server.ts",
+    "apps/web/scripts/worker.ts",
+    "docs/03-architecture/07_current_poc_runtime.md"
+  ]
+}
+
