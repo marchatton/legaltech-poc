@@ -1,37 +1,52 @@
-# Demo Checklist (Draft)
+# Demo Operator Checklist (0007 Demo Reliability)
 
-> DRAFT. This checklist is owned by PRD `docs/04-projects/02-features/0007_demo-reliability/prd.md`.
+Keep this checklist aligned with the actual UI flow:
+- `apps/web/app/DemoToolbar.tsx`
+- `apps/web/app/(api)/demo/load-pack/route.ts`
+- `apps/web/app/(app)/matters/[id]/page.tsx`
+- `apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx`
 
-## Preconditions
+## Preflight
 
-- Demo mode flag is enabled (dev-only).
-- Fixture packs exist in-repo under `docs/08-example-data/`:
-  - `pack_01_clean`
-  - `pack_02_missing_rea`
+- [ ] Start the app in dev mode with demo mode enabled:
 
-## Happy Path Demo (pack_01_clean)
+```bash
+DEMO_MODE=1 pnpm dev
+```
 
-1. Load `pack_01_clean` via the demo toolbar pack selector.
-2. Confirm a new matter was created and you are viewing it.
-3. Start Quick Start run (if not auto-started).
-4. Confirm report rows populate and citations can be opened in the PDF viewer.
-5. Export:
-   - requirements tracker CSV
-   - exceptions table CSV
-   - survey issues CSV
-   - memo docx (if enabled)
-6. Confirm artefacts appear in the artefacts list and download links work.
+- [ ] Confirm the **DEMO MODE** toolbar is visible at the top of the page.
+- [ ] Confirm fixture packs exist on disk:
+  - [ ] `docs/08-example-data/pack_01_clean/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_02_missing_rea/docs/*.pdf`
 
-## Failure Journey Demo (pack_02_missing_rea)
+## Demo: `pack_01_clean` (happy path)
 
-1. Load `pack_02_missing_rea` via the demo toolbar pack selector.
-2. Confirm a new matter was created and you are viewing it.
-3. Start Quick Start run (if not auto-started).
-4. Confirm expected `missing_input` rows appear with the canonical “Not found in provided documents.” answer.
-5. Export CSVs (if export gating permits; no unsafe override by default).
+- [ ] In the toolbar: set Pack to `pack_01_clean` and click **Load demo pack**.
+- [ ] On the Matter page:
+  - [ ] Confirm the matter name starts with `DEMO: pack_01_clean`.
+  - [ ] Refresh until the matter state is `indexed` or `ready` and **Run Quick Start** is enabled.
+  - [ ] Open at least one seeded PDF via **Open PDF** (sanity check: object storage + signed URLs).
+- [ ] Click **Run Quick Start**.
+- [ ] Confirm a run is created and **Report JSON** opens.
 
-## Repeatability (run twice)
+## Demo: `pack_02_missing_rea` (missing-doc journey)
 
-1. Load `pack_01_clean` again.
-2. Confirm a **new** matter is created (no deletion/reset required).
+- [ ] Repeat the steps above with `pack_02_missing_rea`.
+- [ ] In **Report JSON**, confirm at least one row has:
+  - [ ] `status: "missing_input"`
+  - [ ] `citation_ids: []`
 
+## Repeatability (run twice, no cleanup)
+
+- [ ] Load the same pack again from the toolbar.
+- [ ] Confirm you land on a different matter id (fresh matter, no delete/reset endpoint).
+- [ ] Note: **Quick Start only runs once per matter**. To rerun: **load the pack again to create a fresh matter**.
+
+## Fast Troubleshooting
+
+- Demo toolbar missing:
+  - Ensure `NODE_ENV=development` (use `pnpm dev`, not `pnpm start`) and `DEMO_MODE=1`.
+- `NOT_FOUND: Pack docs not found.` when loading:
+  - Confirm PDFs exist under `docs/08-example-data/<pack_id>/docs/` (and are non-empty).
+- Quick Start disabled (`indexed/ready`):
+  - Refresh; ingest/index runs in the background.

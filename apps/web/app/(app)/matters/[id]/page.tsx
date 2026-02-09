@@ -6,6 +6,8 @@ import { assertDevOnly } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
+import { QuickStartPanel } from "./QuickStartPanel";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -33,6 +35,15 @@ type DocRow = {
   extraction_quality: number | null;
   error_json: unknown | null;
   created_at: Date;
+};
+
+type RunSummaryRow = {
+  id: string;
+  state: string;
+  questions_total: number;
+  questions_done: number;
+  created_at: Date;
+  updated_at: Date;
 };
 
 function renderUrl(doc: DocRow): string | null {
@@ -86,6 +97,25 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     WHERE folder_id = ${folderId}
     ORDER BY created_at ASC
   `;
+
+  const runs = await sql<RunSummaryRow[]>`
+    SELECT id, state, questions_total, questions_done, created_at, updated_at
+    FROM runs
+    WHERE folder_id = ${folderId}
+      AND type = 'quick_start_title_survey'
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+  const latestRun = runs[0] ?? null;
+
+  const runnable = folder.state === "indexed" || folder.state === "ready";
+  let quickStartDisabledReason: string | null = null;
+  if (latestRun) {
+    quickStartDisabledReason =
+      "Quick Start already started for this matter. Load the pack again to create a fresh matter (no cleanup).";
+  } else if (!runnable) {
+    quickStartDisabledReason = `Quick Start is disabled until the matter is indexed/ready (current state: ${folder.state}). Refresh in a moment.`;
+  }
 
   return (
     <main className="mx-auto max-w-5xl p-6">
@@ -158,6 +188,51 @@ export default async function MatterPage(props: { params: Promise<Record<string,
               );
             })}
           </div>
+        )}
+      </section>
+
+      <section className="mt-6 rounded border border-slate-200 bg-white p-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-sm font-semibold text-slate-900">Quick Start</div>
+            <p className="mt-1 text-xs text-slate-600">
+              Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
+              fresh matter.
+            </p>
+          </div>
+
+          <QuickStartPanel folderId={folderId} disabledReason={quickStartDisabledReason} />
+        </div>
+
+        {latestRun ? (
+          <div className="mt-4 grid gap-1 text-xs text-slate-700">
+            <div>
+              latest run: <span className="font-mono">{latestRun.id}</span> ({latestRun.state})
+            </div>
+            <div>
+              progress: {latestRun.questions_done}/{latestRun.questions_total} questions
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a className="underline" href={`/runs/${encodeURIComponent(latestRun.id)}`} target="_blank" rel="noreferrer">
+                Run JSON
+              </a>
+              <a
+                className="underline"
+                href={`/folders/${encodeURIComponent(folderId)}/report?${new URLSearchParams({
+                  run_id: latestRun.id,
+                }).toString()}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Report JSON
+              </a>
+            </div>
+            <div className="text-xs text-slate-500">
+              created: {latestRun.created_at.toISOString()} • updated: {latestRun.updated_at.toISOString()}
+            </div>
+          </div>
+        ) : (
+          <div className="mt-4 text-xs text-slate-600">No Quick Start runs yet.</div>
         )}
       </section>
     </main>
