@@ -407,7 +407,8 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
       index_version: "v1",
       agent_bundle_version: "git:seed",
       question_set_version: manifest.expected_question_set_version,
-      generated_at: new Date().toISOString(),
+      // Deterministic: fixture eval outputs must be stable for the same inputs.
+      generated_at: "1970-01-01T00:00:00Z",
     },
     rows: [],
     citations: {},
