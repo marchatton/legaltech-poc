@@ -998,6 +998,7 @@ stateDiagram-v2
           <h3>Setup</h3>
           <details open>
             <summary>Seed + dev server</summary>
+            <div class="codeblock">docker compose up -d db</div>
             <div class="codeblock">pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite</div>
             <div class="codeblock">pnpm dev</div>
           </details>
@@ -1021,7 +1022,7 @@ stateDiagram-v2
       { label: "Evidence verification", desc: "Click a citation to see the source clause highlighted.", url: "http://localhost:3000/matters?pack=pack_01_clean", tag: "pass", tagLabel: "Happy path" },
       { label: "Missing document", desc: "Required document absent, flagged explicitly.", url: "http://localhost:3000/matters?pack=pack_02_missing_rea", tag: "warn", tagLabel: "Missing input" },
       { label: "Scanned and rotated PDFs", desc: "Low-quality scans handled gracefully.", url: "http://localhost:3000/matters?pack=pack_07_scans_rotated_low_quality", tag: "pass", tagLabel: "Resilience" },
-      { label: "Verification failure", desc: "Citation can't be verified, fails visibly. Exports blocked.", url: "http://localhost:3000/matters?pack=pack_09_bad_citation", tag: "fail", tagLabel: "Fail-closed" },
+      { label: "Fail-closed citation", desc: "Row TB-BAD-CITATION: click cit_TB_BAD_1; viewer shows SNIPPET_HASH_MISMATCH and renders no overlay.", url: "http://localhost:3000/matters?pack=pack_01_clean", tag: "fail", tagLabel: "Fail-closed" },
     ];
 
     function renderScenarios() {

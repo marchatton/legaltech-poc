@@ -12,6 +12,12 @@
 
 ## Pre-demo setup (not spoken, 5 minutes before)
 
+0. Ensure Postgres is running (local Docker):
+
+```bash
+docker compose up -d db
+```
+
 1. Seed fixture packs (this populates `tmp/fixture-seed/*/snapshot.json`):
 
 ```bash
@@ -29,7 +35,8 @@ pnpm dev
 - Keep this runbook open: `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html`
 
 Optional:
-- Enable trace export: set `FEATURE_TRACE_EXPORT=1` and restart `pnpm dev`.
+- If you plan to click “Export CSV”: set `SPIKES_ENABLED=1` and restart `pnpm dev` (the `/spikes/*` endpoints are gated).
+- Enable trace export (dev-only UI): set `FEATURE_TRACE_EXPORT=1` and `ALLOW_ADMIN_BYPASS=1`, then restart `pnpm dev`.
 
 ## 0) Caveats upfront (say within 10 seconds, while already on the Matters page)
 

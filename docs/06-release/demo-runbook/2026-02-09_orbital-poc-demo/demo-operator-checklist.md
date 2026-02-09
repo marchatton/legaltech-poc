@@ -4,6 +4,12 @@ Goal: keep the live demo smooth and honest. The UI shown is a dev-only tracer bu
 
 ## Preflight (10 minutes before)
 
+- [ ] Start Postgres (local Docker):
+
+```bash
+docker compose up -d db
+```
+
 - [ ] Seed fixture packs:
 
 ```bash
@@ -23,7 +29,8 @@ pnpm dev
 - [ ] Confirm `pack_02_missing_rea` shows a missing-doc checklist on the `missing_input` row.
 
 Optional:
-- [ ] Enable trace export: set `FEATURE_TRACE_EXPORT=1` and restart `pnpm dev`.
+- [ ] Enable CSV export endpoint (so it returns `EXPORT_BLOCKED` vs `404`): set `SPIKES_ENABLED=1` and restart `pnpm dev`.
+- [ ] Enable trace export (dev-only): set `FEATURE_TRACE_EXPORT=1` and `ALLOW_ADMIN_BYPASS=1`, then restart `pnpm dev`.
 
 ## If something breaks (quick fixes)
 
@@ -35,6 +42,7 @@ Optional:
   - Confirm fixture pack files exist under `docs/08-example-data/<pack_id>/docs/`.
 - Citation is `NOT_FOUND`:
   - Seed snapshots may be stale. Rerun `pnpm fixture:seed ... --overwrite`.
+- Export CSV shows `NOT_FOUND` / request is 404:
+  - The export endpoint is gated. Set `SPIKES_ENABLED=1` and restart `pnpm dev`.
 - Export CSV always blocked:
   - That is expected if any row fails verification. Use it as the trust posture moment.
-
