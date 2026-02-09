@@ -6,6 +6,11 @@ import { assertDevOnly } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
+import { Card } from "../../../ui/Card";
+import { EmptyState } from "../../../ui/EmptyState";
+import { MonoId } from "../../../ui/MonoId";
+import { Page, PageHeader, SectionTitle } from "../../../ui/Page";
+import { ProgressBar } from "../../../ui/ProgressBar";
 import { ArtefactsList } from "../ArtefactsList";
 import { ExportCsvButton } from "../ExportCsvButton";
 
@@ -69,10 +74,9 @@ export default async function MatterPage(props: { params: Promise<Record<string,
   const parsed = ParamsSchema.safeParse(rawParams);
   if (!parsed.success) {
     return (
-      <main className="mx-auto max-w-5xl p-6">
-        <h1 className="text-2xl font-semibold">Matter</h1>
-        <p className="mt-2 text-sm text-destructive">Invalid route params.</p>
-      </main>
+      <Page>
+        <PageHeader title="Matter" subtitle="Invalid route params." />
+      </Page>
     );
   }
 
@@ -88,10 +92,9 @@ export default async function MatterPage(props: { params: Promise<Record<string,
   const folder = folders[0] ?? null;
   if (!folder) {
     return (
-      <main className="mx-auto max-w-5xl p-6">
-        <h1 className="text-2xl font-semibold">Matter</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Matter not found.</p>
-      </main>
+      <Page>
+        <PageHeader title="Matter" subtitle="Matter not found." />
+      </Page>
     );
   }
 
@@ -130,36 +133,35 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
 
   return (
-    <main className="mx-auto max-w-5xl p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Matter</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-              {folder.id}
-            </span>
+    <Page>
+      <PageHeader
+        title="Matter"
+        subtitle={
+          <span className="flex flex-wrap items-center gap-2">
+            <MonoId>{folder.id}</MonoId>
             <span className="text-muted-foreground/60">•</span>
             <span className="font-medium text-foreground">{folder.name}</span>
             <span className="text-muted-foreground/60">•</span>
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
               {folder.state}
             </span>
-          </div>
-        </div>
+          </span>
+        }
+        right={
+          <Link className="text-xs font-medium text-muted-foreground underline hover:text-foreground" href="/matters">
+            Back to matters
+          </Link>
+        }
+      />
 
-        <Link className="text-xs font-medium text-muted-foreground underline hover:text-foreground" href="/matters">
-          Back to matters
-        </Link>
-      </div>
-
-      <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-        <div className="text-sm font-semibold text-foreground">Seeded documents</div>
+      <Card className="mt-8 p-4">
+        <SectionTitle>Seeded documents</SectionTitle>
         <p className="mt-1 text-xs text-muted-foreground">
           This matter was created by the demo pack loader. Documents ingest in the background.
         </p>
 
         {docs.length === 0 ? (
-          <div className="mt-4 text-sm text-muted-foreground">No documents.</div>
+          <EmptyState title="No documents" description="Documents will appear here once the demo pack finishes ingesting." />
         ) : (
           <div className="mt-4 grid gap-2">
             {docs.map((d) => {
@@ -169,9 +171,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
                 <div key={d.id} className="rounded-ui-md border border-border bg-muted p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className="rounded-ui-sm bg-foreground px-2 py-0.5 font-mono text-xs text-background">
-                        {d.id}
-                      </div>
+                      <MonoId variant="inverted">{d.id}</MonoId>
                       <div className="text-sm font-medium text-foreground">{d.filename}</div>
                       <div className="rounded-full bg-card px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
                         {ingest}
@@ -210,12 +210,12 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             })}
           </div>
         )}
-      </section>
+      </Card>
 
-      <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+      <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-foreground">Quick Start</div>
+            <SectionTitle>Quick Start</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
               fresh matter.
@@ -233,6 +233,9 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             <div>
               progress: {latestRun.questions_done}/{latestRun.questions_total} questions
             </div>
+            {latestRun.questions_total > 0 ? (
+              <ProgressBar value={Math.round((latestRun.questions_done / latestRun.questions_total) * 100)} className="mt-1" />
+            ) : null}
             <div className="flex flex-wrap gap-3">
               <a
                 className="underline hover:text-foreground"
@@ -258,14 +261,14 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             </div>
           </div>
         ) : (
-          <div className="mt-4 text-xs text-muted-foreground">No Quick Start runs yet.</div>
+          <EmptyState title="No runs yet" description="Start a Quick Start run to analyse this matter." />
         )}
-      </section>
+      </Card>
 
-      <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+      <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-foreground">Exports</div>
+            <SectionTitle>Exports</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               Export a Word memo (.docx) and CSV artefacts for the latest completed run. Exports are disabled until a run
               completes.
@@ -291,13 +294,13 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             </div>
           </div>
         </div>
-      </section>
+      </Card>
 
       {artefactsListEnabled ? (
-        <div className="mt-6">
+        <div className="mt-8">
           <ArtefactsList folderId={folderId} />
         </div>
       ) : null}
-    </main>
+    </Page>
   );
 }

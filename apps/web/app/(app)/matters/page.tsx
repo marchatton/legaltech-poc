@@ -11,9 +11,14 @@ import { MattersToolbar } from "./MattersToolbar";
 import { ArtefactsList } from "./ArtefactsList";
 import { markRowReviewed } from "./actions";
 
+import { AccordionItem } from "../../ui/Accordion";
+import { Alert } from "../../ui/Alert";
 import { Badge, type BadgeVariant } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
+import { Card } from "../../ui/Card";
 import { Chip } from "../../ui/Chip";
+import { MonoId } from "../../ui/MonoId";
+import { Page, PageHeader, PageSection } from "../../ui/Page";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -97,7 +102,7 @@ function ExceptionsPayload(props: {
   if (!items.length) return null;
 
   return (
-    <section className="mt-4 rounded-ui-lg border border-border bg-muted p-3">
+    <Card variant="muted" className="mt-4 p-3">
       <div className="text-sm font-semibold text-foreground">Exceptions table</div>
       <p className="mt-1 text-xs text-muted-foreground">
         Click an item to see its matched instrument PDF and the locked citations used as evidence.
@@ -105,12 +110,12 @@ function ExceptionsPayload(props: {
 
       <div className="mt-3 grid gap-2">
         {items.map((it) => (
-          <details key={it.item_id} className="rounded-ui-md border border-border bg-card p-3">
-            <summary className="cursor-pointer list-none">
+          <AccordionItem
+            key={it.item_id}
+            className="rounded-ui-md border border-border bg-card p-3 [&>summary]:px-0 [&>summary]:py-0 [&>div]:px-0 [&>div]:pb-0"
+            trigger={
               <div className="flex flex-wrap items-center gap-2">
-                <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-                  {it.item_id}
-                </div>
+                <MonoId>{it.item_id}</MonoId>
                 <div className="text-sm font-medium text-foreground">{it.type}</div>
                 <Badge variant={matchStatusVariant(it.match_status)}>{it.match_status}</Badge>
                 {it.match_status === "matched" && it.doc ? (
@@ -122,8 +127,8 @@ function ExceptionsPayload(props: {
                   <div className="text-xs text-muted-foreground">candidates: {it.candidates.length}</div>
                 ) : null}
               </div>
-            </summary>
-
+            }
+          >
             <div className="mt-3 grid gap-2 text-xs text-muted-foreground">
               <div className="flex flex-wrap gap-4">
                 <div>
@@ -188,10 +193,10 @@ function ExceptionsPayload(props: {
                 </div>
               </div>
             </div>
-          </details>
+          </AccordionItem>
         ))}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -205,7 +210,7 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
   if (!highConfidence.length && !lowConfidence.length) return null;
 
   return (
-    <section className="mt-3 rounded-ui-lg border border-border bg-muted p-3">
+    <Card variant="muted" className="mt-3 p-3">
       <div className="text-sm font-semibold text-foreground">Missing document checklist</div>
       <p className="mt-1 text-xs text-muted-foreground">
         Use the evidence signals below to request the exact PDF(s), verify the filename, then re-run the workflow.
@@ -216,9 +221,7 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
           {highConfidence.map((cand) => (
             <li key={cand.label} className="rounded-ui-md border border-border bg-card p-3">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-                  {cand.label}
-                </div>
+                <MonoId>{cand.label}</MonoId>
                 <div className="text-xs text-muted-foreground">confidence: {Math.round(cand.confidence * 100)}%</div>
               </div>
               {cand.signals.length ? (
@@ -256,25 +259,27 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
       ) : null}
 
       {lowConfidence.length ? (
-        <details className="mt-3">
-          <summary className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground">
-            Show low-confidence candidates ({lowConfidence.length})
-          </summary>
+        <AccordionItem
+          className="mt-3"
+          trigger={
+            <span className="text-xs font-medium text-muted-foreground">
+              Show low-confidence candidates ({lowConfidence.length})
+            </span>
+          }
+        >
           <ul className="mt-2 grid gap-2">
             {lowConfidence.map((cand) => (
               <li key={cand.label} className="rounded-ui-md border border-border bg-card p-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-                    {cand.label}
-                  </div>
+                  <MonoId>{cand.label}</MonoId>
                   <div className="text-xs text-muted-foreground">confidence: {Math.round(cand.confidence * 100)}%</div>
                 </div>
               </li>
             ))}
           </ul>
-        </details>
+        </AccordionItem>
       ) : null}
-    </section>
+    </Card>
   );
 }
 
@@ -302,35 +307,35 @@ export default async function MattersPage(props: {
   const reviewErrorQid = parsed.success ? parsed.data.qid : undefined;
 
   return (
-    <main className="mx-auto max-w-5xl p-6">
-      <h1 className="text-2xl font-semibold">Matters</h1>
-      <p className="mt-2 text-muted-foreground">
-        Demo-only UI: rows with citation chips that open a PDF viewer + highlight overlay (fail-closed on invalid
-        citations).
-      </p>
+    <Page>
+      <PageHeader
+        title="Matters"
+        subtitle="Demo-only UI: rows with citation chips that open a PDF viewer + highlight overlay (fail-closed on invalid citations)."
+      />
 
-      <div className="mt-6">
+      <PageSection>
         <MattersToolbar packIds={seeded} selectedPackId={packId} />
-      </div>
+      </PageSection>
 
       {reviewErrorCode && !reviewErrorQid ? (
-        <section className="mt-6 rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive shadow-ui-sm">
-          <div className="font-semibold">Review not saved</div>
-          <div className="mt-1 text-xs">{reviewErrorMessage(reviewErrorCode)}</div>
-        </section>
+        <PageSection>
+          <Alert variant="destructive" title="Review not saved">
+            {reviewErrorMessage(reviewErrorCode)}
+          </Alert>
+        </PageSection>
       ) : null}
 
       {!snapshot ? (
-        <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <Card className="mt-8 p-4">
           <div className="text-sm font-medium text-foreground">No seeded data for {packId}</div>
           <p className="mt-2 text-sm text-muted-foreground">Seed it locally, then refresh this page:</p>
           <pre className="mt-3 overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
             {`pnpm fixture:seed ${packId}`}
           </pre>
-        </section>
+        </Card>
       ) : (
         <>
-          <section className="mt-6 flex flex-wrap items-center gap-3 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <Card className="mt-8 flex flex-wrap items-center gap-3 p-4">
             <div className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">pack_id:</span> {snapshot.meta.pack_id}
             </div>
@@ -350,21 +355,19 @@ export default async function MattersPage(props: {
               </div>
               {traceExportEnabled ? <ExportTraceButton folderId={packId} runId={runId} /> : null}
             </div>
-          </section>
+          </Card>
 
           {artefactsListEnabled ? (
-            <div className="mt-6">
+            <div className="mt-8">
               <ArtefactsList folderId={packId} />
             </div>
           ) : null}
 
-          <section className="mt-6 grid gap-4">
+          <section className="mt-8 grid gap-4">
             {snapshot.rows.map((row) => (
-              <div key={row.question_id} className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+              <Card key={row.question_id} className="p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-                    {row.question_id}
-                  </div>
+                  <MonoId>{row.question_id}</MonoId>
                   <div className="text-sm font-semibold text-foreground">{row.question}</div>
                   <Badge variant={statusVariant(row.status)}>{row.status}</Badge>
 
@@ -382,15 +385,13 @@ export default async function MattersPage(props: {
                 </div>
 
                 {reviewErrorCode && reviewErrorQid === row.question_id ? (
-                  <div className="mt-3 rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                    <div className="font-semibold">Review not saved</div>
-                    <div className="mt-1 text-xs">{reviewErrorMessage(reviewErrorCode)}</div>
-                  </div>
+                  <Alert variant="destructive" title="Review not saved" className="mt-3">
+                    {reviewErrorMessage(reviewErrorCode)}
+                  </Alert>
                 ) : reviewedQid === row.question_id && row.status === "reviewed" ? (
-                  <div className="mt-3 rounded-ui-md border border-success/30 bg-success/10 p-3 text-sm text-success">
-                    <div className="font-semibold">Saved</div>
-                    <div className="mt-1 text-xs">Marked as reviewed.</div>
-                  </div>
+                  <Alert variant="success" title="Saved" className="mt-3">
+                    Marked as reviewed.
+                  </Alert>
                 ) : null}
 
                 <div className="mt-2 text-sm text-muted-foreground">{row.answer}</div>
@@ -417,11 +418,11 @@ export default async function MattersPage(props: {
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <CitationChips packId={packId} citationIds={row.citation_ids} citations={snapshot.citations} />
                 </div>
-              </div>
+              </Card>
             ))}
           </section>
         </>
       )}
-    </main>
+    </Page>
   );
 }

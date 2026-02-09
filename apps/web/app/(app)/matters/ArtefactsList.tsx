@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 
 import { Badge } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
-import { Table, TableFrame, TD, TH } from "../../ui/Table";
+import { Card } from "../../ui/Card";
+import { Table, TableFrame, TD, TH, TR } from "../../ui/Table";
 
 type Props = {
   folderId: string;
@@ -96,10 +97,10 @@ export async function ArtefactsList(props: Props) {
 
   if (res.status === 404) {
     return (
-      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+      <Card className="p-4">
         <div className="text-sm font-semibold text-foreground">Artefacts</div>
         <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
-      </section>
+      </Card>
     );
   }
 
@@ -132,15 +133,15 @@ export async function ArtefactsList(props: Props) {
   const artefacts = parsed.data.artefacts;
   if (!artefacts.length) {
     return (
-      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+      <Card className="p-4">
         <div className="text-sm font-semibold text-foreground">Artefacts</div>
         <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
-      </section>
+      </Card>
     );
   }
 
   return (
-    <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+    <Card className="p-4">
       <div className="flex items-baseline justify-between gap-3">
         <div className="text-sm font-semibold text-foreground">Artefacts</div>
         <div className="text-xs text-muted-foreground">{artefacts.length} item(s)</div>
@@ -161,7 +162,7 @@ export async function ArtefactsList(props: Props) {
               const unsafe = isUnsafeFilename(a.filename);
               const downloadHref = hrefFromDownloadUrl(a.download_url);
               return (
-                <tr key={a.id}>
+                <TR key={a.id}>
                   <TD>
                     <div className="flex flex-wrap items-center gap-2">
                       {unsafe ? <Badge variant="destructive" size="sm">UNSAFE</Badge> : null}
@@ -182,12 +183,12 @@ export async function ArtefactsList(props: Props) {
                       Download
                     </a>
                   </TD>
-                </tr>
+                </TR>
               );
             })}
           </tbody>
         </Table>
       </TableFrame>
-    </section>
+    </Card>
   );
 }
