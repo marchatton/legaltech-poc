@@ -340,7 +340,16 @@ export default async function MattersPage(props: {
               <span className="font-medium text-slate-900">run_id:</span> {String(snapshot.meta.run_id ?? "(none)")}
             </div>
             <div className="ml-auto flex items-start gap-4">
-              <ExportCsvButton folderId={packId} runId={runId} />
+              <div className="flex flex-wrap items-start justify-end gap-2">
+                <ExportCsvButton
+                  folderId={packId}
+                  runId={runId}
+                  kind="requirements_tracker"
+                  label="Export requirements"
+                />
+                <ExportCsvButton folderId={packId} runId={runId} kind="exceptions_table" label="Export exceptions" />
+                <ExportCsvButton folderId={packId} runId={runId} kind="survey_issues" label="Export survey issues" />
+              </div>
               {traceExportEnabled ? <ExportTraceButton folderId={packId} runId={runId} /> : null}
             </div>
           </section>

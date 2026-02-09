@@ -492,6 +492,68 @@ function seedPack(packId: string, opts: { outRoot: string; overwrite: boolean; i
 
     // For list-payload questions, attach a deterministic payload derived from fixture truth,
     // backed by item-level citations anchored in the commitment.
+    if (q.question_id === "TS-03" && row.status !== "citation_failed") {
+      const truthPath = path.join(packRoot, "truth", "expected_requirements_tracker.csv");
+      if (fs.existsSync(truthPath)) {
+        const truth = parseCsv(fs.readFileSync(truthPath, "utf8")).rows;
+
+        const items: any[] = [];
+        for (const t of truth) {
+          const bi = Number(t.bi_item);
+          if (!Number.isFinite(bi)) continue;
+
+          const requirement = String(t.requirement ?? "").trim();
+          const owner = String(t.owner ?? "").trim();
+          const status = String(t.status ?? "").trim();
+
+          const itemAnchorId = String(t.citation_anchor ?? "").trim();
+          const itemDoc = String(t.citation_doc ?? "").trim();
+          const itemCid = `cit_TS-03_ITEM_${bi}`;
+
+          const anchorResult = loadAnchorBbox({
+            manifest,
+            packRoot,
+            docFilename: itemDoc,
+            anchorId: itemAnchorId,
+          });
+          if (!anchorResult.ok) {
+            row.status = "citation_failed";
+            row.answer = "Citation verification failed.";
+            row.provenance_json = { reason_code: anchorResult.reason };
+            break;
+          }
+
+          const polygons = anchorBoxToPolygons(anchorResult.anchor);
+          const snippet = `${itemDoc}#${itemAnchorId}: B-I ${bi} ${requirement || "(missing requirement)"}`;
+          snapshot.citations[itemCid] = {
+            document_filename: itemDoc,
+            page_number: anchorResult.anchor.page,
+            polygons,
+            snippet,
+            snippet_hash: hashSnippet(snippet),
+          };
+
+          items.push({
+            kind: "requirements_tracker_item",
+            item_id: `bi:${bi}`,
+            citation_ids: [itemCid],
+            bi_item: bi,
+            requirement: requirement || "Unknown",
+            owner: owner || "Unknown",
+            item_status: status || "open",
+          });
+        }
+
+        if (row.status !== "citation_failed") {
+          const payload = { kind: "requirements_tracker", items };
+          ListPayloadV0Schema.parse(payload);
+          row.payload_schema_version = LIST_PAYLOAD_V0_SCHEMA_VERSION;
+          row.payload_json = payload;
+          row.answer = "Extracted requirements tracker (see payload).";
+        }
+      }
+    }
+
     if (q.question_id === "TS-04") {
       const truthPath = path.join(packRoot, "truth", "expected_exceptions_table.csv");
       if (fs.existsSync(truthPath)) {

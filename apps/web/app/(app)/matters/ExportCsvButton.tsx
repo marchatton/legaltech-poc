@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 
+import { useRouter } from "next/navigation";
+
 type Props = {
   folderId: string;
   runId: string | null;
+  kind: "requirements_tracker" | "exceptions_table" | "survey_issues";
+  label?: string;
 };
 
 type ExportState =
@@ -19,6 +23,7 @@ function isRecord(val: unknown): val is Record<string, unknown> {
 }
 
 export function ExportCsvButton(props: Props) {
+  const router = useRouter();
   const [state, setState] = useState<ExportState>({ kind: "idle" });
 
   async function run() {
@@ -31,13 +36,13 @@ export function ExportCsvButton(props: Props) {
 
     let res: Response;
     try {
-      res = await fetch("/spikes/export/csv", {
+      res = await fetch("/export/csv", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           folder_id: props.folderId,
           run_id: props.runId,
-          kind: "requirements_tracker",
+          kind: props.kind,
           unsafe_override: false,
         }),
       });
@@ -68,6 +73,7 @@ export function ExportCsvButton(props: Props) {
     a.href = downloadUrl;
     a.click();
     setState({ kind: "downloaded", message: "Export created. Download started." });
+    router.refresh();
   }
 
   return (
@@ -76,9 +82,9 @@ export function ExportCsvButton(props: Props) {
         className="rounded bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         type="button"
         onClick={run}
-        disabled={state.kind === "loading"}
+        disabled={state.kind === "loading" || !props.runId}
       >
-        {state.kind === "loading" ? "Exporting…" : "Export CSV"}
+        {state.kind === "loading" ? "Exporting…" : (props.label ?? "Export CSV")}
       </button>
 
       {state.kind === "blocked" ? (

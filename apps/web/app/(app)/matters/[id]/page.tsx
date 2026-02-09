@@ -6,6 +6,8 @@ import { assertDevOnly } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
+import { ArtefactsList } from "../ArtefactsList";
+import { ExportCsvButton } from "../ExportCsvButton";
 import { QuickStartPanel } from "./QuickStartPanel";
 
 export const runtime = "nodejs";
@@ -107,6 +109,9 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     LIMIT 1
   `;
   const latestRun = runs[0] ?? null;
+
+  const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
+  const completedRunId = latestRun?.state === "completed" ? latestRun.id : null;
 
   const runnable = folder.state === "indexed" || folder.state === "ready";
   let quickStartDisabledReason: string | null = null;
@@ -235,6 +240,29 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           <div className="mt-4 text-xs text-slate-600">No Quick Start runs yet.</div>
         )}
       </section>
+
+      <section className="mt-6 rounded border border-slate-200 bg-white p-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="text-sm font-semibold text-slate-900">Exports</div>
+            <p className="mt-1 text-xs text-slate-600">
+              Export CSV artefacts for the latest completed run. Exports are disabled until a run completes.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-start justify-end gap-2">
+            <ExportCsvButton folderId={folderId} runId={completedRunId} kind="requirements_tracker" label="Export requirements" />
+            <ExportCsvButton folderId={folderId} runId={completedRunId} kind="exceptions_table" label="Export exceptions" />
+            <ExportCsvButton folderId={folderId} runId={completedRunId} kind="survey_issues" label="Export survey issues" />
+          </div>
+        </div>
+      </section>
+
+      {artefactsListEnabled ? (
+        <div className="mt-6">
+          <ArtefactsList folderId={folderId} />
+        </div>
+      ) : null}
     </main>
   );
 }
