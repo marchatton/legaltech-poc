@@ -25,6 +25,18 @@ export function TH({ className, children, ...props }: ThHTMLAttributes<HTMLTable
   );
 }
 
+export function TR({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
+  return (
+    <tr
+      className={cn(
+        "transition-colors duration-micro ease-brand-standard hover:bg-muted/40",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 export function TD({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
   return <td className={cn("px-3 py-2.5 border-b border-border/60", className)} {...props} />;
 }
