@@ -14,13 +14,13 @@ Single place for workflow artefacts + docs outputs.
     - `06-release/`: global `CHANGELOG.md` and postmortems etc
     - `96-engineering-tutor-learnings` a collection of learnings from `engineering-tutor` skill. 
     - `97-throwaway/`: local-only scratch space (NOT synced to GitHub)
-    - `98-tmp/`: scratch space (should be moved or deleted). Synced to GitHub
+    - `98-tmp/`: scratch space. Synced to GitHub. Avoid .gitignore for files in this folder, instead move them to `97-throwaway/` if they are not needed anymore.
       - `/oracle/`: oracle `--render` bundles for non-dossier work
       - `/handoffs/`: handoff notes for non-dossier or cross-dossier work
   - Resources:
     - `01-insights/`: reports, summaries and raw transcripts covering customers, competitors, capabilities (internal) and tech-market trends.
     - `08-example-data/` contains worked examples with synthetic yet realistic data.
-    - `02-guidelines/`: brand-tone (storytelling and visual) incl inspiration.
+    - `02-guidelines/`: brand ui guidelines and design system guidelines.
   - Archive: 
     - `99-archive/` mirrors the live structure for closed work + old context
 
