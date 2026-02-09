@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "next dev",
+    "worker": "node --experimental-strip-types scripts/worker.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

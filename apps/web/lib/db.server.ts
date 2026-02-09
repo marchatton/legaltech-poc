@@ -159,6 +159,30 @@ async function ensureSchemaInner(): Promise<void> {
     );
   `;
 
+  // Minimal durable job queue (replaces in-memory queues).
+  await sql`
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('queued','running','succeeded','failed')),
+      job_key TEXT NOT NULL,
+      payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      attempts INT NOT NULL DEFAULT 0,
+      available_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      locked_at TIMESTAMPTZ NULL,
+      locked_by TEXT NULL,
+      error_json JSONB NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (type, job_key)
+    );
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS jobs_state_available_idx
+    ON jobs(state, available_at);
+  `;
+
   // Runs (Quick Start execution attempts)
   await sql`
     CREATE TABLE IF NOT EXISTS runs (
