@@ -62,3 +62,37 @@ Run summary: /home/sprite/orbital-c/.ralph/runs/run-20260208-225934-14994-iter-3
   - Paths containing parentheses need quoting in shell commands (e.g. `\"apps/web/app/(app)/...\"`).
   - The dev-browser server requires headless mode in this environment; use `./server.sh --headless`.
 ---
+
+## [2026-02-09 08:28:51 +0000] - US-001: Export CSV Artefacts
+Thread:
+Run: 20260209-075347-21829 (iteration 1)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260209-075347-21829-iter-1.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260209-075347-21829-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: c58209b feat(csv-export): add deterministic CSV exports
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm -s --filter @orbital-poc/web test -> PASS
+  - Command: pnpm -s fixture:seed pack_01_clean --overwrite -> PASS
+  - Command: FEATURE_ARTEFACTS_LIST=1 pnpm --filter @orbital-poc/web dev -> PASS
+  - Command: cd .agents/skills/00-utilities/dev-browser && ./server.sh --headless -> PASS
+  - Command: cd .agents/skills/00-utilities/dev-browser && npx tsx (browser flow) -> PASS
+  - Command: pnpm -s verify -> PASS
+- Files changed:
+  - apps/web/app/(api)/export/csv/route.ts
+  - apps/web/app/(app)/matters/ExportCsvButton.tsx
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/lib/exportCsv.server.ts
+  - apps/web/lib/exportCsv.server.test.ts
+  - scripts/fixtures/seed.ts
+- What was implemented
+  - Implemented `POST /export/csv` to generate v1 CSVs from structured `list_payload_v0` rows with locked headers and deterministic row ordering, then persist as artefacts with signed download URLs.
+  - Updated Matters UI to export all 3 CSV kinds (requirements_tracker, exceptions_table, survey_issues) and refresh the artefacts list after export.
+  - Seeded `TS-03` requirements tracker structured payloads from fixture truth so pack_01_clean supports exports without prose parsing.
+  - Added Vitest coverage for locked headers, deterministic ordering, and citation rendering.
+- **Learnings for future iterations:**
+  - `pack_01_clean` fixture seeding had list payloads for exceptions/survey issues but not requirements; export depends on seeding structured payloads for all list-payload questions.
+  - The dev-browser server requires headless mode in this environment; use `./server.sh --headless`.
+---
