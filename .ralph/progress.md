@@ -6,6 +6,40 @@ Started: Sun Feb  8 10:59:34 PM UTC 2026
 
 ---
 
+## [2026-02-09 08:33:23 +0000] - US-001: Export Memo Docx
+Thread:
+Run: 20260209-075351-22094 (iteration 1)
+Run log: /home/sprite/orbital-b/.ralph/runs/run-20260209-075351-22094-iter-1.log
+Run summary: /home/sprite/orbital-b/.ralph/runs/run-20260209-075351-22094-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: c641dd9 feat(export): add memo docx export
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+  - Command: DEMO_MODE=1 pnpm dev -> PASS
+  - Command: cd .agents/skills/00-utilities/dev-browser && npx tsx (export flow) -> PASS
+- Files changed:
+  - apps/web/app/(api)/export/docx/route.ts
+  - apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/ArtefactsList.tsx
+  - apps/web/lib/memoDocx.server.ts
+  - apps/web/lib/exportDocx.routes.test.ts
+  - apps/web/package.json
+  - pnpm-lock.yaml
+  - docs/04-projects/02-features/0005_word-export/prd.json
+- What was implemented
+  - Added `POST /export/docx` (kind=`memo`) that enforces `runs.state=completed` (409 otherwise), consumes structured list payloads (TS-03/TS-04/TS-09), renders `memo.docx`, persists it as an artefact, and returns a signed download URL.
+  - Implemented a deterministic memo renderer (`apps/web/lib/memoDocx.server.ts`) using headings + bullets and inline citation formatting.
+  - Added an `Export memo (Word)` button and embedded Artefacts list to `/matters/:id`, with export disabled until the latest run is `completed`.
+  - Added route-level tests covering completed-run gating and docx generation.
+- **Learnings for future iterations:**
+  - Avoid hardcoding `http://localhost:3000` in server components; Next dev can shift ports (3001+). A safe localhost-origin helper keeps SSRF posture while supporting dynamic ports.
+  - Route tests that mock `sql` need to stub helper properties like `sql.json`.
+---
+
 ## [2026-02-08 23:27:56 +0000] - US-001: Load A Demo Pack
 Thread:
 Run: 20260208-225934-14994 (iteration 1)
