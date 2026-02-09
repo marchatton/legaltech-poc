@@ -21,7 +21,7 @@ export default function RootLayout(props: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+      <body className="min-h-dvh bg-background font-sans text-foreground">
         <ThemeProvider>
           {demoEnabled ? (
             <DemoToolbar />

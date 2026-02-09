@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { assertDevOnly } from "../../../../lib/devOnly";
 
+import { Page, PageHeader, PageSection } from "../../../ui/Page";
+
 import { Rh2OverlayClient } from "./Rh2OverlayClient";
 import { loadAnchorsFromFixture } from "./loadAnchors.server";
 
@@ -30,13 +32,13 @@ export default async function Rh2OverlayPage(props: {
   const pdfUrl = `/spikes/local-pdf?${new URLSearchParams({ pack, filename: pdfFilename }).toString()}`;
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <h1 className="text-xl font-semibold">RH2: highlight overlay harness</h1>
-      <p className="mt-2 text-muted-foreground">
-        Dev-only harness to validate anchor mapping across zoom and rotation. Fail-closed on invalid geometry.
-      </p>
+    <Page width="lg">
+      <PageHeader
+        title="RH2: highlight overlay harness"
+        subtitle="Dev-only harness to validate anchor mapping across zoom and rotation. Fail-closed on invalid geometry."
+      />
 
-      <div className="mt-6">
+      <PageSection>
         <Rh2OverlayClient
           pack={pack}
           docKey={docKey}
@@ -45,7 +47,7 @@ export default async function Rh2OverlayPage(props: {
           anchorIds={anchorIds}
           anchors={anchors}
         />
-      </div>
-    </main>
+      </PageSection>
+    </Page>
   );
 }

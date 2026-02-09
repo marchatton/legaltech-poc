@@ -1,30 +1,32 @@
 import Link from "next/link";
 
+import { Page, PageHeader } from "./ui/Page";
+
 export default function HomePage() {
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="text-2xl font-semibold">Orbital PoC</h1>
-      <p className="mt-2 text-muted-foreground">
-        Dev-only spike harness routes live under <code>/spikes</code>.
-      </p>
+    <Page width="sm">
+      <PageHeader
+        title={<em>Orbital</em>}
+        subtitle="Dev-only spike harness routes live under /spikes."
+      />
 
-      <ul className="mt-6 list-disc pl-5 text-foreground">
+      <ul className="mt-8 grid gap-3">
         <li>
-          <Link className="underline hover:text-primary" href="/matters">
-            Matters: demo UI (citation chips → viewer → overlay)
+          <Link className="text-sm font-medium underline underline-offset-4 hover:text-primary" href="/matters">
+            Matters: demo UI (citation chips, viewer, overlay)
           </Link>
         </li>
         <li>
-          <Link className="underline hover:text-primary" href="/spikes/rh1-pdf-perf">
+          <Link className="text-sm font-medium underline underline-offset-4 hover:text-primary" href="/spikes/rh1-pdf-perf">
             RH1: pdf.js perf harness
           </Link>
         </li>
         <li>
-          <Link className="underline hover:text-primary" href="/spikes/rh2-overlay">
+          <Link className="text-sm font-medium underline underline-offset-4 hover:text-primary" href="/spikes/rh2-overlay">
             RH2: highlight overlay harness
           </Link>
         </li>
       </ul>
-    </main>
+    </Page>
   );
 }

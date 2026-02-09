@@ -95,9 +95,9 @@ export function ExportTraceButton(props: Props) {
           variant="secondary"
           size="sm"
           onClick={run}
-          disabled={state.kind === "loading"}
+          loading={state.kind === "loading"}
         >
-          {state.kind === "loading" ? "Downloading…" : "Export trace"}
+          Export trace
         </Button>
       </div>
 

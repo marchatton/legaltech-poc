@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { assertDevOnly } from "../../../../lib/devOnly";
 import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
 
+import { Page } from "../../../ui/Page";
 import { CitationViewerClient } from "./CitationViewerClient";
 
 export const runtime = "nodejs";
@@ -79,10 +80,10 @@ export default async function MatterViewerPage(props: {
   const parsed = SearchSchema.safeParse(searchParams);
   if (!parsed.success) {
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">Invalid query params.</p>
-      </main>
+      </Page>
     );
   }
 
@@ -94,13 +95,13 @@ export default async function MatterViewerPage(props: {
   const snapshot = loadSeedSnapshot(packId);
   if (!snapshot) {
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           No seeded snapshot for <span className="font-mono">{packId}</span>. Run{" "}
           <code className="font-mono">pnpm fixture:seed {packId}</code>.
         </p>
-      </main>
+      </Page>
     );
   }
 
@@ -115,8 +116,8 @@ export default async function MatterViewerPage(props: {
     if (!res.ok) {
       const e = safeErrFromJson(citationJson, { code: "CITATION_FETCH_FAILED", message: `Request failed (${res.status}).` });
       return (
-        <main className="mx-auto max-w-3xl p-6">
-          <h1 className="text-xl font-semibold">Viewer</h1>
+        <Page width="sm">
+          <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Failed to load citation: <span className="font-mono">{citationId}</span>
           </p>
@@ -128,14 +129,14 @@ export default async function MatterViewerPage(props: {
               Back to matters
             </a>
           </div>
-        </main>
+        </Page>
       );
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Failed to load citation: <span className="font-mono">{citationId}</span>
         </p>
@@ -145,22 +146,22 @@ export default async function MatterViewerPage(props: {
             Back to matters
           </a>
         </div>
-      </main>
+      </Page>
     );
   }
 
   const parsedCitation = CitationResponseSchema.safeParse(citationJson);
   if (!parsedCitation.success) {
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">Invalid citation payload.</p>
         <div className="mt-4">
           <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
-      </main>
+      </Page>
     );
   }
 
@@ -168,8 +169,8 @@ export default async function MatterViewerPage(props: {
 
   if (!cit) {
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Citation not found: <span className="font-mono">{citationId}</span>
         </p>
@@ -178,7 +179,7 @@ export default async function MatterViewerPage(props: {
             Back to matters
           </a>
         </div>
-      </main>
+      </Page>
     );
   }
 
@@ -206,8 +207,8 @@ export default async function MatterViewerPage(props: {
     if (!res.ok) {
       const e = safeErrFromJson(renderJson, { code: "RENDER_URL_FAILED", message: `Request failed (${res.status}).` });
       return (
-        <main className="mx-auto max-w-3xl p-6">
-          <h1 className="text-xl font-semibold">Viewer</h1>
+        <Page width="sm">
+          <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Failed to fetch render_url for <span className="font-mono">{resolvedDocId}</span> (page {resolvedPage}).
           </p>
@@ -219,14 +220,14 @@ export default async function MatterViewerPage(props: {
               Back to matters
             </a>
           </div>
-        </main>
+        </Page>
       );
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Failed to fetch render_url for <span className="font-mono">{resolvedDocId}</span> (page {resolvedPage}).
         </p>
@@ -236,29 +237,29 @@ export default async function MatterViewerPage(props: {
             Back to matters
           </a>
         </div>
-      </main>
+      </Page>
     );
   }
 
   const parsedRender = RenderResponseSchema.safeParse(renderJson);
   if (!parsedRender.success) {
     return (
-      <main className="mx-auto max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Viewer</h1>
+      <Page width="sm">
+        <h1 className="font-serif text-heading-lg font-normal">Viewer</h1>
         <p className="mt-2 text-sm text-muted-foreground">Invalid render_url payload.</p>
         <div className="mt-4">
           <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
-      </main>
+      </Page>
     );
   }
 
   const pdfUrl = parsedRender.data.render_url;
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
+    <Page width="lg">
       <div className="flex flex-wrap items-center gap-3">
         <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
           Back to matters
@@ -282,6 +283,6 @@ export default async function MatterViewerPage(props: {
           errorCode={errorCode}
         />
       </div>
-    </main>
+    </Page>
   );
 }

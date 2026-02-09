@@ -92,12 +92,14 @@ export function DemoToolbar() {
         <Button
           size="sm"
           onClick={loadPack}
-          disabled={state.kind === "loading"}
+          loading={state.kind === "loading"}
         >
-          {state.kind === "loading" ? "Loading…" : "Load demo pack"}
+          Load demo pack
         </Button>
 
         {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
+
+        <div className="h-6 w-px bg-border" />
 
         <div className="ml-auto">
           <ThemeToggle />

@@ -211,9 +211,10 @@ export function ExportMemoButton(props: Props) {
         variant="neutral"
         size="sm"
         onClick={() => run({ unsafeOverride: false })}
-        disabled={Boolean(disabled) || state.kind === "loading"}
+        disabled={Boolean(disabled)}
+        loading={state.kind === "loading"}
       >
-        {state.kind === "loading" ? "Exporting…" : "Export memo (Word)"}
+        Export memo (Word)
       </Button>
 
       {disabled ? <div className="text-xs text-muted-foreground">{disabled}</div> : null}

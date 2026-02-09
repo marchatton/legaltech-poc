@@ -80,9 +80,10 @@ export function QuickStartPanel(props: Props) {
       <Button
         size="sm"
         onClick={start}
-        disabled={Boolean(props.disabledReason) || state.kind === "loading"}
+        disabled={Boolean(props.disabledReason)}
+        loading={state.kind === "loading"}
       >
-        {state.kind === "loading" ? "Starting…" : "Run Quick Start"}
+        Run Quick Start
       </Button>
 
       {props.disabledReason ? <div className="text-xs text-muted-foreground">{props.disabledReason}</div> : null}

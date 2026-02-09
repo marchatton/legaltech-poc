@@ -85,9 +85,10 @@ export function ExportCsvButton(props: Props) {
         variant="secondary"
         size="sm"
         onClick={run}
-        disabled={state.kind === "loading" || !props.runId}
+        disabled={!props.runId}
+        loading={state.kind === "loading"}
       >
-        {state.kind === "loading" ? "Exporting…" : (props.label ?? "Export CSV")}
+        {props.label ?? "Export CSV"}
       </Button>
 
       <InlineStatus kind={state.kind === "blocked" || state.kind === "error" ? "error" : state.kind === "downloaded" ? "success" : "idle"}>
