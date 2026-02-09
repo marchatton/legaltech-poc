@@ -108,7 +108,7 @@
     {
       "id": "US-003",
       "title": "Follow A Demo Checklist",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -118,8 +118,8 @@
         "Negative: The checklist path and content must remain in sync with the UI; if demo flow changes, checklist is updated as part of the same change."
       ],
       "startedAt": "2026-02-08T23:45:49.785220+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-08T23:45:49.785233+00:00"
+      "completedAt": "2026-02-09T00:11:18.445511+00:00",
+      "updatedAt": "2026-02-09T00:11:18.445480+00:00"
     }
   ],
   "metadata": {
