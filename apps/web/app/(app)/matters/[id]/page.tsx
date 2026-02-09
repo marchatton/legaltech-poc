@@ -8,6 +8,8 @@ import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/obje
 
 import { ArtefactsList } from "../ArtefactsList";
 import { ExportCsvButton } from "../ExportCsvButton";
+
+import { ExportMemoButton } from "./ExportMemoButton";
 import { QuickStartPanel } from "./QuickStartPanel";
 
 export const runtime = "nodejs";
@@ -246,14 +248,23 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           <div>
             <div className="text-sm font-semibold text-slate-900">Exports</div>
             <p className="mt-1 text-xs text-slate-600">
-              Export CSV artefacts for the latest completed run. Exports are disabled until a run completes.
+              Export a Word memo (.docx) and CSV artefacts for the latest completed run. Exports are disabled until a run
+              completes.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-start justify-end gap-2">
-            <ExportCsvButton folderId={folderId} runId={completedRunId} kind="requirements_tracker" label="Export requirements" />
-            <ExportCsvButton folderId={folderId} runId={completedRunId} kind="exceptions_table" label="Export exceptions" />
-            <ExportCsvButton folderId={folderId} runId={completedRunId} kind="survey_issues" label="Export survey issues" />
+          <div className="grid justify-items-end gap-2">
+            <ExportMemoButton folderId={folderId} runId={latestRun?.id ?? null} runState={latestRun?.state ?? null} />
+            <div className="flex flex-wrap items-start justify-end gap-2">
+              <ExportCsvButton
+                folderId={folderId}
+                runId={completedRunId}
+                kind="requirements_tracker"
+                label="Export requirements"
+              />
+              <ExportCsvButton folderId={folderId} runId={completedRunId} kind="exceptions_table" label="Export exceptions" />
+              <ExportCsvButton folderId={folderId} runId={completedRunId} kind="survey_issues" label="Export survey issues" />
+            </div>
           </div>
         </div>
       </section>

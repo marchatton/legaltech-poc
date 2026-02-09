@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { headers } from "next/headers";
+
 type Props = {
   folderId: string;
 };
@@ -55,9 +57,26 @@ function hrefFromDownloadUrl(downloadUrl: string): string {
   }
 }
 
+function safeLocalOriginFromHostHeader(host: string): string {
+  // Avoid trusting arbitrary hostnames (SSRF). Keep internal fetches pinned to localhost,
+  // but allow dynamic ports (Next dev may fall back to 3001, 3002, etc.).
+  const m = host.match(/:(\d{1,5})$/);
+  const portFromHost = m?.[1] ? Number(m[1]) : null;
+  const envPort = process.env.PORT ? Number(process.env.PORT) : null;
+
+  const port =
+    (portFromHost && Number.isInteger(portFromHost) && portFromHost >= 1 && portFromHost <= 65535
+      ? portFromHost
+      : null) ??
+    (envPort && Number.isInteger(envPort) && envPort >= 1 && envPort <= 65535 ? envPort : null) ??
+    3000;
+
+  return `http://127.0.0.1:${port}`;
+}
+
 export async function ArtefactsList(props: Props) {
-  // Dev-only UI: fetch via localhost to avoid trusting Host headers (SSRF).
-  const origin = "http://localhost:3000";
+  const h = await headers();
+  const origin = safeLocalOriginFromHostHeader(h.get("host") ?? "");
   let res: Response;
   try {
     res = await fetch(`${origin}/folders/${encodeURIComponent(props.folderId)}/artefacts`, { cache: "no-store" });

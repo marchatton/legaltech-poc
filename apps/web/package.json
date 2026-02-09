@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@orbital-poc/core": "workspace:*",
+    "docx": "^9.5.1",
     "next": "^15.0.0",
     "pdfjs-dist": "^4.0.0",
     "postgres": "^3.4.8",

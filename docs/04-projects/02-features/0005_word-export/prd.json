@@ -69,8 +69,16 @@
     "description": "Docx renderer consumes structured artefact row payloads (payload_schema_version + payload_json) plus locked citations; it does not parse report_rows.answer prose.",
     "example": {
       "payload_schema_version": "list_payload_v0",
-      "payload_json": { "items": [] },
-      "citations": [{ "citation_id": "cit_...", "filename": "Commitment.pdf", "page": 1 }]
+      "payload_json": {
+        "items": []
+      },
+      "citations": [
+        {
+          "citation_id": "cit_...",
+          "filename": "Commitment.pdf",
+          "page": 1
+        }
+      ]
     }
   },
   "rules": [
@@ -81,12 +89,14 @@
     "Renderer uses headings + bullets only; avoid complex tables/text boxes/footnotes. Citations are inline (no footnotes).",
     "Citations render as: Sources: <filename>:<page> (<citation_id>); ..."
   ],
-  "qualityGates": ["pnpm verify"],
+  "qualityGates": [
+    "pnpm verify"
+  ],
   "stories": [
     {
       "id": "US-001",
       "title": "Export Memo Docx",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a demo operator, I can export a Word memo from a completed run so I can share a narrative artefact outside the UI.",
       "acceptanceCriteria": [
@@ -95,13 +105,18 @@
         "Memo renders 'not broken' in Microsoft Word, Google Docs, and macOS Preview for a representative sample.",
         "Negative: If runs.state != completed, export is disabled and the API returns 409 CONFLICT if called anyway.",
         "Negative: Export must not parse report_rows.answer prose; it consumes structured payload_json + payload_schema_version and fails closed if missing."
-      ]
+      ],
+      "startedAt": "2026-02-09T07:53:51.434700+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-09T07:53:51.434712+00:00"
     },
     {
       "id": "US-002",
       "title": "See Not-Ready/Blocked States",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a demo operator, I can see when Word export is not ready or blocked so I don't create inconsistent artefacts.",
       "acceptanceCriteria": [
         "Example: If any row is citation_failed and unsafe_override != true, API returns EXPORT_BLOCKED and UI shows blocked banner with counts and next action.",
@@ -163,8 +178,18 @@
       "F3 (Word renderer + template)",
       "F5 (export UI states)"
     ],
-    "affordances": ["U1", "U3", "U5"],
-    "codeAffordances": ["N1", "N2", "N4", "N5", "N6"]
+    "affordances": [
+      "U1",
+      "U3",
+      "U5"
+    ],
+    "codeAffordances": [
+      "N1",
+      "N2",
+      "N4",
+      "N5",
+      "N6"
+    ]
   },
   "verificationPlan": [
     "Fixture pack: docs/08-example-data/pack_01_clean.",
