@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "project": "E2E-0002 Missing Input Checklist (pack_02_missing_rea)",
+  "branchName": "test/e2e-0002-missing-input-checklist",
+  "description": "Deterministic e2e scenario proving missing_input is explicit, uncited, and actionable via checklist and exception-level missing_doc UX.",
+  "overview": "Protect the trust posture for missing inputs: when a referenced instrument PDF is missing, the UI must render a missing_input row with the exact answer string and zero citations, plus an actionable checklist (REA.pdf) and exception-level missing_doc callouts in the exceptions table payload.",
+  "goals": [
+    "Prove missing_input invariants are visible and testable (exact answer string, zero citations).",
+    "Prove missing-doc guidance is actionable (filename + checklist copy) and exception-level UX surfaces missing_doc items.",
+    "Provide machine-executable acceptance criteria for automation."
+  ],
+  "nonGoals": [
+    "Improving missing-doc detection recall/precision (this is a UX + invariant scenario).",
+    "DB-backed ingest/index pipeline and Quick Start workflow execution."
+  ],
+  "successMetrics": [
+    "TB-MISSING-INPUT row renders with status missing_input, exact answer string, and zero citation chips.",
+    "Missing document checklist renders and includes REA.pdf.",
+    "Exceptions table renders a missing_doc item for the REA with a missing-instrument callout."
+  ],
+  "openQuestions": [
+    "Should automation assert evidence signal details (source/page), or only the presence of REA.pdf in the checklist?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web)",
+    "hosting": "local dev (NODE_ENV=development)",
+    "database": "none (fixture-seeded snapshot files)",
+    "auth": "dev-only routes (assertDevOnly)"
+  },
+  "routes": [
+    {
+      "path": "/matters?pack=pack_02_missing_rea",
+      "name": "Seeded Matters (Missing Input Pack)",
+      "purpose": "Render missing_input row + checklist and exceptions payload with missing_doc item."
+    }
+  ],
+  "qualityGates": [
+    "pnpm fixtures:verify-pack-names",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "testHarness": {
+    "env": {
+      "NODE_ENV": "development"
+    },
+    "setup": [
+      "pnpm fixture:seed pack_02_missing_rea --overwrite",
+      "pnpm dev"
+    ]
+  },
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Missing Input Is Explicit and Actionable",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, when the pack is missing a referenced instrument PDF, I see a missing_input row with zero citations and an actionable checklist (REA.pdf), and the exceptions table surfaces the missing_doc item UX.",
+      "acceptanceCriteria": [
+        "Example: Seed pack_02_missing_rea snapshot via `pnpm fixture:seed pack_02_missing_rea --overwrite` and run `pnpm dev` (dev-only routes).",
+        "Navigate to `/matters?pack=pack_02_missing_rea` and assert the `pack_id: pack_02_missing_rea` summary is visible.",
+        "Assert row `TB-MISSING-INPUT` exists with status `missing_input` and answer exactly `Not found in provided documents.`",
+        "Assert row `TB-MISSING-INPUT` renders zero citation chips: UI shows `(no citations)` and there are no anchors with text matching /^cit_/ in the row.",
+        "Assert `Missing document checklist` section is visible and contains a checklist item labeled `REA.pdf`.",
+        "Assert row `TS-04` renders the exceptions table payload and includes an item with type `Reciprocal Easement Agreement (REA)`, badge `missing_doc`, and a `Missing instrument document` callout referencing expected filename `REA.pdf`.",
+        "Negative: `missing_input` rows do not render a `Mark reviewed` button (only needs_review rows are reviewable)."
+      ]
+    }
+  ],
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Missing Input Is Explicit and Actionable",
+      "description": "As a reviewer, when the pack is missing a referenced instrument PDF, I see a missing_input row with zero citations and an actionable checklist (REA.pdf), and the exceptions table surfaces the missing_doc item UX.",
+      "acceptanceCriteria": [
+        "Seed pack_02_missing_rea snapshot via `pnpm fixture:seed pack_02_missing_rea --overwrite` and run `pnpm dev`.",
+        "Navigate to `/matters?pack=pack_02_missing_rea` and assert the pack summary is visible.",
+        "Assert `TB-MISSING-INPUT` is `missing_input` with answer exactly `Not found in provided documents.` and has zero citation chips.",
+        "Assert `Missing document checklist` is visible and includes `REA.pdf`.",
+        "Assert exceptions table shows an REA item with badge `missing_doc` and a missing-instrument callout referencing `REA.pdf`.",
+        "Negative: Missing_input rows do not render `Mark reviewed`."
+      ],
+      "priority": 1
+    }
+  ],
+  "metadata": {
+    "owner": "",
+    "status": "Draft",
+    "date": "2026-02-09",
+    "slug": "e2e-0002-missing-input-checklist",
+    "sourceMarkdown": "docs/05-reviews-audits/e2e-testing/0002_missing-input-checklist/prd.md"
+  },
+  "sources": [
+    "docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-script.md",
+    "docs/08-example-data/packs_summary.md",
+    "apps/web/app/(app)/matters/page.tsx",
+    "apps/web/lib/fixtureSeed.server.ts"
+  ]
+}
+

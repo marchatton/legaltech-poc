@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "project": "E2E-0001 Seeded Matters Citation Highlight + Review",
+  "branchName": "test/e2e-0001-citation-viewer-highlight",
+  "description": "Deterministic e2e scenario proving the trust UX: click citation -> PDF renders with highlight overlay, and review state persists.",
+  "overview": "Protect the core trust moment of the PoC: seeded Matters UI renders deterministic rows with citation chips that open a viewer showing a highlight overlay. Also covers explicit review state transitions (needs_review -> reviewed) persisted to the seed snapshot.",
+  "goals": [
+    "Prove click-to-highlight evidence works end-to-end on pack_01_clean without OCR/LLM dependencies.",
+    "Prove review state is explicit and persisted across refresh.",
+    "Provide machine-executable acceptance criteria for automation."
+  ],
+  "nonGoals": [
+    "DB-backed ingest/index pipeline and Quick Start workflow execution.",
+    "OCR/layout extraction correctness (this scenario uses fixture PDFs + seeded snapshots).",
+    "Semantic entailment verification."
+  ],
+  "successMetrics": [
+    "Viewer renders at least one highlight polygon for a known-good citation on pack_01_clean.",
+    "Mark reviewed persists across refresh and is visible as a status change in the UI.",
+    "Negative case: invalid citation id yields a user-visible error state with a back link."
+  ],
+  "openQuestions": [
+    "Primary automation harness: Playwright vs agent-driven DOM runner.",
+    "Should review-state mutation be mandatory in the e2e suite or covered by a separate integration test?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web)",
+    "hosting": "local dev (NODE_ENV=development)",
+    "database": "none (fixture-seeded snapshot files)",
+    "auth": "dev-only routes (assertDevOnly)"
+  },
+  "routes": [
+    {
+      "path": "/matters?pack=pack_01_clean",
+      "name": "Seeded Matters",
+      "purpose": "List seeded rows with citation chips and review controls."
+    },
+    {
+      "path": "/matters/viewer?pack=pack_01_clean&citation=cit_TS-01_1",
+      "name": "Citation Viewer",
+      "purpose": "Render PDF page with highlight overlay for a locked citation."
+    }
+  ],
+  "qualityGates": [
+    "pnpm fixtures:verify-pack-names",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "testHarness": {
+    "env": {
+      "NODE_ENV": "development"
+    },
+    "setup": [
+      "pnpm fixture:seed pack_01_clean --overwrite",
+      "pnpm dev"
+    ],
+    "notes": [
+      "This scenario targets dev-only routes guarded by assertDevOnly().",
+      "Tests should re-seed with --overwrite because Mark reviewed mutates tmp/fixture-seed/*."
+    ]
+  },
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Citation Viewer Highlight + Review Persistence",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I can mark a seeded row reviewed and click a citation chip to see the cited evidence highlighted in the PDF viewer (or an explicit fail-closed error state).",
+      "acceptanceCriteria": [
+        "Example: Seed pack_01_clean snapshot via `pnpm fixture:seed pack_01_clean --overwrite` and run `pnpm dev` (dev-only routes).",
+        "Navigate to `/matters?pack=pack_01_clean` and assert page title `Matters` and the `pack_id: pack_01_clean` summary are visible.",
+        "Assert row `TS-01` exists with status `needs_review` and includes citation chip text `cit_TS-01_1`.",
+        "Click `Mark reviewed` on row `TS-01` and assert redirect contains `reviewed=TS-01`, row status updates to `reviewed`, and the success banner `Saved` / `Marked as reviewed.` is visible.",
+        "Refresh the page and assert row `TS-01` remains `reviewed` (persisted to seed snapshot).",
+        "Click citation chip `cit_TS-01_1` and assert the viewer does NOT show a `citation_failed` panel, and that the highlight `<svg>` contains at least one `<polygon>` element.",
+        "Assert the viewer shows `Locked to 100% while highlighting` and the Zoom select is disabled while the overlay is active.",
+        "Negative: Navigate to `/matters/viewer?pack=pack_01_clean&citation=DOES_NOT_EXIST` and assert `Citation not found: DOES_NOT_EXIST` plus a `Back to matters` link to `/matters?pack=pack_01_clean`."
+      ]
+    }
+  ],
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Citation Viewer Highlight + Review Persistence",
+      "description": "As a reviewer, I can mark a seeded row reviewed and click a citation chip to see the cited evidence highlighted in the PDF viewer (or an explicit fail-closed error state).",
+      "acceptanceCriteria": [
+        "Seed pack_01_clean snapshot via `pnpm fixture:seed pack_01_clean --overwrite` and run `pnpm dev`.",
+        "Navigate to `/matters?pack=pack_01_clean` and assert `pack_id: pack_01_clean` is visible.",
+        "Assert row `TS-01` exists with status `needs_review` and a citation chip `cit_TS-01_1`.",
+        "Click `Mark reviewed` on `TS-01`; assert redirect contains `reviewed=TS-01`, status is `reviewed`, and success banner is visible; refresh persists.",
+        "Click `cit_TS-01_1`; assert no `citation_failed` panel and at least one highlight `<polygon>` is rendered.",
+        "Negative: `/matters/viewer?pack=pack_01_clean&citation=DOES_NOT_EXIST` shows `Citation not found` and a back link."
+      ],
+      "priority": 1
+    }
+  ],
+  "metadata": {
+    "owner": "",
+    "status": "Draft",
+    "date": "2026-02-09",
+    "slug": "e2e-0001-citation-viewer-highlight",
+    "sourceMarkdown": "docs/05-reviews-audits/e2e-testing/0001_citation-viewer-highlight/prd.md"
+  },
+  "sources": [
+    "docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-script.md",
+    "apps/web/app/(app)/matters/page.tsx",
+    "apps/web/app/(app)/matters/actions.ts",
+    "apps/web/app/(app)/matters/viewer/page.tsx",
+    "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx"
+  ]
+}
+
