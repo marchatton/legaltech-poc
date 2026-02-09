@@ -97,7 +97,7 @@
     {
       "id": "US-001",
       "title": "Export CSV Artefacts",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a demo operator, I can export the requirements tracker, exceptions table, and survey issues CSVs for a completed run so I can share outputs outside the UI.",
       "acceptanceCriteria": [
@@ -106,12 +106,15 @@
         "Exports include row_status, citations rendered as filename:page, and citation_ids.",
         "Negative: Export consumes structured row payload (payload_json + payload_schema_version) and fails closed if payload is missing (no prose parsing fallback).",
         "Negative: If runs.state != completed, export is disabled and API returns 409 CONFLICT if called anyway."
-      ]
+      ],
+      "updatedAt": "2026-02-09T08:31:21.833985+00:00",
+      "completedAt": "2026-02-09T08:31:21.834020+00:00",
+      "startedAt": "2026-02-09T08:31:21.834024+00:00"
     },
     {
       "id": "US-002",
       "title": "See Not-Ready And Blocked States",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -121,7 +124,10 @@
         "Example: If any row is citation_failed and unsafe_override != true, API returns error.code=EXPORT_BLOCKED and UI shows a blocked banner with counts and next action.",
         "Negative: unsafe_override=true is demo-only; when DEMO_MODE and ALLOW_UNSAFE_EXPORTS are not enabled, API returns 403 UNAUTHORISED and the UI does not expose an unsafe CTA.",
         "Negative: Unsafe exports are clearly labelled (filename + metadata_json) and do not export untrusted evidence for citation_failed-derived items (citations/citation_ids empty, notes prefixed UNSAFE: )."
-      ]
+      ],
+      "startedAt": "2026-02-09T08:31:24.090272+00:00",
+      "completedAt": "2026-02-09T08:39:19.124924+00:00",
+      "updatedAt": "2026-02-09T08:39:19.124894+00:00"
     }
   ],
   "metadata": {

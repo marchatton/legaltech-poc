@@ -173,6 +173,8 @@ export function csvFromSourceRow(args: {
   payloadSchemaVersion: string | null;
   payloadJson: unknown;
   citationById: ReadonlyMap<string, CitationForCsv>;
+  // Demo-only unsafe exports must not leak untrusted evidence for citation_failed-derived items.
+  unsafeOverride?: boolean;
 }): string {
   const headers = HEADERS_BY_KIND[args.kind];
   if (!headers) throw new Error(`Unsupported kind: ${String(args.kind)}`);
@@ -187,12 +189,18 @@ export function csvFromSourceRow(args: {
 
   for (const item of payload.items) {
     const itemNotes = "notes" in item ? (item.notes ?? null) : null;
-    const notes = joinNotes([itemNotes, args.sourceRow.notes]);
+    const baseNotes = joinNotes([itemNotes, args.sourceRow.notes]);
+    const redactUntrustedEvidence =
+      args.unsafeOverride === true && args.sourceRow.row_status === "citation_failed";
 
-    const { citations, citation_ids } = renderCitationColumns({
-      citationIds: item.citation_ids,
-      citationById: args.citationById,
-    });
+    const notes = redactUntrustedEvidence ? (baseNotes ? `UNSAFE: ${baseNotes}` : "UNSAFE: ") : baseNotes;
+
+    const { citations, citation_ids } = redactUntrustedEvidence
+      ? { citations: "", citation_ids: "" }
+      : renderCitationColumns({
+          citationIds: item.citation_ids,
+          citationById: args.citationById,
+        });
 
     if (args.kind === "requirements_tracker") {
       if (item.kind !== "requirements_tracker_item") {
