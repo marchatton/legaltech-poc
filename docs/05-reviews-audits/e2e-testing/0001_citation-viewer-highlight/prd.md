@@ -41,9 +41,10 @@ When the scenario passes, a user can:
 As a reviewer, I want to click a citation and see the cited text highlighted in the PDF so that I can validate claims quickly, and I want to mark rows reviewed explicitly so the workflow state is visible.
 
 #### Acceptance Criteria
-- AC-001 (setup): Seed snapshots exist for `pack_01_clean` (creates `tmp/fixture-seed/pack_01_clean/snapshot.json`):
-  - `pnpm fixture:seed pack_01_clean --overwrite`
-- AC-002: In dev mode, visiting `/matters?pack=pack_01_clean` renders:
+- AC-001 (setup): Seed snapshot and start the dev server:
+  - `pnpm fixture:seed pack_01_clean --overwrite` (creates `tmp/fixture-seed/pack_01_clean/snapshot.json`)
+  - `pnpm dev` (required; `/matters` is dev-only)
+- AC-002: Visiting `/matters?pack=pack_01_clean` renders:
   - Page title `Matters`
   - `pack_id: pack_01_clean`
 - AC-003: Row `TS-01` exists and is initially `needs_review`, with a citation chip `cit_TS-01_1`.
@@ -147,4 +148,3 @@ As a reviewer, I want to click a citation and see the cited text highlighted in 
 - Review action: `apps/web/app/(app)/matters/actions.ts`
 - Viewer route: `apps/web/app/(app)/matters/viewer/page.tsx`
 - Viewer overlay: `apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx`
-

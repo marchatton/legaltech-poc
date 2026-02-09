@@ -40,9 +40,10 @@ When the scenario passes, a user can switch to `pack_02_missing_rea` and immedia
 As a reviewer, when the pack is missing a referenced instrument PDF, I want the system to mark it as `missing_input` with an actionable checklist so I can request the right document and rerun.
 
 #### Acceptance Criteria
-- AC-001 (setup): Seed snapshots exist for `pack_02_missing_rea`:
+- AC-001 (setup): Seed snapshot and start the dev server:
   - `pnpm fixture:seed pack_02_missing_rea --overwrite`
-- AC-002: In dev mode, visiting `/matters?pack=pack_02_missing_rea` renders `pack_id: pack_02_missing_rea`.
+  - `pnpm dev` (required; `/matters` is dev-only)
+- AC-002: Visiting `/matters?pack=pack_02_missing_rea` renders `pack_id: pack_02_missing_rea`.
 - AC-003: Row `TB-MISSING-INPUT` exists with:
   - status `missing_input`
   - answer exactly `Not found in provided documents.`
@@ -125,4 +126,3 @@ As a reviewer, when the pack is missing a referenced instrument PDF, I want the 
 - Pack summary: `docs/08-example-data/packs_summary.md`
 - Seeded Matters UI: `apps/web/app/(app)/matters/page.tsx`
 - Fixture seed loader: `apps/web/lib/fixtureSeed.server.ts`
-

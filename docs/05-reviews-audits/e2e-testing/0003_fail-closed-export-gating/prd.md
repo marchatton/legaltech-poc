@@ -44,10 +44,10 @@ When the scenario passes:
 As a reviewer, if the system’s citation integrity checks fail, I want explicit errors and blocked exports so I never accidentally rely on unsafe outputs.
 
 #### Acceptance Criteria
-- AC-001 (setup): Start dev server with spikes enabled:
-  - `SPIKES_ENABLED=1 pnpm dev`
-- AC-002 (setup): Seed `pack_01_clean` (default includes `TB-BAD-CITATION` with a corrupted `snippet_hash`):
+- AC-001 (setup): Seed `pack_01_clean` (default includes `TB-BAD-CITATION` with a corrupted `snippet_hash`):
   - `pnpm fixture:seed pack_01_clean --overwrite`
+- AC-002 (setup): Start dev server with spikes enabled:
+  - `SPIKES_ENABLED=1 pnpm dev` (required; `/matters` is dev-only)
 - AC-003: Visiting `/matters?pack=pack_01_clean` shows row `TB-BAD-CITATION` with:
   - status `citation_failed`
   - citation chip `cit_TB_BAD_1`
@@ -130,4 +130,3 @@ As a reviewer, if the system’s citation integrity checks fail, I want explicit
 - Viewer: `apps/web/app/(app)/matters/viewer/page.tsx`
 - Viewer overlay: `apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx`
 - Fixture seed: `scripts/fixtures/seed.ts`
-
