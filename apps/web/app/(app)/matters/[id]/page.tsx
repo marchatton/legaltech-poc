@@ -124,6 +124,11 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     quickStartDisabledReason = `Quick Start is disabled until the matter is indexed/ready (current state: ${folder.state}). Refresh in a moment.`;
   }
 
+  const unsafeOverrideEnabled =
+    process.env.DEMO_MODE === "1" &&
+    process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
+    Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
+
   return (
     <main className="mx-auto max-w-5xl p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -254,7 +259,12 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           </div>
 
           <div className="grid justify-items-end gap-2">
-            <ExportMemoButton folderId={folderId} runId={latestRun?.id ?? null} runState={latestRun?.state ?? null} />
+            <ExportMemoButton
+              folderId={folderId}
+              runId={latestRun?.id ?? null}
+              runState={latestRun?.state ?? null}
+              unsafeOverrideEnabled={unsafeOverrideEnabled}
+            />
             <div className="flex flex-wrap items-start justify-end gap-2">
               <ExportCsvButton
                 folderId={folderId}

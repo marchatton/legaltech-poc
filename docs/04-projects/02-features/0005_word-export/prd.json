@@ -96,7 +96,7 @@
     {
       "id": "US-001",
       "title": "Export Memo Docx",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a demo operator, I can export a Word memo from a completed run so I can share a narrative artefact outside the UI.",
       "acceptanceCriteria": [
@@ -107,13 +107,13 @@
         "Negative: Export must not parse report_rows.answer prose; it consumes structured payload_json + payload_schema_version and fails closed if missing."
       ],
       "startedAt": "2026-02-09T07:53:51.434700+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-09T07:53:51.434712+00:00"
+      "completedAt": "2026-02-09T08:41:10.188610+00:00",
+      "updatedAt": "2026-02-09T08:41:10.188517+00:00"
     },
     {
       "id": "US-002",
       "title": "See Not-Ready/Blocked States",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -123,7 +123,10 @@
         "Example: Export UI is disabled until run completes.",
         "Negative: unsafe_override=true is demo-only; when DEMO_MODE and ALLOW_UNSAFE_EXPORTS are not enabled, API returns 403 UNAUTHORISED and the UI does not expose the unsafe CTA.",
         "Negative: When unsafe_override=true is allowed, the resulting filename is labelled memo.UNSAFE.docx and metadata_json.unsafe_override=true is persisted."
-      ]
+      ],
+      "startedAt": "2026-02-09T08:41:12.432686+00:00",
+      "completedAt": "2026-02-09T09:02:09.395779+00:00",
+      "updatedAt": "2026-02-09T09:02:09.395748+00:00"
     }
   ],
   "metadata": {

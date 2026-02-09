@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "node:crypto";
+
 import { z } from "zod";
 
 import {
@@ -20,6 +22,7 @@ const BodySchema = z.object({
   folder_id: z.string().trim().min(1),
   run_id: z.string().trim().min(1).max(200),
   kind: z.literal("memo"),
+  unsafe_override: z.boolean().optional().default(false),
 });
 
 type FolderRow = {
@@ -51,6 +54,47 @@ type CitationRow = {
   document_filename: string | null;
   page_number: number;
 };
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
+
+function unsafeOverrideAllowed(req: Request): boolean {
+  if (process.env.DEMO_MODE !== "1") return false;
+  if (process.env.ALLOW_UNSAFE_EXPORTS !== "1") return false;
+
+  const expected = process.env.ORBITAL_ADMIN_TOKEN?.trim();
+  if (!expected) return false;
+
+  const provided = req.headers.get("x-orbital-admin-token")?.trim();
+  if (!provided) return false;
+
+  return safeEqual(provided, expected);
+}
+
+function extractReasonCode(provenance: unknown): string | null {
+  if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return null;
+  const rec = provenance as Record<string, unknown>;
+  const direct = rec.reason_code;
+  if (typeof direct === "string" && direct.trim()) return direct.trim();
+
+  const verify = rec.verify;
+  if (verify && typeof verify === "object" && !Array.isArray(verify)) {
+    const code = (verify as Record<string, unknown>).reason_code;
+    if (typeof code === "string" && code.trim()) return code.trim();
+  }
+
+  const verification = rec.verification;
+  if (verification && typeof verification === "object" && !Array.isArray(verification)) {
+    const code = (verification as Record<string, unknown>).reason_code;
+    if (typeof code === "string" && code.trim()) return code.trim();
+  }
+
+  return null;
+}
 
 function safeParseChecklist(provenance: unknown): string[] {
   if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return [];
@@ -121,6 +165,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const folderId = parsedBody.data.folder_id;
   const runId = parsedBody.data.run_id;
+  const unsafeOverride = parsedBody.data.unsafe_override;
 
   const folders = await sql<FolderRow[]>`
     SELECT id, name
@@ -164,6 +209,40 @@ export async function POST(req: Request): Promise<Response> {
     WHERE run_id = ${runId}
     ORDER BY question_id ASC
   `;
+
+  const citationFailures = rows
+    .filter((r) => r.status === "citation_failed")
+    .map((r) => ({
+      question_id: r.question_id,
+      reason_code: extractReasonCode(r.provenance_json) ?? "VALIDATION_ERROR",
+    }));
+
+  if (citationFailures.length > 0 && !unsafeOverride) {
+    return Response.json(
+      safeErrorEnvelope({
+        code: "EXPORT_BLOCKED",
+        message: `Export blocked: ${citationFailures.length} row(s) failed verification.`,
+        details: {
+          citation_failed_count: citationFailures.length,
+          failed_question_ids: citationFailures.map((f) => f.question_id),
+          reason_codes: Array.from(new Set(citationFailures.map((f) => f.reason_code))).sort(),
+        },
+        traceId,
+      }),
+      { status: 409, headers },
+    );
+  }
+
+  if (unsafeOverride && !unsafeOverrideAllowed(req)) {
+    return Response.json(
+      safeErrorEnvelope({
+        code: "UNAUTHORISED",
+        message: "Unsafe override is demo-only.",
+        traceId,
+      }),
+      { status: 403, headers },
+    );
+  }
 
   const requirementsRow = rows.find((r) => r.question_id === "TS-03") ?? null;
   const exceptionsRow = rows.find((r) => r.question_id === "TS-04") ?? null;
@@ -280,7 +359,7 @@ export async function POST(req: Request): Promise<Response> {
     });
   }
 
-  const filename = "memo.docx";
+  const filename = unsafeOverride ? "memo.UNSAFE.docx" : "memo.docx";
   const storageKey = `folders/${folderId}/artefacts/${artefactId}.docx`;
   const keyOk = validateArtefactDocxStorageKey(storageKey);
   if (!keyOk.ok) {
@@ -316,6 +395,7 @@ export async function POST(req: Request): Promise<Response> {
       ${sql.json({
         template: "memo_v1",
         question_ids: ["TS-03", "TS-04", "TS-09"],
+        unsafe_override: unsafeOverride,
       })},
       ${createdAt},
       ${createdAt}
@@ -346,4 +426,3 @@ export async function POST(req: Request): Promise<Response> {
     { status: 200, headers },
   );
 }
-
