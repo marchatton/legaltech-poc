@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "project": "E2E-0003 Fail-Closed Citation + Export Blocked (pack_01_clean)",
+  "branchName": "test/e2e-0003-fail-closed-export-gating",
+  "description": "Deterministic e2e scenario proving corrupted citations fail closed (SNIPPET_HASH_MISMATCH, no overlay) and exports are blocked by default (EXPORT_BLOCKED).",
+  "overview": "Protect the PoC safety posture: corrupted citations must fail closed in the viewer with an explicit reason_code and no overlay, and exports must be blocked by default when deterministic verification fails.",
+  "goals": [
+    "Prove fail-closed viewer behavior for corrupted citations (explicit reason_code; no overlay polygons).",
+    "Prove export gating blocks unsafe outputs by default when any row fails deterministic verification.",
+    "Provide machine-executable acceptance criteria for automation."
+  ],
+  "nonGoals": [
+    "Exercising unsafe override flows requiring admin token (demo-only).",
+    "Semantic/entailment verification."
+  ],
+  "successMetrics": [
+    "Viewer shows `reason_code: SNIPPET_HASH_MISMATCH` for cit_TB_BAD_1 and renders zero highlight polygons.",
+    "Export CSV displays an `EXPORT_BLOCKED` error state in the UI."
+  ],
+  "openQuestions": [
+    "Should automation assert the exact reason_code string, or allow an allowlist of fail-closed codes?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web)",
+    "hosting": "local dev (NODE_ENV=development)",
+    "database": "none (fixture-seeded snapshot files) + object store writes for export artefact",
+    "auth": "dev-only routes (assertDevOnly) + spikes-gated export endpoint"
+  },
+  "routes": [
+    {
+      "path": "/matters?pack=pack_01_clean",
+      "name": "Seeded Matters (Fail-Closed Row)",
+      "purpose": "Render TB-BAD-CITATION row and Export CSV button."
+    },
+    {
+      "path": "/matters/viewer?pack=pack_01_clean&citation=cit_TB_BAD_1",
+      "name": "Citation Viewer (Corrupted Citation)",
+      "purpose": "Show fail-closed SNIPPET_HASH_MISMATCH and render no overlay."
+    },
+    {
+      "path": "/spikes/export/csv",
+      "name": "CSV Export (Spikes)",
+      "purpose": "Blocks export when deterministic verification fails (EXPORT_BLOCKED)."
+    }
+  ],
+  "qualityGates": [
+    "pnpm fixtures:verify-pack-names",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "testHarness": {
+    "env": {
+      "NODE_ENV": "development",
+      "SPIKES_ENABLED": "1"
+    },
+    "setup": [
+      "pnpm fixture:seed pack_01_clean --overwrite",
+      "SPIKES_ENABLED=1 pnpm dev"
+    ],
+    "notes": [
+      "Export endpoint /spikes/export/csv is gated by SPIKES_ENABLED=1.",
+      "pack_01_clean seeded snapshot includes TB-BAD-CITATION with corrupted snippet_hash (cit_TB_BAD_1)."
+    ]
+  },
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Fail-Closed Viewer + Export Blocked",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, if citation integrity breaks, the viewer fails closed with explicit reason_code and no overlay, and exports are blocked by default when deterministic verification fails.",
+      "acceptanceCriteria": [
+        "Example: Seed pack_01_clean via `pnpm fixture:seed pack_01_clean --overwrite` and run dev server with `SPIKES_ENABLED=1 pnpm dev`.",
+        "Navigate to `/matters?pack=pack_01_clean` and assert row `TB-BAD-CITATION` exists with status `citation_failed` and citation chip `cit_TB_BAD_1`.",
+        "Click `Export CSV` and assert a visible error message starting with `EXPORT_BLOCKED:` and containing `Export blocked`.",
+        "Click citation chip `cit_TB_BAD_1` and assert the viewer shows `citation_failed` with `reason_code: SNIPPET_HASH_MISMATCH`.",
+        "Assert the viewer highlight overlay renders zero `<polygon>` elements when in citation_failed state (no overlay).",
+        "Negative: The fail-closed reason_code panel must be visible without scrolling (not hidden behind loading or collapsed UI)."
+      ]
+    }
+  ],
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Fail-Closed Viewer + Export Blocked",
+      "description": "As a reviewer, if citation integrity breaks, the viewer fails closed with explicit reason_code and no overlay, and exports are blocked by default when deterministic verification fails.",
+      "acceptanceCriteria": [
+        "Run `pnpm fixture:seed pack_01_clean --overwrite` and start server with `SPIKES_ENABLED=1 pnpm dev`.",
+        "Navigate to `/matters?pack=pack_01_clean`; assert `TB-BAD-CITATION` is `citation_failed` with chip `cit_TB_BAD_1`.",
+        "Click `Export CSV`; assert UI shows `EXPORT_BLOCKED` blocked state.",
+        "Click `cit_TB_BAD_1`; assert viewer shows `reason_code: SNIPPET_HASH_MISMATCH` and renders no overlay polygons."
+      ],
+      "priority": 1
+    }
+  ],
+  "metadata": {
+    "owner": "",
+    "status": "Draft",
+    "date": "2026-02-09",
+    "slug": "e2e-0003-fail-closed-export-gating",
+    "sourceMarkdown": "docs/05-reviews-audits/e2e-testing/0003_fail-closed-export-gating/prd.md"
+  },
+  "sources": [
+    "docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-script.md",
+    "apps/web/app/(api)/spikes/export/csv/route.ts",
+    "apps/web/app/(app)/matters/ExportCsvButton.tsx",
+    "apps/web/app/(app)/matters/page.tsx",
+    "apps/web/app/(app)/matters/viewer/page.tsx",
+    "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx",
+    "scripts/fixtures/seed.ts"
+  ]
+}
+
