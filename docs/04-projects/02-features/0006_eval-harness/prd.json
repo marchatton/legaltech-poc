@@ -100,7 +100,7 @@
     {
       "id": "US-003",
       "title": "Publish Eval Reports In CI (Report-Only)",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -111,8 +111,8 @@
         "Negative: CI remains report-only and fast in the first pass; it does not orchestrate ingestion/runs and does not add additional gating beyond the hard gates until explicitly enabled."
       ],
       "startedAt": "2026-02-09T00:05:07.298496+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-09T00:05:07.298509+00:00"
+      "completedAt": "2026-02-09T00:12:50.864165+00:00",
+      "updatedAt": "2026-02-09T00:12:50.864148+00:00"
     }
   ],
   "metadata": {
