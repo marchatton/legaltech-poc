@@ -1,6 +1,6 @@
 # Demo Operator Checklist (2026-02-09)
 
-Goal: keep the live demo smooth and honest. The UI shown is a dev-only tracer bullet proving the trust substrate.
+Goal: keep the live demo smooth and honest. The UI shown is a dev-only demo slice proving the trust substrate.
 
 ## Preflight (10 minutes before)
 
@@ -25,7 +25,7 @@ pnpm dev
 - [ ] Open `http://localhost:3000/matters?pack=pack_01_clean`
 - [ ] Open `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html` in a browser tab.
 - [ ] Confirm at least one citation chip opens the viewer and renders an overlay (at 100% zoom).
-- [ ] Confirm the tracer-bullet bad citation shows `citation_failed` and renders no overlay.
+- [ ] Confirm the bad-citation fixture shows `citation_failed` and renders no overlay.
 - [ ] Confirm `pack_02_missing_rea` shows a missing-doc checklist on the `missing_input` row.
 
 Optional:

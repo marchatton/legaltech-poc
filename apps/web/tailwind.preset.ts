@@ -84,9 +84,9 @@ export default {
         pill: "var(--radius-pill)",
       },
       boxShadow: {
-        "ui-sm": "0 1px 3px rgba(0,0,0,0.05)",
-        "ui-md": "0 4px 14px rgba(0,0,0,0.07)",
-        "ui-lg": "0 8px 28px rgba(0,0,0,0.10)",
+        "ui-sm": "var(--shadow-sm)",
+        "ui-md": "var(--shadow-md)",
+        "ui-lg": "var(--shadow-lg)",
       },
       transitionDuration: { micro: "150ms", standard: "200ms", large: "400ms" },
       transitionTimingFunction: { "brand-standard": "cubic-bezier(0.4,0,0.2,1)" },
@@ -96,6 +96,7 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       fontSize: {
+        "2xs": ["0.6875rem", { lineHeight: "1rem" }],
         display: ["3rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
         "heading-xl": ["2.25rem", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
         "heading-lg": ["1.75rem", { lineHeight: "1.25" }],

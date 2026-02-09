@@ -11,7 +11,9 @@ import { MattersToolbar } from "./MattersToolbar";
 import { ArtefactsList } from "./ArtefactsList";
 import { markRowReviewed } from "./actions";
 
+import { Badge, type BadgeVariant } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
+import { Chip } from "../../ui/Chip";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,12 +28,11 @@ const SearchSchema = z.object({
   qid: z.string().min(1).max(200).optional(),
 });
 
-function statusClass(status: string): string {
-  if (status === "reviewed") return "bg-success/10 text-success ring-success/20";
-  if (status === "needs_review") return "bg-warning/10 text-warning ring-warning/20";
-  if (status === "missing_input") return "bg-muted text-muted-foreground ring-border/60";
-  if (status === "citation_failed") return "bg-destructive/10 text-destructive ring-destructive/20";
-  return "bg-muted text-muted-foreground ring-border/60";
+function statusVariant(status: string): BadgeVariant {
+  if (status === "reviewed") return "success";
+  if (status === "needs_review") return "warning";
+  if (status === "citation_failed") return "destructive";
+  return "muted";
 }
 
 function reviewErrorMessage(code: string): string {
@@ -43,11 +44,10 @@ function reviewErrorMessage(code: string): string {
   return "Cannot mark reviewed.";
 }
 
-function matchStatusClass(status: string): string {
-  if (status === "matched") return "bg-success/10 text-success ring-success/20";
-  if (status === "ambiguous") return "bg-warning/10 text-warning ring-warning/20";
-  if (status === "missing_doc" || status === "missing_attachment") return "bg-muted text-muted-foreground ring-border/60";
-  return "bg-muted text-muted-foreground ring-border/60";
+function matchStatusVariant(status: string): BadgeVariant {
+  if (status === "matched") return "success";
+  if (status === "ambiguous") return "warning";
+  return "muted";
 }
 
 const MissingDocsProvenanceSchema = z
@@ -73,13 +73,9 @@ function CitationChips(props: {
     }
 
     return (
-      <a
-        key={cid}
-        className="inline-flex items-center rounded-pill border border-border bg-card px-3 py-1 font-mono text-[11px] font-medium text-foreground transition-colors duration-micro ease-brand-standard hover:border-foreground/20"
-        href={`/matters/viewer?${params.toString()}`}
-      >
+      <Chip key={cid} variant="citation" as="a" href={`/matters/viewer?${params.toString()}`}>
         {cid}
-      </a>
+      </Chip>
     );
   });
 }
@@ -116,13 +112,7 @@ function ExceptionsPayload(props: {
                   {it.item_id}
                 </div>
                 <div className="text-sm font-medium text-foreground">{it.type}</div>
-                <div
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${matchStatusClass(
-                    it.match_status,
-                  )}`}
-                >
-                  {it.match_status}
-                </div>
+                <Badge variant={matchStatusVariant(it.match_status)}>{it.match_status}</Badge>
                 {it.match_status === "matched" && it.doc ? (
                   <div className="text-xs text-muted-foreground">
                     matched: <span className="font-mono">{it.doc}</span>
@@ -315,7 +305,7 @@ export default async function MattersPage(props: {
     <main className="mx-auto max-w-5xl p-6">
       <h1 className="text-2xl font-semibold">Matters</h1>
       <p className="mt-2 text-muted-foreground">
-        Tracer-bullet UI: rows with citation chips that open a PDF viewer + highlight overlay (fail-closed on invalid
+        Demo-only UI: rows with citation chips that open a PDF viewer + highlight overlay (fail-closed on invalid
         citations).
       </p>
 
@@ -376,13 +366,7 @@ export default async function MattersPage(props: {
                     {row.question_id}
                   </div>
                   <div className="text-sm font-semibold text-foreground">{row.question}</div>
-                  <div
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusClass(
-                      row.status,
-                    )}`}
-                  >
-                    {row.status}
-                  </div>
+                  <Badge variant={statusVariant(row.status)}>{row.status}</Badge>
 
                   {row.status === "needs_review" ? (
                     <div className="ml-auto flex items-center gap-2">

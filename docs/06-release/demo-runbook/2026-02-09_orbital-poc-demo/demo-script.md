@@ -88,7 +88,7 @@ Say:
   - "The invariant is strict: missing_input means zero citations. No bluffing."
 
 ### Edge case B: Corrupted citation fails closed (no overlay)
-- On any pack: click the tracer-bullet bad citation row (`TB-BAD-CITATION`) if present, then click `cit_TB_BAD_1`.
+- On any pack: click the bad-citation fixture row (`TB-BAD-CITATION`) if present, then click `cit_TB_BAD_1`.
 - What to show:
   - The viewer shows `citation_failed` with a reason code (for example `SNIPPET_HASH_MISMATCH`).
   - No overlay renders; export posture stays blocked.

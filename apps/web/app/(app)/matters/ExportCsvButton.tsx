@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "../../ui/Button";
+import { InlineStatus } from "../../ui/InlineStatus";
 
 type Props = {
   folderId: string;
@@ -81,6 +82,7 @@ export function ExportCsvButton(props: Props) {
   return (
     <div className="grid justify-items-end gap-2">
       <Button
+        variant="secondary"
         size="sm"
         onClick={run}
         disabled={state.kind === "loading" || !props.runId}
@@ -88,13 +90,9 @@ export function ExportCsvButton(props: Props) {
         {state.kind === "loading" ? "Exporting…" : (props.label ?? "Export CSV")}
       </Button>
 
-      {state.kind === "blocked" ? (
-        <div className="text-xs font-medium text-destructive">{state.message}</div>
-      ) : state.kind === "error" ? (
-        <div className="text-xs font-medium text-destructive">{state.message}</div>
-      ) : state.kind === "downloaded" ? (
-        <div className="text-xs font-medium text-success">{state.message}</div>
-      ) : null}
+      <InlineStatus kind={state.kind === "blocked" || state.kind === "error" ? "error" : state.kind === "downloaded" ? "success" : "idle"}>
+        {state.kind === "blocked" || state.kind === "error" ? state.message : state.kind === "downloaded" ? state.message : null}
+      </InlineStatus>
     </div>
   );
 }

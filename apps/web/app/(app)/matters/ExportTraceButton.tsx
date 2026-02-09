@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "../../ui/Button";
+import { InlineStatus } from "../../ui/InlineStatus";
 import { Input } from "../../ui/Input";
 
 type Props = {
@@ -91,6 +92,7 @@ export function ExportTraceButton(props: Props) {
           aria-label="Run id"
         />
         <Button
+          variant="secondary"
           size="sm"
           onClick={run}
           disabled={state.kind === "loading"}
@@ -99,11 +101,9 @@ export function ExportTraceButton(props: Props) {
         </Button>
       </div>
 
-      {state.kind === "error" ? (
-        <div className="text-xs font-medium text-destructive">{state.message}</div>
-      ) : state.kind === "downloaded" ? (
-        <div className="text-xs font-medium text-success">{state.message}</div>
-      ) : null}
+      <InlineStatus kind={state.kind === "error" ? "error" : state.kind === "downloaded" ? "success" : "idle"}>
+        {state.kind === "error" || state.kind === "downloaded" ? state.message : null}
+      </InlineStatus>
     </div>
   );
 }

@@ -2,7 +2,9 @@ import { z } from "zod";
 
 import { headers } from "next/headers";
 
+import { Badge } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
+import { Table, TableFrame, TD, TH } from "../../ui/Table";
 
 type Props = {
   folderId: string;
@@ -144,54 +146,48 @@ export async function ArtefactsList(props: Props) {
         <div className="text-xs text-muted-foreground">{artefacts.length} item(s)</div>
       </div>
 
-      <div className="mt-3 overflow-auto rounded-ui-md border border-border">
-        <table className="min-w-full text-left text-xs">
-          <thead className="bg-muted text-muted-foreground">
-            <tr className="border-b border-border">
-              <th className="px-3 py-2 font-medium">Filename</th>
-              <th className="px-3 py-2 font-medium">Kind</th>
-              <th className="px-3 py-2 font-medium">Created</th>
-              <th className="px-3 py-2 text-right font-medium">Action</th>
+      <TableFrame className="mt-3">
+        <Table>
+          <thead>
+            <tr>
+              <TH>Filename</TH>
+              <TH>Kind</TH>
+              <TH>Created</TH>
+              <TH className="text-right">Action</TH>
             </tr>
           </thead>
-          <tbody className="bg-card text-foreground">
+          <tbody>
             {artefacts.map((a) => {
               const unsafe = isUnsafeFilename(a.filename);
               const downloadHref = hrefFromDownloadUrl(a.download_url);
               return (
-                <tr key={a.id} className="border-b border-border/60 last:border-b-0">
-                  <td className="px-3 py-2">
+                <tr key={a.id}>
+                  <TD>
                     <div className="flex flex-wrap items-center gap-2">
-                      {unsafe ? (
-                        <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive ring-1 ring-inset ring-destructive/20">
-                          UNSAFE
-                        </span>
-                      ) : null}
+                      {unsafe ? <Badge variant="destructive" size="sm">UNSAFE</Badge> : null}
                       <span className="font-mono">{a.filename}</span>
                     </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                      {a.kind}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2">
+                  </TD>
+                  <TD>
+                    <Badge variant="muted" size="sm" className="font-mono">{a.kind}</Badge>
+                  </TD>
+                  <TD>
                     <span className="font-mono">{formatCreatedAt(a.created_at)}</span>
-                  </td>
-                  <td className="px-3 py-2 text-right">
+                  </TD>
+                  <TD className="text-right">
                     <a
-                      className={buttonClassName({ variant: "primary", size: "sm" })}
+                      className={buttonClassName({ variant: "secondary", size: "sm" })}
                       href={downloadHref}
                     >
                       Download
                     </a>
-                  </td>
+                  </TD>
                 </tr>
               );
             })}
           </tbody>
-        </table>
-      </div>
+        </Table>
+      </TableFrame>
     </section>
   );
 }

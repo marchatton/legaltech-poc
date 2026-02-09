@@ -11,7 +11,7 @@ export default function HomePage() {
       <ul className="mt-6 list-disc pl-5 text-foreground">
         <li>
           <Link className="underline hover:text-primary" href="/matters">
-            Matters: tracer bullet (citation chips → viewer → overlay)
+            Matters: demo UI (citation chips → viewer → overlay)
           </Link>
         </li>
         <li>

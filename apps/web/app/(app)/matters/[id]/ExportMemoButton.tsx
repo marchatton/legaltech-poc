@@ -4,6 +4,10 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { Button } from "../../../ui/Button";
+import { InlineStatus } from "../../../ui/InlineStatus";
+import { Input } from "../../../ui/Input";
+
 type Props = {
   folderId: string;
   runId: string | null;
@@ -142,14 +146,14 @@ export function ExportMemoButton(props: Props) {
   return (
     <div className="grid justify-items-end gap-2">
       {state.kind === "blocked" ? (
-        <div className="w-full max-w-sm rounded border border-red-200 bg-red-50 p-3 text-xs text-red-900">
+        <div className="w-full max-w-sm rounded-ui-md border border-destructive/20 bg-destructive/[0.06] p-3 text-xs text-destructive">
           <div className="font-semibold">Export blocked</div>
-          <div className="mt-1 text-red-800">
+          <div className="mt-1">
             {state.details.citationFailedCount} row(s) are <span className="font-mono">citation_failed</span>.
           </div>
 
           {state.details.failedQuestionIds.length ? (
-            <div className="mt-2 text-red-800">
+            <div className="mt-2">
               Failed:{" "}
               <span className="font-mono">
                 {state.details.failedQuestionIds.slice(0, 6).join(", ")}
@@ -165,17 +169,18 @@ export function ExportMemoButton(props: Props) {
               </a>
             </div>
           ) : (
-            <div className="mt-2 text-red-800">Next: open the run report to fix citations.</div>
+            <div className="mt-2">Next: open the run report to fix citations.</div>
           )}
 
           {props.unsafeOverrideEnabled ? (
-            <div className="mt-3 rounded border border-red-200 bg-white p-2">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-red-700">Unsafe export (demo only)</div>
+            <div className="mt-3 rounded-ui-md border border-destructive/20 bg-card p-2">
+              <div className="text-2xs font-semibold uppercase tracking-wide text-destructive">Unsafe export (demo only)</div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                 <label className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-700">Admin token</span>
-                  <input
-                    className="h-8 w-44 rounded border border-slate-300 bg-white px-2 font-mono text-xs text-slate-900"
+                  <span className="text-xs text-muted-foreground">Admin token</span>
+                  <Input
+                    className="w-44 font-mono"
+                    uiSize="sm"
                     type="password"
                     value={adminToken}
                     onChange={(e) => setAdminToken(e.target.value)}
@@ -185,16 +190,16 @@ export function ExportMemoButton(props: Props) {
                   />
                 </label>
 
-                <button
-                  className="rounded bg-red-700 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
-                  type="button"
+                <Button
+                  variant="destructive"
+                  size="sm"
                   onClick={() => run({ unsafeOverride: true })}
-                  disabled={Boolean(disabled) || state.kind === "loading"}
+                  disabled={Boolean(disabled)}
                 >
                   Export UNSAFE memo
-                </button>
+                </Button>
               </div>
-              <div className="mt-2 text-[11px] text-red-700">
+              <div className="mt-2 text-2xs text-destructive">
                 This will create <span className="font-mono">memo.UNSAFE.docx</span> even if citations failed.
               </div>
             </div>
@@ -202,19 +207,19 @@ export function ExportMemoButton(props: Props) {
         </div>
       ) : null}
 
-      <button
-        className="rounded bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-        type="button"
+      <Button
+        variant="neutral"
+        size="sm"
         onClick={() => run({ unsafeOverride: false })}
         disabled={Boolean(disabled) || state.kind === "loading"}
       >
         {state.kind === "loading" ? "Exporting…" : "Export memo (Word)"}
-      </button>
+      </Button>
 
-      {disabled ? <div className="text-xs text-slate-600">{disabled}</div> : null}
+      {disabled ? <div className="text-xs text-muted-foreground">{disabled}</div> : null}
 
-      {state.kind === "error" ? <div className="text-xs font-medium text-red-700">{state.message}</div> : null}
-      {state.kind === "done" ? <div className="text-xs font-medium text-emerald-700">{state.message}</div> : null}
+      <InlineStatus kind={state.kind === "error" ? "error" : "idle"}>{state.kind === "error" ? state.message : null}</InlineStatus>
+      <InlineStatus kind={state.kind === "done" ? "success" : "idle"}>{state.kind === "done" ? state.message : null}</InlineStatus>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "../../../ui/Button";
+import { InlineStatus } from "../../../ui/InlineStatus";
 
 type Props = {
   folderId: string;
@@ -86,7 +87,9 @@ export function QuickStartPanel(props: Props) {
 
       {props.disabledReason ? <div className="text-xs text-muted-foreground">{props.disabledReason}</div> : null}
 
-      {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
+      <InlineStatus kind={state.kind === "error" ? "error" : "idle"}>
+        {state.kind === "error" ? state.message : null}
+      </InlineStatus>
 
       {state.kind === "started" ? (
         <div className="grid gap-1 text-right text-xs text-muted-foreground">

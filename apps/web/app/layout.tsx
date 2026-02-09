@@ -5,6 +5,8 @@ import { isDemoModeEnabled } from "../lib/demoMode.server";
 import "./globals.css";
 
 import { DemoToolbar } from "./DemoToolbar";
+import { ThemeProvider, themeInitScript } from "./ui/ThemeProvider";
+import { ThemeToggle } from "./ui/ThemeToggle";
 
 export const metadata = {
   title: "Orbital PoC",
@@ -15,10 +17,21 @@ export default function RootLayout(props: { children: ReactNode }) {
   const demoEnabled = isDemoModeEnabled();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        {demoEnabled ? <DemoToolbar /> : null}
-        {props.children}
+        <ThemeProvider>
+          {demoEnabled ? (
+            <DemoToolbar />
+          ) : (
+            <div className="flex justify-end p-3">
+              <ThemeToggle />
+            </div>
+          )}
+          {props.children}
+        </ThemeProvider>
       </body>
     </html>
   );

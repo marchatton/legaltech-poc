@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "./ui/Button";
 import { Select } from "./ui/Input";
+import { ThemeToggle } from "./ui/ThemeToggle";
 
 const PACK_OPTIONS = [
   { id: "pack_01_clean", label: "pack_01_clean" },
@@ -97,6 +98,10 @@ export function DemoToolbar() {
         </Button>
 
         {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
+
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </div>
     </section>
   );

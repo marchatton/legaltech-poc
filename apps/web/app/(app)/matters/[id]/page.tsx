@@ -262,11 +262,11 @@ export default async function MatterPage(props: { params: Promise<Record<string,
         )}
       </section>
 
-      <section className="mt-6 rounded border border-slate-200 bg-white p-4">
+      <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-slate-900">Exports</div>
-            <p className="mt-1 text-xs text-slate-600">
+            <div className="text-sm font-semibold text-foreground">Exports</div>
+            <p className="mt-1 text-xs text-muted-foreground">
               Export a Word memo (.docx) and CSV artefacts for the latest completed run. Exports are disabled until a run
               completes.
             </p>
