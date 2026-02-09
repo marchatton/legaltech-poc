@@ -55,8 +55,9 @@ function secret(): string {
   const fromEnv = process.env.OBJECT_STORE_SIGNING_SECRET;
   if (fromEnv && fromEnv.trim()) return fromEnv.trim();
 
-  // Fail closed outside dev: signing must be explicitly configured.
-  if (process.env.NODE_ENV !== "development") {
+  // Fail closed unless explicitly allowed in dev.
+  const devFallbackAllowed = process.env.NODE_ENV === "development" && process.env.ALLOW_DEV_OBJECT_STORE_SECRET === "1";
+  if (!devFallbackAllowed) {
     throw new Error("OBJECT_STORE_SIGNING_SECRET_MISSING");
   }
 
@@ -85,6 +86,17 @@ function sign(args: { purpose: string; storageKey: string; expiresAtMs: number }
 }
 
 export function verifySignature(args: { purpose: string; storageKey: string; expiresAtMs: number; sig: string }): boolean {
+  const expiresAtMs = args.expiresAtMs;
+  if (!Number.isFinite(expiresAtMs)) return false;
+
+  // Defensive-in-depth: signatures are not valid once expired, even if the HMAC matches.
+  const now = Date.now();
+  if (expiresAtMs < now) return false;
+
+  // Cap far-future signatures so callers can't accidentally mint "near-permanent" URLs.
+  const maxFutureMs = 24 * 60 * 60 * 1000;
+  if (expiresAtMs > now + maxFutureMs) return false;
+
   const expected = sign({ purpose: args.purpose, storageKey: args.storageKey, expiresAtMs: args.expiresAtMs });
   const a = Buffer.from(expected);
   const b = Buffer.from(args.sig);
