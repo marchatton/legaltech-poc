@@ -1,0 +1,63 @@
+name: Fixture Eval Reports
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  fixture-eval:
+    name: fixture:eval:all (reports)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Report-only: reads in-repo fixture snapshots and emits JSON/Markdown reports under tmp/fixture-eval/.
+      - name: Run fixture evals
+        run: pnpm fixture:eval:all
+
+      - name: Publish summary table to job summary
+        if: always()
+        run: |
+          {
+            echo "## Fixture Eval Summary"
+            echo
+            if [ -f tmp/fixture-eval/summary.md ]; then
+              cat tmp/fixture-eval/summary.md
+              echo
+              echo "_Reports directory: \`tmp/fixture-eval/\`_"
+            else
+              echo "_No summary found at \`tmp/fixture-eval/summary.md\`_"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload eval reports (json/md)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixture-eval-reports
+          path: |
+            tmp/fixture-eval/**/*.json
+            tmp/fixture-eval/**/*.md
+          if-no-files-found: warn
+          retention-days: 14
+
