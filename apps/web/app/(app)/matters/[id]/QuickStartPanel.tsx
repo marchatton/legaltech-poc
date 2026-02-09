@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { Button } from "../../../ui/Button";
+
 type Props = {
   folderId: string;
   disabledReason: string | null;
@@ -74,27 +76,26 @@ export function QuickStartPanel(props: Props) {
 
   return (
     <div className="grid justify-items-end gap-2">
-      <button
-        className="rounded bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-        type="button"
+      <Button
+        size="sm"
         onClick={start}
         disabled={Boolean(props.disabledReason) || state.kind === "loading"}
       >
         {state.kind === "loading" ? "Starting…" : "Run Quick Start"}
-      </button>
+      </Button>
 
-      {props.disabledReason ? <div className="text-xs text-slate-600">{props.disabledReason}</div> : null}
+      {props.disabledReason ? <div className="text-xs text-muted-foreground">{props.disabledReason}</div> : null}
 
-      {state.kind === "error" ? <div className="text-xs font-medium text-red-700">{state.message}</div> : null}
+      {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
 
       {state.kind === "started" ? (
-        <div className="grid gap-1 text-right text-xs text-slate-700">
+        <div className="grid gap-1 text-right text-xs text-muted-foreground">
           <div>
             run: <span className="font-mono">{state.runId}</span> ({state.runState})
           </div>
           <div className="flex flex-wrap justify-end gap-3">
             <a
-              className="underline"
+              className="underline hover:text-foreground"
               href={`/runs/${encodeURIComponent(state.runId)}`}
               target="_blank"
               rel="noreferrer"
@@ -102,7 +103,7 @@ export function QuickStartPanel(props: Props) {
               Run JSON
             </a>
             <a
-              className="underline"
+              className="underline hover:text-foreground"
               href={`/folders/${encodeURIComponent(props.folderId)}/report?${new URLSearchParams({
                 run_id: state.runId,
               }).toString()}`}
@@ -117,4 +118,3 @@ export function QuickStartPanel(props: Props) {
     </div>
   );
 }
-

@@ -11,6 +11,8 @@ import { MattersToolbar } from "./MattersToolbar";
 import { ArtefactsList } from "./ArtefactsList";
 import { markRowReviewed } from "./actions";
 
+import { Button } from "../../ui/Button";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -25,11 +27,11 @@ const SearchSchema = z.object({
 });
 
 function statusClass(status: string): string {
-  if (status === "reviewed") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
-  if (status === "needs_review") return "bg-amber-50 text-amber-800 ring-amber-200";
-  if (status === "missing_input") return "bg-slate-100 text-slate-800 ring-slate-200";
-  if (status === "citation_failed") return "bg-red-50 text-red-800 ring-red-200";
-  return "bg-slate-100 text-slate-800 ring-slate-200";
+  if (status === "reviewed") return "bg-success/10 text-success ring-success/20";
+  if (status === "needs_review") return "bg-warning/10 text-warning ring-warning/20";
+  if (status === "missing_input") return "bg-muted text-muted-foreground ring-border/60";
+  if (status === "citation_failed") return "bg-destructive/10 text-destructive ring-destructive/20";
+  return "bg-muted text-muted-foreground ring-border/60";
 }
 
 function reviewErrorMessage(code: string): string {
@@ -42,10 +44,10 @@ function reviewErrorMessage(code: string): string {
 }
 
 function matchStatusClass(status: string): string {
-  if (status === "matched") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
-  if (status === "ambiguous") return "bg-amber-50 text-amber-800 ring-amber-200";
-  if (status === "missing_doc" || status === "missing_attachment") return "bg-slate-100 text-slate-800 ring-slate-200";
-  return "bg-slate-100 text-slate-800 ring-slate-200";
+  if (status === "matched") return "bg-success/10 text-success ring-success/20";
+  if (status === "ambiguous") return "bg-warning/10 text-warning ring-warning/20";
+  if (status === "missing_doc" || status === "missing_attachment") return "bg-muted text-muted-foreground ring-border/60";
+  return "bg-muted text-muted-foreground ring-border/60";
 }
 
 const MissingDocsProvenanceSchema = z
@@ -60,7 +62,7 @@ function CitationChips(props: {
   citationIds: string[];
   citations: Record<string, { document_id: string; page_number: number }> | undefined;
 }) {
-  if (!props.citationIds.length) return <div className="text-xs text-slate-500">(no citations)</div>;
+  if (!props.citationIds.length) return <div className="text-xs text-muted-foreground">(no citations)</div>;
 
   return props.citationIds.map((cid) => {
     const cit = props.citations?.[cid];
@@ -73,7 +75,7 @@ function CitationChips(props: {
     return (
       <a
         key={cid}
-        className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+        className="inline-flex items-center rounded-pill border border-border bg-card px-3 py-1 font-mono text-[11px] font-medium text-foreground transition-colors duration-micro ease-brand-standard hover:border-foreground/20"
         href={`/matters/viewer?${params.toString()}`}
       >
         {cid}
@@ -99,19 +101,21 @@ function ExceptionsPayload(props: {
   if (!items.length) return null;
 
   return (
-    <section className="mt-4 rounded border border-slate-200 bg-slate-50 p-3">
-      <div className="text-sm font-semibold text-slate-900">Exceptions table</div>
-      <p className="mt-1 text-xs text-slate-600">
+    <section className="mt-4 rounded-ui-lg border border-border bg-muted p-3">
+      <div className="text-sm font-semibold text-foreground">Exceptions table</div>
+      <p className="mt-1 text-xs text-muted-foreground">
         Click an item to see its matched instrument PDF and the locked citations used as evidence.
       </p>
 
       <div className="mt-3 grid gap-2">
         {items.map((it) => (
-          <details key={it.item_id} className="rounded border border-slate-200 bg-white p-3">
+          <details key={it.item_id} className="rounded-ui-md border border-border bg-card p-3">
             <summary className="cursor-pointer list-none">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{it.item_id}</div>
-                <div className="text-sm font-medium text-slate-900">{it.type}</div>
+                <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+                  {it.item_id}
+                </div>
+                <div className="text-sm font-medium text-foreground">{it.type}</div>
                 <div
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${matchStatusClass(
                     it.match_status,
@@ -120,35 +124,35 @@ function ExceptionsPayload(props: {
                   {it.match_status}
                 </div>
                 {it.match_status === "matched" && it.doc ? (
-                  <div className="text-xs text-slate-700">
+                  <div className="text-xs text-muted-foreground">
                     matched: <span className="font-mono">{it.doc}</span>
                   </div>
                 ) : null}
                 {it.match_status === "ambiguous" && it.candidates?.length ? (
-                  <div className="text-xs text-slate-700">candidates: {it.candidates.length}</div>
+                  <div className="text-xs text-muted-foreground">candidates: {it.candidates.length}</div>
                 ) : null}
               </div>
             </summary>
 
-            <div className="mt-3 grid gap-2 text-xs text-slate-700">
+            <div className="mt-3 grid gap-2 text-xs text-muted-foreground">
               <div className="flex flex-wrap gap-4">
                 <div>
-                  <span className="font-medium text-slate-800">Instrument</span>:{" "}
+                  <span className="font-medium text-foreground">Instrument</span>:{" "}
                   <span className="font-mono">{it.instrument_no ?? "(none)"}</span>
                 </div>
                 <div>
-                  <span className="font-medium text-slate-800">Recorded</span>:{" "}
+                  <span className="font-medium text-foreground">Recorded</span>:{" "}
                   <span className="font-mono">{it.recorded_date ?? "(none)"}</span>
                 </div>
               </div>
 
               {it.match_status === "missing_doc" ? (
-                <section className="rounded border border-slate-200 bg-slate-50 p-3">
-                  <div className="font-medium text-slate-800">Missing instrument document</div>
-                  <p className="mt-1 text-xs text-slate-700">
+                <section className="rounded-ui-md border border-border bg-muted p-3">
+                  <div className="font-medium text-foreground">Missing instrument document</div>
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Expected filename: <span className="font-mono">{it.doc ?? "(unknown)"}</span>
                   </p>
-                  <ul className="mt-2 list-disc pl-5 text-xs text-slate-700">
+                  <ul className="mt-2 list-disc pl-5 text-xs text-muted-foreground">
                     <li>
                       Request{" "}
                       <span className="font-mono">{it.doc ?? "the instrument PDF"}</span>{" "}
@@ -165,7 +169,7 @@ function ExceptionsPayload(props: {
 
               {it.match_status === "ambiguous" && it.candidates?.length ? (
                 <div>
-                  <div className="font-medium text-slate-800">Candidates</div>
+                  <div className="font-medium text-foreground">Candidates</div>
                   <ul className="mt-1 list-disc pl-5">
                     {it.candidates.map((c) => (
                       <li key={`${c.doc}:${String(c.instrument_no ?? "")}`}>
@@ -184,7 +188,7 @@ function ExceptionsPayload(props: {
               ) : null}
 
               <div>
-                <div className="font-medium text-slate-800">Evidence (locked citations)</div>
+                <div className="font-medium text-foreground">Evidence (locked citations)</div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <CitationChips
                     packId={props.packId}
@@ -211,23 +215,25 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
   if (!highConfidence.length && !lowConfidence.length) return null;
 
   return (
-    <section className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
-      <div className="text-sm font-semibold text-slate-900">Missing document checklist</div>
-      <p className="mt-1 text-xs text-slate-600">
+    <section className="mt-3 rounded-ui-lg border border-border bg-muted p-3">
+      <div className="text-sm font-semibold text-foreground">Missing document checklist</div>
+      <p className="mt-1 text-xs text-muted-foreground">
         Use the evidence signals below to request the exact PDF(s), verify the filename, then re-run the workflow.
       </p>
 
       {highConfidence.length ? (
         <ul className="mt-3 grid gap-2">
           {highConfidence.map((cand) => (
-            <li key={cand.label} className="rounded border border-slate-200 bg-white p-3">
+            <li key={cand.label} className="rounded-ui-md border border-border bg-card p-3">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{cand.label}</div>
-                <div className="text-xs text-slate-600">confidence: {Math.round(cand.confidence * 100)}%</div>
+                <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+                  {cand.label}
+                </div>
+                <div className="text-xs text-muted-foreground">confidence: {Math.round(cand.confidence * 100)}%</div>
               </div>
               {cand.signals.length ? (
-                <div className="mt-2 text-xs text-slate-700">
-                  <div className="font-medium text-slate-800">Evidence signals</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <div className="font-medium text-foreground">Evidence signals</div>
                   <ul className="mt-1 list-disc pl-5">
                     {cand.signals.map((s, idx) => (
                       <li key={`${s.type}:${s.value}:${s.source}:${String(s.page ?? "")}:${idx}`}>
@@ -242,8 +248,8 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
                   </ul>
                 </div>
               ) : null}
-              <div className="mt-2 text-xs text-slate-700">
-                <div className="font-medium text-slate-800">Checklist</div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                <div className="font-medium text-foreground">Checklist</div>
                 <ul className="mt-1 list-disc pl-5">
                   <li>
                     Request <span className="font-mono">{cand.label}</span> from the title company/seller.
@@ -261,15 +267,17 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
 
       {lowConfidence.length ? (
         <details className="mt-3">
-          <summary className="cursor-pointer text-xs font-medium text-slate-700">
+          <summary className="cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground">
             Show low-confidence candidates ({lowConfidence.length})
           </summary>
           <ul className="mt-2 grid gap-2">
             {lowConfidence.map((cand) => (
-              <li key={cand.label} className="rounded border border-slate-200 bg-white p-3">
+              <li key={cand.label} className="rounded-ui-md border border-border bg-card p-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{cand.label}</div>
-                  <div className="text-xs text-slate-600">confidence: {Math.round(cand.confidence * 100)}%</div>
+                  <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+                    {cand.label}
+                  </div>
+                  <div className="text-xs text-muted-foreground">confidence: {Math.round(cand.confidence * 100)}%</div>
                 </div>
               </li>
             ))}
@@ -306,7 +314,7 @@ export default async function MattersPage(props: {
   return (
     <main className="mx-auto max-w-5xl p-6">
       <h1 className="text-2xl font-semibold">Matters</h1>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-muted-foreground">
         Tracer-bullet UI: rows with citation chips that open a PDF viewer + highlight overlay (fail-closed on invalid
         citations).
       </p>
@@ -316,28 +324,28 @@ export default async function MattersPage(props: {
       </div>
 
       {reviewErrorCode && !reviewErrorQid ? (
-        <section className="mt-6 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <section className="mt-6 rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive shadow-ui-sm">
           <div className="font-semibold">Review not saved</div>
           <div className="mt-1 text-xs">{reviewErrorMessage(reviewErrorCode)}</div>
         </section>
       ) : null}
 
       {!snapshot ? (
-        <section className="mt-6 rounded border border-slate-200 bg-white p-4">
-          <div className="text-sm font-medium text-slate-900">No seeded data for {packId}</div>
-          <p className="mt-2 text-sm text-slate-700">Seed it locally, then refresh this page:</p>
-          <pre className="mt-3 overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">
+        <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <div className="text-sm font-medium text-foreground">No seeded data for {packId}</div>
+          <p className="mt-2 text-sm text-muted-foreground">Seed it locally, then refresh this page:</p>
+          <pre className="mt-3 overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
             {`pnpm fixture:seed ${packId}`}
           </pre>
         </section>
       ) : (
         <>
-          <section className="mt-6 flex flex-wrap items-center gap-3 rounded border border-slate-200 bg-white p-4">
-            <div className="text-sm text-slate-700">
-              <span className="font-medium text-slate-900">pack_id:</span> {snapshot.meta.pack_id}
+          <section className="mt-6 flex flex-wrap items-center gap-3 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">pack_id:</span> {snapshot.meta.pack_id}
             </div>
-            <div className="text-sm text-slate-700">
-              <span className="font-medium text-slate-900">run_id:</span> {String(snapshot.meta.run_id ?? "(none)")}
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">run_id:</span> {String(snapshot.meta.run_id ?? "(none)")}
             </div>
             <div className="ml-auto flex items-start gap-4">
               <div className="flex flex-wrap items-start justify-end gap-2">
@@ -362,12 +370,12 @@ export default async function MattersPage(props: {
 
           <section className="mt-6 grid gap-4">
             {snapshot.rows.map((row) => (
-              <div key={row.question_id} className="rounded border border-slate-200 bg-white p-4">
+              <div key={row.question_id} className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">
+                  <div className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
                     {row.question_id}
                   </div>
-                  <div className="text-sm font-semibold text-slate-900">{row.question}</div>
+                  <div className="text-sm font-semibold text-foreground">{row.question}</div>
                   <div
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusClass(
                       row.status,
@@ -381,35 +389,32 @@ export default async function MattersPage(props: {
                       <form action={markRowReviewed}>
                         <input type="hidden" name="pack" value={packId} />
                         <input type="hidden" name="question_id" value={row.question_id} />
-                        <button
-                          className="rounded bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700"
-                          type="submit"
-                        >
+                        <Button variant="success" size="sm" type="submit">
                           Mark reviewed
-                        </button>
+                        </Button>
                       </form>
                     </div>
                   ) : null}
                 </div>
 
                 {reviewErrorCode && reviewErrorQid === row.question_id ? (
-                  <div className="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                  <div className="mt-3 rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                     <div className="font-semibold">Review not saved</div>
                     <div className="mt-1 text-xs">{reviewErrorMessage(reviewErrorCode)}</div>
                   </div>
                 ) : reviewedQid === row.question_id && row.status === "reviewed" ? (
-                  <div className="mt-3 rounded border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+                  <div className="mt-3 rounded-ui-md border border-success/30 bg-success/10 p-3 text-sm text-success">
                     <div className="font-semibold">Saved</div>
                     <div className="mt-1 text-xs">Marked as reviewed.</div>
                   </div>
                 ) : null}
 
-                <div className="mt-2 text-sm text-slate-700">{row.answer}</div>
+                <div className="mt-2 text-sm text-muted-foreground">{row.answer}</div>
 
                 {row.notes ? (
-                  <section className="mt-3 rounded border border-slate-200 bg-slate-50 p-3">
-                    <div className="text-xs font-semibold text-slate-900">Notes</div>
-                    <pre className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{row.notes}</pre>
+                  <section className="mt-3 rounded-ui-md border border-border bg-muted p-3">
+                    <div className="text-xs font-semibold text-foreground">Notes</div>
+                    <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{row.notes}</pre>
                   </section>
                 ) : null}
 

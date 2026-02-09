@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { Select } from "../../ui/Input";
+
 type Props = {
   packIds: string[];
   selectedPackId: string;
@@ -25,12 +27,12 @@ export function MattersToolbar(props: Props) {
   }, [props.selectedPackId]);
 
   return (
-    <section className="rounded border border-slate-200 bg-white p-4">
+    <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
       <div className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1 text-sm">
-          <span className="text-slate-600">Seeded pack</span>
-          <select
-            className="min-w-64 rounded border border-slate-300 bg-white p-2"
+          <span className="text-muted-foreground">Seeded pack</span>
+          <Select
+            className="min-w-64"
             value={pack}
             onChange={(e) => {
               const next = e.currentTarget.value;
@@ -43,11 +45,11 @@ export function MattersToolbar(props: Props) {
                 {id}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         {!hasSeeded ? (
-          <div className="text-xs text-slate-600">
+          <div className="text-xs text-muted-foreground">
             No seeded packs found. Run <code className="font-mono">pnpm fixture:seed pack_01_clean</code>.
           </div>
         ) : null}

@@ -10,10 +10,14 @@ import {
   mapNormPolygonsToViewportCss,
   type CssPolygons,
   type NormPoint,
-  type NormPolygons,
   type ViewBox,
 } from "@orbital-poc/core";
 import { useRouter } from "next/navigation";
+
+import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
+import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
+
+import { Select } from "../../../ui/Input";
 
 type Props = {
   pack: string;
@@ -29,18 +33,6 @@ type PdfJsModule = {
   GlobalWorkerOptions?: { workerSrc: string };
   getDocument: (opts: any) => { promise: Promise<any> };
 };
-
-function validateNormPolygons(polygons: NormPolygons): string | null {
-  if (!polygons.length) return "NO_POLYGONS";
-  for (const poly of polygons) {
-    if (poly.length < 3) return "POLYGON_TOO_SMALL";
-    for (const [x, y] of poly) {
-      if (!Number.isFinite(x) || !Number.isFinite(y)) return "NON_FINITE";
-      if (x < 0 || x > 1 || y < 0 || y > 1) return "OUT_OF_RANGE";
-    }
-  }
-  return null;
-}
 
 export function Rh2OverlayClient(props: Props) {
   const router = useRouter();
@@ -265,36 +257,33 @@ export function Rh2OverlayClient(props: Props) {
 
   return (
     <div className="grid gap-4">
-      <section className="rounded border border-slate-200 bg-white p-4">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Pack</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Pack</span>
+            <Select
               value={pack}
               onChange={(e) => setPack(e.currentTarget.value)}
             >
               <option value="pack_01_clean">pack_01_clean</option>
               <option value="pack_07_scans_rotated_low_quality">pack_07_scans_rotated_low_quality</option>
-            </select>
+            </Select>
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Doc</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Doc</span>
+            <Select
               value={docKey}
               onChange={(e) => setDocKey(e.currentTarget.value as Props["docKey"])}
             >
               <option value="TitleCommitment">TitleCommitment</option>
               <option value="ALTA_Survey">ALTA_Survey</option>
-            </select>
+            </Select>
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Anchor</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Anchor</span>
+            <Select
               value={anchorId}
               onChange={(e) => setAnchorId(e.currentTarget.value)}
             >
@@ -303,13 +292,12 @@ export function Rh2OverlayClient(props: Props) {
                   {id}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Zoom</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Zoom</span>
+            <Select
               value={zoomPercent}
               disabled
               onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
@@ -319,16 +307,15 @@ export function Rh2OverlayClient(props: Props) {
                   {z}%
                 </option>
               ))}
-            </select>
-            <span className="text-xs text-slate-500">Locked to 100% for overlay verification</span>
+            </Select>
+            <span className="text-xs text-muted-foreground">Locked to 100% for overlay verification</span>
           </label>
         </div>
 
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">User rotation</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">User rotation</span>
+            <Select
               value={userRotation}
               onChange={(e) => setUserRotation(Number(e.currentTarget.value))}
             >
@@ -337,10 +324,10 @@ export function Rh2OverlayClient(props: Props) {
                   {r}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={injectInvalidPolygon}
@@ -349,7 +336,7 @@ export function Rh2OverlayClient(props: Props) {
             injectInvalidPolygon
           </label>
 
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={forceWrongPage}
@@ -359,7 +346,7 @@ export function Rh2OverlayClient(props: Props) {
           </label>
         </div>
 
-        <div className="mt-4 grid gap-1 text-sm text-slate-700">
+        <div className="mt-4 grid gap-1 text-sm text-muted-foreground">
           <div>
             <span className="font-medium">pdfjsVersion:</span> {pdfjs?.version ?? "(loading)"}
           </div>
@@ -406,16 +393,16 @@ export function Rh2OverlayClient(props: Props) {
         </div>
       </section>
 
-      <section className="rounded border border-slate-200 bg-white p-4">
-        <div className="text-sm text-slate-600">Canvas + SVG overlay</div>
-        <div className="relative mt-3 inline-block overflow-auto rounded border border-slate-200 bg-slate-50 p-2">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm text-muted-foreground">Canvas + SVG overlay</div>
+        <div className="relative mt-3 inline-block overflow-auto rounded-ui-md border border-border bg-muted p-2">
           <div className="relative">
             <canvas id="rh2-canvas" className="block" />
             {hud.errorCode ? (
-              <div className="absolute inset-0 grid place-items-center bg-white/80 p-6 text-center">
+              <div className="absolute inset-0 grid place-items-center bg-background/80 p-6 text-center">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900">citation_failed</div>
-                  <div className="mt-1 text-xs text-slate-700">reason_code: {hud.errorCode}</div>
+                  <div className="text-sm font-semibold text-foreground">citation_failed</div>
+                  <div className="mt-1 text-xs text-muted-foreground">reason_code: {hud.errorCode}</div>
                 </div>
               </div>
             ) : (
@@ -430,9 +417,7 @@ export function Rh2OverlayClient(props: Props) {
                     // eslint-disable-next-line react/no-array-index-key
                     key={idx}
                     points={points}
-                    fill="rgba(59, 130, 246, 0.25)"
-                    stroke="rgba(37, 99, 235, 0.9)"
-                    strokeWidth={2}
+                    {...overlayHighlightPolygonProps}
                   />
                 ))}
               </svg>

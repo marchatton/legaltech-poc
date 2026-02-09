@@ -71,7 +71,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     return (
       <main className="mx-auto max-w-5xl p-6">
         <h1 className="text-2xl font-semibold">Matter</h1>
-        <p className="mt-2 text-sm text-red-700">Invalid route params.</p>
+        <p className="mt-2 text-sm text-destructive">Invalid route params.</p>
       </main>
     );
   }
@@ -90,7 +90,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     return (
       <main className="mx-auto max-w-5xl p-6">
         <h1 className="text-2xl font-semibold">Matter</h1>
-        <p className="mt-2 text-sm text-slate-700">Matter not found.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Matter not found.</p>
       </main>
     );
   }
@@ -134,65 +134,74 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Matter</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-700">
-            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-800">{folder.id}</span>
-            <span className="text-slate-400">•</span>
-            <span className="font-medium text-slate-900">{folder.name}</span>
-            <span className="text-slate-400">•</span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
+              {folder.id}
+            </span>
+            <span className="text-muted-foreground/60">•</span>
+            <span className="font-medium text-foreground">{folder.name}</span>
+            <span className="text-muted-foreground/60">•</span>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
               {folder.state}
             </span>
           </div>
         </div>
 
-        <Link className="text-xs font-medium text-slate-700 underline" href="/matters">
+        <Link className="text-xs font-medium text-muted-foreground underline hover:text-foreground" href="/matters">
           Back to matters
         </Link>
       </div>
 
-      <section className="mt-6 rounded border border-slate-200 bg-white p-4">
-        <div className="text-sm font-semibold text-slate-900">Seeded documents</div>
-        <p className="mt-1 text-xs text-slate-600">
+      <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm font-semibold text-foreground">Seeded documents</div>
+        <p className="mt-1 text-xs text-muted-foreground">
           This matter was created by the demo pack loader. Documents ingest in the background.
         </p>
 
         {docs.length === 0 ? (
-          <div className="mt-4 text-sm text-slate-700">No documents.</div>
+          <div className="mt-4 text-sm text-muted-foreground">No documents.</div>
         ) : (
           <div className="mt-4 grid gap-2">
             {docs.map((d) => {
               const url = renderUrl(d);
               const ingest = `${d.parse_status}/${d.ocr_status}`;
               return (
-                <div key={d.id} className="rounded border border-slate-200 bg-slate-50 p-3">
+                <div key={d.id} className="rounded-ui-md border border-border bg-muted p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className="rounded bg-slate-900 px-2 py-0.5 font-mono text-xs text-white">{d.id}</div>
-                      <div className="text-sm font-medium text-slate-900">{d.filename}</div>
-                      <div className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800">
+                      <div className="rounded-ui-sm bg-foreground px-2 py-0.5 font-mono text-xs text-background">
+                        {d.id}
+                      </div>
+                      <div className="text-sm font-medium text-foreground">{d.filename}</div>
+                      <div className="rounded-full bg-card px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
                         {ingest}
                       </div>
                       {typeof d.extraction_quality === "number" ? (
-                        <div className="text-xs text-slate-600">
+                        <div className="text-xs text-muted-foreground">
                           quality: {Math.round(d.extraction_quality * 100)}%
                         </div>
                       ) : null}
                       {typeof d.page_count === "number" ? (
-                        <div className="text-xs text-slate-600">pages: {d.page_count}</div>
+                        <div className="text-xs text-muted-foreground">pages: {d.page_count}</div>
                       ) : null}
                     </div>
 
                     {url ? (
-                      <a className="text-xs font-medium text-slate-700 underline" href={url} target="_blank" rel="noreferrer">
+                      <a
+                        className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         Open PDF
                       </a>
                     ) : (
-                      <div className="text-xs text-slate-500">PDF not ready</div>
+                      <div className="text-xs text-muted-foreground">PDF not ready</div>
                     )}
                   </div>
 
                   {d.error_json ? (
-                    <pre className="mt-2 whitespace-pre-wrap text-xs text-red-700">
+                    <pre className="mt-2 whitespace-pre-wrap text-xs text-destructive">
                       {JSON.stringify(d.error_json, null, 2)}
                     </pre>
                   ) : null}
@@ -203,11 +212,11 @@ export default async function MatterPage(props: { params: Promise<Record<string,
         )}
       </section>
 
-      <section className="mt-6 rounded border border-slate-200 bg-white p-4">
+      <section className="mt-6 rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-slate-900">Quick Start</div>
-            <p className="mt-1 text-xs text-slate-600">
+            <div className="text-sm font-semibold text-foreground">Quick Start</div>
+            <p className="mt-1 text-xs text-muted-foreground">
               Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
               fresh matter.
             </p>
@@ -217,7 +226,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
         </div>
 
         {latestRun ? (
-          <div className="mt-4 grid gap-1 text-xs text-slate-700">
+          <div className="mt-4 grid gap-1 text-xs text-muted-foreground">
             <div>
               latest run: <span className="font-mono">{latestRun.id}</span> ({latestRun.state})
             </div>
@@ -225,11 +234,16 @@ export default async function MatterPage(props: { params: Promise<Record<string,
               progress: {latestRun.questions_done}/{latestRun.questions_total} questions
             </div>
             <div className="flex flex-wrap gap-3">
-              <a className="underline" href={`/runs/${encodeURIComponent(latestRun.id)}`} target="_blank" rel="noreferrer">
+              <a
+                className="underline hover:text-foreground"
+                href={`/runs/${encodeURIComponent(latestRun.id)}`}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Run JSON
               </a>
               <a
-                className="underline"
+                className="underline hover:text-foreground"
                 href={`/folders/${encodeURIComponent(folderId)}/report?${new URLSearchParams({
                   run_id: latestRun.id,
                 }).toString()}`}
@@ -239,12 +253,12 @@ export default async function MatterPage(props: { params: Promise<Record<string,
                 Report JSON
               </a>
             </div>
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-muted-foreground">
               created: {latestRun.created_at.toISOString()} • updated: {latestRun.updated_at.toISOString()}
             </div>
           </div>
         ) : (
-          <div className="mt-4 text-xs text-slate-600">No Quick Start runs yet.</div>
+          <div className="mt-4 text-xs text-muted-foreground">No Quick Start runs yet.</div>
         )}
       </section>
 

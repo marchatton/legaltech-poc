@@ -81,7 +81,7 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">Invalid query params.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Invalid query params.</p>
       </main>
     );
   }
@@ -96,7 +96,7 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">
+        <p className="mt-2 text-sm text-muted-foreground">
           No seeded snapshot for <span className="font-mono">{packId}</span>. Run{" "}
           <code className="font-mono">pnpm fixture:seed {packId}</code>.
         </p>
@@ -117,14 +117,14 @@ export default async function MatterViewerPage(props: {
       return (
         <main className="mx-auto max-w-3xl p-6">
           <h1 className="text-xl font-semibold">Viewer</h1>
-          <p className="mt-2 text-sm text-slate-700">
+          <p className="mt-2 text-sm text-muted-foreground">
             Failed to load citation: <span className="font-mono">{citationId}</span>
           </p>
-          <p className="mt-2 text-xs text-slate-600">
+          <p className="mt-2 text-xs text-muted-foreground">
             {e.code}: {e.message}
           </p>
           <div className="mt-4">
-            <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+            <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
               Back to matters
             </a>
           </div>
@@ -136,12 +136,12 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">
+        <p className="mt-2 text-sm text-muted-foreground">
           Failed to load citation: <span className="font-mono">{citationId}</span>
         </p>
-        <p className="mt-2 text-xs text-slate-600">{message}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{message}</p>
         <div className="mt-4">
-          <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
@@ -154,9 +154,9 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">Invalid citation payload.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Invalid citation payload.</p>
         <div className="mt-4">
-          <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
@@ -170,11 +170,11 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">
+        <p className="mt-2 text-sm text-muted-foreground">
           Citation not found: <span className="font-mono">{citationId}</span>
         </p>
         <div className="mt-4">
-          <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
@@ -208,14 +208,14 @@ export default async function MatterViewerPage(props: {
       return (
         <main className="mx-auto max-w-3xl p-6">
           <h1 className="text-xl font-semibold">Viewer</h1>
-          <p className="mt-2 text-sm text-slate-700">
+          <p className="mt-2 text-sm text-muted-foreground">
             Failed to fetch render_url for <span className="font-mono">{resolvedDocId}</span> (page {resolvedPage}).
           </p>
-          <p className="mt-2 text-xs text-slate-600">
+          <p className="mt-2 text-xs text-muted-foreground">
             {e.code}: {e.message}
           </p>
           <div className="mt-4">
-            <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+            <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
               Back to matters
             </a>
           </div>
@@ -227,12 +227,12 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">
+        <p className="mt-2 text-sm text-muted-foreground">
           Failed to fetch render_url for <span className="font-mono">{resolvedDocId}</span> (page {resolvedPage}).
         </p>
-        <p className="mt-2 text-xs text-slate-600">{message}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{message}</p>
         <div className="mt-4">
-          <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
@@ -245,9 +245,9 @@ export default async function MatterViewerPage(props: {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-xl font-semibold">Viewer</h1>
-        <p className="mt-2 text-sm text-slate-700">Invalid render_url payload.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Invalid render_url payload.</p>
         <div className="mt-4">
-          <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
             Back to matters
           </a>
         </div>
@@ -260,11 +260,11 @@ export default async function MatterViewerPage(props: {
   return (
     <main className="mx-auto max-w-6xl p-6">
       <div className="flex flex-wrap items-center gap-3">
-        <a className="text-sm font-medium text-slate-900 underline" href={`/matters?pack=${packId}`}>
+        <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={`/matters?pack=${packId}`}>
           Back to matters
         </a>
-        <div className="text-sm text-slate-700">
-          <span className="font-medium text-slate-900">citation:</span> <span className="font-mono">{citationId}</span>
+        <div className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">citation:</span> <span className="font-mono">{citationId}</span>
         </div>
       </div>
 

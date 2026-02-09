@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { Button } from "../../ui/Button";
+import { Input } from "../../ui/Input";
+
 type Props = {
   folderId: string;
   runId: string | null;
@@ -78,30 +81,29 @@ export function ExportTraceButton(props: Props) {
   return (
     <div className="grid justify-items-end gap-2">
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <input
-          className="h-9 w-44 rounded border border-slate-200 bg-white px-2 text-xs text-slate-900 placeholder:text-slate-400"
+        <Input
+          className="w-44 font-mono"
+          uiSize="sm"
           type="text"
           value={runIdInput}
           placeholder="run_id"
           onChange={(e) => setRunIdInput(e.target.value)}
           aria-label="Run id"
         />
-        <button
-          className="rounded bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-          type="button"
+        <Button
+          size="sm"
           onClick={run}
           disabled={state.kind === "loading"}
         >
           {state.kind === "loading" ? "Downloading…" : "Export trace"}
-        </button>
+        </Button>
       </div>
 
       {state.kind === "error" ? (
-        <div className="text-xs font-medium text-red-700">{state.message}</div>
+        <div className="text-xs font-medium text-destructive">{state.message}</div>
       ) : state.kind === "downloaded" ? (
-        <div className="text-xs font-medium text-emerald-700">{state.message}</div>
+        <div className="text-xs font-medium text-success">{state.message}</div>
       ) : null}
     </div>
   );
 }
-

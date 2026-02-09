@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { Button } from "../../ui/Button";
+
 type Props = {
   folderId: string;
   runId: string | null;
@@ -78,21 +80,20 @@ export function ExportCsvButton(props: Props) {
 
   return (
     <div className="grid justify-items-end gap-2">
-      <button
-        className="rounded bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-        type="button"
+      <Button
+        size="sm"
         onClick={run}
         disabled={state.kind === "loading" || !props.runId}
       >
         {state.kind === "loading" ? "Exporting…" : (props.label ?? "Export CSV")}
-      </button>
+      </Button>
 
       {state.kind === "blocked" ? (
-        <div className="text-xs font-medium text-red-700">{state.message}</div>
+        <div className="text-xs font-medium text-destructive">{state.message}</div>
       ) : state.kind === "error" ? (
-        <div className="text-xs font-medium text-red-700">{state.message}</div>
+        <div className="text-xs font-medium text-destructive">{state.message}</div>
       ) : state.kind === "downloaded" ? (
-        <div className="text-xs font-medium text-emerald-700">{state.message}</div>
+        <div className="text-xs font-medium text-success">{state.message}</div>
       ) : null}
     </div>
   );

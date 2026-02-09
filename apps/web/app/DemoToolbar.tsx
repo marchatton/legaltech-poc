@@ -4,6 +4,9 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { Button } from "./ui/Button";
+import { Select } from "./ui/Input";
+
 const PACK_OPTIONS = [
   { id: "pack_01_clean", label: "pack_01_clean" },
   { id: "pack_02_missing_rea", label: "pack_02_missing_rea" },
@@ -64,14 +67,15 @@ export function DemoToolbar() {
   }
 
   return (
-    <section className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <section className="sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl flex-wrap items-end gap-3 p-3">
-        <div className="text-xs font-semibold tracking-wide text-slate-700">DEMO MODE</div>
+        <div className="text-xs font-semibold tracking-wide text-muted-foreground">DEMO MODE</div>
 
         <label className="grid gap-1 text-xs">
-          <span className="text-slate-600">Pack</span>
-          <select
-            className="min-w-56 rounded border border-slate-300 bg-white px-2 py-1.5 text-sm"
+          <span className="text-muted-foreground">Pack</span>
+          <Select
+            className="min-w-56"
+            uiSize="sm"
             value={packId}
             onChange={(e) => setPackId(e.currentTarget.value as PackId)}
             disabled={state.kind === "loading"}
@@ -81,19 +85,18 @@ export function DemoToolbar() {
                 {p.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
-        <button
-          className="rounded bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-          type="button"
+        <Button
+          size="sm"
           onClick={loadPack}
           disabled={state.kind === "loading"}
         >
           {state.kind === "loading" ? "Loading…" : "Load demo pack"}
-        </button>
+        </Button>
 
-        {state.kind === "error" ? <div className="text-xs font-medium text-red-700">{state.message}</div> : null}
+        {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
       </div>
     </section>
   );

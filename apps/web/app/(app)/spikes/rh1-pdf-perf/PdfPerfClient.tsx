@@ -8,6 +8,9 @@ import type { PdfPerfRun } from "@orbital-poc/core";
 import { PdfPerfRunSchema } from "@orbital-poc/core";
 import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
+import { Button } from "../../../ui/Button";
+import { Input, Select } from "../../../ui/Input";
+
 type DocRef = { pack: string; filename: string };
 
 type RangePrecondition =
@@ -721,12 +724,11 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
 
   return (
     <div className="grid gap-4">
-      <section className="rounded border border-slate-200 bg-white p-4">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Pack</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Pack</span>
+            <Select
               value={doc.pack}
               onChange={(e) => setDoc((d) => ({ ...d, pack: e.currentTarget.value }))}
               disabled={busy}
@@ -736,13 +738,12 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
                   {p}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Doc</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Doc</span>
+            <Select
               value={doc.filename}
               onChange={(e) => setDoc((d) => ({ ...d, filename: e.currentTarget.value }))}
               disabled={busy}
@@ -752,13 +753,12 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
                   {f}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Zoom</span>
-            <select
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Zoom</span>
+            <Select
               value={zoomPercent}
               onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
               disabled={busy}
@@ -768,13 +768,12 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
                   {z}%
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Page (1-indexed)</span>
-            <input
-              className="rounded border border-slate-300 bg-white p-2"
+            <span className="text-muted-foreground">Page (1-indexed)</span>
+            <Input
               type="number"
               min={1}
               max={pdfPageCount ?? undefined}
@@ -786,41 +785,41 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            className="rounded bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-50"
+          <Button
+            variant="primary"
             onClick={() => void renderPage(pageInput)}
             disabled={busy || !pdf}
           >
             Jump
-          </button>
-          <button
-            className="rounded bg-slate-700 px-3 py-2 text-sm text-white disabled:opacity-50"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => void runSerialTest()}
             disabled={busy || !pdf || rangePrecondition.kind !== "pass"}
           >
             Run serial test (N=20)
-          </button>
-          <button
-            className="rounded bg-slate-700 px-3 py-2 text-sm text-white disabled:opacity-50"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => void runSpamTest()}
             disabled={busy || !pdf || rangePrecondition.kind !== "pass"}
           >
             Run spam test (N=30, interval=200ms)
-          </button>
-          <button
-            className="rounded border border-slate-300 bg-white px-3 py-2 text-sm disabled:opacity-50"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={downloadResults}
             disabled={!lastRun}
           >
             Download results JSON
-          </button>
+          </Button>
         </div>
 
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <label className="grid gap-1 text-xs">
-            <span className="text-slate-600">Spam simulated delay (ms)</span>
-            <input
-              className="w-40 rounded border border-slate-300 bg-white p-2 text-sm"
+            <span className="text-muted-foreground">Spam simulated delay (ms)</span>
+            <Input
+              className="w-40"
               type="number"
               min={0}
               step={50}
@@ -829,12 +828,12 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
               disabled={busy}
             />
           </label>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-muted-foreground">
             Adds async delay per request (simulated Range/network latency) to force cancellation behavior.
           </div>
         </div>
 
-        <div className="mt-4 grid gap-1 text-sm text-slate-700">
+        <div className="mt-4 grid gap-1 text-sm text-muted-foreground">
           <div>
             <span className="font-medium">Range:</span>{" "}
             {rangePrecondition.kind === "checking"
@@ -844,7 +843,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
                 : `FAIL (${rangePrecondition.reason})`}
           </div>
           {rangePrecondition.kind === "fail" ? (
-            <div className="mt-2 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+            <div className="mt-2 rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
               <div className="font-semibold">RH1 NO-GO</div>
               <div className="mt-1">
                 Range requests are required for valid perf numbers. Fix the PDF serving path to return{" "}
@@ -878,10 +877,10 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
             count={longTasksRef.current.longTaskCount}, max={Math.round(longTasksRef.current.maxLongTaskMs)}ms
           </div>
           {lastSummary ? (
-            <div className="mt-2 rounded border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
-              <div className="font-semibold text-slate-900">
+            <div className="mt-2 rounded-ui-md border border-border bg-muted p-3 text-xs text-muted-foreground">
+              <div className="font-semibold text-foreground">
                 {lastSummary.ok ? "GO" : "NO-GO"}{" "}
-                <span className="ml-2 font-normal text-slate-600">({lastRun?.test.type})</span>
+                <span className="ml-2 font-normal text-muted-foreground">({lastRun?.test.type})</span>
               </div>
               <div className="mt-1">
                 totalMs: p50={lastSummary.totalStats.p50 ? Math.round(lastSummary.totalStats.p50) : "?"}ms, p95=
@@ -901,23 +900,23 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
                 </div>
               ) : null}
               {lastSummary.reasons.length ? (
-                <div className="mt-1 text-slate-600">reasons: {lastSummary.reasons.join(", ")}</div>
+                <div className="mt-1 text-muted-foreground">reasons: {lastSummary.reasons.join(", ")}</div>
               ) : null}
             </div>
           ) : null}
         </div>
       </section>
 
-      <section className="rounded border border-slate-200 bg-white p-4">
-        <div className="text-sm text-slate-600">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm text-muted-foreground">
           Canvas (single-page render; cancellation on navigation)
         </div>
-        <div className="mt-3 overflow-auto rounded border border-slate-200 bg-slate-50 p-2">
+        <div className="mt-3 overflow-auto rounded-ui-md border border-border bg-muted p-2">
           <canvas id="pdfperf-canvas" />
         </div>
       </section>
 
-      <section className="text-xs text-slate-600">
+      <section className="text-xs text-muted-foreground">
         <div>
           <span className="font-medium">document_id:</span> <code>{documentId}</code>
         </div>

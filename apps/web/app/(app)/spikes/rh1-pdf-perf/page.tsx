@@ -8,7 +8,7 @@ export default function Rh1PdfPerfPage() {
   return (
     <main className="mx-auto max-w-5xl p-6">
       <h1 className="text-xl font-semibold">RH1: pdf.js perf harness</h1>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-muted-foreground">
         Dev-only harness for page jumps and jank on scanned/rotated PDFs (pack_07).
       </p>
 
@@ -23,4 +23,3 @@ export default function Rh1PdfPerfPage() {
     </main>
   );
 }
-

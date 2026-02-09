@@ -16,7 +16,7 @@ export default function RootLayout(props: { children: ReactNode }) {
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50">
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         {demoEnabled ? <DemoToolbar /> : null}
         {props.children}
       </body>

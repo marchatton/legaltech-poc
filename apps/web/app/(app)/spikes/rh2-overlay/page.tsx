@@ -32,7 +32,7 @@ export default async function Rh2OverlayPage(props: {
   return (
     <main className="mx-auto max-w-6xl p-6">
       <h1 className="text-xl font-semibold">RH2: highlight overlay harness</h1>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-muted-foreground">
         Dev-only harness to validate anchor mapping across zoom and rotation. Fail-closed on invalid geometry.
       </p>
 

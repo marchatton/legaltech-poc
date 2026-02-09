@@ -10,6 +10,10 @@ import {
   type PdfJsViewportLike,
   type ViewBox,
 } from "@orbital-poc/core";
+import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
+import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
+
+import { Select } from "../../../ui/Input";
 
 type Props = {
   packId: string;
@@ -50,18 +54,6 @@ type PdfJsModule = {
   GlobalWorkerOptions?: { workerSrc: string };
   getDocument: (opts: { url: string }) => { promise: Promise<PdfDocLike> };
 };
-
-function validateNormPolygons(polygons: NormPolygons): string | null {
-  if (!polygons.length) return "NO_POLYGONS";
-  for (const poly of polygons) {
-    if (poly.length < 3) return "POLYGON_TOO_SMALL";
-    for (const [x, y] of poly) {
-      if (!Number.isFinite(x) || !Number.isFinite(y)) return "NON_FINITE";
-      if (x < 0 || x > 1 || y < 0 || y > 1) return "OUT_OF_RANGE";
-    }
-  }
-  return null;
-}
 
 function coerceViewBox(view: unknown): ViewBox {
   if (Array.isArray(view) && view.length >= 4) {
@@ -269,26 +261,25 @@ export function CitationViewerClient(props: Props) {
 
   return (
     <div className="grid gap-4">
-      <section className="rounded border border-slate-200 bg-white p-4">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid gap-1 text-sm text-slate-700">
+          <div className="grid gap-1 text-sm text-muted-foreground">
             <div>
-              <span className="font-medium text-slate-900">document_id:</span> {props.documentId}{" "}
-              <span className="ml-2 font-medium text-slate-900">page:</span> {props.pageNumber}{" "}
-              {pdfPageCount ? <span className="text-slate-500">(of {pdfPageCount})</span> : null}
+              <span className="font-medium text-foreground">document_id:</span> {props.documentId}{" "}
+              <span className="ml-2 font-medium text-foreground">page:</span> {props.pageNumber}{" "}
+              {pdfPageCount ? <span className="text-muted-foreground">(of {pdfPageCount})</span> : null}
             </div>
             <div>
-              <span className="font-medium text-slate-900">pack:</span> {props.packId}{" "}
-              <span className="ml-2 font-medium text-slate-900">pdfjs:</span>{" "}
+              <span className="font-medium text-foreground">pack:</span> {props.packId}{" "}
+              <span className="ml-2 font-medium text-foreground">pdfjs:</span>{" "}
               {hud.pdfjsVersion ?? "(loading)"}
             </div>
           </div>
 
           <div className="flex flex-wrap items-end gap-3">
             <label className="grid gap-1 text-sm">
-              <span className="text-slate-600">Zoom</span>
-              <select
-                className="rounded border border-slate-300 bg-white p-2"
+              <span className="text-muted-foreground">Zoom</span>
+              <Select
                 value={effectiveZoomPercent}
                 disabled={highlightActive}
                 onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
@@ -298,14 +289,15 @@ export function CitationViewerClient(props: Props) {
                     {z}%
                   </option>
                 ))}
-              </select>
-              {highlightActive ? <span className="text-xs text-slate-500">Locked to 100% while highlighting</span> : null}
+              </Select>
+              {highlightActive ? (
+                <span className="text-xs text-muted-foreground">Locked to 100% while highlighting</span>
+              ) : null}
             </label>
 
             <label className="grid gap-1 text-sm">
-              <span className="text-slate-600">Rotation</span>
-              <select
-                className="rounded border border-slate-300 bg-white p-2"
+              <span className="text-muted-foreground">Rotation</span>
+              <Select
                 value={userRotation}
                 onChange={(e) => setUserRotation(Number(e.currentTarget.value))}
               >
@@ -314,28 +306,30 @@ export function CitationViewerClient(props: Props) {
                     {r}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
           </div>
         </div>
 
         <div className="mt-4 grid gap-2">
-          <div className="text-xs text-slate-600">snippet</div>
-          <pre className="overflow-auto rounded bg-slate-950 p-3 text-xs text-slate-100">{props.snippet}</pre>
+          <div className="text-xs text-muted-foreground">snippet</div>
+          <pre className="overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
+            {props.snippet}
+          </pre>
 
-          <div className="grid gap-1 text-xs text-slate-700">
+          <div className="grid gap-1 text-xs text-muted-foreground">
             <div>
-              <span className="font-medium text-slate-900">snippet_hash:</span>{" "}
+              <span className="font-medium text-foreground">snippet_hash:</span>{" "}
               <span className="font-mono">{props.snippetHash}</span>
             </div>
             <div>
-              <span className="font-medium text-slate-900">computed:</span>{" "}
+              <span className="font-medium text-foreground">computed:</span>{" "}
               <span className="font-mono">{props.computedSnippetHash}</span>
             </div>
           </div>
 
           {hud.errorCode ? (
-            <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            <div className="rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
               <div className="font-semibold">citation_failed</div>
               <div className="mt-1 text-xs">reason_code: {hud.errorCode}</div>
             </div>
@@ -343,17 +337,17 @@ export function CitationViewerClient(props: Props) {
         </div>
       </section>
 
-      <section className="rounded border border-slate-200 bg-white p-4">
-        <div className="text-sm text-slate-600">PDF + highlight overlay</div>
-        <div className="relative mt-3 inline-block overflow-auto rounded border border-slate-200 bg-slate-50 p-2">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm text-muted-foreground">PDF + highlight overlay</div>
+        <div className="relative mt-3 inline-block overflow-auto rounded-ui-md border border-border bg-muted p-2">
           <div className="relative">
             <canvas id="citation-canvas" className="block" />
 
             {hud.errorCode ? (
-              <div className="absolute inset-0 grid place-items-center bg-white/80 p-6 text-center">
+              <div className="absolute inset-0 grid place-items-center bg-background/80 p-6 text-center">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900">citation_failed</div>
-                  <div className="mt-1 text-xs text-slate-700">reason_code: {hud.errorCode}</div>
+                  <div className="text-sm font-semibold text-foreground">citation_failed</div>
+                  <div className="mt-1 text-xs text-muted-foreground">reason_code: {hud.errorCode}</div>
                 </div>
               </div>
             ) : (
@@ -368,9 +362,7 @@ export function CitationViewerClient(props: Props) {
                     // eslint-disable-next-line react/no-array-index-key
                     key={idx}
                     points={points}
-                    fill="rgba(59, 130, 246, 0.25)"
-                    stroke="rgba(37, 99, 235, 0.9)"
-                    strokeWidth={2}
+                    {...overlayHighlightPolygonProps}
                   />
                 ))}
               </svg>
@@ -379,7 +371,7 @@ export function CitationViewerClient(props: Props) {
         </div>
 
         {hud.overlayBbox ? (
-          <div className="mt-3 text-xs text-slate-600">
+          <div className="mt-3 text-xs text-muted-foreground">
             overlay bbox:{" "}
             <span className="font-mono">
               {`{minX:${Math.round(hud.overlayBbox.minX)}, minY:${Math.round(hud.overlayBbox.minY)}, maxX:${Math.round(

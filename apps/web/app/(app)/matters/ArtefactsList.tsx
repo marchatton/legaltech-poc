@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { headers } from "next/headers";
 
+import { buttonClassName } from "../../ui/Button";
+
 type Props = {
   folderId: string;
 };
@@ -83,18 +85,18 @@ export async function ArtefactsList(props: Props) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (
-      <section className="rounded border border-red-200 bg-red-50 p-4">
-        <div className="text-sm font-semibold text-red-900">Artefacts</div>
-        <div className="mt-2 text-xs text-red-700">{message}</div>
+      <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
+        <div className="text-sm font-semibold text-destructive">Artefacts</div>
+        <div className="mt-2 text-xs text-destructive">{message}</div>
       </section>
     );
   }
 
   if (res.status === 404) {
     return (
-      <section className="rounded border border-slate-200 bg-white p-4">
-        <div className="text-sm font-semibold text-slate-900">Artefacts</div>
-        <div className="mt-2 text-xs text-slate-600">No artefacts yet.</div>
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm font-semibold text-foreground">Artefacts</div>
+        <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
       </section>
     );
   }
@@ -106,9 +108,9 @@ export async function ArtefactsList(props: Props) {
       message: `Request failed (${res.status}).`,
     });
     return (
-      <section className="rounded border border-red-200 bg-red-50 p-4">
-        <div className="text-sm font-semibold text-red-900">Artefacts</div>
-        <div className="mt-2 text-xs text-red-700">
+      <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
+        <div className="text-sm font-semibold text-destructive">Artefacts</div>
+        <div className="mt-2 text-xs text-destructive">
           {e.code}: {e.message}
         </div>
       </section>
@@ -118,9 +120,9 @@ export async function ArtefactsList(props: Props) {
   const parsed = ArtefactsResponseSchema.safeParse(json);
   if (!parsed.success) {
     return (
-      <section className="rounded border border-red-200 bg-red-50 p-4">
-        <div className="text-sm font-semibold text-red-900">Artefacts</div>
-        <div className="mt-2 text-xs text-red-700">Invalid artefacts payload.</div>
+      <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
+        <div className="text-sm font-semibold text-destructive">Artefacts</div>
+        <div className="mt-2 text-xs text-destructive">Invalid artefacts payload.</div>
       </section>
     );
   }
@@ -128,40 +130,40 @@ export async function ArtefactsList(props: Props) {
   const artefacts = parsed.data.artefacts;
   if (!artefacts.length) {
     return (
-      <section className="rounded border border-slate-200 bg-white p-4">
-        <div className="text-sm font-semibold text-slate-900">Artefacts</div>
-        <div className="mt-2 text-xs text-slate-600">No artefacts yet.</div>
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm font-semibold text-foreground">Artefacts</div>
+        <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
       </section>
     );
   }
 
   return (
-    <section className="rounded border border-slate-200 bg-white p-4">
+    <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
       <div className="flex items-baseline justify-between gap-3">
-        <div className="text-sm font-semibold text-slate-900">Artefacts</div>
-        <div className="text-xs text-slate-600">{artefacts.length} item(s)</div>
+        <div className="text-sm font-semibold text-foreground">Artefacts</div>
+        <div className="text-xs text-muted-foreground">{artefacts.length} item(s)</div>
       </div>
 
-      <div className="mt-3 overflow-auto rounded border border-slate-200">
+      <div className="mt-3 overflow-auto rounded-ui-md border border-border">
         <table className="min-w-full text-left text-xs">
-          <thead className="bg-slate-50 text-slate-700">
-            <tr className="border-b border-slate-200">
+          <thead className="bg-muted text-muted-foreground">
+            <tr className="border-b border-border">
               <th className="px-3 py-2 font-medium">Filename</th>
               <th className="px-3 py-2 font-medium">Kind</th>
               <th className="px-3 py-2 font-medium">Created</th>
               <th className="px-3 py-2 text-right font-medium">Action</th>
             </tr>
           </thead>
-          <tbody className="bg-white text-slate-800">
+          <tbody className="bg-card text-foreground">
             {artefacts.map((a) => {
               const unsafe = isUnsafeFilename(a.filename);
               const downloadHref = hrefFromDownloadUrl(a.download_url);
               return (
-                <tr key={a.id} className="border-b border-slate-100 last:border-b-0">
+                <tr key={a.id} className="border-b border-border/60 last:border-b-0">
                   <td className="px-3 py-2">
                     <div className="flex flex-wrap items-center gap-2">
                       {unsafe ? (
-                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700 ring-1 ring-inset ring-red-200">
+                        <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive ring-1 ring-inset ring-destructive/20">
                           UNSAFE
                         </span>
                       ) : null}
@@ -169,7 +171,7 @@ export async function ArtefactsList(props: Props) {
                     </div>
                   </td>
                   <td className="px-3 py-2">
-                    <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[10px] text-slate-800">
+                    <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
                       {a.kind}
                     </span>
                   </td>
@@ -178,7 +180,7 @@ export async function ArtefactsList(props: Props) {
                   </td>
                   <td className="px-3 py-2 text-right">
                     <a
-                      className="rounded bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+                      className={buttonClassName({ variant: "primary", size: "sm" })}
                       href={downloadHref}
                     >
                       Download
