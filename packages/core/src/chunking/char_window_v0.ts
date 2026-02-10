@@ -60,15 +60,15 @@ function alignEndToWhitespaceBoundary(args: {
 }
 
 export function charWindowV0Spans(text: string, params: CharWindowV0Params = CHAR_WINDOW_V0_DEFAULT_PARAMS): CharWindowV0Span[] {
-  const len = text.length;
-  if (len === 0) return [{ char_start: 0, char_end: 0 }];
-
   const maxChars = Math.trunc(params.maxChars);
   const overlapChars = Math.trunc(params.overlapChars);
 
   if (!Number.isFinite(maxChars) || maxChars <= 0) throw new Error("char_window_v0: maxChars must be > 0");
   if (!Number.isFinite(overlapChars) || overlapChars < 0) throw new Error("char_window_v0: overlapChars must be >= 0");
   if (overlapChars >= maxChars) throw new Error("char_window_v0: overlapChars must be < maxChars");
+
+  const len = text.length;
+  if (len === 0) return [];
 
   const step = maxChars - overlapChars;
   const spans: CharWindowV0Span[] = [];
