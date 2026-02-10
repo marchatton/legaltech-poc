@@ -15,6 +15,7 @@ export function useTheme() {
   return useContext(Ctx);
 }
 
+// Keep this in sync with `apps/web/public/theme-init.js` (used to prevent FOUC).
 const STORAGE_KEY = "orbital-theme";
 
 function applyThemeClass(theme: Theme) {
@@ -60,18 +61,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
-
-/**
- * Inline script string to prevent FOUC. Inject this as a <script> in <head>
- * or before <body> content so the correct class is applied before first paint.
- */
-export const themeInitScript = `
-(function(){
-  try {
-    var t = localStorage.getItem("${STORAGE_KEY}");
-    if (t === "dark") document.documentElement.classList.add("dark");
-    else if (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-      document.documentElement.classList.add("dark");
-  } catch(e) {}
-})();
-`.trim();

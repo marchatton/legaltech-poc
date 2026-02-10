@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 
+import Script from "next/script";
+
 import { isDemoModeEnabled } from "../lib/demoMode.server";
 
 import "./globals.css";
 
 import { DemoToolbar } from "./DemoToolbar";
-import { ThemeProvider, themeInitScript } from "./ui/ThemeProvider";
+import { ThemeProvider } from "./ui/ThemeProvider";
 import { ThemeToggle } from "./ui/ThemeToggle";
 
 export const metadata = {
@@ -19,7 +21,7 @@ export default function RootLayout(props: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
       </head>
       <body className="min-h-dvh bg-background font-sans text-foreground">
         <ThemeProvider>
