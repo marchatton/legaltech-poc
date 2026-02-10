@@ -32,9 +32,14 @@ tmp/object-store/
 .agents/skills/00-utilities/dev-browser/profiles/
 
 # Ralph agent run artefacts
-.ralph
-/.ralph/
-/.ralph.bad*/
+.ralph/*
+!.ralph/progress.md
+!.ralph/activity.log
+!.ralph/errors.log
+!.ralph/guardrails.md
+.ralph/runs/
+.ralph/.tmp/
+.ralph.bad*/
 
 # macOS
 .DS_Store

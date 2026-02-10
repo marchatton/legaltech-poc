@@ -7,11 +7,17 @@
 
 ## Events
 
+[2026-02-10 22:29:48] ITERATION 1 start (mode=build story=US-003)
+[2026-02-10 22:31:04] US-003 start: remove legacy durable jobs runtime (execute_run + worker loop)
+[2026-02-10 22:35:37] US-003: removed legacy execute_run jobs runtime (deleted job queue/worker + quickStart enqueue; worker.ts now WDK-only)
+[2026-02-10 22:36:50] US-003: installing dependencies (node_modules missing)
 [2026-02-10 22:43:09] ITERATION 1 start (mode=build story=US-001)
 [2026-02-10 22:43:29] US-001 start: audit existing matter chat UI + /folders/:id/chat API
 [2026-02-10 22:44:23] ITERATION 1 end (duration=76s)
 [2026-02-10 22:44:26] ITERATION 2 start (mode=build story=US-002)
 [2026-02-10 22:44:39] Start US-002 work (Locked sources evidence viewer)
+[2026-02-10 22:47:11] US-003: verification complete (typecheck/test/lint/build)
+[2026-02-10 22:49:20] US-003: progress log updated
 [2026-02-10 22:55:29] Implement /evidence/:id viewer + render Sources chips
 [2026-02-10 22:56:03] Run quality gate: pnpm -r typecheck
 [2026-02-10 22:56:23] Install dependencies (pnpm install)
