@@ -8,6 +8,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDemoModeEnabledApi } from "../../../../lib/demoMode.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
+import { assertJsonContentType } from "../../../../lib/jsonContentType";
 import { orbitalMode } from "../../../../lib/runtimeMode";
 import { refreshFolderState } from "../../../../lib/folderState.server";
 import { enqueueDocumentIngest } from "../../../../lib/ingest/ingestQueue.server";
@@ -67,6 +68,9 @@ export async function POST(req: Request): Promise<Response> {
     const demoGate = assertDemoModeEnabledApi(traceId, headers);
     if (demoGate) return demoGate;
   }
+
+  const ctGate = assertJsonContentType({ req, traceId, headers });
+  if (ctGate) return ctGate;
 
   await ensureSchema();
 

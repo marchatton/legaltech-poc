@@ -6,6 +6,7 @@ import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { newId } from "../../../../../lib/ids";
+import { assertJsonContentType } from "../../../../../lib/jsonContentType";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 import { startQuickStartTitleSurveyWorkflow } from "../../../../../workflows/quickStartTitleSurveyWorkflow.server";
@@ -75,6 +76,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   const { traceId, headers } = createTraceContext();
   const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
+
+  const ctGate = assertJsonContentType({ req, traceId, headers });
+  if (ctGate) return ctGate;
 
   await ensureSchema();
 

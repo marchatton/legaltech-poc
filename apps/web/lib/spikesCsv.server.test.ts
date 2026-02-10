@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { spikesSnapshotToCsv } from "./spikesCsv.server";
+import type { ResolvedSeedSnapshot } from "./fixtureSeed.server";
 
 describe("spikesSnapshotToCsv", () => {
   it("prefixes formula-like cells to prevent CSV injection", () => {
-    const csv = spikesSnapshotToCsv({
+    const snapshot: ResolvedSeedSnapshot = {
+      meta: { pack_id: "pack_01_clean" },
       rows: [
         {
           question_id: "Q1",
@@ -14,7 +16,10 @@ describe("spikesSnapshotToCsv", () => {
           citation_ids: ["cit_1"],
         },
       ],
-    } as any);
+      citations: {},
+    };
+
+    const csv = spikesSnapshotToCsv(snapshot);
 
     const lines = csv.trimEnd().split("\n");
     expect(lines[0]).toBe("question_id,question,answer,status,citation_ids");
@@ -22,4 +27,3 @@ describe("spikesSnapshotToCsv", () => {
     expect(lines[1]).toContain("\"'+SUM(1,1)\"");
   });
 });
-

@@ -3432,7 +3432,7 @@ RH-2.10 pack name audit (canonical packs_summary)
 Date: 2026-02-07
 
 Command:
-  rg -n "pack_04_multi_parcel_complex|pack_06_noisy_scans_rotated_page|pack_05_duplicate_instrument_exhibit_missing" docs --glob '!**/tmp-oracle/**'
+  rg -n "pack_04_multi_parcel|pack_07_scans_rotated_low_quality|pack_05_partial_release" docs --glob '!**/tmp-oracle/**'
 
 Result:
   No matches.

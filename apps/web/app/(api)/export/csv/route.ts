@@ -8,6 +8,7 @@ import { createTraceContext } from "../../../../lib/trace.server";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { newId } from "../../../../lib/ids";
+import { assertJsonContentType } from "../../../../lib/jsonContentType";
 import {
   createSignedGetHeaders,
   putObject,
@@ -122,6 +123,9 @@ export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
   const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
+
+  const ctGate = assertJsonContentType({ req, traceId, headers });
+  if (ctGate) return ctGate;
 
   await ensureSchema();
 

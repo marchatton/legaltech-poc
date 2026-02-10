@@ -6,6 +6,7 @@ import {
   basicAuthRequiredResponse,
   verifyBasicAuthHeader,
 } from "./lib/basicAuth";
+import { isSameOriginMutationRequest } from "./lib/sameOrigin";
 
 function isStaticOrNextInternal(pathname: string): boolean {
   if (pathname.startsWith("/_next/")) return true;
@@ -65,6 +66,12 @@ export function middleware(req: NextRequest) {
 
   if (!isAllowedInDemoProd(req)) {
     return new Response("Not found.", { status: 404 });
+  }
+
+  const method = req.method.toUpperCase();
+  if (method !== "GET" && method !== "HEAD") {
+    const ok = isSameOriginMutationRequest({ expectedOrigin: req.nextUrl.origin, headers: req.headers });
+    if (!ok) return new Response("Forbidden.", { status: 403 });
   }
 
   return NextResponse.next();

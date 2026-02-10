@@ -67,6 +67,22 @@ describe("export docx (memo)", () => {
     sqlMock.mockReset();
   });
 
+  it("returns 415 when Content-Type is not application/json", async () => {
+    const { POST } = await import("../app/(api)/export/docx/route");
+
+    const res = await POST(
+      new Request("http://localhost:3000/export/docx", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ folder_id: "fld_test", run_id: "run_test", kind: "memo" }),
+      }),
+    );
+
+    expect(res.status).toBe(415);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("UNSUPPORTED_MEDIA_TYPE");
+  });
+
   it("returns 409 when run is not completed", async () => {
     const { POST } = await import("../app/(api)/export/docx/route");
 
