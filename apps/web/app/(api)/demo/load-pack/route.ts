@@ -180,7 +180,7 @@ export async function POST(req: Request): Promise<Response> {
     await refreshFolderState(folderId);
 
     for (const docId of seededDocIds) {
-      enqueueDocumentIngest(docId);
+      enqueueDocumentIngest(docId, { traceId });
     }
   } catch (err) {
     // eslint-disable-next-line no-console

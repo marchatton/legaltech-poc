@@ -103,7 +103,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   }
 
   if (doc.parse_status === "queued" && doc.ocr_status === "queued") {
-    enqueueDocumentIngest(documentId);
+    enqueueDocumentIngest(documentId, { traceId });
   }
 
   return Response.json(

@@ -8,14 +8,17 @@ describe("wdk directive guardrail", () => {
   it("asserts directives for registered WDK steps", () => {
     for (const [stepType, handler] of Object.entries(wdkSmokeStepHandlers)) {
       expect(() => {
-        assertWdkDirective(handler, "use step", { kind: "step", id: stepType });
+        assertWdkDirective(handler as (...args: unknown[]) => unknown, "use step", { kind: "step", id: stepType });
       }).not.toThrow();
     }
   });
 
   it("asserts directives for registered WDK workflows", () => {
     expect(() => {
-      assertWdkDirective(startWdkSmokeWorkflow, "use workflow", { kind: "workflow", id: "wdk_smoke" });
+      assertWdkDirective(startWdkSmokeWorkflow as (...args: unknown[]) => unknown, "use workflow", {
+        kind: "workflow",
+        id: "wdk_smoke",
+      });
     }).not.toThrow();
   });
 
@@ -29,4 +32,3 @@ describe("wdk directive guardrail", () => {
     }).toThrow(/use step/);
   });
 });
-
