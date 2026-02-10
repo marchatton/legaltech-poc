@@ -587,7 +587,7 @@ Context
 Decision
 - We support two local dev modes:
   - Docker Compose mode: use Compose for **local dependency services** (currently `docker-compose.yml` provisions Postgres: pg16 + pgvector); run the app/worker on the host for day-to-day development.
-  - Sprite mode: use Sprite as a **local dev sandbox** to run the same dev setup in a more isolated/reproducible environment.
+  - Sprite mode: use Sprite as a **local dev sandbox** to run the same dev setup in a more isolated/reproducible environment; Docker Compose may not be needed for local services.
 - We do not require containerizing the web app / worker for development, but Sprite mode may choose to do so as an implementation detail of the sandbox.
 
 Consequences

@@ -30,7 +30,7 @@
   },
   "stack": {
     "framework": "Next.js App Router (apps/web) + packages/core + TypeScript",
-    "hosting": "Local dev (docker-compose) today; target deployments vary but must support Postgres + pgvector.",
+    "hosting": "Local dev: Docker Compose mode or Sprite mode (Docker Compose may not be needed in Sprite). Target deployments vary but must support Postgres + pgvector.",
     "database": "Postgres with pgvector extension",
     "auth": "PoC: no end-user auth; dev-only spike endpoints are gated (SPIKES_ENABLED) and some admin-only endpoints require X-Orbital-Admin-Token."
   },
