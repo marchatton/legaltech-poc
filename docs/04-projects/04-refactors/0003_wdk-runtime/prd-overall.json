@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "project": "WDK Runtime (Workstream B)",
+  "overview": "Introduce a minimal in-repo WDK runtime and worker (workflow controller + durable steps) and cut over document ingest to WDK behind a short-lived feature flag. Quick Start cutover is tracked separately in refactor 0004.",
+  "goals": [
+    "WDK runtime exists in-repo with a clear minimal API surface and conventions (use workflow / use step).",
+    "WDK worker loop is runnable via pnpm --filter @orbital-poc/web worker.",
+    "Step claiming is safe for multiple workers (FOR UPDATE SKIP LOCKED).",
+    "Document ingest is WDK-owned (no new jobs(type=ingest_document) rows) once the cutover is rolled forward."
+  ],
+  "nonGoals": [
+    "Implement retrieval substrate (0011a) or Matter Chat (0011b).",
+    "Refactor Quick Start internals into retrieve/draft/lock/verify/write in this dossier.",
+    "Replace runtime DDL with migrations."
+  ],
+  "successMetrics": [
+    "wdk_smoke completes across worker restarts without duplicate side effects.",
+    "With cutover enabled, uploads ingest via WDK and do not create ingest jobs."
+  ],
+  "openQuestions": [
+    "Does WDK world reuse run_steps directly or use WDK-specific step rows first?",
+    "What minimal dev-only debug surface is required (/spikes/wdk/* vs DB-only inspection)?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web) + TypeScript",
+    "hosting": "Hetzner VM (target posture; local dev supported)",
+    "database": "Postgres (runtime DDL via ensureSchema)",
+    "auth": "N/A for this refactor"
+  },
+  "routes": [
+    {
+      "path": "/spikes/wdk/smoke/start",
+      "name": "Start WDK smoke",
+      "purpose": "Dev-only trigger to start the WDK smoke workflow (implementation detail; may vary)."
+    }
+  ],
+  "uiNotes": [
+    "No user-facing UI required in this refactor; minimal dev-only trigger endpoint is acceptable."
+  ],
+  "dataModel": [
+    {
+      "entity": "run_steps / WDK world",
+      "fields": [
+        "step_key (deterministic idempotency key)",
+        "claim/lock fields (locked_at, locked_by)",
+        "available_at (scheduling)",
+        "input/output json (step boundary IO)"
+      ]
+    }
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "childPrds": [
+    "docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.md",
+    "docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003b_ingest-to-wdk-cutover/prd.md"
+  ],
+  "relatedWork": [
+    "docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.md",
+    "docs/04-projects/04-refactors/0002_durable-jobs/prd.md",
+    "docs/04-projects/04-refactors/0003_wdk-runtime/plan.md"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Execute WDK smoke workflow durably",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want a WDK worker that can run a tiny smoke workflow across restarts so the runtime is proven before cutting over real work.",
+      "acceptanceCriteria": [
+        "A dev-only mechanism exists to start wdk_smoke and observe durable step state.",
+        "Example: kill and restart the worker mid-flight and the workflow completes without duplicate side effects.",
+        "Negative: workflow does not execute step side effects inside the HTTP handler."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Feature-flag ingest cutover to WDK",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a developer, I want ingest to execute via WDK behind a short-lived feature flag so we can roll forward safely and roll back without schema rollback.",
+      "acceptanceCriteria": [
+        "A single env flag gates ingest orchestration path (jobs vs WDK).",
+        "Example: with flag ON, uploads ingest via WDK and do not create jobs(type=ingest_document) rows.",
+        "Negative: with flag OFF, ingest continues to work without requiring a WDK worker."
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "project": "WDK Runtime Skeleton + Worker + Smoke Workflow (0003a)",
+  "overview": "Implement a minimal in-repo WDK runtime and worker loop that can execute a small smoke workflow durably across restarts, with safe step claiming, retries/backoff, and convention guardrails (use workflow / use step). No production cutovers in this slice.",
+  "goals": [
+    "WDK runtime API exists and is used by at least one real workflow.",
+    "Safe multi-worker step claiming using FOR UPDATE SKIP LOCKED.",
+    "Bounded retries/backoff and stale lock requeue exist and are testable.",
+    "Step IO is JSON-serialisable and Zod-validated at boundaries.",
+    "Conventions are enforceable via a lightweight automated guardrail."
+  ],
+  "nonGoals": [
+    "Cut over ingest or Quick Start runs in this slice.",
+    "Implement retrieval/draft/lock/verify pipeline behavior.",
+    "Ship user-facing UI beyond a dev-only trigger endpoint if needed."
+  ],
+  "successMetrics": [
+    "wdk_smoke completes across worker restarts without duplicate side effects.",
+    "Two workers running concurrently do not double-execute the same step."
+  ],
+  "openQuestions": [
+    "Does WDK step execution reuse run_steps directly or use WDK-specific step rows first?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web) + TypeScript",
+    "hosting": "Local dev + Hetzner VM (target posture)",
+    "database": "Postgres (runtime DDL)",
+    "auth": "N/A"
+  },
+  "routes": [
+    {
+      "path": "/spikes/wdk/smoke/start",
+      "name": "Start WDK smoke workflow",
+      "purpose": "Dev-only trigger to start the smoke workflow (exact shape can vary)."
+    }
+  ],
+  "uiNotes": [
+    "No UI required; dev-only route is acceptable if needed for triggering/inspection."
+  ],
+  "dataModel": [
+    {
+      "entity": "WDK world / step queue",
+      "fields": [
+        "run_id",
+        "step_key",
+        "step_type",
+        "state (queued|running|succeeded|failed)",
+        "attempt (1-based)",
+        "available_at",
+        "locked_at",
+        "locked_by",
+        "input_json",
+        "output_json",
+        "error_json",
+        "metrics_json"
+      ]
+    }
+  ],
+  "rules": [
+    "Workflow entrypoints start with the directive string literal \"use workflow\".",
+    "Step implementations start with the directive string literal \"use step\".",
+    "Workflows do not perform side effects; steps own side effects and idempotency.",
+    "Step inputs/outputs are JSON-serialisable and Zod-validated at the boundary."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "WDK worker claims and executes steps durably",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want a WDK worker loop that safely claims executable steps and executes them so work continues across restarts and supports multiple workers.",
+      "acceptanceCriteria": [
+        "Step claiming uses FOR UPDATE SKIP LOCKED so two workers cannot claim the same step.",
+        "Example: run two workers concurrently and confirm only one executes a given (run_id, step_key).",
+        "Negative: two workers must not execute the same step concurrently or produce duplicate side effects."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "wdk_smoke workflow proves conventions + retries",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a developer, I want a tiny wdk_smoke workflow with 2-3 steps so we prove workflow/step conventions and the retry path before cutting over real flows.",
+      "acceptanceCriteria": [
+        "A dev-only trigger exists to start wdk_smoke and observe durable step state transitions.",
+        "Example: one smoke step fails once and succeeds on retry (attempt increments and backoff applies).",
+        "Negative: smoke step side effects must not run inside the HTTP handler; only the worker executes steps."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Lightweight directive guardrail exists",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a contributor, I want an automated guardrail that makes it obvious when a workflow/step violates directive conventions.",
+      "acceptanceCriteria": [
+        "A lightweight automated check asserts workflow/step directive literals exist for registered workflows/steps.",
+        "Example: removing \"use step\" from a step implementation causes CI to fail.",
+        "Negative: the guardrail must be best-effort (not a fragile full parser) and should not block unrelated changes."
+      ]
+    }
+  ],
+  "verificationPlan": {
+    "automated": [
+      "Unit tests for claim semantics (no double-claim, attempt increments).",
+      "Unit tests for retries/backoff scheduling and stale lock requeue behavior."
+    ],
+    "manualSmoke": [
+      "pnpm dev",
+      "pnpm --filter @orbital-poc/web worker",
+      "Start wdk_smoke via dev-only trigger",
+      "Kill worker mid-flight; restart worker; confirm completion without duplicate side effects"
+    ]
+  }
+}
+

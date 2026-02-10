@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "project": "Ingest Cutover to WDK (Feature-Flagged) + Retire Ingest Jobs (0003b)",
+  "overview": "Cut over document ingest execution from legacy durable jobs to WDK workflow/step execution behind a short-lived feature flag. When enabled, uploads start a WDK ingest workflow and do not create jobs(type=ingest_document). Quick Start run execution cutover is tracked separately in refactor 0004.",
+  "goals": [
+    "WDK owns document ingest execution when cutover flag is enabled.",
+    "Ingest execution is safe to retry at the step boundary without duplicating durable side effects.",
+    "Dev UX is preserved (optional inline kick is acceptable, but must be WDK-based when WDK is enabled).",
+    "Legacy ingest jobs path is deletable after rollout."
+  ],
+  "nonGoals": [
+    "Change PDF extraction behavior (still pdfjs-dist text extraction; no OCR/geometry in this slice).",
+    "Change storage backend (tmp/object-store remains).",
+    "Cut over Quick Start run execution (handled in refactor 0004)."
+  ],
+  "successMetrics": [
+    "With FEATURE_WDK_INGEST=1, uploads ingest via WDK and no ingest job rows are created.",
+    "Worker restart mid-ingest completes without duplicate durable writes."
+  ],
+  "openQuestions": [
+    "Should WDK ingest create a runs row of type ingest_document, or keep ingest state only on documents/folders?"
+  ],
+  "stack": {
+    "framework": "Next.js (apps/web) + TypeScript",
+    "hosting": "Local dev + Hetzner VM (target posture)",
+    "database": "Postgres (runtime DDL)",
+    "auth": "N/A"
+  },
+  "routes": [
+    {
+      "path": "/(upload route)",
+      "name": "Upload document",
+      "purpose": "When FEATURE_WDK_INGEST=1, uploads start WDK ingest workflow. When disabled, legacy jobs enqueue remains."
+    }
+  ],
+  "uiNotes": [
+    "No new UI required; behavior is triggered by existing upload flow."
+  ],
+  "dataModel": [
+    {
+      "entity": "documents",
+      "fields": [
+        "parse_status",
+        "ocr_status",
+        "error_json",
+        "metadata_json"
+      ]
+    }
+  ],
+  "rules": [
+    "Cutover is controlled by a single env flag (FEATURE_WDK_INGEST).",
+    "Rollback must not require schema rollback; schema changes must be additive/compatible.",
+    "When cutover is enabled, do not silently fall back to legacy jobs execution."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Feature-flagged ingest uses WDK workflow execution",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want ingest to be runnable via WDK behind a flag so we can cut over safely and roll back quickly if needed.",
+      "acceptanceCriteria": [
+        "Introduce a single env flag FEATURE_WDK_INGEST to choose orchestration path (jobs vs WDK).",
+        "Example: with FEATURE_WDK_INGEST=1, uploads start WDK ingest workflow and do not enqueue jobs(type=ingest_document).",
+        "Negative: with FEATURE_WDK_INGEST unset/0, ingest still works via legacy jobs without requiring a WDK worker."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "WDK ingest step is idempotent at the step boundary",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want retries to not duplicate durable writes so worker restarts do not corrupt state.",
+      "acceptanceCriteria": [
+        "WDK ingest schedules a deterministic step_key per document ingest execution so retries and restarts do not duplicate work.",
+        "Example: kill the worker mid-ingest and restart it; ingest completes and does not create duplicate (document_id, page_number) rows.",
+        "Negative: repeated retries must not leave the document in a permanently inconsistent state or multiply chunks/pages."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Legacy ingest jobs path is deletable after rollout",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a contributor, I want the legacy ingest jobs path to be explicitly removable once the flag is rolled forward so dual runtimes do not linger.",
+      "acceptanceCriteria": [
+        "Provide a roll-forward checklist and then delete legacy ingest job enqueue + handler references once default is WDK.",
+        "Example: after rollout, there are no remaining references to jobs(type=ingest_document) in code.",
+        "Negative: there is no silent fallback that reintroduces jobs runtime for ingest when WDK is enabled."
+      ]
+    }
+  ],
+  "verificationPlan": {
+    "automated": [
+      "Unit tests verifying FEATURE_WDK_INGEST selects the correct enqueue path and that WDK-enabled path does not call legacy enqueue."
+    ],
+    "manualSmoke": [
+      "FEATURE_WDK_INGEST=1 pnpm dev",
+      "pnpm --filter @orbital-poc/web worker",
+      "Upload a PDF; confirm ingest completes and no ingest job row is created",
+      "Kill worker mid-ingest; restart; confirm completion without duplicate durable writes",
+      "FEATURE_WDK_INGEST=0 and confirm legacy ingest works without WDK worker"
+    ]
+  },
+  "relatedWork": [
+    "docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.md"
+  ]
+}
+
