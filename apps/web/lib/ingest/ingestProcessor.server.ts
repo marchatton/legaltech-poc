@@ -263,19 +263,25 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
   `;
   const indexVersion = folders[0]?.latest_index_version ?? "v1";
 
-  const chunksToWrite: Array<{
+  type JsonArg = Parameters<typeof sql.json>[0];
+
+  type ChunkToWrite = {
     chunk_index: number;
-    page_start: number;
-    page_end: number;
+    page_start: number | null;
+    page_end: number | null;
     text: string;
-    metadata_json: { chunker_id: string; page_number: number; char_start: number; char_end: number };
+    metadata_json: JsonArg;
     text_hash: string;
-  }> = [];
+  };
+
+  const chunksToWrite: ChunkToWrite[] = [];
 
   let chunkIndex = 0;
   for (const p of pages) {
     const pageChunks = chunkPageCharWindowV0({ page_number: p.page_number, text: p.text });
     for (const c of pageChunks) {
+      // Defensive: treat empty-text chunks as non-real. Empty docs should get a single doc-level sentinel chunk.
+      if (c.text.length === 0) continue;
       const textHash = hashSnippet(c.text);
       chunksToWrite.push({
         chunk_index: chunkIndex,
@@ -292,6 +298,18 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
       });
       chunkIndex += 1;
     }
+  }
+
+  const wroteSentinel = chunksToWrite.length === 0;
+  if (wroteSentinel) {
+    chunksToWrite.push({
+      chunk_index: 0,
+      page_start: null,
+      page_end: null,
+      text: "",
+      metadata_json: { chunker_id: "char_window_v0", sentinel: "no_extracted_text" },
+      text_hash: hashSnippet(""),
+    });
   }
 
   try {
@@ -323,6 +341,7 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
               extraction_method: extractionMethod,
               extraction_has_geometry: false,
               extraction_quality_method: extractionQualityMethod,
+              extraction_total_chars: totalChars,
             })},
             updated_at = now()
         WHERE id = ${documentId}
@@ -383,6 +402,16 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
     `;
     await refreshFolderState(doc.folder_id);
     return;
+  }
+
+  if (wroteSentinel) {
+    // eslint-disable-next-line no-console
+    console.info("ingest.no_extracted_text_sentinel_written", {
+      document_id: documentId,
+      index_version: indexVersion,
+      page_count: pageCount,
+      total_chars: totalChars,
+    });
   }
 
   await refreshFolderState(doc.folder_id);

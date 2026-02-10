@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ensureAllSchemas } from "../lib/db/schema/index.server";
 import { loadQuestionSetV1 } from "../lib/questionSet.server";
-import { claimNextStep, requeueStaleRunningSteps, scheduleStep } from "../lib/wdk/stepQueue.server";
+import { claimNextStep, requeueStaleRunningSteps, scheduleStep, type StepRow } from "../lib/wdk/stepQueue.server";
 import { drainWdkStepsOnce, type StepHandlerMap } from "../lib/wdk/wdkWorker.server";
 import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
@@ -90,12 +90,13 @@ describe("wdk step queue (db)", () => {
     // If SKIP LOCKED is missing, this would block on tx1's row lock.
     // If the shared DB has other queued steps, a worker may claim those; use a
     // rollback transaction to keep this test non-destructive.
-    let step2: Awaited<ReturnType<typeof claimNextStep>> = null;
+    const claimed2 = defer<StepRow | null>();
     try {
       await Promise.race([
         sql2
           .begin(async (tx) => {
-            step2 = await claimNextStep({ workerId: "w2", db: tx as unknown as typeof sql2 });
+            const step = await claimNextStep({ workerId: "w2", db: tx as unknown as typeof sql2 });
+            claimed2.resolve(step);
             throw new Error("ROLLBACK_TEST_W2");
           })
           .catch((err) => {
@@ -105,8 +106,9 @@ describe("wdk step queue (db)", () => {
         new Promise<void>((_r, rej) => setTimeout(() => rej(new Error("Timed out waiting for step claim")), 500)),
       ]);
 
-      if (step2 && claimedStepId) {
-        expect(step2.id).not.toBe(claimedStepId);
+      const step2 = await claimed2.promise;
+      if (claimedStepId) {
+        expect(step2?.id ?? null).not.toBe(claimedStepId);
       }
     } finally {
       // Always release tx1 even if assertions fail, to avoid cascading timeouts.
