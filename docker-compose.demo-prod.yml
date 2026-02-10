@@ -6,8 +6,11 @@ services:
       POSTGRES_DB: orbital
       POSTGRES_USER: orbital
       POSTGRES_PASSWORD: orbital
-    ports:
-      - "5432:5432"
+    # Demo-prod should not publish Postgres to the host by default.
+    # If you need local access for debugging, use an override file or
+    # temporarily uncomment the loopback-only mapping below:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
     volumes:
       - orbital-demo-prod-pgdata:/var/lib/postgresql/data
       - ./scripts/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
@@ -31,11 +34,11 @@ services:
 
       # Required in demo-prod (fail closed if missing).
       DATABASE_URL: postgresql://orbital:orbital@db:5432/orbital
-      OBJECT_STORE_SIGNING_SECRET: ${OBJECT_STORE_SIGNING_SECRET}
+      OBJECT_STORE_SIGNING_SECRET: ${OBJECT_STORE_SIGNING_SECRET:?required}
 
       # Basic Auth for private demo.
-      BASIC_AUTH_USER: ${BASIC_AUTH_USER}
-      BASIC_AUTH_PASS: ${BASIC_AUTH_PASS}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:?required}
+      BASIC_AUTH_PASS: ${BASIC_AUTH_PASS:?required}
 
       # Feature flags for the demo journey.
       FEATURE_ARTEFACTS_LIST: "1"
@@ -58,7 +61,7 @@ services:
       NODE_ENV: production
       ORBITAL_MODE: demo-prod
       DATABASE_URL: postgresql://orbital:orbital@db:5432/orbital
-      OBJECT_STORE_SIGNING_SECRET: ${OBJECT_STORE_SIGNING_SECRET}
+      OBJECT_STORE_SIGNING_SECRET: ${OBJECT_STORE_SIGNING_SECRET:?required}
     command: ["pnpm", "worker"]
     volumes:
       - orbital-demo-prod-object-store:/app/tmp/object-store
@@ -68,4 +71,3 @@ volumes:
   orbital-demo-prod-pgdata:
   orbital-demo-prod-object-store:
   orbital-demo-prod-fixture-seed:
-
