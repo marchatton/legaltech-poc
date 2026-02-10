@@ -1,0 +1,11 @@
+.git
+.DS_Store
+
+**/node_modules
+**/.next
+
+tmp
+**/tmp
+
+throwaway
+

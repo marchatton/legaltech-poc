@@ -1,0 +1,71 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: orbital-demo-prod-db
+    environment:
+      POSTGRES_DB: orbital
+      POSTGRES_USER: orbital
+      POSTGRES_PASSWORD: orbital
+    ports:
+      - "5432:5432"
+    volumes:
+      - orbital-demo-prod-pgdata:/var/lib/postgresql/data
+      - ./scripts/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbital -d orbital"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: orbital-demo-prod-web
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      ORBITAL_MODE: demo-prod
+
+      # Required in demo-prod (fail closed if missing).
+      DATABASE_URL: postgresql://orbital:orbital@db:5432/orbital
+      OBJECT_STORE_SIGNING_SECRET: ${OBJECT_STORE_SIGNING_SECRET}
+
+      # Basic Auth for private demo.
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER}
+      BASIC_AUTH_PASS: ${BASIC_AUTH_PASS}
+
+      # Feature flags for the demo journey.
+      FEATURE_ARTEFACTS_LIST: "1"
+
+    ports:
+      - "3000:3000"
+    volumes:
+      - orbital-demo-prod-object-store:/app/tmp/object-store
+      - orbital-demo-prod-fixture-seed:/app/tmp/fixture-seed
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: orbital-demo-prod-worker
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      ORBITAL_MODE: demo-prod
+      DATABASE_URL: postgresql://orbital:orbital@db:5432/orbital
+      OBJECT_STORE_SIGNING_SECRET: ${OBJECT_STORE_SIGNING_SECRET}
+    command: ["pnpm", "worker"]
+    volumes:
+      - orbital-demo-prod-object-store:/app/tmp/object-store
+      - orbital-demo-prod-fixture-seed:/app/tmp/fixture-seed
+
+volumes:
+  orbital-demo-prod-pgdata:
+  orbital-demo-prod-object-store:
+  orbital-demo-prod-fixture-seed:
+
