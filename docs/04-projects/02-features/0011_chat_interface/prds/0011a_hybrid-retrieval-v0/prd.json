@@ -206,7 +206,7 @@
     {
       "id": "US-001",
       "title": "Deterministic small chunking on ingest",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want ingest to produce small deterministic chunks per page so that citations and retrieval operate on meaningful units.",
       "acceptanceCriteria": [
@@ -217,13 +217,13 @@
         "Negative: If ingest hits an external cap (e.g. MAX_PAGES or other ingest limit), ingest fails closed for that document/index_version and does not write partial chunk rows."
       ],
       "startedAt": "2026-02-10T14:28:10.877419+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T14:28:10.877432+00:00"
+      "completedAt": "2026-02-10T15:10:21.654284+00:00",
+      "updatedAt": "2026-02-10T15:10:21.654256+00:00"
     },
     {
       "id": "US-002",
       "title": "Lexical + vector fields exist on chunks and are indexed safely",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -234,7 +234,10 @@
         "AC-006: Semantic indexing exists: pgvector extension enabled (otherwise semantic retrieval disabled and system degrades to lexical-only, explicitly observable); IVFFlat index on embedding vector_cosine_ops is created conservatively.",
         "Example: Stub vectors in DB and validate semantic query ordering by embedding <=> query_vector (cosine distance).",
         "Negative: If pgvector extension is missing/unavailable, semantic retrieval is disabled and the system degrades to lexical-only (explicitly observable in logs/debug endpoint)."
-      ]
+      ],
+      "startedAt": "2026-02-10T15:10:25.082471+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T15:10:25.082484+00:00"
     },
     {
       "id": "US-003",

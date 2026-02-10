@@ -10,9 +10,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    // These tests share a single Postgres instance. Running test files in
-    // parallel can cause DDL lock contention during schema ensures, which makes
-    // DB-backed queue tests flaky.
+    // DB integration tests share a single Postgres instance; keep the runner
+    // single-process to avoid DDL/lock contention across parallel workers.
     poolOptions: {
       forks: {
         singleFork: true,
