@@ -100,7 +100,7 @@
     {
       "id": "US-003",
       "title": "Citations schema supports report rows and chat messages (one-of association)",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want citations to attach to either report rows or chat assistant messages so we can reuse the same citations primitive everywhere.",
       "acceptanceCriteria": [
@@ -109,8 +109,8 @@
         "Negative: inserting a citation with both set (or neither set) fails."
       ],
       "startedAt": "2026-02-10T15:18:59.234128+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T15:18:59.234140+00:00"
+      "completedAt": "2026-02-10T15:43:28.282708+00:00",
+      "updatedAt": "2026-02-10T15:43:28.282694+00:00"
     }
   ],
   "verificationPlan": {
