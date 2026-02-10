@@ -61,12 +61,51 @@ function secret(): string {
     throw new Error("OBJECT_STORE_SIGNING_SECRET_MISSING");
   }
 
-  // Dev-only fallback so local upload works out of the box.
+  // Dev-only fallback so local demo flows work out of the box.
+  //
+  // Next.js may execute route handlers in separate isolates during dev. A global-only
+  // secret can differ between those isolates, which breaks signed URL verification
+  // across endpoints. Persisting to the object-store directory keeps it stable.
   const g = globalThis as GlobalObj;
-  if (!g.__orbitalObjectStoreSecret) {
-    g.__orbitalObjectStoreSecret = `dev-${randomBytes(32).toString("hex")}`;
+  const base = objectStoreRoot();
+  fs.mkdirSync(base, { recursive: true });
+  const secretPath = path.resolve(base, ".dev-signing-secret");
+
+  // Disk secret is canonical (so all isolates converge).
+  try {
+    const fromDisk = fs.readFileSync(secretPath, "utf8").trim();
+    if (fromDisk) {
+      g.__orbitalObjectStoreSecret = fromDisk;
+      return fromDisk;
+    }
+  } catch (err) {
+    const code = err instanceof Error ? (err as NodeJS.ErrnoException).code : null;
+    if (code !== "ENOENT") throw err;
   }
-  return g.__orbitalObjectStoreSecret;
+
+  const existing = g.__orbitalObjectStoreSecret?.trim();
+  const candidate = existing && existing.length ? existing : `dev-${randomBytes(32).toString("hex")}`;
+
+  // Best-effort persist, then read back to handle concurrent writers.
+  try {
+    fs.writeFileSync(secretPath, candidate, { flag: "wx", mode: 0o600 });
+  } catch (err) {
+    const code = err instanceof Error ? (err as NodeJS.ErrnoException).code : null;
+    if (code !== "EEXIST") throw err;
+  }
+
+  try {
+    const fromDisk = fs.readFileSync(secretPath, "utf8").trim();
+    if (fromDisk) {
+      g.__orbitalObjectStoreSecret = fromDisk;
+      return fromDisk;
+    }
+  } catch {
+    // Fall back to the in-memory secret.
+  }
+
+  g.__orbitalObjectStoreSecret = candidate;
+  return candidate;
 }
 
 function b64url(input: Buffer): string {
