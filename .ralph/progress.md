@@ -130,3 +130,31 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260209-075347-21829-iter-1
   - `pack_01_clean` fixture seeding had list payloads for exceptions/survey issues but not requirements; export depends on seeding structured payloads for all list-payload questions.
   - The dev-browser server requires headless mode in this environment; use `./server.sh --headless`.
 ---
+
+## [2026-02-10 13:30:02 +0000] - US-001: WDK worker claims and executes steps durably
+Thread:
+Run: 20260210-130418-29584 (iteration 1)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-1.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: d43e29f feat(wdk): claim steps with SKIP LOCKED
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/lib/db/schema/core.server.ts
+  - apps/web/lib/wdk/stepQueue.server.ts
+  - apps/web/lib/wdk/wdkWorker.server.ts
+  - apps/web/test/wdkStepQueue.int.test.ts
+  - docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.json
+- What was implemented
+  - Extended `run_steps` to act as a durable step queue (available_at + locks + JSON IO) and added an index for efficient claiming.
+  - Implemented step claiming with `FOR UPDATE SKIP LOCKED` plus durable state transitions (succeed/fail/reschedule) and stale-lock requeue.
+  - Added a minimal step worker drain loop and DB-backed tests proving two workers cannot double-claim or double-execute the same `(run_id, step_key)`.
+- **Learnings for future iterations:**
+  - `FOR UPDATE SKIP LOCKED` behavior is easiest to verify by holding an open transaction on one worker and asserting the second claim returns quickly (no blocking).
+  - For 1-based attempt counters that increment on claim, queued steps should start at attempt 0 and increment inside the claim UPDATE.
+---
