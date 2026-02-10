@@ -68,26 +68,34 @@
     {
       "id": "US-001",
       "title": "GET /citations/:id reads Postgres first (DB-first)",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a user, I want a citation id to resolve to a real locked citation from Postgres so that evidence viewing works for uploaded documents, not only fixtures.",
       "acceptanceCriteria": [
         "Example: with FEATURE_CITATIONS_API=1 and a citation row inserted in Postgres, GET /citations/:id returns {citation:{id,document_id,page_number,polygons,snippet,snippet_hash}} in all runtime modes.",
         "Example: not found in Postgres returns 404 NOT_FOUND unless fixture fallback is allowed (US-002).",
         "Negative: the handler does not require ORBITAL_MODE=dev|demo-prod to serve DB-backed citations."
-      ]
+      ],
+      "startedAt": "2026-02-10T14:28:17.439806+00:00",
+      "completedAt": "2026-02-10T14:56:44.626566+00:00",
+      "updatedAt": "2026-02-10T14:56:44.626549+00:00"
     },
     {
       "id": "US-002",
       "title": "Fixture fallback is allowed only in dev/demo-prod",
-      "status": "open",
-      "dependsOn": ["US-001"],
+      "status": "in_progress",
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As an operator, I want fixture citations to keep working in dev/demo-prod for demos, but never leak into prod behavior.",
       "acceptanceCriteria": [
         "Example: in ORBITAL_MODE=dev, a known fixture citation id resolves via seed snapshots when not present in Postgres.",
         "Example: in ORBITAL_MODE=prod, a fixture citation id that is not in Postgres returns 404 (no fixture fallback).",
         "Negative: ambiguous fixture ids across packs return 409 CONFLICT with a safe envelope and do not guess a pack."
-      ]
+      ],
+      "startedAt": "2026-02-10T14:56:46.880267+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T14:56:46.880278+00:00"
     },
     {
       "id": "US-003",

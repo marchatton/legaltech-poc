@@ -2,8 +2,10 @@ import { z } from "zod";
 
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
+import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
+import { isDevOrDemoProd } from "../../../../lib/runtimeMode";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -87,10 +89,45 @@ function findCitationInSeedSnapshots(args: {
   return { ok: true, citation: hits[0]!.citation };
 }
 
+function seedCitationResponse(args: { citationId: string; packId?: string; traceId: string; headers: Headers }): Response {
+  const found = findCitationInSeedSnapshots({ citationId: args.citationId, packId: args.packId });
+  if (!found.ok) {
+    const status =
+      found.code === "NOT_FOUND" ? 404 : found.code === "CONFLICT" ? 409 : found.code === "INTERNAL" ? 500 : 500;
+    return Response.json(
+      safeErrorEnvelope({
+        code: found.code,
+        message: found.message,
+        details: found.details,
+        traceId: args.traceId,
+      }),
+      { status, headers: args.headers },
+    );
+  }
+
+  return Response.json(
+    {
+      citation: {
+        id: args.citationId,
+        document_id: found.citation.document_id,
+        page_number: found.citation.page_number,
+        polygons: found.citation.polygons,
+        snippet: found.citation.snippet,
+        snippet_hash: found.citation.snippet_hash,
+      },
+    },
+    { status: 200, headers: args.headers },
+  );
+}
+
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOrDemoProdApi(traceId, headers);
-  if (devGate) return devGate;
+  const citationsApiEnabled = process.env.FEATURE_CITATIONS_API === "1";
+  if (!citationsApiEnabled) {
+    // Preserve existing dev-only fixture behavior until the feature is enabled.
+    const devGate = assertDevOrDemoProdApi(traceId, headers);
+    if (devGate) return devGate;
+  }
 
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);
@@ -122,32 +159,58 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   const citationId = parsedParams.data.id;
 
-  const found = findCitationInSeedSnapshots({ citationId, packId: parsedQuery.data.pack });
-  if (!found.ok) {
-    const status =
-      found.code === "NOT_FOUND" ? 404 : found.code === "CONFLICT" ? 409 : found.code === "INTERNAL" ? 500 : 500;
+  if (citationsApiEnabled) {
+    await ensureSchema();
+    const citations = await sql<
+      Array<{
+        id: string;
+        document_id: string;
+        page_number: number;
+        snippet: string;
+        snippet_hash: string;
+        polygons_json: unknown;
+      }>
+    >`
+      SELECT id, document_id, page_number, snippet, snippet_hash, polygons_json
+      FROM citations
+      WHERE id = ${citationId}
+      LIMIT 1
+    `;
+    const cit = citations[0];
+    if (!cit) {
+      if (isDevOrDemoProd()) {
+        return seedCitationResponse({
+          citationId,
+          packId: parsedQuery.data.pack,
+          traceId,
+          headers,
+        });
+      }
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Citation not found.", traceId }), {
+        status: 404,
+        headers,
+      });
+    }
+
     return Response.json(
-      safeErrorEnvelope({
-        code: found.code,
-        message: found.message,
-        details: found.details,
-        traceId,
-      }),
-      { status, headers },
+      {
+        citation: {
+          id: cit.id,
+          document_id: cit.document_id,
+          page_number: cit.page_number,
+          polygons: cit.polygons_json,
+          snippet: cit.snippet,
+          snippet_hash: cit.snippet_hash,
+        },
+      },
+      { status: 200, headers },
     );
   }
 
-  return Response.json(
-    {
-      citation: {
-        id: citationId,
-        document_id: found.citation.document_id,
-        page_number: found.citation.page_number,
-        polygons: found.citation.polygons,
-        snippet: found.citation.snippet,
-        snippet_hash: found.citation.snippet_hash,
-      },
-    },
-    { status: 200, headers },
-  );
+  return seedCitationResponse({
+    citationId,
+    packId: parsedQuery.data.pack,
+    traceId,
+    headers,
+  });
 }

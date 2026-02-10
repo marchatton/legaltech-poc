@@ -236,7 +236,7 @@ function isDirectiveStatementBoundary(source: string, start: number): boolean {
   return true;
 }
 
-function checkWdkDirective(fn: (...args: unknown[]) => unknown, expected: WdkDirective): DirectiveCheckResult {
+function checkWdkDirective(fn: (...args: never[]) => unknown, expected: WdkDirective): DirectiveCheckResult {
   let source: string;
   try {
     source = Function.prototype.toString.call(fn);
@@ -267,7 +267,7 @@ function checkWdkDirective(fn: (...args: unknown[]) => unknown, expected: WdkDir
 }
 
 export function assertWdkDirective(
-  fn: (...args: unknown[]) => unknown,
+  fn: (...args: never[]) => unknown,
   expected: WdkDirective,
   subject: WdkDirectiveSubject,
 ): void {
