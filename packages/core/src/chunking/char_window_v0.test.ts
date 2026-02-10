@@ -41,10 +41,29 @@ describe("char_window_v0", () => {
     ]);
   });
 
+  it("prefers whitespace boundaries when available", () => {
+    const text = "abc def ghi jkl";
+    const spans = charWindowV0Spans(text, { maxChars: 10, overlapChars: 2 });
+
+    expect(spans).toEqual([
+      { char_start: 0, char_end: 7 },
+      { char_start: 4, char_end: 11 },
+      { char_start: 8, char_end: text.length },
+    ]);
+
+    for (const s of spans) {
+      if (s.char_start > 0) {
+        expect(/\s/.test(text[s.char_start - 1] ?? "")).toBe(true);
+      }
+      if (s.char_end < text.length) {
+        expect(/\s/.test(text[s.char_end] ?? "")).toBe(true);
+      }
+    }
+  });
+
   it("validates params", () => {
     expect(() => charWindowV0Spans("x", { maxChars: 0, overlapChars: 0 })).toThrow(/maxChars/);
     expect(() => charWindowV0Spans("x", { maxChars: 10, overlapChars: -1 })).toThrow(/overlapChars/);
     expect(() => charWindowV0Spans("x", { maxChars: 10, overlapChars: 10 })).toThrow(/overlapChars/);
   });
 });
-

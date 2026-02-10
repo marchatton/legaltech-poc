@@ -205,16 +205,37 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
 
   const pages: Array<{ page_number: number; text: string; layout_json: LayoutJson }> = [];
   let totalChars = 0;
-  let remainingChars = MAX_TOTAL_TEXT_CHARS;
 
   for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
     const items = Array.isArray(content.items) ? content.items : [];
-    const rawText = items.map((i) => String(i?.str ?? "")).join(" ").replace(/\s+/g, " ").trim();
-    const perPageCapped = rawText.length > MAX_TEXT_CHARS_PER_PAGE ? rawText.slice(0, MAX_TEXT_CHARS_PER_PAGE) : rawText;
-    const text = remainingChars <= 0 ? "" : perPageCapped.slice(0, remainingChars);
-    remainingChars = Math.max(0, remainingChars - text.length);
+    const text = items.map((i) => String(i?.str ?? "")).join(" ").replace(/\s+/g, " ").trim();
+
+    if (text.length > MAX_TEXT_CHARS_PER_PAGE) {
+      await failDocument({
+        documentId,
+        folderId: doc.folder_id,
+        error: safeError(
+          "INGEST_PAGE_TEXT_TOO_LARGE",
+          `Page ${pageNumber} extracted too much text (${text.length} chars); max per page is ${MAX_TEXT_CHARS_PER_PAGE}.`,
+        ),
+      });
+      return;
+    }
+
+    if (totalChars + text.length > MAX_TOTAL_TEXT_CHARS) {
+      await failDocument({
+        documentId,
+        folderId: doc.folder_id,
+        error: safeError(
+          "INGEST_TOTAL_TEXT_TOO_LARGE",
+          `PDF extracted too much text (>${MAX_TOTAL_TEXT_CHARS} chars total).`,
+        ),
+      });
+      return;
+    }
+
     totalChars += text.length;
 
     const layout_json: LayoutJson = {
