@@ -52,7 +52,10 @@
     "pnpm --filter @orbital-poc/web lint"
   ],
   "verificationPacks": {
-    "packs": ["pack_01_clean", "pack_02_missing_rea"],
+    "packs": [
+      "pack_01_clean",
+      "pack_02_missing_rea"
+    ],
     "seedCommandExamples": [
       "pnpm fixture:seed pack_01_clean",
       "pnpm fixture:seed pack_01_clean pack_02_missing_rea --overwrite"
@@ -62,7 +65,7 @@
     {
       "id": "US-001",
       "title": "Quick Start is executed by a WDK workflow",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As a developer, I want Quick Start run execution to be orchestrated by WDK so that the repo has one durable runtime posture and Quick Start is resumable under the worker.",
       "acceptanceCriteria": [
@@ -71,13 +74,18 @@
         "Negative: If the WDK worker is not running, the run does not silently complete in-process via the legacy jobs worker.",
         "The initial WDK step implementation may be a thin integration that calls processQuickStartRun(runId).",
         "Logs clearly indicate orchestration mode (WDK) for the run and step execution."
-      ]
+      ],
+      "startedAt": "2026-02-10T14:28:00.661741+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T14:28:00.661770+00:00"
     },
     {
       "id": "US-002",
       "title": "Run-start route uses WDK immediately (no rollout flag)",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a developer, I want Quick Start to switch to WDK immediately so that the system stops accumulating drift and the legacy path is removed quickly.",
       "acceptanceCriteria": [
         "POST /folders/:id/runs starts WDK workflow execution unconditionally for Quick Start.",
@@ -92,7 +100,9 @@
       "id": "US-003",
       "title": "Legacy execute_run jobs path is removed (jobs remain for ingest)",
       "status": "open",
-      "dependsOn": ["US-002"],
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As a developer, I want the legacy Quick Start enqueue and worker handler removed so that Quick Start cannot accidentally execute via jobs.",
       "acceptanceCriteria": [
         "Starting Quick Start creates no new jobs(type=execute_run) rows.",
@@ -106,7 +116,9 @@
       "id": "US-004",
       "title": "Quick Start uses per-question WDK steps (avoid a single job-like step)",
       "status": "open",
-      "dependsOn": ["US-003"],
+      "dependsOn": [
+        "US-003"
+      ],
       "description": "As a developer, I want Quick Start to be broken into per-question durable steps so that restarts do not re-run the entire processor and progress is naturally incremental.",
       "acceptanceCriteria": [
         "The workflow schedules deterministic per-question step keys (one per question_id).",

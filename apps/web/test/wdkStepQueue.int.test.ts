@@ -4,9 +4,12 @@ import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ensureAllSchemas } from "../lib/db/schema/index.server";
+import { loadQuestionSetV1 } from "../lib/questionSet.server";
 import { claimNextStep, requeueStaleRunningSteps, scheduleStep } from "../lib/wdk/stepQueue.server";
 import { drainWdkStepsOnce, type StepHandlerMap } from "../lib/wdk/wdkWorker.server";
+import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
+import { startQuickStartTitleSurveyWorkflow } from "../workflows/quickStartTitleSurveyWorkflow.server";
 import { startWdkSmokeWorkflow } from "../workflows/wdkSmokeWorkflow.server";
 
 const VERY_OLD = new Date(-2208988800000); // 1900-01-01T00:00:00.000Z
@@ -315,5 +318,104 @@ describe("wdk step queue (db)", () => {
     expect(runRows[0]?.state).toBe("completed");
 
     await sql1`DELETE FROM folders WHERE id = ${started.folderId}`;
+  });
+
+  it("executes quick_start_title_survey via WDK execute_v0", async () => {
+    const { version: questionSetVersion, questionSet } = await loadQuestionSetV1();
+
+    const folderId = `fld_${randomUUID()}`;
+    const runId = `run_${randomUUID()}`;
+    const traceId = `trc_${randomUUID()}`;
+    const questionsTotal = questionSet.questions.length;
+
+    await sql1`INSERT INTO folders (id, name, state) VALUES (${folderId}, 'wdk quick start test', 'ready')`;
+    await sql1`
+      INSERT INTO runs (
+        id,
+        folder_id,
+        type,
+        state,
+        index_version,
+        agent_bundle_version,
+        question_set_version,
+        idempotency_key,
+        trace_id,
+        questions_total,
+        questions_done
+      )
+      VALUES (
+        ${runId},
+        ${folderId},
+        'quick_start_title_survey',
+        'running',
+        'v1',
+        'git:test',
+        ${questionSetVersion},
+        NULL,
+        ${traceId},
+        ${questionsTotal},
+        0
+      )
+    `;
+
+    await sql1`
+      INSERT INTO run_steps (
+        id,
+        run_id,
+        step_type,
+        state,
+        attempt,
+        step_key,
+        trace_id
+      )
+      VALUES (
+        ${`stp_${randomUUID()}`},
+        ${runId},
+        'workflow_start',
+        'succeeded',
+        1,
+        ${`quick_start:${questionSetVersion}:start`},
+        ${traceId}
+      )
+      ON CONFLICT (run_id, step_key) DO NOTHING
+    `;
+
+    const scheduled = await startQuickStartTitleSurveyWorkflow({ runId, questionSetVersion, traceId, db: sql1 });
+    expect(scheduled.stepType).toBe("quick_start_title_survey.execute_v0");
+    expect(scheduled.stepKey).toBe(`quick_start:${questionSetVersion}:execute_v0`);
+
+    // Ensure this step is the oldest queued item so the test is resilient to a dirty shared dev DB.
+    await sql1`UPDATE run_steps SET available_at = ${new Date(0)} WHERE id = ${scheduled.stepId}`;
+
+    await drainWdkStepsOnce({ workerId: "w1", handlers: quickStartStepHandlers, maxSteps: 5, db: sql1 });
+
+    const stepRows = await sql1<Array<{ state: string; attempt: number; output_json: any }>>`
+      SELECT state, attempt, output_json
+      FROM run_steps
+      WHERE id = ${scheduled.stepId}
+      LIMIT 1
+    `;
+    expect(stepRows[0]?.state).toBe("succeeded");
+    expect(stepRows[0]?.attempt).toBe(1);
+    expect(stepRows[0]?.output_json?.ok).toBe(true);
+
+    const runRows = await sql1<Array<{ state: string; questions_total: number; questions_done: number }>>`
+      SELECT state, questions_total, questions_done
+      FROM runs
+      WHERE id = ${runId}
+      LIMIT 1
+    `;
+    expect(runRows[0]?.state).toBe("completed");
+    expect(runRows[0]?.questions_total).toBe(questionsTotal);
+    expect(runRows[0]?.questions_done).toBe(questionsTotal);
+
+    const outputRows = await sql1<Array<{ n: number }>>`
+      SELECT COUNT(*)::int as n
+      FROM report_rows
+      WHERE run_id = ${runId}
+    `;
+    expect(outputRows[0]?.n).toBe(questionsTotal);
+
+    await sql1`DELETE FROM folders WHERE id = ${folderId}`;
   });
 });

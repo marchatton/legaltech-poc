@@ -2,6 +2,7 @@ import os from "node:os";
 
 import { runContinuousJobWorker } from "../lib/jobs/jobWorker.server";
 import { runContinuousWdkWorker } from "../lib/wdk/wdkWorker.server";
+import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
 
 function workerId(): string {
@@ -16,5 +17,8 @@ process.on("SIGTERM", () => process.exit(0));
 const baseId = workerId();
 await Promise.all([
   runContinuousJobWorker({ workerId: `${baseId}:jobs` }),
-  runContinuousWdkWorker({ workerId: `${baseId}:wdk`, handlers: wdkSmokeStepHandlers }),
+  runContinuousWdkWorker({
+    workerId: `${baseId}:wdk`,
+    handlers: { ...wdkSmokeStepHandlers, ...quickStartStepHandlers },
+  }),
 ]);

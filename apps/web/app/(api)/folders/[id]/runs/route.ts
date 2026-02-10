@@ -6,9 +6,9 @@ import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { newId } from "../../../../../lib/ids";
-import { enqueueQuickStartRun } from "../../../../../lib/quickStartRunQueue.server";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
+import { startQuickStartTitleSurveyWorkflow } from "../../../../../workflows/quickStartTitleSurveyWorkflow.server";
 
 export const runtime = "nodejs";
 
@@ -268,6 +268,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 
   // eslint-disable-next-line no-console
   console.info("run.created", {
+    orchestration: "wdk",
     trace_id: traceId,
     folder_id: folderId,
     run_id: runId,
@@ -288,8 +289,24 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     question_set_version: questionSetVersion,
   };
 
-  // Fire-and-forget in-process runner (PoC). Row writes are durable + idempotent.
-  enqueueQuickStartRun(runId);
+  const scheduled = await startQuickStartTitleSurveyWorkflow({
+    runId,
+    questionSetVersion,
+    traceId,
+    db: sql,
+  });
+
+  // eslint-disable-next-line no-console
+  console.info("wdk.workflow_scheduled", {
+    orchestration: "wdk",
+    trace_id: traceId,
+    run_id: runId,
+    workflow_type: parsedBody.data.type,
+    step_id: scheduled.stepId,
+    step_key: scheduled.stepKey,
+    step_type: scheduled.stepType,
+    inserted: scheduled.inserted,
+  });
 
   return Response.json(runResponse(created), { status: 200, headers });
 }
