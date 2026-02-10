@@ -54,7 +54,7 @@
     {
       "id": "US-002",
       "title": "Ingest writes a single doc-level sentinel chunk when a document has zero real chunks",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -67,13 +67,13 @@
         "Negative: Sentinel chunks are never written per page (no explosion proportional to page_count)."
       ],
       "startedAt": "2026-02-10T23:23:14.551234+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T23:23:14.551250+00:00"
+      "completedAt": "2026-02-10T23:34:50.829788+00:00",
+      "updatedAt": "2026-02-10T23:34:50.829753+00:00"
     },
     {
       "id": "US-003",
       "title": "Add regression tests for empty-text documents and indexed progression",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002"
       ],
@@ -83,7 +83,10 @@
         "Example: Derived folder state reaches `indexed` (and remains out of `ready` if extraction quality/health checks fail).",
         "Negative: Retrieval does not return the sentinel chunk for a non-empty query (lexical branch should not match empty text; semantic branch requires embeddings).",
         "Negative: Tests fail if more than 1 chunk is written for the empty-text document+index_version."
-      ]
+      ],
+      "startedAt": "2026-02-10T23:34:53.091535+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T23:34:53.091549+00:00"
     },
     {
       "id": "US-004",
