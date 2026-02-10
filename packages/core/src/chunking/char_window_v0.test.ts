@@ -62,5 +62,7 @@ describe("char_window_v0", () => {
     // Validation runs even for empty text.
     expect(() => charWindowV0Spans("", { maxChars: 0, overlapChars: 0 })).toThrow(/maxChars/);
     expect(() => charWindowV0Spans("", { maxChars: 10, overlapChars: 10 })).toThrow(/overlapChars/);
+    expect(() => chunkPageCharWindowV0({ page_number: 1, text: "", params: { maxChars: 0, overlapChars: 0 } })).toThrow(/maxChars/);
+    expect(() => chunkPageCharWindowV0({ page_number: 1, text: "", params: { maxChars: 10, overlapChars: 10 } })).toThrow(/overlapChars/);
   });
 });
