@@ -104,8 +104,14 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
       run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
       step_type TEXT NOT NULL,
       state TEXT NOT NULL CHECK (state IN ('queued','running','succeeded','failed')),
-      attempt INT NOT NULL DEFAULT 1,
+      -- attempt is 1-based when running; queued steps start at 0 and increment on claim.
+      attempt INT NOT NULL DEFAULT 0,
       step_key TEXT NOT NULL,
+      available_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      locked_at TIMESTAMPTZ NULL,
+      locked_by TEXT NULL,
+      input_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+      output_json JSONB NOT NULL DEFAULT '{}'::jsonb,
       trace_id TEXT NULL,
       question_id TEXT NULL,
       metrics_json JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -120,6 +126,19 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS run_steps_run_step_key_uidx
     ON run_steps(run_id, step_key);
+  `;
+
+  // Add WDK queue fields for existing dev DBs (CREATE TABLE IF NOT EXISTS won't backfill).
+  await sql`ALTER TABLE run_steps ALTER COLUMN attempt SET DEFAULT 0;`;
+  await sql`ALTER TABLE run_steps ADD COLUMN IF NOT EXISTS available_at TIMESTAMPTZ NOT NULL DEFAULT now();`;
+  await sql`ALTER TABLE run_steps ADD COLUMN IF NOT EXISTS locked_at TIMESTAMPTZ NULL;`;
+  await sql`ALTER TABLE run_steps ADD COLUMN IF NOT EXISTS locked_by TEXT NULL;`;
+  await sql`ALTER TABLE run_steps ADD COLUMN IF NOT EXISTS input_json JSONB NOT NULL DEFAULT '{}'::jsonb;`;
+  await sql`ALTER TABLE run_steps ADD COLUMN IF NOT EXISTS output_json JSONB NOT NULL DEFAULT '{}'::jsonb;`;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS run_steps_state_available_idx
+    ON run_steps(state, available_at);
   `;
 
   // Report rows are the durable, per-question output of a run (terminal statuses only).
@@ -197,4 +216,3 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
     ON artefacts(folder_id, created_at);
   `;
 }
-
