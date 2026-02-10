@@ -218,15 +218,19 @@ Then implement in order:
 - SSRF fix may require refactoring viewer fetch architecture; keep it thin and testable.
 - Dockerfile non-root changes can break file permissions on mounted volumes; validate in compose.
 
-## Open Questions
+## Locked Decisions (2026-02-10)
 
-- Is demo-prod expected to survive hostile internet traffic, or "trusted audience only"?
-- Should spikes ever be available in demo-prod (even behind token), or dev-only always?
-- Should security headers be owned by the app (Next `headers()`), middleware, or infra/WAF?
+1. Demo-prod threat model: assume hostile internet traffic (publicly reachable).
+   Justification: safe-by-default reduces operator footguns and keeps demo-prod closer to prod constraints.
+
+2. Spikes availability: dev-only always (never enabled in demo-prod/prod, even behind a token).
+   Justification: spikes are explicitly unsafe surfaces; token gates are misconfig-prone and easy to forget to rotate.
+
+3. Security headers ownership: app-owned baseline via Next `headers()` in `apps/web/next.config.js` (infra/WAF may add on top, but app is the baseline).
+   Justification: portable and repo-verifiable; avoids drift across deployments.
 
 ## Sources
 
 - `docs/05-reviews-audits/security/security_best_practices_report.md`
 - `docs/05-reviews-audits/security/security_best_practices_report-rp.md`
 - `docs/05-reviews-audits/security/oracle-response-rp.md`
-

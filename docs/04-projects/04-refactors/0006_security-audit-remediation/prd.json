@@ -29,11 +29,21 @@
     "PDF ingest has a hard timeout; CSV exports mitigate formula injection everywhere.",
     "Runtime container runs as non-root; exported URLs are not Host-header poisoned."
   ],
-  "openQuestions": [
-    "Is demo-prod expected to withstand hostile internet traffic or a trusted-audience demo only?",
-    "Should spikes ever be available in demo-prod (even behind a token), or strictly dev-only?",
-    "Should security headers be owned in-app (Next headers()), middleware, or infra/WAF?"
-  ],
+  "openQuestions": [],
+  "lockedDecisions": {
+    "demoProdThreatModel": {
+      "decision": "Assume hostile internet traffic (publicly reachable).",
+      "justification": "Safe-by-default reduces operator footguns and keeps demo-prod closer to prod constraints."
+    },
+    "spikesAvailability": {
+      "decision": "Spikes are dev-only always; never available in demo-prod/prod (even behind a token).",
+      "justification": "Spikes are explicitly unsafe surfaces; token gates are misconfig-prone and easy to forget to rotate."
+    },
+    "securityHeadersOwnership": {
+      "decision": "App-owned baseline security headers via Next headers() (next.config.js); infra/WAF may add on top but is not required.",
+      "justification": "Portable and repo-verifiable; avoids drift across deployments."
+    }
+  },
   "stack": {
     "framework": "Next.js App Router (apps/web) + TypeScript",
     "runtimeModes": "ORBITAL_MODE=dev|demo-prod|prod",
@@ -166,4 +176,3 @@
     ]
   }
 }
-
