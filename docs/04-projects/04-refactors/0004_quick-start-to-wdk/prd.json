@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "project": "Quick Start to WDK (Workstream C)",
+  "overview": "Refactor Quick Start run execution from the legacy durable jobs worker to the WDK runtime so Quick Start runs are WDK-owned, observable via run state, and no longer create execute_run job rows.",
+  "goals": [
+    "Move Quick Start execution to WDK with minimal product-semantic change.",
+    "Preserve run-level idempotency (folder_id + idempotency_key) and step-level idempotency (deterministic step_key).",
+    "Make orchestration mode explicit (WDK) via logs and durable DB state.",
+    "Remove legacy execute_run job enqueue/handling for Quick Start while allowing jobs to remain temporarily for ingest."
+  ],
+  "nonGoals": [
+    "Implement retrieval/draft/lock/verify for Quick Start.",
+    "Migrate ingest to WDK in this workstream.",
+    "Change question set, report row schemas, or status taxonomy.",
+    "Introduce a second evidence/citations system."
+  ],
+  "successMetrics": [
+    "Starting Quick Start progresses under the WDK worker and reaches a terminal run state without relying on the legacy jobs worker.",
+    "Starting Quick Start does not create jobs(type=execute_run) rows.",
+    "Idempotency-Key behavior remains: repeated POST returns the same run for the same (folder_id, idempotency_key)."
+  ],
+  "openQuestions": [
+    "Should the WDK workflow input be { run_id } or should the workflow own run-row creation?",
+    "Do we want a first-class user-visible indicator when the worker is not running (likely out of scope unless it becomes necessary)?"
+  ],
+  "stack": {
+    "framework": "Next.js (App Router, Node runtime)",
+    "packageManager": "pnpm",
+    "database": "Postgres (runtime DDL via ensureSchema)",
+    "runtime": {
+      "target": "WDK worker + workflows/steps",
+      "legacy": "Postgres-backed jobs table + worker loop (kept temporarily for ingest)"
+    }
+  },
+  "routes": [
+    {
+      "path": "/folders/:id/runs",
+      "name": "Start Run",
+      "purpose": "Create a Quick Start run and start WDK workflow execution"
+    },
+    {
+      "path": "/runs/:id",
+      "name": "Run JSON",
+      "purpose": "Poll run state and progress"
+    }
+  ],
+  "uiNotes": [
+    "No UI change required for this slice; existing Quick Start panel continues to call POST /folders/:id/runs.",
+    "If the WDK worker is not running, the run may remain running with no progress; this is acceptable for PoC but must be observable via GET /runs/:id and logs."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @orbital-poc/web lint"
+  ],
+  "verificationPacks": {
+    "packs": ["pack_01_clean", "pack_02_missing_rea"],
+    "seedCommandExamples": [
+      "pnpm fixture:seed pack_01_clean",
+      "pnpm fixture:seed pack_01_clean pack_02_missing_rea --overwrite"
+    ]
+  },
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Quick Start is executed by a WDK workflow",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want Quick Start run execution to be orchestrated by WDK so that the repo has one durable runtime posture and Quick Start is resumable under the worker.",
+      "acceptanceCriteria": [
+        "Starting Quick Start schedules a WDK workflow execution with an explicit Quick Start workflow type.",
+        "Example: POST /folders/:id/runs returns a run in running state and the WDK worker begins executing WDK steps for that run.",
+        "Negative: If the WDK worker is not running, the run does not silently complete in-process via the legacy jobs worker.",
+        "The initial WDK step implementation may be a thin integration that calls processQuickStartRun(runId).",
+        "Logs clearly indicate orchestration mode (WDK) for the run and step execution."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Run-start route uses WDK immediately (no rollout flag)",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a developer, I want Quick Start to switch to WDK immediately so that the system stops accumulating drift and the legacy path is removed quickly.",
+      "acceptanceCriteria": [
+        "POST /folders/:id/runs starts WDK workflow execution unconditionally for Quick Start.",
+        "Example: With the WDK worker running, the run progresses to a terminal state.",
+        "Negative: The route does not enqueue jobs(type=execute_run) and does not kick the legacy inline jobs worker.",
+        "Run idempotency is preserved.",
+        "Example: repeating POST /folders/:id/runs with the same Idempotency-Key returns the previously created run.",
+        "Negative: duplicate runs are not created for the same (folder_id, idempotency_key)."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Legacy execute_run jobs path is removed (jobs remain for ingest)",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As a developer, I want the legacy Quick Start enqueue and worker handler removed so that Quick Start cannot accidentally execute via jobs.",
+      "acceptanceCriteria": [
+        "Starting Quick Start creates no new jobs(type=execute_run) rows.",
+        "Example: after starting a run, there is no execute_run job row for that run.",
+        "Negative: there is no remaining code path that enqueues execute_run for Quick Start.",
+        "The legacy jobs worker no longer supports the execute_run job type (removed or explicitly rejected).",
+        "Any remaining jobs runtime behavior is clearly marked legacy-only in code comments."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Quick Start uses per-question WDK steps (avoid a single job-like step)",
+      "status": "open",
+      "dependsOn": ["US-003"],
+      "description": "As a developer, I want Quick Start to be broken into per-question durable steps so that restarts do not re-run the entire processor and progress is naturally incremental.",
+      "acceptanceCriteria": [
+        "The workflow schedules deterministic per-question step keys (one per question_id).",
+        "Example: killing the worker mid-run and restarting continues without duplicate report_rows.",
+        "Negative: already completed question writes are not re-run.",
+        "GET /runs/:id progress increments as steps complete."
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    "Define a Quick Start workflow type in the WDK registry (e.g. quick_start_title_survey).",
+    "Implement WDK step(s) for Quick Start execution (initially allowed: one step calls processQuickStartRun(runId); recommended: per-question write_row steps).",
+    "Update the run-start route to start WDK workflow execution and remove legacy job enqueue usage.",
+    "Remove execute_run job enqueue surface and worker handler.",
+    "Ensure the WDK worker is the only mechanism that can advance Quick Start runs (no silent in-process completion)."
+  ],
+  "rollback": {
+    "strategy": "Code revert (not live)",
+    "notes": "If WDK is incomplete, complete Workstream B rather than silently falling back to jobs for Quick Start."
+  },
+  "metrics": {
+    "logging": [
+      "run.created includes orchestration=wdk",
+      "step-level logs include run_id, step_key, step_type, state"
+    ]
+  },
+  "sources": [
+    "docs/04-projects/04-refactors/0004_quick-start-to-wdk/plan.md",
+    "docs/04-projects/04-refactors/0003_wdk-runtime/plan.md",
+    "apps/web/app/(api)/folders/[id]/runs/route.ts",
+    "apps/web/lib/quickStartRunQueue.server.ts",
+    "apps/web/lib/jobs/jobWorker.server.ts",
+    "apps/web/lib/quickStartRunProcessor.server.ts"
+  ]
+}
