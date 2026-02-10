@@ -1,0 +1,25 @@
+# Activity Log
+
+## Run Summary
+- 2026-02-10 22:56:52 | run=20260210-224307-10605 | iter=2 | mode=build | story=US-002 | duration=746s | status=success
+- 2026-02-10 22:44:23 | run=20260210-224307-10605 | iter=1 | mode=build | story=US-001 | duration=76s | status=success
+
+## Events
+
+[2026-02-10 22:43:09] ITERATION 1 start (mode=build story=US-001)
+[2026-02-10 22:43:29] US-001 start: audit existing matter chat UI + /folders/:id/chat API
+[2026-02-10 22:44:23] ITERATION 1 end (duration=76s)
+[2026-02-10 22:44:26] ITERATION 2 start (mode=build story=US-002)
+[2026-02-10 22:44:39] Start US-002 work (Locked sources evidence viewer)
+[2026-02-10 22:55:29] Implement /evidence/:id viewer + render Sources chips
+[2026-02-10 22:56:03] Run quality gate: pnpm -r typecheck
+[2026-02-10 22:56:23] Install dependencies (pnpm install)
+[2026-02-10 22:56:33] Re-run quality gate: pnpm -r typecheck
+[2026-02-10 22:56:52] ITERATION 2 end (duration=746s)
+[2026-02-10 22:56:56] ITERATION 3 start (mode=build story=US-003)
+[2026-02-10 22:57:06] US-003 start: audit guardrails/errors/PRD
+[2026-02-10 23:16:52] US-003 code: added chat feature flag + streaming endpoint + failure UI
+[2026-02-10 23:18:20] US-003: allow demo-prod routes for /evidence/* and /folders/:id/chat
+[2026-02-10 23:37:20] US-003 browser verify: chat no-evidence + model-failure + disabled (screenshots in .agents/skills/00-utilities/dev-browser/tmp/)
+[2026-02-10 23:39:28] US-003 verification: pnpm -r typecheck/lint/test/build + pnpm fixture:eval:all PASS
+[2026-02-10 23:41:24] US-003 progress log updated (.ralph/progress.md)
