@@ -21,6 +21,7 @@
     "A user can send a message and see first tokens streamed in under 2 seconds on a dev laptop (best-effort target).",
     "Assistant messages include at least one locked source when retrieval finds evidence; sources are clickable to an evidence viewer.",
     "When retrieval finds no evidence, the assistant returns exactly 'Not found in provided documents.' and sources are empty.",
+    "Existing fixture hard gates remain green (pnpm fixture:eval:all).",
     "API failures are explicit and safe: standard error envelope only, no stack traces or provider payloads returned."
   ],
   "openQuestions": [],
@@ -175,13 +176,15 @@
     "Evidence-first: assistant answers must be grounded in retrieved chunks; if not supported, respond exactly 'Not found in provided documents.'.",
     "Locked sources are immutable: once an assistant message is complete, its citations do not change silently.",
     "Evidence viewer must not conflict with existing /citations/:id API route; use /evidence/:id (or similar) for the page.",
+    "Chat changes must preserve fixture:eval hard gates (schema validity, citation integrity, expected failure journeys, export truth match when in scope).",
     "Chat feature is flaggable and allowlisted by runtime mode so it can ship dev-first and be promoted to demo-prod without forcing completion of broader 'dev-only route migration' work."
   ],
   "qualityGates": [
     "pnpm -r typecheck",
     "pnpm -r lint",
     "pnpm -r test",
-    "pnpm -r build"
+    "pnpm -r build",
+    "pnpm fixture:eval:all"
   ],
   "stories": [
     {
