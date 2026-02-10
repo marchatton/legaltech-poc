@@ -125,10 +125,10 @@ Manual smoke:
 4. Kill worker mid-flight; restart; confirm eventual completion without duplicates
 
 ## Open Questions
-- Should WDK step execution reuse `run_steps` directly or use WDK-specific step rows and mirror into `run_steps` later?
+- None for this slice.
+- Sequencing decision: WDK step execution reuses the existing `runs` + `run_steps` tables (no WDK-specific step tables + mirroring).
 
 ## Sources
 - `docs/04-projects/04-refactors/0003_wdk-runtime/plan.md`
 - `docs/03-architecture/06_frameworks_agents_rag_evals.md`
 - `docs/96-engineering-tutor-learnings/2026-02-08_adr-0005_deterministic-ish-orchestration-via-workflow-devkit-steps.md`
-

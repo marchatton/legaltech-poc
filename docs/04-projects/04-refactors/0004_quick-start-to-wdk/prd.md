@@ -35,6 +35,7 @@ This PRD is intentionally scoped to **2a**:
 - Do not migrate ingest to WDK in this workstream.
 - Do not change question set, report row schemas, or status taxonomy.
 - Do not change evidence/citations primitives.
+- Do not implement a first-class "worker not running" indicator (heartbeat + UI state machine); lack of progress + logs are sufficient for this slice.
 
 ## Users
 - Developer (local): wants Quick Start to run durably under WDK without managing two runtimes.
@@ -101,7 +102,7 @@ As a developer, I want Quick Start to be broken into per-question durable steps 
 - FR-002: Implement WDK step(s) for Quick Start execution.
   - Initial allowed implementation: one step calls `processQuickStartRun(runId)`.
   - Recommended evolution: per-question `write_row` steps.
-- FR-003: Update the run-start route to start WDK workflow execution and remove legacy job enqueue usage.
+- FR-003: Update the run-start route to create/reuse the run row (via idempotency) and start WDK workflow execution with input `{ run_id }`.
 - FR-004: Remove `execute_run` job enqueue surface and worker handler.
 - FR-005: Ensure WDK worker is the only mechanism that can advance Quick Start runs (no silent in-process completion).
 
@@ -146,8 +147,7 @@ Packs:
 - Risk: Removing legacy jobs path may break dev UX if WDK is incomplete; mitigate by ensuring Workstream B entry criteria are met first.
 
 ## Open Questions
-- Should the workflow input be `{ run_id }` or should the workflow own run-row creation?
-- Do we want a first-class "worker not running" user-visible indicator in the UI (out of scope for this PRD unless it becomes necessary)?
+- None (resolved 2026-02-10).
 
 ## Sources
 - `docs/04-projects/04-refactors/0004_quick-start-to-wdk/plan.md`

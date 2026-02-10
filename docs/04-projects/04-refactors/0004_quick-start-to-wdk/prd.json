@@ -12,17 +12,15 @@
     "Implement retrieval/draft/lock/verify for Quick Start.",
     "Migrate ingest to WDK in this workstream.",
     "Change question set, report row schemas, or status taxonomy.",
-    "Introduce a second evidence/citations system."
+    "Introduce a second evidence/citations system.",
+    "Implement a first-class \"worker not running\" indicator (heartbeat + UI state machine); lack of progress + logs are sufficient for this slice."
   ],
   "successMetrics": [
     "Starting Quick Start progresses under the WDK worker and reaches a terminal run state without relying on the legacy jobs worker.",
     "Starting Quick Start does not create jobs(type=execute_run) rows.",
     "Idempotency-Key behavior remains: repeated POST returns the same run for the same (folder_id, idempotency_key)."
   ],
-  "openQuestions": [
-    "Should the WDK workflow input be { run_id } or should the workflow own run-row creation?",
-    "Do we want a first-class user-visible indicator when the worker is not running (likely out of scope unless it becomes necessary)?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js (App Router, Node runtime)",
     "packageManager": "pnpm",
@@ -121,7 +119,7 @@
   "functionalRequirements": [
     "Define a Quick Start workflow type in the WDK registry (e.g. quick_start_title_survey).",
     "Implement WDK step(s) for Quick Start execution (initially allowed: one step calls processQuickStartRun(runId); recommended: per-question write_row steps).",
-    "Update the run-start route to start WDK workflow execution and remove legacy job enqueue usage.",
+    "Update the run-start route to create/reuse the run row (via idempotency) and start WDK workflow execution with input { run_id }.",
     "Remove execute_run job enqueue surface and worker handler.",
     "Ensure the WDK worker is the only mechanism that can advance Quick Start runs (no silent in-process completion)."
   ],

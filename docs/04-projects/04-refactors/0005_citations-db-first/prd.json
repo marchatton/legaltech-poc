@@ -12,6 +12,7 @@
     "Implement citation locking (chunk_id -> snippet/hash/polygons).",
     "Implement chat tables or chat APIs (owned by PRD B).",
     "Implement OCR/geometry improvements beyond coarse polygons.",
+    "Add a foreign key for citations.chat_message_id (requires chat_messages; follow-up slice with ON DELETE CASCADE).",
     "Add auth/RBAC."
   ],
   "successMetrics": [
@@ -19,9 +20,7 @@
     "In prod mode, fixture citation ids do not resolve (404).",
     "Citations enforce exactly-one association: report_row_id XOR chat_message_id."
   ],
-  "openQuestions": [
-    "Should we add a foreign key for citations.chat_message_id once chat_messages exists (follow-up slice)?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js App Router (apps/web) + TypeScript",
     "hosting": "Local dev and demo-prod; prod posture is locked down by ORBITAL_MODE",

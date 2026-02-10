@@ -84,7 +84,7 @@ As a contributor, I want the legacy ingest jobs path to be explicitly removable 
 - FR-001: Add `FEATURE_WDK_INGEST` (or equivalent) as a single cutover flag.
 - FR-002: Implement `ingest_document` workflow type in WDK registry.
 - FR-003: Implement an ingest step that can initially call existing `processDocumentIngest(documentId)` (thin integration), while running under WDK execution semantics.
-- FR-004: Update the upload/ingest route to start WDK ingest workflow when flag is enabled.
+- FR-004: Update the upload/ingest route to create an `ingest_document` run row and start WDK ingest workflow with input `{ run_id }` when the flag is enabled.
 - FR-005: Preserve/replace dev inline execution kick with a WDK-compatible mechanism (if needed).
 
 ## Failure States + UX
@@ -117,11 +117,10 @@ Manual smoke:
 5. `FEATURE_WDK_INGEST=0` and confirm legacy ingest path still works without WDK worker
 
 ## Open Questions
-- Should WDK ingest create a `runs` row of type `ingest_document`, or should it reuse a separate WDK-run table and only write ingest status to `documents`?
+- None (resolved 2026-02-10): ingest uses `runs` + `run_steps` with `runs.type=ingest_document` (no parallel WDK-run tables).
 
 ## Sources
 - `docs/04-projects/04-refactors/0003_wdk-runtime/plan.md`
 - `docs/03-architecture/07_current_poc_runtime.md`
 - `apps/web/lib/ingest/ingestProcessor.server.ts`
 - `apps/web/lib/jobs/jobWorker.server.ts`
-

@@ -41,6 +41,7 @@ Ship posture:
 - Do not implement chat tables or chat APIs (owned by PRD B).
 - Do not implement geometry/OCR; v0 still supports coarse page-level polygons where needed.
 - Do not add auth/RBAC.
+- Do not add a foreign key for `citations.chat_message_id` yet (requires `chat_messages`); add it in a follow-up slice with `ON DELETE CASCADE`.
 
 ## Users
 - Reviewer: clicks sources and expects evidence to load reliably (not fixture-only).
@@ -140,7 +141,7 @@ Manual smoke:
 - Depends on RH3 evidence for snippet hashing stability (`0001c`); keep `FEATURE_CITATIONS_API` off until RH3 is complete.
 
 ## Open Questions
-- Do we want to add a foreign key for `citations.chat_message_id` once `chat_messages` exists (likely yes; follow-up slice)?
+- None (resolved 2026-02-10).
 
 ## Sources
 - `docs/03-architecture/50_api_surface.md` (citation response shape)

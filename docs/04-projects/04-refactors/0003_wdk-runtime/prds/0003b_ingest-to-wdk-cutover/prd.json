@@ -17,9 +17,7 @@
     "With FEATURE_WDK_INGEST=1, uploads ingest via WDK and no ingest job rows are created.",
     "Worker restart mid-ingest completes without duplicate durable writes."
   ],
-  "openQuestions": [
-    "Should WDK ingest create a runs row of type ingest_document, or keep ingest state only on documents/folders?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js (apps/web) + TypeScript",
     "hosting": "Local dev + Hetzner VM (target posture)",
@@ -50,6 +48,7 @@
   "rules": [
     "Cutover is controlled by a single env flag (FEATURE_WDK_INGEST).",
     "Rollback must not require schema rollback; schema changes must be additive/compatible.",
+    "When FEATURE_WDK_INGEST=1, uploads create an ingest_document run row and start WDK workflow execution with input { run_id }.",
     "When cutover is enabled, do not silently fall back to legacy jobs execution."
   ],
   "qualityGates": [
@@ -67,6 +66,7 @@
       "acceptanceCriteria": [
         "Introduce a single env flag FEATURE_WDK_INGEST to choose orchestration path (jobs vs WDK).",
         "Example: with FEATURE_WDK_INGEST=1, uploads start WDK ingest workflow and do not enqueue jobs(type=ingest_document).",
+        "Example: with FEATURE_WDK_INGEST=1, uploads create a runs row with type=ingest_document so ingest progress is durable and debuggable in runs/run_steps.",
         "Negative: with FEATURE_WDK_INGEST unset/0, ingest still works via legacy jobs without requiring a WDK worker."
       ]
     },
@@ -111,4 +111,3 @@
     "docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.md"
   ]
 }
-

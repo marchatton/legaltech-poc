@@ -18,9 +18,7 @@
     "wdk_smoke completes across worker restarts without duplicate side effects.",
     "Two workers running concurrently do not double-execute the same step."
   ],
-  "openQuestions": [
-    "Does WDK step execution reuse run_steps directly or use WDK-specific step rows first?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js (apps/web) + TypeScript",
     "hosting": "Local dev + Hetzner VM (target posture)",
@@ -60,6 +58,7 @@
     "Workflow entrypoints start with the directive string literal \"use workflow\".",
     "Step implementations start with the directive string literal \"use step\".",
     "Workflows do not perform side effects; steps own side effects and idempotency.",
+    "WDK world state is stored in the existing runs + run_steps tables (no parallel WDK step tables + mirroring).",
     "Step inputs/outputs are JSON-serialisable and Zod-validated at the boundary."
   ],
   "qualityGates": [
@@ -118,4 +117,3 @@
     ]
   }
 }
-

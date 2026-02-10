@@ -31,6 +31,29 @@ Non-goal reminder: this dossier does **not** implement Retrieval (0011a) or Matt
 - We will implement a **minimal in-repo WDK** (not a third-party orchestration dependency).
 - We will do a **tracer-bullet** first (a tiny workflow + 2-3 steps) to prove durability and conventions.
 - We will then **cut over immediately** from `jobs` to WDK execution (no long-lived dual-runtime).
+- WDK world state uses the existing `runs` + `run_steps` tables (no parallel WDK step tables + mirroring).
+
+## Sequencing (program-level)
+Must run first (serial):
+2. 0003a WDK runtime skeleton  
+   - `docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.json`
+
+Parallel start point:
+- Once `0003a.US-001` is complete (WDK worker can claim + execute steps durably).
+
+Can run in parallel after that:
+3. 0003b ingest cutover (depends on `0003a.US-001`)  
+   - `docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003b_ingest-to-wdk-cutover/prd.json`
+4. 0004 Quick Start cutover to WDK (separate workstream; depends on “WDK is viable”, i.e. `0003a.US-001`)  
+   - `docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.json`
+5. 0011a retrieval substrate (can run in parallel; only hard-blocks chat)  
+   - `docs/04-projects/02-features/0011_chat_interface/prds/0011a_hybrid-retrieval-v0/prd.json`
+6. Workstream E: DB-first `GET /citations/:id` + unify associations (parallel; hard-blocks chat)  
+   - `docs/04-projects/04-refactors/0005_citations-db-first/prd.json`
+
+Must be last (serial on prerequisites):
+7. 0011b Matter Chat (start only after 2 + 5 + 6 are satisfied)  
+   - `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.json`
 
 ## Current state (reality check)
 - Durable jobs: `apps/web/lib/jobs/jobQueue.server.ts`, `apps/web/lib/jobs/jobWorker.server.ts`, `apps/web/scripts/worker.ts`
@@ -95,7 +118,7 @@ Planned schema deltas (exact DDL to be decided at implementation time):
     - `output_json JSONB NOT NULL DEFAULT '{}'::jsonb`
     - `attempt INT` is already present (keep 1-based semantics)
 
-If we decide not to mutate `run_steps` that much, the fallback is to introduce `wdk_steps` as a sibling table, but this plan assumes we prefer a single “steps log” table.
+If `run_steps` is insufficient, stop and update this plan/ADR rather than silently introducing parallel WDK durability tables.
 
 ### Runtime API (internal)
 Minimal API surface in `apps/web/lib/wdk/*`:
@@ -219,6 +242,5 @@ Worker smoke (manual):
 4. Kill worker process mid-flight, restart it, confirm steps continue without duplication
 
 ## Open questions (to resolve during PR 1/2, not before)
-- Do we keep `run_steps` as the single “step log” for everything, or introduce a dedicated `wdk_steps` table to avoid overloading Quick Start semantics?
 - How strict should directive enforcement be (best-effort test vs custom ESLint rule)?
 - Do we want cancellation semantics in v0 (likely no; defer until a real need exists)?
