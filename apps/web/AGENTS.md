@@ -17,6 +17,10 @@ Next.js App Router web application.
 - AI SDK flows: use Workflow DevKit (`workflow`) and add `"use workflow"` in async TS fns for durability, reliability, observability.
   - Conventions for `"use workflow"` / steps are defined in `docs/03-architecture/06_frameworks_agents_rag_evals.md`.
 
+## Demo-Prod Deploy Note
+- The intended operator flow is: iterate locally (Sprite/host) first, then deploy to a single Hetzner VM via Docker Compose.
+- Canonical runbook: `docs/04-projects/02-features/0007_demo-prod-deploy/runbook.md`
+
 ## Frontend skills
 - `generating-tailwind-brand-config` for brand tokens/config
 - `baseline-ui`, `interface-design`, `frontend-design`, and `web-design-guidelines` for UI
