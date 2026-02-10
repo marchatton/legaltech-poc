@@ -57,7 +57,10 @@ export type SourceRowForCsv = {
 };
 
 function csvEscape(val: unknown): string {
-  const s = val === null || val === undefined ? "" : String(val);
+  let s = val === null || val === undefined ? "" : String(val);
+  // Prevent CSV formula injection in Excel/Sheets. Quoting is not sufficient.
+  // Prefix when the first non-whitespace character is a formula sentinel.
+  if (/^[\t\r\n ]*[=+\-@]/.test(s)) s = `'${s}`;
   const needsQuotes = /[",\n\r]/.test(s);
   const escaped = s.replace(/"/g, '""');
   return needsQuotes ? `"${escaped}"` : escaped;

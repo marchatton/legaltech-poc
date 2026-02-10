@@ -132,5 +132,38 @@ describe("csvFromSourceRow", () => {
       ].join("\n"),
     );
   });
-});
 
+  it("prefixes formula-like cells to prevent CSV injection", () => {
+    const csv = csvFromSourceRow({
+      kind: "requirements_tracker",
+      sourceRow: {
+        source_question_id: "TS-03",
+        row_status: "needs_review",
+        source_answer: "ok",
+        failure_code: "",
+        notes: null,
+      },
+      payloadSchemaVersion: "list_payload_v0",
+      payloadJson: {
+        kind: "requirements_tracker",
+        items: [
+          {
+            kind: "requirements_tracker_item",
+            item_id: "bi:1",
+            citation_ids: [],
+            bi_item: 1,
+            requirement: "=HYPERLINK(\"http://evil\")",
+            owner: "+SUM(1,1)",
+            item_status: "open",
+          },
+        ],
+      },
+      citationById: new Map(),
+    });
+
+    const lines = csv.trimEnd().split("\n");
+    expect(lines[0]).toContain("requirement_text");
+    // requirement_text should be prefixed.
+    expect(lines[1]).toContain(",\"'=HYPERLINK(\"\"http://evil\"\")\"");
+  });
+});

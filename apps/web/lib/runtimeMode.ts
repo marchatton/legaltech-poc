@@ -11,7 +11,13 @@ function normaliseMode(raw: string | undefined): OrbitalMode | null {
 // so it must not use Node-only APIs or `server-only`.
 export function orbitalMode(): OrbitalMode {
   const fromEnv = normaliseMode(process.env.ORBITAL_MODE);
-  if (fromEnv) return fromEnv;
+  if (fromEnv) {
+    // Guardrail: never allow dev posture on a non-dev build. If someone sets
+    // ORBITAL_MODE=dev in production, fail closed to "prod" instead of silently
+    // enabling dev-only surfaces without demo-prod middleware protections.
+    if (fromEnv === "dev" && process.env.NODE_ENV !== "development") return "prod";
+    return fromEnv;
+  }
 
   // Local development should not require ORBITAL_MODE.
   if (process.env.NODE_ENV === "development") return "dev";
@@ -28,4 +34,3 @@ export function isDevOrDemoProd(): boolean {
 export function isDemoProd(): boolean {
   return orbitalMode() === "demo-prod";
 }
-

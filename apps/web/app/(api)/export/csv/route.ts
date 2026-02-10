@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "node:crypto";
+
 import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
 import { z } from "zod";
 
@@ -45,10 +47,34 @@ type DbReportRow = {
   payload_json: unknown;
 };
 
+type DbFailedRow = { question_id: string; provenance_json: unknown };
+
 type DbCitationRow = { id: string; filename: string; page_number: number };
 
 function isRecord(val: unknown): val is Record<string, unknown> {
   return !!val && typeof val === "object" && !Array.isArray(val);
+}
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
+
+function unsafeOverrideAllowed(req: Request): boolean {
+  // Unsafe exports must stay dev-only even if flags are accidentally set in production.
+  if (process.env.NODE_ENV !== "development") return false;
+  if (process.env.DEMO_MODE !== "1") return false;
+  if (process.env.ALLOW_UNSAFE_EXPORTS !== "1") return false;
+
+  const expected = process.env.ORBITAL_ADMIN_TOKEN?.trim();
+  if (!expected) return false;
+
+  const provided = req.headers.get("x-orbital-admin-token")?.trim();
+  if (!provided) return false;
+
+  return safeEqual(provided, expected);
 }
 
 function collectCitationIdsFromPayload(payloadSchemaVersion: string | null, payloadJson: unknown): string[] {
@@ -125,12 +151,13 @@ export async function POST(req: Request): Promise<Response> {
   const folderId = parsed.data.folder_id;
   const runId = parsed.data.run_id;
   const kind = parsed.data.kind;
+  const unsafeOverride = parsed.data.unsafe_override;
 
-  if (parsed.data.unsafe_override) {
+  if (unsafeOverride && !unsafeOverrideAllowed(req)) {
     return Response.json(
       safeErrorEnvelope({
         code: "UNAUTHORISED",
-        message: "Unsafe override is not supported in this slice.",
+        message: "Unsafe override is not allowed.",
         traceId,
       }),
       { status: 403, headers },
@@ -162,6 +189,42 @@ export async function POST(req: Request): Promise<Response> {
   let citationById = new Map<string, { filename: string; page: number }>();
 
   if (run) {
+    // Target contract: block export if ANY row in the run is citation_failed unless unsafe_override=true.
+    if (!unsafeOverride) {
+      const failed = await sql<DbFailedRow[]>`
+        SELECT question_id, provenance_json
+        FROM report_rows
+        WHERE run_id = ${runId}
+          AND status = 'citation_failed'
+        ORDER BY question_id ASC
+        LIMIT 200
+      `;
+
+      if (failed.length > 0) {
+        const reasonCodes = Array.from(
+          new Set(
+            failed
+              .map((r) => reasonCodeFromProvenance(r.provenance_json) ?? "VALIDATION_ERROR")
+              .filter((c) => typeof c === "string" && c.trim()),
+          ),
+        ).sort();
+
+        return Response.json(
+          safeErrorEnvelope({
+            code: "EXPORT_BLOCKED",
+            message: `Export blocked: ${failed.length} row(s) failed verification.`,
+            details: {
+              citation_failed_count: failed.length,
+              failed_question_ids: failed.map((r) => r.question_id).slice(0, 50),
+              reason_codes: reasonCodes,
+            },
+            traceId,
+          }),
+          { status: 409, headers },
+        );
+      }
+    }
+
     const rows = await sql<DbReportRow[]>`
       SELECT id, question_id, answer, status, notes, provenance_json, payload_schema_version, payload_json
       FROM report_rows
@@ -262,6 +325,27 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
 
+    if (!unsafeOverride) {
+      const failed = (snapshot.rows ?? []).filter((r) => r?.status === "citation_failed");
+      if (failed.length > 0) {
+        return Response.json(
+          safeErrorEnvelope({
+            code: "EXPORT_BLOCKED",
+            message: `Export blocked: ${failed.length} row(s) failed verification.`,
+            details: {
+              citation_failed_count: failed.length,
+              failed_question_ids: failed
+                .map((r) => String((r as { question_id?: unknown }).question_id ?? ""))
+                .filter((s) => s.trim())
+                .slice(0, 50),
+            },
+            traceId,
+          }),
+          { status: 409, headers },
+        );
+      }
+    }
+
     for (const [citationId, cit] of Object.entries(snapshot.citations ?? {})) {
       if (!cit || typeof cit !== "object") continue;
       const filename = (cit as { document_filename?: unknown }).document_filename;
@@ -296,6 +380,7 @@ export async function POST(req: Request): Promise<Response> {
       payloadSchemaVersion: sourceRow.payload_schema_version,
       payloadJson: sourceRow.payload_json,
       citationById,
+      unsafeOverride,
     });
   } catch (err) {
     return Response.json(
@@ -311,7 +396,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const artefactId = newId("art");
   const createdAt = new Date();
-  const filename = `${kind}.csv`;
+  const filename = unsafeOverride ? `${kind}.UNSAFE.csv` : `${kind}.csv`;
 
   const storageKey = `folders/${folderId}/artefacts/${artefactId}.csv`;
   const keyOk = validateArtefactCsvStorageKey(storageKey);
@@ -352,7 +437,7 @@ export async function POST(req: Request): Promise<Response> {
       ${filename},
       ${storageKey},
       ${runId},
-      ${sql.json({ schema_version: "csv_schemas_v1" })},
+      ${sql.json({ schema_version: "csv_schemas_v1", unsafe_override: unsafeOverride })},
       ${createdAt},
       ${createdAt}
     )

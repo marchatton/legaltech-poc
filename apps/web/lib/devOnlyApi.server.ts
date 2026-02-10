@@ -2,6 +2,8 @@ import "server-only";
 
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
+import { isDevOrDemoProd } from "./runtimeMode";
+
 export function assertDevOnlyApi(traceId: string, headers: Headers): Response | null {
   if (process.env.NODE_ENV === "development") return null;
   return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Not found.", traceId }), {
@@ -11,8 +13,7 @@ export function assertDevOnlyApi(traceId: string, headers: Headers): Response | 
 }
 
 export function assertDevOrDemoProdApi(traceId: string, headers: Headers): Response | null {
-  const mode = process.env.ORBITAL_MODE?.trim();
-  if (process.env.NODE_ENV === "development" || mode === "dev" || mode === "demo-prod") return null;
+  if (isDevOrDemoProd()) return null;
   return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Not found.", traceId }), {
     status: 404,
     headers,

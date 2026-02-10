@@ -63,6 +63,8 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 function unsafeOverrideAllowed(req: Request): boolean {
+  // Unsafe exports must stay dev-only even if flags are accidentally set in production.
+  if (process.env.NODE_ENV !== "development") return false;
   if (process.env.DEMO_MODE !== "1") return false;
   if (process.env.ALLOW_UNSAFE_EXPORTS !== "1") return false;
 
@@ -305,8 +307,11 @@ export async function POST(req: Request): Promise<Response> {
     const citations = await sql<CitationRow[]>`
       SELECT c.id, c.document_id, d.filename as document_filename, c.page_number
       FROM citations c
+      INNER JOIN report_rows r ON r.id = c.report_row_id
       LEFT JOIN documents d ON d.id = c.document_id
       WHERE c.id = ANY(${citationIds})
+        AND r.run_id = ${runId}
+        AND r.folder_id = ${folderId}
     `;
 
     for (const c of citations) {

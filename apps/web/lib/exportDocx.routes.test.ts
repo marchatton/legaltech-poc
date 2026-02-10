@@ -233,6 +233,7 @@ describe("export docx (memo)", () => {
   it("labels unsafe override exports and persists metadata", async () => {
     const { POST } = await import("../app/(api)/export/docx/route");
 
+    (process.env as Record<string, string | undefined>).NODE_ENV = "development";
     process.env.DEMO_MODE = "1";
     process.env.ALLOW_UNSAFE_EXPORTS = "1";
     process.env.ORBITAL_ADMIN_TOKEN = "test-admin-token";
