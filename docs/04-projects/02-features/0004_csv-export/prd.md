@@ -86,7 +86,7 @@ Column semantics (locked):
 
 - runs.state must be completed, else 409 CONFLICT.
 - If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED.
-- unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS + a valid `X-Orbital-Admin-Token` (ADR-0019); otherwise 403 UNAUTHORISED.
+- unsafe_override=true is demo-only and requires `NODE_ENV=development` + DEMO_MODE + ALLOW_UNSAFE_EXPORTS + a valid `X-Orbital-Admin-Token` (ADR-0019); otherwise 403 UNAUTHORISED.
 - Unsafe override is API-only (no Trust Substrate UI affordance) (ADR-0019).
 - Unsafe exports must be visibly labelled in filename (e.g. requirements_tracker.UNSAFE.csv) and recorded in artefact metadata_json.
 - Under unsafe exports, any exported items derived from a citation_failed report row must:

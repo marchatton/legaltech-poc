@@ -31,14 +31,14 @@
     "framework": "Next.js (apps/web) + packages/core",
     "hosting": "TBD (PoC)",
     "database": "Postgres + object storage (artefacts) (see docs/03-architecture/30_data_model.md)",
-    "auth": "TBD; demo-only unsafe override guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS"
+    "auth": "TBD; demo-only unsafe override guarded by NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS"
   },
   "routes": [],
   "uiNotes": [
     "UI includes export buttons for the 3 CSV kinds.",
     "UI disables export until run completion.",
     "UI shows a blocked banner on EXPORT_BLOCKED with counts and next action.",
-    "Unsafe override CTA exists only when DEMO_MODE && ALLOW_UNSAFE_EXPORTS and must be clearly labelled UNSAFE."
+    "Unsafe override CTA exists only when NODE_ENV=development && DEMO_MODE && ALLOW_UNSAFE_EXPORTS and must be clearly labelled UNSAFE."
   ],
   "dataModel": [
     {
@@ -83,7 +83,7 @@
     "Exports must not parse prose from report_rows.answer to reconstruct structure; they consume structured row payloads persisted via report_rows.payload_schema_version + report_rows.payload_json.",
     "runs.state must be completed; otherwise export returns 409 CONFLICT.",
     "If any row is citation_failed and unsafe_override != true, export is blocked (EXPORT_BLOCKED).",
-    "unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise 403 UNAUTHORISED.",
+    "unsafe_override=true is demo-only and requires NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise 403 UNAUTHORISED.",
     "Unsafe exports must be visibly labelled in filename (e.g. requirements_tracker.UNSAFE.csv) and recorded in artefact metadata_json.unsafe_override=true.",
     "Under unsafe exports, any exported items derived from a citation_failed report row must have row_status=citation_failed, failure_code populated, empty citations/citation_ids, and notes prefixed with 'UNSAFE: '.",
     "Citations rendering in CSV: citations column contains unique filename:page entries sorted by (filename asc, page asc, citation_id asc) joined with '; '; citation_ids column contains citation IDs sorted asc joined with '; '.",
@@ -191,7 +191,7 @@
     "exportGatingAndUnsafeOverride": [
       "runs.state must be completed else 409 CONFLICT.",
       "If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED.",
-      "unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise 403 UNAUTHORISED.",
+      "unsafe_override=true is demo-only and requires NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise 403 UNAUTHORISED.",
       "Unsafe exports must be labelled in filename (e.g. *.UNSAFE.csv) and recorded in artefact metadata_json.",
       "For citation_failed-derived items under unsafe export: row_status=citation_failed, failure_code populated, citations/citation_ids empty, notes prefixed 'UNSAFE: '."
     ]
@@ -200,7 +200,7 @@
     "inScope": [
       "POST /export/csv with kind=requirements_tracker|exceptions_table|survey_issues; Zod input validation.",
       "Export gating: require runs.state=completed (else 409 CONFLICT); block on citation_failed unless unsafe_override=true.",
-      "unsafe_override=true guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS; unsafe exports labelled *.UNSAFE.csv and recorded in metadata_json.",
+      "unsafe_override=true guarded by NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS; unsafe exports labelled *.UNSAFE.csv and recorded in metadata_json.",
       "CSV schemas v1 with locked header list + ordering and deterministic row ordering rules.",
       "Persist created CSVs as artefacts using 0008 (storage_key + metadata; signed URLs generated via GET /folders/:id/artefacts).",
       "UI export buttons + disabled/blocked states.",

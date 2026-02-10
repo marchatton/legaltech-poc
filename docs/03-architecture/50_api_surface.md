@@ -5,7 +5,11 @@
 
 This doc is the canonical HTTP contract for the PoC. Keep it small, but explicit.
 
-Important: This is the **target** API surface. During development we may ship dev-only spike endpoints, but they must live under `/spikes/*`, be gated behind `SPIKES_ENABLED=1`, and return `404` unless spikes are explicitly enabled.
+Important: This is the **target** API surface.
+
+During development we may ship dev-only endpoints in two buckets:
+- **Spike/debug endpoints**: must live under `/spikes/*`, be gated behind `SPIKES_ENABLED=1`, and return `404` unless spikes are explicitly enabled.
+- **Operator/demo endpoints**: may live under `/demo/*` when they are part of the practical demo workflow (e.g. loading fixture packs), but they are still dev/demo-only and must be explicitly gated (see `docs/03-architecture/07_current_poc_runtime.md` for what exists today).
 
 See also:
 - State machines + invariants: `docs/03-architecture/20_state_model.md`
@@ -81,19 +85,25 @@ HTTP status mapping (PoC default):
 
 ## Demo controls (dev-only)
 
-These endpoints are dev-only and must follow the spike endpoint conventions:
-- Paths live under `/spikes/*`.
-- They are gated behind `SPIKES_ENABLED=1` and return `404` unless spikes are explicitly enabled.
+These endpoints are dev-only operator controls for demos. Prefer keeping debug/harness endpoints under `/spikes/*`,
+but allow “operator demo controls” to live under `/demo/*` when they are part of the canonical demo workflow.
 
-### POST /spikes/demo/load-pack (admin)
+Hard rule:
+- Any **retrieval debug endpoints** for `0011a` must be under `/spikes/retrieval/*` (gated by `SPIKES_ENABLED=1`).
+
+### POST /demo/load-pack (admin)
 Load a known fixture pack from `docs/08-example-data/` and seed a fresh folder ("matter") with documents only.
 
 Access control (PoC v1):
 - Requires `X-Orbital-Admin-Token` header matching env `ORBITAL_ADMIN_TOKEN` (see Admin token (PoC) above).
 
 Feature flags:
-- Requires `SPIKES_ENABLED=1` and `DEMO_MODE=1`.
+- Requires `DEMO_MODE=1`.
   - Otherwise return `404` with `error.code = "NOT_FOUND"`.
+
+Notes:
+- This endpoint is not part of the “target production API”; it is a demo operator control.
+- In shared/demo environments, it should also be gated by runtime mode/allowlisting (implementation detail; see `docs/03-architecture/07_current_poc_runtime.md`).
 
 Request:
 ```json
@@ -445,7 +455,11 @@ Notes:
   - `survey_issues`
 - Naming collision: there is a current dev-only exporter using `/export/csv`. Prefer to keep this as the target path and move the dev-only exporter under `/spikes/export/csv` (or similar), with dev-only gating and `404` outside dev.
 - `unsafe_override` is reserved for demo-only "unsafe" exports:
-  - Allowed only when `DEMO_MODE=1` and `ALLOW_UNSAFE_EXPORTS=1` and the request includes a valid admin token (see Admin token (PoC) above).
+  - Allowed only when **all** are true:
+    - `NODE_ENV=development` (dev-only)
+    - `DEMO_MODE=1`
+    - `ALLOW_UNSAFE_EXPORTS=1`
+    - request includes a valid admin token (see Admin token (PoC) above).
   - Otherwise return `403` with `error.code = "UNAUTHORISED"`.
 - If an unsafe export is ever allowed, it must be visibly labelled and recorded in artefact metadata (see `docs/03-architecture/20_state_model.md` + `docs/03-architecture/30_data_model.md`).
 

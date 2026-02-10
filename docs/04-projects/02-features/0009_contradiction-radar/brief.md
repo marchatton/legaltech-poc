@@ -64,6 +64,10 @@ Thin slice (2-3 days):
 - Validate inputs at boundaries with Zod; return safe error envelopes. See `docs/03-architecture/50_api_surface.md`.
 - No external web research inside runs (ADR-0007).
 
+## Depends on (alignment only)
+- Reuse the unified citations contract (`GET /citations/:id`) and the existing evidence viewer surface (do not invent a parallel evidence primitive).
+- v0 is fixture-driven and deterministic (explicitly no DB persistence for contradictions in this slice).
+
 ## Top risks / unknowns (treatments)
 - Extraction rabbit hole: keep v1 fixture-driven + small fact set. (Cut for now.)
 - False positives from normalization: show normalized + raw values and the comparator rule used. (Patch.)
@@ -78,4 +82,3 @@ Thin slice (2-3 days):
 ## Shaping decision (GO/NO-GO)
 - GO when the demo script above is deterministic on fixture packs and every contradiction is fully evidence-backed (or explicitly `missing_evidence`).
 - NO-GO if contradictions require broad extraction work or produce noisy false positives without a crisp mitigation.
-

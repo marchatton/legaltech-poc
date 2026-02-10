@@ -45,6 +45,21 @@ Target default: OCR everything for consistent geometry
   - lexical (tsvector)
   - semantic (pgvector)
 
+### Geometry maturity ladder (explicit)
+Until OCR/layout geometry is implemented for real uploads, we need to be honest about what “highlight” means.
+
+Geometry levels:
+- v0: **page-level** highlight only (full-page polygon). This is the required fallback when `document_pages.layout_json.has_geometry = false`.
+- v1: line-level polygons (OCR/layout provider returns per-line boxes).
+- v2: word/span-level polygons (higher precision, higher complexity).
+
+Canonical v0 fallback polygon (normalized coordinates):
+```json
+[[[0,0],[1,0],[1,1],[0,1]]]
+```
+
+UI rule (v0): label the highlight as “page-level” so users do not infer precision.
+
 Implementation notes:
 - OCR/layout is abstracted behind one adapter interface (ADR-0012; accepted).
 - Chunking must be deterministic for a given `(document_id, index_version)`; if you change chunking logic, bump the folder `index_version`.

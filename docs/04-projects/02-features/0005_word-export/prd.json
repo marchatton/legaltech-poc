@@ -30,13 +30,13 @@
     "framework": "Next.js (apps/web) + packages/core",
     "hosting": "TBD (PoC)",
     "database": "Postgres + object storage (artefacts) (see docs/03-architecture/30_data_model.md)",
-    "auth": "TBD; demo-only unsafe override guarded by DEMO_MODE + ALLOW_UNSAFE_EXPORTS"
+    "auth": "TBD; demo-only unsafe override guarded by NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS"
   },
   "routes": [],
   "uiNotes": [
     "UI includes an 'Export memo (Word)' button, disabled until run completes.",
     "UI shows a blocked banner on EXPORT_BLOCKED with counts and next action.",
-    "Unsafe override CTA exists only when DEMO_MODE && ALLOW_UNSAFE_EXPORTS and must be clearly labelled UNSAFE."
+    "Unsafe override CTA exists only when NODE_ENV=development && DEMO_MODE && ALLOW_UNSAFE_EXPORTS and must be clearly labelled UNSAFE."
   ],
   "dataModel": [
     {
@@ -84,7 +84,7 @@
   "rules": [
     "Export is only allowed when runs.state = completed; otherwise return 409 CONFLICT.",
     "If any row is citation_failed and unsafe_override != true, return EXPORT_BLOCKED and block the export UI.",
-    "unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise return 403 UNAUTHORISED.",
+    "unsafe_override=true is demo-only and requires NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS; otherwise return 403 UNAUTHORISED.",
     "Unsafe exports must be visibly labelled in filename (memo.UNSAFE.docx) and recorded in metadata_json.unsafe_override=true.",
     "Renderer uses headings + bullets only; avoid complex tables/text boxes/footnotes. Citations are inline (no footnotes).",
     "Citations render as: Sources: <filename>:<page> (<citation_id>); ..."
@@ -165,7 +165,7 @@
     "inScope": [
       "POST /export/docx supports kind=memo and validates inputs with Zod; errors use standard safe envelope (ADR-0008).",
       "Export gating: require runs.state=completed (else 409 CONFLICT); block on any citation_failed unless unsafe_override=true.",
-      "unsafe_override=true is demo-only and requires DEMO_MODE + ALLOW_UNSAFE_EXPORTS (else 403 UNAUTHORISED); unsafe exports labelled memo.UNSAFE.docx and recorded in metadata_json.",
+      "unsafe_override=true is demo-only and requires NODE_ENV=development + DEMO_MODE + ALLOW_UNSAFE_EXPORTS (else 403 UNAUTHORISED); unsafe exports labelled memo.UNSAFE.docx and recorded in metadata_json.",
       "Word renderer: one fixed memo template, deterministic section ordering, stable formatting rules, consistent citations format.",
       "Persist created memo docx as an artefact using 0008 (storage_key + metadata; signed URLs generated via GET /folders/:id/artefacts).",
       "UI: Export memo button; disabled until run completes; blocked banner on EXPORT_BLOCKED."

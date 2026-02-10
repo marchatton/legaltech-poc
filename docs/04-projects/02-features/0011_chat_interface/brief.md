@@ -46,6 +46,13 @@ In scope now:
 - `0011a` Hybrid Retrieval Substrate v0 (tsvector + pgvector IVFFlat, IDs-only `hybridSearch()`).
 - `0011b` Matter Chat v0 (streaming + locked sources, WDK-aligned durability posture).
 
+Sequencing constraints (hard):
+- Do not start `0011b` until `0011a` exists (chat must be grounded).
+- Do not start `0011b` until `GET /citations/:id` is DB-first for real documents (fixture fallback only where explicitly gated).
+
+Program sequencing (single source of truth):
+- `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`
+
 ## Key User Flow (v0)
 
 1) User opens a Matter.
@@ -87,4 +94,3 @@ In scope now:
 - Cut lines if needed:
   - Retrieval: lexical-only first (no pgvector) if pgvector environment is a blocker.
   - Chat: non-resumable streaming first (no reconnect) if WDK integration is too heavy.
-

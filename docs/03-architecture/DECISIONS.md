@@ -114,6 +114,11 @@ Consequences
 - Workflows remain predictable; side effects are isolated and observable.
 - Keeps WDK integration thin (domain logic stays in `packages/core`).
 
+Implementation status
+- Target posture: WDK workflows/steps.
+- Current repo runtime may temporarily diverge (see `docs/03-architecture/07_current_poc_runtime.md`).
+- Planned sequencing and closure of this drift: `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`.
+
 Links
 - Related docs: `docs/03-architecture/06_frameworks_agents_rag_evals.md`, `docs/03-architecture/10_system_architecture.md`
 
@@ -474,6 +479,7 @@ Context
 
 Decision
 - `unsafe_override=true` is allowed only when ALL are true:
+  - `NODE_ENV=development` (dev-only)
   - `DEMO_MODE=1`
   - `ALLOW_UNSAFE_EXPORTS=1`
   - `X-Orbital-Admin-Token` matches env `ORBITAL_ADMIN_TOKEN` (ADR-0018)

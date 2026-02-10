@@ -65,6 +65,13 @@ Thin slice (2-3 days):
 - Highlight overlay posture: verified at 100% zoom only in PoC v1 (ADR-0020). Capsule export must align with that constraint.
 - No leaking internal errors/details to clients (safe error envelope). See `packages/core/src/safe-error.ts` and `docs/03-architecture/50_api_surface.md`.
 
+## Geometry constraint (explicit)
+Meaningful CiteCapsules require geometry-backed citations (polygons smaller than a full page) to produce a tightly cropped, privacy-preserving PNG.
+
+Until OCR/layout geometry is implemented for real uploads (`document_pages.layout_json.has_geometry=true`):
+- v0 CiteCapsules should be treated as **fixture-only** (where we already have meaningful polygons).
+- For real uploaded documents, defer CiteCapsules rather than shipping full-page crops (too leaky, too noisy).
+
 ## Top risks / unknowns (treatments)
 - Crop drift across rotation/dpr: lock export to 100% zoom; include render metadata; crop in device pixels. (Patch.)
 - Privacy leakage (nearby text in crop): tight bbox + no padding by default; show preview before export. (Patch.)
@@ -77,4 +84,3 @@ Thin slice (2-3 days):
 ## Shaping decision (GO/NO-GO)
 - GO when capsules are deterministic, verifiable, and fail closed on invalid citations without adding meaningful risk to the trust posture.
 - NO-GO if cropping proves unreliable on fixture packs or if the capsule format cannot be made stable and safe.
-

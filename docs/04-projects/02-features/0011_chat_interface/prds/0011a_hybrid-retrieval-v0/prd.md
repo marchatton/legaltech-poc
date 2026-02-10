@@ -32,7 +32,8 @@ After: a dev-only spike endpoint and/or harness can retrieve relevant `chunk_id`
 - Upgrade chunking from per-page to small deterministic chunks (char window).
 - Add lexical index (tsvector + GIN) for `chunks`.
 - Add semantic index (pgvector embeddings + IVFFlat) for `chunks`.
-- Implement `hybridSearch()` in `packages/core` using “two queries + merge in TS” for debuggability.
+- Implement `hybridSearch()` in `apps/web` as a server-only module, using “two queries + merge in TS” for debuggability.
+  - Optional: extract the **pure merge/scoring logic** into `packages/core` (but keep DB + AI calls in `apps/web`).
 - Add a dev-only debug endpoint under `/spikes/*` (in `apps/web`) to validate retrieval.
 
 ## Goals
@@ -192,7 +193,7 @@ This makes early behavior predictable and avoids confusing “limited results”
 ## Decisions (Resolved)
 - When pgvector is missing/unavailable: degrade to lexical-only (semantic branch disabled) and make it observable (logs + debug endpoint).
 - Retrieval quality: add a small golden-questions smoke fixture now (3-10 queries).
-- `hybridSearch()` location: implement in `packages/core`; `apps/web` owns the spike route.
+- `hybridSearch()` location: implement in `apps/web` (server-only); `apps/web` owns the spike route. Pure scoring helpers may live in `packages/core`.
 
 ## Sources
 - `docs/00-strategy/initiatives/100_chat_interface/100_chat_interface.md`

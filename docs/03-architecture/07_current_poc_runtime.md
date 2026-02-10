@@ -112,3 +112,13 @@ The largest gaps relative to target docs:
 - “Evidence-first” is implemented for fixture/demo mode, not for real uploaded documents.
 
 If you are implementing features, prefer grounding changes in code reality first (this doc), then updating the target docs as the target evolves.
+
+## Planned closures (near-term)
+
+This doc stays “implemented today”. For the intended sequence of upcoming refactors/features (including “WDK now”, Quick Start refactor, retrieval, and chat), see:
+- `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`
+
+Key planned closures (not implemented yet, at time of writing):
+- Replace the durable jobs worker orchestration with WDK workflows/steps for long-running side effects (and refactor Quick Start accordingly).
+- Make citations DB-backed for real uploaded documents (with fixture fallback only where explicitly gated).
+- Implement hybrid retrieval (lexical + semantic) as the retrieval substrate enabling grounded chat and evidence-first features beyond fixtures.
