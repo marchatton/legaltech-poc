@@ -347,9 +347,64 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
         WHERE id = ${documentId}
       `;
 
+      const hasEmbeddingColumnRows = await t<Array<{ exists: boolean }>>`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_schema = 'public'
+            AND table_name = 'chunks'
+            AND column_name = 'embedding'
+        ) AS exists
+      `;
+      const hasEmbeddingColumn = hasEmbeddingColumnRows[0]?.exists ?? false;
+
       // Deterministic, page-bounded chunking suitable for citations.
       // Use UPSERT to make re-ingest idempotent by (document_id, index_version, chunk_index).
       for (const c of chunksToWrite) {
+        if (hasEmbeddingColumn) {
+          await t`
+            INSERT INTO chunks (
+              id,
+              document_id,
+              index_version,
+              chunk_index,
+              page_start,
+              page_end,
+              text,
+              metadata_json,
+              text_hash,
+              created_at
+            )
+            VALUES (
+              ${newId("chk")},
+              ${documentId},
+              ${indexVersion},
+              ${c.chunk_index},
+              ${c.page_start},
+              ${c.page_end},
+              ${c.text},
+              ${t.json(c.metadata_json)},
+              ${c.text_hash},
+              now()
+            )
+            ON CONFLICT (document_id, index_version, chunk_index) DO UPDATE SET
+              page_start = EXCLUDED.page_start,
+              page_end = EXCLUDED.page_end,
+              text = EXCLUDED.text,
+              metadata_json = EXCLUDED.metadata_json,
+              text_hash = EXCLUDED.text_hash,
+              embedding = CASE
+                WHEN chunks.text_hash <> EXCLUDED.text_hash THEN NULL
+                ELSE chunks.embedding
+              END,
+              embedded_at = CASE
+                WHEN chunks.text_hash <> EXCLUDED.text_hash THEN NULL
+                ELSE chunks.embedded_at
+              END
+          `;
+          continue;
+        }
+
         await t`
           INSERT INTO chunks (
             id,
@@ -380,7 +435,11 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
             page_end = EXCLUDED.page_end,
             text = EXCLUDED.text,
             metadata_json = EXCLUDED.metadata_json,
-            text_hash = EXCLUDED.text_hash
+            text_hash = EXCLUDED.text_hash,
+            embedded_at = CASE
+              WHEN chunks.text_hash <> EXCLUDED.text_hash THEN NULL
+              ELSE chunks.embedded_at
+            END
         `;
       }
 
