@@ -70,7 +70,7 @@
     {
       "id": "US-001",
       "title": "WDK worker claims and executes steps durably",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want a WDK worker loop that safely claims executable steps and executes them so work continues across restarts and supports multiple workers.",
       "acceptanceCriteria": [
@@ -79,13 +79,13 @@
         "Negative: two workers must not execute the same step concurrently or produce duplicate side effects."
       ],
       "startedAt": "2026-02-10T13:04:18.675079+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T13:04:18.675092+00:00"
+      "completedAt": "2026-02-10T13:32:31.961291+00:00",
+      "updatedAt": "2026-02-10T13:32:31.961250+00:00"
     },
     {
       "id": "US-002",
       "title": "wdk_smoke workflow proves conventions + retries",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -94,7 +94,10 @@
         "A dev-only trigger exists to start wdk_smoke and observe durable step state transitions.",
         "Example: one smoke step fails once and succeeds on retry (attempt increments and backoff applies).",
         "Negative: smoke step side effects must not run inside the HTTP handler; only the worker executes steps."
-      ]
+      ],
+      "startedAt": "2026-02-10T13:32:34.249849+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T13:32:34.249877+00:00"
     },
     {
       "id": "US-003",

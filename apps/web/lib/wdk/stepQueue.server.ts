@@ -43,7 +43,8 @@ export async function scheduleStep(args: {
   if (!args.db) await ensureSchema();
   const s = withDb(args.db);
 
-  const availableAt = args.availableAt ?? new Date();
+  // Default to DB time to avoid subtle clock skew between app and Postgres.
+  const availableAt: Date | null = args.availableAt ?? null;
   const rows = await s<Array<{ id: string }>>`
     INSERT INTO run_steps (
       id,
@@ -69,7 +70,7 @@ export async function scheduleStep(args: {
       'queued',
       0,
       ${args.stepKey},
-      ${availableAt},
+      COALESCE(${availableAt}, now()),
       NULL,
       NULL,
       ${s.json(args.input as JsonArg)},
@@ -254,4 +255,3 @@ export async function requeueStaleRunningSteps(args: { cutoff: Date; limit?: num
 
   return { n: stale.length };
 }
-

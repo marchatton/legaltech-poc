@@ -6,6 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ensureAllSchemas } from "../lib/db/schema/index.server";
 import { claimNextStep, requeueStaleRunningSteps, scheduleStep } from "../lib/wdk/stepQueue.server";
 import { drainWdkStepsOnce, type StepHandlerMap } from "../lib/wdk/wdkWorker.server";
+import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
+import { startWdkSmokeWorkflow } from "../workflows/wdkSmokeWorkflow.server";
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL?.trim();
@@ -207,5 +209,79 @@ describe("wdk step queue (db)", () => {
     await sql1`DELETE FROM runs WHERE id = ${runId}`;
     await sql1`DELETE FROM folders WHERE id = ${folderId}`;
   });
-});
 
+  it("executes wdk_smoke with retry + backoff", async () => {
+    const started = await startWdkSmokeWorkflow({ traceId: `trc_${randomUUID()}`, db: sql1 });
+
+    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 10, db: sql1 });
+
+    const initRows = await sql1<Array<{ state: string; attempt: number }>>`
+      SELECT state, attempt
+      FROM run_steps
+      WHERE run_id = ${started.runId}
+        AND step_key = 'wdk_smoke:init'
+      LIMIT 1
+    `;
+    expect(initRows[0]?.state).toBe("succeeded");
+    expect(initRows[0]?.attempt).toBe(1);
+
+    const flakyRows = await sql1<
+      Array<{ state: string; attempt: number; available_at: Date; updated_at: Date; error_json: any }>
+    >`
+      SELECT state, attempt, available_at, updated_at, error_json
+      FROM run_steps
+      WHERE run_id = ${started.runId}
+        AND step_key = 'wdk_smoke:flaky'
+      LIMIT 1
+    `;
+    const flaky = flakyRows[0];
+    expect(flaky?.state).toBe("queued");
+    expect(flaky?.attempt).toBe(1);
+    expect(String(flaky?.error_json?.code ?? "")).toBe("STEP_FAILED_RETRYING");
+
+    const backoffMs = flaky.available_at.getTime() - flaky.updated_at.getTime();
+    expect(backoffMs).toBeGreaterThanOrEqual(500);
+    expect(backoffMs).toBeLessThanOrEqual(35_000);
+
+    // Fast-forward the scheduled retry without waiting for the wall clock.
+    await sql1`
+      UPDATE run_steps
+      SET available_at = now()
+      WHERE run_id = ${started.runId}
+        AND step_key = 'wdk_smoke:flaky'
+    `;
+
+    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 10, db: sql1 });
+
+    const finalFlakyRows = await sql1<Array<{ state: string; attempt: number; error_json: any }>>`
+      SELECT state, attempt, error_json
+      FROM run_steps
+      WHERE run_id = ${started.runId}
+        AND step_key = 'wdk_smoke:flaky'
+      LIMIT 1
+    `;
+    expect(finalFlakyRows[0]?.state).toBe("succeeded");
+    expect(finalFlakyRows[0]?.attempt).toBe(2);
+    expect(finalFlakyRows[0]?.error_json).toBeNull();
+
+    const doneRows = await sql1<Array<{ state: string; attempt: number }>>`
+      SELECT state, attempt
+      FROM run_steps
+      WHERE run_id = ${started.runId}
+        AND step_key = 'wdk_smoke:done'
+      LIMIT 1
+    `;
+    expect(doneRows[0]?.state).toBe("succeeded");
+    expect(doneRows[0]?.attempt).toBe(1);
+
+    const runRows = await sql1<Array<{ state: string }>>`
+      SELECT state
+      FROM runs
+      WHERE id = ${started.runId}
+      LIMIT 1
+    `;
+    expect(runRows[0]?.state).toBe("completed");
+
+    await sql1`DELETE FROM folders WHERE id = ${started.folderId}`;
+  });
+});
