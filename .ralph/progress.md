@@ -262,7 +262,7 @@ Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260210-142817-28705-iter-2.l
 Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260210-142817-28705-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
-- Commit: 8bc5e9d fix(citations): gate fixture fallback by ORBITAL_MODE
+- Commit: 2340e48 fix(citations): gate fixture fallback by ORBITAL_MODE
 - Post-commit status: clean
 - Verification:
   - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
@@ -310,6 +310,32 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-2
 - **Learnings for future iterations:**
   - DB-backed tests that call schema ensure helpers can contend on `ALTER TABLE` locks when run in parallel; prefer a single test worker (or one shared integration file) for those suites.
   - Step success should be gated on a terminal domain state (document parsed+done) to prevent “successful” steps from hiding stuck ingest state.
+---
+## [2026-02-10 15:41:29 +0000] - US-003: Citations schema supports report rows and chat messages (one-of association)
+Thread:
+Run: 20260210-142817-28705 (iteration 3)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260210-142817-28705-iter-3.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260210-142817-28705-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 3561d6c feat(citations): support chat message associations
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/lib/db/schema/core.server.ts
+  - apps/web/test/citationsOneOf.int.test.ts
+  - docs/04-projects/04-refactors/0005_citations-db-first/prd.json
+- What was implemented
+  - Extended the Postgres citations schema with nullable `chat_message_id` and made `report_row_id` nullable.
+  - Added a CHECK constraint enforcing exactly-one association (`report_row_id` XOR `chat_message_id`).
+  - Added an index on `chat_message_id` and an integration test proving both invalid insert cases fail.
+- **Learnings for future iterations:**
+  - Postgres does not support `ADD CONSTRAINT IF NOT EXISTS`; use a `pg_constraint` existence check for idempotent runtime DDL.
+  - `ALTER COLUMN ... DROP NOT NULL` is not idempotent; check `pg_attribute.attnotnull` before running it.
+  - The `postgres` driver error object may not expose `constraint` consistently; assert `code` + `message` substring for check violations.
 ---
 ## [2026-02-10 15:54:53 +0000] - US-003: Legacy ingest jobs path is deletable after rollout
 Thread:
