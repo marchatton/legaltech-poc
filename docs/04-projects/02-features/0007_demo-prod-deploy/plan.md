@@ -28,32 +28,37 @@ Principle: **default to locked down** when `ORBITAL_MODE` is absent.
 
 ### Must Work (Core Demo Journey)
 - `/` landing loads
-- `/matters?pack=pack_01_clean` loads (fixture-driven)
-- Clicking a citation opens `/matters/viewer` and loads:
-  - `GET /citations/:id`
-  - `GET /documents/:id/render?page=N` -> signed `render_url`
+- Load a synthetic pack into Postgres:
+  - `POST /demo/load-pack` (or equivalent operator endpoint/UI)
+- DB-backed matter page loads:
+  - `GET /matters/:id`
   - `GET /documents/:id/pdf?...` (Range requests)
+- (Optional but recommended for the trust substrate moment) Fixture-driven overlay demo:
+  - `/matters?pack=pack_01_clean` loads (fixture harness)
+  - Clicking a citation opens `/matters/viewer` and loads:
+    - `GET /citations/:id`
+    - `GET /documents/:id/render?page=N` -> signed `render_url`
+    - `GET /documents/:id/pdf?...` (Range requests)
 - Export and download:
   - `POST /export/csv` -> download link works
   - `POST /export/docx` -> download link works (requires fixture fallback implementation)
-  - `GET /folders/:pack_id/artefacts` shows the created exports
+  - `GET /folders/:id/artefacts` shows the created exports
   - `GET /artefacts/:id/download` works
 
 ### Must Be Disabled (Fixture-Only Posture)
-- Create folder (API): `POST /folders`
-- Upload init: `POST /folders/:id/documents` (init upload)
-- Upload bytes: `PUT /documents/:id/upload`
+- Manual upload surfaces (initial slice):
+  - Create folder (API): `POST /folders`
+  - Upload init: `POST /folders/:id/documents` (init upload)
+  - Upload bytes: `PUT /documents/:id/upload`
 
 ### Optional (Operator Only, Behind Flags)
-- `POST /demo/load-pack` (DB-backed demo pack loader)
-- DB-backed pages and run/progress endpoints
 - Trace export endpoints (admin-token only)
 
 ## Plan (Phased)
 
 ### Phase 0: Decisions + Guardrails
 - Define `ORBITAL_MODE` semantics, defaults, and what "demo-prod" enables.
-- Confirm the demo posture: fixture-only with exports.
+- Confirm the demo posture: synthetic packs only, with DB-backed matters + exports.
 - Decide where Basic Auth lives:
   - Preferred: Next middleware so *everything* is consistently gated (pages, APIs, PDF bytes).
   - Alternative: reverse proxy basic auth (Nginx/Caddy) (fine, but internal server fetches still must work).
@@ -159,5 +164,5 @@ Rollback:
 - `docs/03-architecture/07_current_poc_runtime.md`
 - `docs/03-architecture/50_api_surface.md`
 - `docker-compose.yml` (existing DB service)
+- `docs/04-projects/02-features/0007_demo-prod-deploy/runbook.md` (Sprite dev now, Hetzner VM later)
 - Related dossiers: `docs/04-projects/02-features/0004_csv-export`, `docs/04-projects/02-features/0005_word-export`
-

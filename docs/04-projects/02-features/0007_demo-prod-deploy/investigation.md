@@ -3,6 +3,8 @@
 ## Summary
 The current Orbital PoC demo experience is not deployable as a "real app" because key UI + API surfaces are intentionally **dev-only** (`assertDevOnly*`) and demo tooling is also dev-only (`DEMO_MODE`). Additionally, several user-visible actions depend on **signed URLs** and will hard-fail unless `OBJECT_STORE_SIGNING_SECRET` is configured (dev-only fallback exists but should not be used in a deployed demo).
 
+For the demo, we want the **app itself** (DB-backed matters, background jobs, exports) using **synthetic packs only**, protected by Basic Auth.
+
 ## Symptoms
 - Clicking certain buttons caused "Application error" and the app appeared to go down during demo.
 - Several routes are unreachable outside local development because they `notFound()` / return 404 when `NODE_ENV !== "development"`.
@@ -40,11 +42,10 @@ The PoC is designed to be safe by default:
 ## Recommendations
 1. Introduce an explicit runtime mode `ORBITAL_MODE=demo-prod` and reframe dev-only gates to allow only `dev` + `demo-prod`.
 2. Add Basic Auth as a light security gate (prefer Next middleware for end-to-end coverage), and ensure internal server-side fetches forward the `Authorization` header.
-3. Keep the demo posture "fixture-only": disable uploads/folder creation in demo-prod, but enable the fixture viewer + exports.
+3. Support a “real app” demo journey in demo-prod using synthetic packs loaded into Postgres (via a pack loader), while keeping risky tooling (spikes, unsafe overrides) dev-only.
 4. Add Docker packaging and a Compose file that runs `web` + `worker` + `db` with persistent volumes for `tmp/object-store` and `tmp/fixture-seed`.
 
 ## Preventive Measures
 - Default "locked down" mode when `ORBITAL_MODE` is unset (treat as real prod).
 - Add an operator-visible banner in demo-prod ("fixture-only demo") and log the runtime mode at startup.
 - Add a smoke script/verification checklist for demo-prod (auth, viewer, exports, artefact download).
-

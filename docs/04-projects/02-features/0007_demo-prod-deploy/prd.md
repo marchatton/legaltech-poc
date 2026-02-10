@@ -16,19 +16,29 @@ We need a private, production-build deployment suitable for demos without exposi
 Run a private "demo-prod" instance on Hetzner (Docker/Compose) that behaves like a real app, using fixture/test data only, protected by Basic Auth.
 
 ### Slice
-Introduce a deployable `ORBITAL_MODE=demo-prod` runtime mode that enables the core fixture-based demo journey (viewer + exports) in a production build, while keeping uploads and non-demo surfaces disabled.
+Introduce a deployable `ORBITAL_MODE=demo-prod` runtime mode that enables the core app demo journey in a production build:
+- load a synthetic pack into Postgres
+- view a matter and its documents
+- open PDFs and (optionally) the citation viewer overlay
+- run Quick Start and export artefacts
+
+The demo remains private (Basic Auth) and synthetic-data-only.
 
 ### Primary Observable Effect
 Before: Outside `NODE_ENV=development`, key pages/routes 404 and demo flows fail; audience cannot use the app end-to-end.  
-After: A demo URL (Hetzner) prompts for Basic Auth and then supports: `/matters` -> citation viewer -> CSV/DOCX export + download, all running as `next build` + `next start`.
+After: A demo URL (Hetzner) prompts for Basic Auth and then supports a production-build end-to-end journey:
+- Load synthetic pack -> DB-backed matter page (`/matters/:id`)
+- Open PDFs (Range) and optionally show citation viewer overlay
+- Run Quick Start + export CSV/DOCX + download artefacts
 
 ### In Scope
 - Add `ORBITAL_MODE` with explicit `demo-prod` behavior and safe defaults.
 - Reframe "dev-only" gates to allow `{dev, demo-prod}` while keeping real prod locked down by default.
 - Add Basic Auth protection for demo-prod.
 - Ensure internal server-side fetches work under Basic Auth (forward `Authorization`).
-- Allow fixture PDF serving in demo-prod (but not real prod).
-- Add fixture-backed DOCX export path (so demo feels complete).
+- Enable a synthetic pack loader in demo-prod (DB-backed) so we can demo the app without manual uploads.
+- Allow fixture PDF serving in demo-prod (but not real prod) for the citation viewer overlay.
+- Add fixture-backed DOCX export path (so the overlay demo feels complete).
 - Docker/Compose packaging for Hetzner: `web` + `worker` + `db` + volumes + required env.
 
 ## Goals
@@ -40,40 +50,42 @@ After: A demo URL (Hetzner) prompts for Basic Auth and then supports: `/matters`
 ## User Stories
 
 ### US-001: Demo Viewer Can Use The App End-to-End
-As a demo viewer, I want to click a citation and see the PDF viewer render and highlight evidence, so that I can trust the system is grounded.
+As a demo viewer, I want to load a synthetic pack and then use the matter page and viewer to inspect grounded evidence, so that I can trust the system is grounded.
 
 #### Acceptance Criteria
-- AC-001: When authenticated, `/matters?pack=pack_01_clean` loads successfully in demo-prod.
-- AC-002: Clicking a citation navigates to `/matters/viewer` and loads the PDF content via Range requests.
-- AC-003: When a citation is invalid/corrupted, the viewer renders no overlay and shows an explicit failure state (no silent failure).
+- AC-001: When authenticated, a synthetic pack can be loaded into Postgres and returns a matter id.
+- AC-002: The matter page (`/matters/:id`) loads successfully in demo-prod.
+- AC-003: Opening a PDF renders via Range requests.
+- AC-004: Clicking a citation opens the viewer overlay and highlights evidence (when the citation is valid).
+- AC-005: When a citation is invalid/corrupted, the viewer renders no overlay and shows an explicit failure state (no silent failure).
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_01_clean` and `tmp/fixture-seed/*/snapshot.json`.
 - Automated checks: `pnpm -r typecheck`, `pnpm -r lint`, `pnpm -r test` (where applicable).
 - Manual checks:
-  - Run demo-prod stack, open `/matters?pack=pack_01_clean`, click `cit_TS-01_1`, confirm viewer loads and renders.
+  - Run demo-prod stack, load `pack_01_clean`, open `/matters/:id`, open a PDF, click `cit_TS-01_1`, confirm viewer loads and renders.
 
 ### US-002: Demo Viewer Can Export And Download Outputs
 As a demo viewer, I want to export CSV and DOCX outputs and download them, so that I can see what the system produces.
 
 #### Acceptance Criteria
-- AC-004: `POST /export/csv` succeeds for fixture packs in demo-prod and returns a working download URL.
-- AC-005: `POST /export/docx` succeeds for fixture packs in demo-prod and returns a working download URL.
-- AC-006: `GET /folders/:pack_id/artefacts` lists the generated artefacts.
-- AC-007: Artefact download routes require Basic Auth and work after authentication.
+- AC-006: `POST /export/csv` succeeds in demo-prod and returns a working download URL.
+- AC-007: `POST /export/docx` succeeds in demo-prod and returns a working download URL.
+- AC-008: `GET /folders/:id/artefacts` lists the generated artefacts.
+- AC-009: Artefact download routes require Basic Auth and work after authentication.
 
 #### Verification
 - Pack/fixture/script: `docs/08-example-data/pack_01_clean`.
 - Manual checks:
-  - From `/matters?pack=pack_01_clean`, click "Export exceptions" and "Export memo", then download both.
+  - From `/matters/:id`, run Quick Start (if required), click exports, then download both.
 
 ### US-003: Demo Operator Can Deploy And Restart Reliably
 As a demo operator, I want a single docker compose command to bring up web + worker + db with persistent volumes, so that demos are repeatable.
 
 #### Acceptance Criteria
-- AC-008: `docker compose -f docker-compose.demo-prod.yml up -d` brings up `db`, `web`, and `worker`.
-- AC-009: After restarting services, exports still download and review state persists (volumes mounted for `tmp/object-store` and `tmp/fixture-seed`).
-- AC-010: If `OBJECT_STORE_SIGNING_SECRET` is missing, the system fails closed with a clear operator-facing error (not a silent partial demo).
+- AC-010: `docker compose -f docker-compose.demo-prod.yml up -d` brings up `db`, `web`, and `worker`.
+- AC-011: After restarting services, exports still download and review state persists (volumes mounted for `tmp/object-store` and `tmp/fixture-seed`).
+- AC-012: If `OBJECT_STORE_SIGNING_SECRET` is missing, the system fails closed with a clear operator-facing error (not a silent partial demo).
 
 #### Verification
 - Pack/fixture/script: operator runbook steps + repeated restart verification.
@@ -85,18 +97,19 @@ As a demo operator, I want a single docker compose command to bring up web + wor
 - FR-002: The system must treat `demo-prod` as production build (`NODE_ENV=production`) while explicitly enabling the demo surfaces.
 - FR-003: The system must enforce Basic Auth across pages, APIs, PDF byte endpoints, and artefact downloads in demo-prod.
 - FR-004: Server-side internal fetches must forward the `Authorization` header so SSR rendering and route-handler fetches succeed under Basic Auth.
-- FR-005: Fixture PDF serving must be enabled in `demo-prod` and disabled in `prod`.
-- FR-006: DOCX export must support fixture snapshots (not only DB-backed runs) in demo-prod.
-- FR-007: Upload-init and upload-bytes endpoints must remain disabled in demo-prod (fixture-only posture).
-- FR-008: Demo-prod must require `DATABASE_URL` and `OBJECT_STORE_SIGNING_SECRET` and must not rely on dev-only fallbacks.
-- FR-009: A separate worker process/service must be runnable in demo-prod for durable jobs (no inline draining).
-- FR-010: Provide a minimal operator runbook including rollback instructions.
+- FR-005: A synthetic pack loader must be enabled in `demo-prod` (DB-backed) and disabled in `prod` by default.
+- FR-006: Fixture PDF serving must be enabled in `demo-prod` and disabled in `prod` (viewer overlay support).
+- FR-007: DOCX export must support fixture snapshots (not only DB-backed runs) in demo-prod.
+- FR-008: Upload-init and upload-bytes endpoints are optional for demo-prod; the initial slice should default to pack-loader-only unless explicitly enabled.
+- FR-009: Demo-prod must require `DATABASE_URL` and `OBJECT_STORE_SIGNING_SECRET` and must not rely on dev-only fallbacks.
+- FR-010: A separate worker process/service must be runnable in demo-prod for durable jobs (no inline draining).
+- FR-011: Provide a minimal operator runbook including rollback instructions.
 
 ## Non-Goals (Out of Scope)
 - Accepting user uploads or real customer data in demo-prod.
 - Multi-user accounts, RBAC, or OAuth.
 - Full production security hardening (WAF, rate limiting, audit logs) beyond light gating and safe defaults.
-- Making DB-backed ingestion / quick-start perfect for the demo (this can remain optional and gated).
+- Making DB-backed ingestion / quick-start perfect for the demo (can ship as “good enough” behind Basic Auth + synthetic packs).
 
 ## Design Considerations (Optional)
 - The demo should clearly communicate "fixture-only" and show a simple "Demo" indicator in UI.
@@ -141,7 +154,7 @@ As a demo operator, I want a single docker compose command to bring up web + wor
 
 ## Open Questions
 - Q1: Where should Basic Auth be enforced for Hetzner: Next middleware (preferred) or reverse proxy (acceptable)?
-- Q2: Do we want to include the DB-backed demo pack loader (`/demo/load-pack`) in demo-prod, or keep the demo fixture-only?
+- Q2: Do we want manual uploads enabled in demo-prod, or pack-loader-only for the first slice?
 - Q3: Do we require a real domain + TLS for the demo, or is an IP + VPN/SSH tunnel acceptable?
 
 ## Sources
@@ -150,4 +163,3 @@ As a demo operator, I want a single docker compose command to bring up web + wor
 - `docs/04-projects/02-features/0004_csv-export/prd.md` (export behavior)
 - `docs/04-projects/02-features/0005_word-export/prd.md` (docx export behavior)
 - `docs/04-projects/02-features/0007_demo-prod-deploy/investigation.md` (this investigation)
-

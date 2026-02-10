@@ -588,3 +588,35 @@ Links
   - `docker-compose.yml`
   - `docs/03-architecture/01_onboarding_checklist.md`
   - `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
+
+## ADR-0023: Demo-prod runtime mode (ORBITAL_MODE) + Basic Auth middleware
+- Status: proposed
+- Date: 2026-02-10
+
+Context
+- We want to demo Orbital PoC as a "real app" (production build on Hetzner) without exposing it publicly.
+- Today, many routes/pages are intentionally dev-only (`assertDevOnly*`) and demo tooling is also dev-only (`DEMO_MODE=1`), so a production build either fails (missing env) or hides core flows (404).
+- We need a posture where "production build" does not imply "public production" while we are still using synthetic/test data and demo-only affordances.
+
+Decision
+- Introduce an explicit runtime mode env var:
+  - `ORBITAL_MODE=dev`: local development behavior (existing).
+  - `ORBITAL_MODE=demo-prod`: production build demo instance (private).
+  - `ORBITAL_MODE=prod` (or unset): locked down by default (deny demo-only surfaces).
+- In demo-prod:
+  - Require Basic Auth on all routes using Next.js middleware (pages, APIs, PDF bytes, artefact downloads).
+  - Enable only an allowlisted set of app routes/pages required for the demo journey.
+  - Keep demo tooling/escape hatches (e.g. spikes, unsafe overrides) dev-only unless explicitly promoted.
+  - Require production-like configuration (no dev fallbacks): `DATABASE_URL`, `OBJECT_STORE_SIGNING_SECRET`, and a separate worker process/service for durable jobs.
+- Keep `DEMO_MODE=1` as **dev-only tooling** (toolbar + local pack loader); do not rely on it to represent a deployable demo posture.
+
+Consequences
+- We can deploy a private, production-build demo to Hetzner while keeping the default posture fail-closed.
+- Demo operators must run the worker service and provide required secrets/env, which makes the demo closer to real runtime behavior.
+- Server-side internal fetches must forward `Authorization` (or avoid loopback fetches) so middleware auth does not break SSR/RSC.
+
+Links
+- PR:
+- Related docs:
+  - `docs/04-projects/02-features/0007_demo-prod-deploy/prd.md`
+  - `docs/04-projects/02-features/0007_demo-prod-deploy/plan.md`

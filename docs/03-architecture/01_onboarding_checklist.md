@@ -1,6 +1,6 @@
 # Onboarding checklist
 
-Last updated: 2026-02-08
+Last updated: 2026-02-10
 
 Use this when setting up a new machine, or when onboarding someone new to this repo.
 
@@ -13,8 +13,8 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] Deployment Postgres plan confirmed (self-host on VM unless explicitly choosing managed; ADR-0011, accepted).
 - [ ] Local object storage ready: MinIO (or local filesystem for ultra-simple early dev) (ADR-0010, accepted).
 - [ ] Deployment object storage ready: managed S3-compatible storage unless explicitly "single VM only" (ADR-0010, accepted).
-- [ ] OCR/layout provider credentials ready (OCR/layout is required for PDFs; ADR-0003 accepted; provider default Azure Document Intelligence Layout per ADR-0012, accepted).
-- [ ] AI SDK gateway access/keys ready (ADR-0013, accepted). Default is Vercel AI Gateway; direct provider keys only with explicit reason.
+- [ ] OCR/layout provider credentials ready (target architecture; not required for current PoC runtime which uses pdf.js text extraction) (ADR-0003 accepted; provider default Azure Document Intelligence Layout per ADR-0012, accepted).
+- [ ] AI SDK gateway ready (ADR-0013, accepted): Vercel AI Gateway access + provider keys configured in the gateway (BYOK) for Anthropic and OpenAI (so direct provider keys are not stored in repo env).
 
 ## 2) Local tooling
 - [ ] Node.js installed (LTS recommended). If `.nvmrc` / `.node-version` appears in the repo later, follow it.
@@ -50,18 +50,35 @@ Use this when setting up a new machine, or when onboarding someone new to this r
 - [ ] Postgres running locally.
 - [ ] `pgvector` available (required for embeddings).
 - [ ] Object storage available for PDFs + exports (local filesystem for dev, or MinIO for S3-parity).
-- [ ] OCR provider wired (default Azure Document Intelligence Layout; AWS Textract if AWS-first).
+- [ ] OCR provider wired (target architecture; current PoC runtime uses pdf.js text extraction only).
 - [ ] LLM + embeddings wired via AI SDK (gateway default; direct provider only when intentional).
 - [ ] Workflow runner available (Workflow DevKit / worker process; ADR-0005).
 
 ## 5) Environment variables (when code is present)
-- [ ] Create local env files (never commit secrets): `apps/web/.env.local` (and others as needed).
-- [ ] Database connection configured.
-- [ ] Object storage credentials + bucket configured.
-- [ ] OCR credentials configured.
-- [ ] AI Gateway + model selection configured:
+- [ ] Create local env files (never commit secrets): `apps/web/.env.local` (start from `apps/web/.env.example`).
+- [ ] Database configured:
+  - `DATABASE_URL=postgresql://orbital:orbital@localhost:5432/orbital` (local dev; docker compose default)
+- [ ] Object store signing configured (current PoC file-backed object store):
+  - Recommended: `OBJECT_STORE_SIGNING_SECRET=...` (stable signed URLs across restarts)
+  - Dev-only escape hatch: `ALLOW_DEV_OBJECT_STORE_SECRET=1` (ephemeral per-process secret)
+- [ ] AI Gateway + model selection configured (in `apps/web/.env.local`):
   - `AI_GATEWAY_API_KEY` (required locally/Hetzner; Vercel OIDC can work without it)
-  - `LLM_MODEL_CHAT`, `LLM_MODEL_SUMMARY`, `EMBED_MODEL`
+  - `EMBED_MODEL=openai/text-embedding-3-large`
+  - `LLM_MODEL_CHAT=anthropic/claude-haiku-4.5` (optional override)
+  - `LLM_MODEL_SUMMARY=openai/gpt-5` (optional)
+- [ ] AI Gateway provider keys configured (Vercel AI Gateway BYOK; do not store direct provider keys in repo env):
+  - Anthropic API key enabled so `anthropic/*` models work
+  - OpenAI API key enabled so `openai/*` models work
+- [ ] Demo/feature flags (optional; local dev):
+  - `DEMO_MODE=1` (dev-only; ignored outside `NODE_ENV=development`)
+  - `SPIKES_ENABLED=1` (enables `/spikes/*` routes)
+  - `FEATURE_TRACE_EXPORT=1` (enables trace export route)
+  - `FEATURE_ARTEFACTS_LIST=1` (enables artefacts list UI)
+- [ ] Admin-only (optional; local dev):
+  - `ORBITAL_ADMIN_TOKEN=...` (required for admin-only endpoints; send via `x-orbital-admin-token`)
+  - `ALLOW_ADMIN_BYPASS=1` (dev-only escape hatch for trace export when the token is not set)
+  - `ALLOW_UNSAFE_EXPORTS=1` (requires `DEMO_MODE=1` + admin token)
+- [ ] OCR credentials configured (target architecture; not required for current PoC runtime).
 - [ ] Confirm no secrets use the `NEXT_PUBLIC_` prefix.
 
 ## 6) Run locally (when code is present)
