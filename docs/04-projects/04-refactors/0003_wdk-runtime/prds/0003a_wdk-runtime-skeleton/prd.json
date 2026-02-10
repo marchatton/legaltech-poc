@@ -102,7 +102,7 @@
     {
       "id": "US-003",
       "title": "Lightweight directive guardrail exists",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a contributor, I want an automated guardrail that makes it obvious when a workflow/step violates directive conventions.",
       "acceptanceCriteria": [
@@ -111,8 +111,8 @@
         "Negative: the guardrail must be best-effort (not a fragile full parser) and should not block unrelated changes."
       ],
       "startedAt": "2026-02-10T14:00:04.950560+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T14:00:04.950574+00:00"
+      "completedAt": "2026-02-10T14:19:10.339902+00:00",
+      "updatedAt": "2026-02-10T14:19:10.339870+00:00"
     }
   ],
   "verificationPlan": {
