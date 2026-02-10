@@ -159,6 +159,7 @@ Idempotency:
 
 ## Risks & Dependencies
 - Depends on `0011a` hybrid retrieval substrate.
+- Depends on DB-first citations being enabled (`FEATURE_CITATIONS_API=1`) in the environment where chat is enabled (default is off until RH3 evidence is recorded; see `0001c`).
 - WDK + AI SDK are target posture; integration must remain thin and should not require refactoring the existing durable job queue.
 - Dev-only route migration is in progress elsewhere; this PRD must not accidentally deepen drift.
 

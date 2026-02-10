@@ -142,6 +142,15 @@ This makes early behavior predictable and avoids confusing “limited results”
 - Replace “1 chunk per page” with “N chunks per page” using the char-window chunker.
 - Store chunker metadata in `chunks.metadata_json`.
 
+### ADR alignment (chunking)
+
+ADR-0015 pins `line_window_v1` chunking over OCR/layout “lines” as the target posture. v0 retrieval uses `char_window_v0`
+because the current PoC ingests pdf.js per-page text with `has_geometry=false` and does not have canonical OCR line lists yet.
+
+Migration plan:
+- Once OCR/layout geometry lands (canonical line lists), switch to ADR-0015 `line_window_v1` and bump folder `index_version`.
+- Expect a rebuild: re-chunk + re-embed; metadata fields change from `char_start/char_end` to `line_start/line_end`.
+
 ### Embedding pipeline
 
 - Embed each chunk’s text with `openai/text-embedding-3-small` (via AI Gateway wrapper).
