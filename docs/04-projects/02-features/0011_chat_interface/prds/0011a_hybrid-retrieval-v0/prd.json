@@ -71,6 +71,21 @@
       ]
     }
   ],
+  "importFormat": {
+    "description": "Hybrid retrieval inputs are query-time parameters (folderId + indexVersion + queryText) that produce ranked chunk hits (IDs-only).",
+    "example": {
+      "folderId": "fld_123",
+      "indexVersion": "v1",
+      "queryText": "What are the survey exceptions?",
+      "opts": {
+        "kLex": 20,
+        "kSem": 20,
+        "kFinal": 10,
+        "lexWeight": 0.55,
+        "semWeight": 0.45
+      }
+    }
+  },
   "chunking": {
     "chunkerId": "char_window_v0",
     "maxChars": 1500,
@@ -194,6 +209,9 @@
         "AC-001: Ingest replaces 1 chunk per page with deterministic char-window chunking (max_chars=1500, overlap_chars=200) and boundaries prefer whitespace when possible.",
         "AC-002: Chunk metadata persists in chunks.metadata_json including chunker_id='char_window_v0', page_number, char_start, char_end.",
         "AC-003: Chunk uniqueness remains idempotent via UNIQUE(document_id, index_version, chunk_index)."
+        ,
+        "Example: Ingest a 2-page fixture PDF and observe chunks count > page count for a given index_version.",
+        "Negative: If ingest hits an external cap (e.g. MAX_PAGES or other ingest limit), ingest fails closed for that document/index_version and does not write partial chunk rows."
       ]
     },
     {
@@ -206,6 +224,9 @@
         "AC-004: chunks gains columns: text_tsv tsvector; embedding vector(1536); embedding_model TEXT NOT NULL DEFAULT 'openai/text-embedding-3-small'; embedded_at TIMESTAMPTZ NULL.",
         "AC-005: Lexical index exists: GIN(chunks.text_tsv).",
         "AC-006: Semantic indexing exists: pgvector extension enabled (otherwise semantic retrieval disabled and system degrades to lexical-only, explicitly observable); IVFFlat index on embedding vector_cosine_ops is created conservatively."
+        ,
+        "Example: Stub vectors in DB and validate semantic query ordering by embedding <=> query_vector (cosine distance).",
+        "Negative: If pgvector extension is missing/unavailable, semantic retrieval is disabled and the system degrades to lexical-only (explicitly observable in logs/debug endpoint)."
       ]
     },
     {
@@ -220,6 +241,9 @@
         "AC-009: Dev-only debug endpoint exists under /spikes/retrieval/* to call hybridSearch() and inspect results.",
         "AC-010: Logs include {nVectors, lists, probes, kLex, kSem, kFinal, hitCountsLex, hitCountsSem}.",
         "AC-011: Small golden-questions smoke fixture exists (3-10 queries) asserting an expected doc/page appears in top K for a seeded fixture folder."
+        ,
+        "Example: Merge scoring is deterministic (same DB state + same query yields same ordered hits).",
+        "Negative: When semantic retrieval is unavailable (pgvector missing/unavailable), hybridSearch still returns results using lexical-only and reports the semantic branch as disabled (no silent pretending)."
       ]
     }
   ],
