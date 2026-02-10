@@ -242,7 +242,7 @@
     {
       "id": "US-003",
       "title": "hybridSearch() returns ranked chunk hits and a debug endpoint makes tuning visible",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001",
         "US-002"
@@ -258,8 +258,8 @@
         "Negative: When semantic retrieval is unavailable (pgvector missing/unavailable), hybridSearch still returns results using lexical-only and reports the semantic branch as disabled (no silent pretending)."
       ],
       "startedAt": "2026-02-10T15:52:32.554100+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T15:52:32.554113+00:00"
+      "completedAt": "2026-02-10T16:31:15.029480+00:00",
+      "updatedAt": "2026-02-10T16:31:15.029452+00:00"
     }
   ],
   "sources": [
