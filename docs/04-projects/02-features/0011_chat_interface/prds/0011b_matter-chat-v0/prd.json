@@ -61,11 +61,24 @@
   "dataModel": [
     {
       "entity": "chat_threads",
-      "fields": ["id", "folder_id", "title", "created_at", "updated_at"]
+      "fields": [
+        "id",
+        "folder_id",
+        "title",
+        "created_at",
+        "updated_at"
+      ]
     },
     {
       "entity": "chat_messages",
-      "fields": ["id", "thread_id", "role", "content", "status", "created_at"]
+      "fields": [
+        "id",
+        "thread_id",
+        "role",
+        "content",
+        "status",
+        "created_at"
+      ]
     },
     {
       "entity": "citations",
@@ -96,7 +109,26 @@
   },
   "citationGeometry": {
     "v0": "full_page_box",
-    "polygonsExample": [[[0, 0], [1, 0], [1, 1], [0, 1]]],
+    "polygonsExample": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    ],
     "note": "Until OCR/layout geometry lands, citations use a coarse full-page polygon and UI labels it as page-level highlight."
   },
   "wdkWorkflow": {
@@ -162,13 +194,18 @@
         "Example: On /matters/:id, the chat panel shows a thread list (titles) and the selected thread's message history + input; creating a new thread and submitting 'What is the closing date?' starts streaming an assistant reply without a page refresh.",
         "Example: A user message is persisted immediately; an assistant message is created with status='streaming' and transitions to status='complete' when finished; refreshing the page shows the same thread list and message history.",
         "Negative: If the request body is missing or message is empty/invalid, POST /folders/:id/chat returns 400 with the standard safe error envelope."
-      ]
+      ],
+      "startedAt": "2026-02-10T01:49:29.204459+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T01:49:29.204470+00:00"
     },
     {
       "id": "US-002",
       "title": "Locked sources render and open an evidence viewer",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a user, I want clickable sources under assistant messages that open an evidence viewer so that I can verify the answer.",
       "acceptanceCriteria": [
         "Example: After an assistant reply completes, the UI renders a 'Sources' section with one or more chips (document_id + page_number).",
@@ -180,7 +217,10 @@
       "id": "US-003",
       "title": "Evidence-first behavior and safe failures",
       "status": "open",
-      "dependsOn": ["US-001", "US-002"],
+      "dependsOn": [
+        "US-001",
+        "US-002"
+      ],
       "description": "As a user, I want the assistant to be honest about missing evidence and for failures to be explicit so that the system remains trustworthy.",
       "acceptanceCriteria": [
         "Example: When retrieval returns no chunks, the assistant response is exactly 'Not found in provided documents.' and the Sources section is empty.",
