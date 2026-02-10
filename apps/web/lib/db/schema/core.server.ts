@@ -174,24 +174,71 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
     ON report_rows(folder_id, run_id);
   `;
 
-  // Locked citations associated to a report row. In this slice we may emit zero citations.
+  // Locked citations associated to either a report row or a chat message (exactly one).
   await sql`
     CREATE TABLE IF NOT EXISTS citations (
       id TEXT PRIMARY KEY,
-      report_row_id TEXT NOT NULL REFERENCES report_rows(id) ON DELETE CASCADE,
+      report_row_id TEXT NULL REFERENCES report_rows(id) ON DELETE CASCADE,
+      chat_message_id TEXT NULL,
       document_id TEXT NOT NULL,
       page_number INT NOT NULL,
       snippet TEXT NOT NULL,
       snippet_hash TEXT NOT NULL,
       polygons_json JSONB NOT NULL,
       locked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      CONSTRAINT citations_assoc_oneof_chk
+        CHECK ((report_row_id IS NULL) <> (chat_message_id IS NULL))
     );
   `;
+
+  // Backfill for older dev DBs (CREATE TABLE IF NOT EXISTS won't update existing schemas).
+  await sql`ALTER TABLE citations ADD COLUMN IF NOT EXISTS chat_message_id TEXT NULL;`;
+
+  const reportRowNotNull = await sql<Array<{ attnotnull: boolean }>>`
+    SELECT a.attnotnull
+    FROM pg_attribute a
+    JOIN pg_class c ON c.oid = a.attrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE c.relname = 'citations'
+      AND n.nspname = current_schema()
+      AND a.attname = 'report_row_id'
+      AND a.attnum > 0
+      AND NOT a.attisdropped
+    LIMIT 1
+  `;
+  if (reportRowNotNull[0]?.attnotnull) {
+    await sql`ALTER TABLE citations ALTER COLUMN report_row_id DROP NOT NULL;`;
+  }
+
+  const oneOfConstraintExists = await sql<Array<{ exists: boolean }>>`
+    SELECT EXISTS (
+      SELECT 1
+      FROM pg_constraint con
+      JOIN pg_class c ON c.oid = con.conrelid
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE con.conname = 'citations_assoc_oneof_chk'
+        AND c.relname = 'citations'
+        AND n.nspname = current_schema()
+    ) AS exists
+  `;
+  if (!oneOfConstraintExists[0]?.exists) {
+    await sql`
+      ALTER TABLE citations
+      ADD CONSTRAINT citations_assoc_oneof_chk
+        CHECK ((report_row_id IS NULL) <> (chat_message_id IS NULL));
+    `;
+  }
 
   await sql`
     CREATE INDEX IF NOT EXISTS citations_report_row_idx
     ON citations(report_row_id);
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS citations_chat_message_idx
+    ON citations(chat_message_id)
+    WHERE chat_message_id IS NOT NULL;
   `;
 
   // Exported artefacts (CSV, docx, etc).
