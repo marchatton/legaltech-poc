@@ -64,6 +64,15 @@ Implementation notes:
 - OCR/layout is abstracted behind one adapter interface (ADR-0012; accepted).
 - Chunking must be deterministic for a given `(document_id, index_version)`; if you change chunking logic, bump the folder `index_version`.
 
+### Pre-geometry bridge (explicit)
+Until OCR/layout geometry exists for real uploads (`has_geometry=false`), we may ship a pre-geometry retrieval substrate that chunks
+`document_pages.text` directly using a deterministic char-window chunker:
+- `chunker_id`: `char_window_v0`
+- metadata: `page_number`, `char_start`, `char_end`
+
+This is a deliberate v0 exception to ADR-0015's target `line_window_v1` posture. When migrating to OCR/layout lines, bump
+folder `index_version` and rebuild chunks/embeddings.
+
 ## Chunking (what makes a chunk citable)
 Chunking strategy is pinned in ADR-0015. Baseline requirements still apply:
 - A chunk must map back to a document page range (`page_start`, `page_end`) and stable evidence geometry.

@@ -353,6 +353,14 @@ Consequences
 - Chunk IDs remain stable within an `index_version`, and drift is handled by versioning rather than mutation.
 - Trade-off: cross-page clauses require retrieving multiple chunks; we accept this for PoC simplicity.
 
+Implementation status (2026-02-10)
+- This ADR describes the **target** chunking posture once OCR/layout geometry (canonical line lists) exists for real uploads.
+- Current PoC reality: ingest writes `chunks` as 1 chunk per page from `document_pages.text` with `has_geometry=false` (see `docs/03-architecture/07_current_poc_runtime.md`).
+- Pre-geometry bridge (planned for `0011a`):
+  - Implement `char_window_v0` chunking on `document_pages.text` to unblock retrieval/chat before OCR/layout lines exist.
+  - This is an explicit v0 exception; when switching to `line_window_v1`, bump `index_version` per the rules above.
+- Sequencing: `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`.
+
 Links
 - PR:
 - Related docs:

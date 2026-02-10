@@ -121,4 +121,5 @@ This doc stays “implemented today”. For the intended sequence of upcoming re
 Key planned closures (not implemented yet, at time of writing):
 - Replace the durable jobs worker orchestration with WDK workflows/steps for long-running side effects (and refactor Quick Start accordingly).
 - Make citations DB-backed for real uploaded documents (with fixture fallback only where explicitly gated).
+  - Ship behind `FEATURE_CITATIONS_API` (default off until RH3 evidence is recorded).
 - Implement hybrid retrieval (lexical + semantic) as the retrieval substrate enabling grounded chat and evidence-first features beyond fixtures.

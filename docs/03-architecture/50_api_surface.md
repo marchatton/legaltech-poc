@@ -397,6 +397,11 @@ Response (shape only; exact contents may evolve but must remain safe):
 ### GET /citations/:id
 Return locked geometry + snippet for a citation ID.
 
+Enablement and fallback (PoC):
+- DB-first citations are enabled only when `FEATURE_CITATIONS_API=1` (default off until RH3 evidence is recorded; see `0001c`).
+- When enabled, the server resolves citations from Postgres first.
+- Fixture fallback is allowed only in `ORBITAL_MODE=dev|demo-prod` (never in `prod`).
+
 Response:
 ```json
 {
