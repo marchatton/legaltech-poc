@@ -255,3 +255,32 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-1
   - When TypeScript `strictFunctionTypes` is enabled, directive guardrail checks need casts because step/workflow handlers are not assignable to `(...args: unknown[]) => unknown`.
   - WDK ingest can reuse `runs.idempotency_key` + `run_steps.step_key` to match the old jobs enqueue idempotency semantics.
 ---
+## [2026-02-10 15:30:17 +0000] - US-002: WDK ingest step is idempotent at the step boundary
+Thread:
+Run: 20260210-142753-27765 (iteration 2)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-2.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: a4e541f fix(ingest): make WDK ingest step retry-safe
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/lib/ingest/ingestProcessor.server.ts
+  - apps/web/steps/ingestDocumentProcess.step.server.ts
+  - apps/web/test/ingestDocumentStepIdempotency.int.test.ts
+  - apps/web/test/ingestDocumentWorkflow.int.test.ts
+  - apps/web/vitest.config.ts
+  - docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003b_ingest-to-wdk-cutover/prd.json
+- What was implemented
+  - Made `processDocumentIngest()` resumable when a prior attempt left the document in `parsing`/`running` by performing an idempotent state transition at the start of ingest.
+  - Updated the WDK ingest step to only mark runs `completed` once the document reaches `parsed`+`done`, and to mark runs `failed` when the document is terminal-failed.
+  - Added DB-backed tests proving deterministic `(run_id, step_key)` scheduling and that a retry after a simulated crash does not duplicate `document_pages`.
+  - Stabilized Vitest DB-backed tests by running in a single fork and increasing timeouts to avoid schema DDL lock contention.
+- **Learnings for future iterations:**
+  - DB-backed tests that call schema ensure helpers can contend on `ALTER TABLE` locks when run in parallel; prefer a single test worker (or one shared integration file) for those suites.
+  - Step success should be gated on a terminal domain state (document parsed+done) to prevent “successful” steps from hiding stuck ingest state.
+---
