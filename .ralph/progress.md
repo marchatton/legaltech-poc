@@ -284,3 +284,34 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-2
   - DB-backed tests that call schema ensure helpers can contend on `ALTER TABLE` locks when run in parallel; prefer a single test worker (or one shared integration file) for those suites.
   - Step success should be gated on a terminal domain state (document parsed+done) to prevent “successful” steps from hiding stuck ingest state.
 ---
+## [2026-02-10 15:54:53 +0000] - US-003: Legacy ingest jobs path is deletable after rollout
+Thread:
+Run: 20260210-142753-27765 (iteration 3)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-3.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 265b9d4 refactor(ingest): retire legacy jobs ingest path
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/lib/ingest/ingestQueue.server.ts
+  - apps/web/lib/jobs/jobQueue.server.ts
+  - apps/web/lib/jobs/jobWorker.server.ts
+  - apps/web/test/ingestCutoverFlag.test.ts
+  - apps/web/test/ingestDocumentWorkflow.int.test.ts
+  - docs/03-architecture/07_current_poc_runtime.md
+  - docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003b_ingest-to-wdk-cutover/prd.json
+  - docs/04-projects/04-refactors/0003_wdk-runtime/roll-forward-checklist.md
+- What was implemented
+  - Removed the legacy ingest enqueue path that created `jobs` rows; ingest now always starts the WDK `ingest_document` workflow.
+  - Retired the `ingest_document` job type and handler from the durable jobs runtime to prevent dual runtimes lingering.
+  - Added a roll-forward checklist for draining any legacy ingest jobs before deploying the cleanup.
+  - Updated the “current runtime” architecture doc to reflect WDK-owned ingest.
+- **Learnings for future iterations:**
+  - Removing a job type from the jobs worker should be paired with an explicit “drain/cleanup queued rows” step; otherwise unknown job types will fail loudly at claim time.
+  - Using a deterministic `job_key` prefix (`document:<id>`) makes it easy to audit/clear retired jobs safely during roll-forward.
+---
