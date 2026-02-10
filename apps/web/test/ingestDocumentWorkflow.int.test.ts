@@ -110,5 +110,59 @@ describe("ingest_document workflow (wdk)", () => {
     await sql1`DELETE FROM jobs WHERE job_key = ${`document:${documentId}`}`;
     await sql1`DELETE FROM folders WHERE id = ${folderId}`;
   });
-});
 
+  it("is idempotent: schedules a deterministic step_key per document ingest execution", async () => {
+    const folderId = `fld_${randomUUID()}`;
+    const documentId = `doc_${randomUUID()}`;
+    const traceId = `trc_${randomUUID()}`;
+
+    await sql1`INSERT INTO folders (id, name, state) VALUES (${folderId}, 'ingest test', 'empty')`;
+    await sql1`
+      INSERT INTO documents (
+        id,
+        folder_id,
+        filename,
+        mime,
+        bytes,
+        sha256,
+        storage_key,
+        upload_completed_at,
+        parse_status,
+        ocr_status,
+        created_at,
+        updated_at
+      )
+      VALUES (
+        ${documentId},
+        ${folderId},
+        'test.pdf',
+        'application/pdf',
+        1,
+        NULL,
+        NULL,
+        now(),
+        'queued',
+        'queued',
+        now(),
+        now()
+      )
+    `;
+
+    const a = await startIngestDocumentWorkflow({ documentId, traceId, db: sql1 });
+    const b = await startIngestDocumentWorkflow({ documentId, traceId, db: sql1 });
+
+    expect(b.runId).toBe(a.runId);
+    expect(b.stepId).toBe(a.stepId);
+
+    const stepRows = await sql1<Array<{ id: string; run_id: string; step_key: string }>>`
+      SELECT id, run_id, step_key
+      FROM run_steps
+      WHERE run_id = ${a.runId}
+        AND step_key = ${`ingest_document:${documentId}:process`}
+    `;
+    expect(stepRows.length).toBe(1);
+    expect(stepRows[0]?.id).toBe(a.stepId);
+
+    await sql1`DELETE FROM folders WHERE id = ${folderId}`;
+  });
+});

@@ -44,7 +44,30 @@ export async function ingestDocumentProcessStep(args: { step: StepRow; workerId:
   if (!args.db) await ensureSchema();
   const s = args.db ?? sql;
 
-  await s`UPDATE runs SET state = 'completed', updated_at = now() WHERE id = ${args.step.run_id}`;
+  const docs = await s<Array<{ parse_status: string; ocr_status: string; error_json: any | null }>>`
+    SELECT parse_status, ocr_status, error_json
+    FROM documents
+    WHERE id = ${documentId}
+    LIMIT 1
+  `;
+  const doc = docs[0];
+  if (!doc) throw new Error("INGEST_WDK_STEP_DOCUMENT_NOT_FOUND");
+
+  if (doc.parse_status === "parsed" && doc.ocr_status === "done") {
+    await s`UPDATE runs SET state = 'completed', updated_at = now() WHERE id = ${args.step.run_id}`;
+  } else if (doc.parse_status === "failed" || doc.ocr_status === "failed") {
+    const errJson = doc.error_json ?? { code: "INGEST_FAILED", message: "Document ingest failed." };
+    await s`
+      UPDATE runs
+      SET state = 'failed',
+          error_json = ${s.json(errJson)},
+          updated_at = now()
+      WHERE id = ${args.step.run_id}
+    `;
+  } else {
+    // Defensive: if ingest returns without reaching a terminal state, force a retry.
+    throw new Error("INGEST_WDK_STEP_NON_TERMINAL_DOCUMENT_STATE");
+  }
 
   // eslint-disable-next-line no-console
   console.info("document.ingest.step_succeeded", {
@@ -65,4 +88,3 @@ export async function ingestDocumentProcessStep(args: { step: StepRow; workerId:
     },
   };
 }
-

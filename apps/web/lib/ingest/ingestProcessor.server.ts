@@ -110,19 +110,26 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
     return;
   }
 
-  const claimed = await sql<Array<{ id: string }>>`
+  // Transition into an in-progress state if needed.
+  //
+  // This is intentionally idempotent: a worker crash can leave the document stuck
+  // in parsing/running. WDK/job retries should be able to resume and reach a
+  // terminal (done/failed) state without requiring manual intervention.
+  const inProgress = await sql<Array<{ id: string }>>`
     UPDATE documents
-    SET parse_status = 'parsing',
-        ocr_status = 'running',
+    SET parse_status = CASE WHEN parse_status = 'queued' THEN 'parsing' ELSE parse_status END,
+        ocr_status = CASE WHEN ocr_status = 'queued' THEN 'running' ELSE ocr_status END,
         error_json = NULL,
         updated_at = now()
     WHERE id = ${documentId}
-      AND parse_status = 'queued'
-      AND ocr_status = 'queued'
+      AND parse_status <> 'failed'
+      AND ocr_status <> 'failed'
+      AND NOT (parse_status = 'parsed' AND ocr_status = 'done')
     RETURNING id
   `;
-  // Another worker (or a duplicate job) already moved the document out of queued.
-  if (!claimed[0]) return;
+  // Another worker may have completed/failed between the read above and this
+  // state transition. Treat as an idempotent no-op.
+  if (!inProgress[0]) return;
   await refreshFolderState(doc.folder_id);
   // Yield a tiny window so polling UIs can observe progress states.
   await new Promise((r) => setTimeout(r, 150));

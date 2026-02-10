@@ -60,7 +60,7 @@
     {
       "id": "US-001",
       "title": "Feature-flagged ingest uses WDK workflow execution",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want ingest to be runnable via WDK behind a flag so we can cut over safely and roll back quickly if needed.",
       "acceptanceCriteria": [
@@ -68,25 +68,35 @@
         "Example: with FEATURE_WDK_INGEST=1, uploads start WDK ingest workflow and do not enqueue jobs(type=ingest_document).",
         "Example: with FEATURE_WDK_INGEST=1, uploads create a runs row with type=ingest_document so ingest progress is durable and debuggable in runs/run_steps.",
         "Negative: with FEATURE_WDK_INGEST unset/0, ingest still works via legacy jobs without requiring a WDK worker."
-      ]
+      ],
+      "updatedAt": "2026-02-10T14:57:32.765252+00:00",
+      "completedAt": "2026-02-10T14:57:32.765286+00:00",
+      "startedAt": "2026-02-10T14:57:32.765291+00:00"
     },
     {
       "id": "US-002",
       "title": "WDK ingest step is idempotent at the step boundary",
-      "status": "open",
-      "dependsOn": ["US-001"],
+      "status": "in_progress",
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As an operator, I want retries to not duplicate durable writes so worker restarts do not corrupt state.",
       "acceptanceCriteria": [
         "WDK ingest schedules a deterministic step_key per document ingest execution so retries and restarts do not duplicate work.",
         "Example: kill the worker mid-ingest and restart it; ingest completes and does not create duplicate (document_id, page_number) rows.",
         "Negative: repeated retries must not leave the document in a permanently inconsistent state or multiply chunks/pages."
-      ]
+      ],
+      "startedAt": "2026-02-10T14:57:35.094714+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T14:57:35.094733+00:00"
     },
     {
       "id": "US-003",
       "title": "Legacy ingest jobs path is deletable after rollout",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a contributor, I want the legacy ingest jobs path to be explicitly removable once the flag is rolled forward so dual runtimes do not linger.",
       "acceptanceCriteria": [
         "Provide a roll-forward checklist and then delete legacy ingest job enqueue + handler references once default is WDK.",
