@@ -1,6 +1,5 @@
 import os from "node:os";
 
-import { runContinuousJobWorker } from "../lib/jobs/jobWorker.server";
 import { runContinuousWdkWorker } from "../lib/wdk/wdkWorker.server";
 import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
@@ -15,10 +14,9 @@ process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
 
 const baseId = workerId();
-await Promise.all([
-  runContinuousJobWorker({ workerId: `${baseId}:jobs` }),
-  runContinuousWdkWorker({
-    workerId: `${baseId}:wdk`,
-    handlers: { ...wdkSmokeStepHandlers, ...quickStartStepHandlers },
-  }),
-]);
+// Worker entrypoint: WDK-only. If a job-like runtime is reintroduced later,
+// it must be explicit and must not be used for Quick Start.
+await runContinuousWdkWorker({
+  workerId: `${baseId}:wdk`,
+  handlers: { ...wdkSmokeStepHandlers, ...quickStartStepHandlers },
+});

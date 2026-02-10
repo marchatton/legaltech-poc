@@ -13,7 +13,7 @@ Current PoC is:
 - WDK durable workflows/steps for document ingest and Quick Start runs (`runs` + `run_steps`) with a worker loop (`apps/web/lib/wdk/wdkWorker.server.ts`)
   - In dev (`pnpm dev`): ingest enqueue kicks an inline WDK worker drainer (same process)
   - Outside dev: run the worker process (`pnpm --filter @orbital-poc/web worker`)
-- Legacy Postgres-backed durable jobs runtime exists in code but has no known enqueue paths; the worker script still starts it today and it is scheduled for removal (refactor 0004). (`apps/web/lib/jobs/*`, `apps/web/scripts/worker.ts`)
+- Legacy durable jobs runtime (the `execute_run` worker loop) has been removed; Quick Start must not enqueue jobs and is WDK-only.
 - PDF extraction via `pdfjs-dist` text extraction (not OCR; no geometry) (`apps/web/lib/ingest/ingestProcessor.server.ts`)
 - Fixture-backed “evidence” for demos (seed snapshots under `tmp/fixture-seed`) used by citations, trace export, and spike export flows (`apps/web/lib/fixtureSeed.server.ts`, `scripts/fixtures/seed.ts`)
 
@@ -113,7 +113,6 @@ Code:
 
 ## Known drift vs target architecture
 The largest gaps relative to target docs:
-- WDK exists and is used for ingest and Quick Start, but the legacy durable jobs runtime code still exists (unused) and the worker script still starts it (until refactor 0004 removes it).
 - No OCR/layout provider and no geometry-backed citations.
 - No retrieval/draft/lock pipeline; current runs write placeholder rows.
 - “Evidence-first” is implemented for fixture/demo mode, not for real uploaded documents.
@@ -126,7 +125,6 @@ This doc stays “implemented today”. For the intended sequence of upcoming re
 - `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`
 
 Key planned closures (not implemented yet, at time of writing):
-- Remove the legacy durable jobs runtime now that Quick Start is WDK-owned (refactor 0004).
 - Make citations DB-backed for real uploaded documents (with fixture fallback only where explicitly gated).
   - Ship behind `FEATURE_CITATIONS_API` (default off until RH3 evidence is recorded).
 - Implement hybrid retrieval (lexical + semantic) as the retrieval substrate enabling grounded chat and evidence-first features beyond fixtures.

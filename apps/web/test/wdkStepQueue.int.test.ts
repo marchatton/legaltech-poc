@@ -7,7 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ensureAllSchemas } from "../lib/db/schema/index.server";
 import { loadQuestionSetV1 } from "../lib/questionSet.server";
-import { claimNextStep, requeueStaleRunningSteps, scheduleStep, type StepRow } from "../lib/wdk/stepQueue.server";
+import { claimNextStep, requeueStaleRunningSteps, scheduleStep } from "../lib/wdk/stepQueue.server";
 import { drainWdkStepsOnce, type StepHandlerMap } from "../lib/wdk/wdkWorker.server";
 import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
@@ -92,25 +92,33 @@ describe("wdk step queue (db)", () => {
     // If SKIP LOCKED is missing, this would block on tx1's row lock.
     // If the shared DB has other queued steps, a worker may claim those; use a
     // rollback transaction to keep this test non-destructive.
-    const claimed2 = defer<StepRow | null>();
-    try {
-      await Promise.race([
-        sql2
-          .begin(async (tx) => {
-            const step = await claimNextStep({ workerId: "w2", db: tx as unknown as typeof sql2 });
-            claimed2.resolve(step);
-            throw new Error("ROLLBACK_TEST_W2");
+    class RollbackSavepoint extends Error {
+      constructor(readonly step: Awaited<ReturnType<typeof claimNextStep>>) {
+        super("ROLLBACK_SAVEPOINT");
+      }
+    }
+
+    const step2 = await Promise.race([
+      sql2.begin(async (tx) => {
+        return tx
+          .savepoint(async (sp) => {
+            const claimed = await claimNextStep({ workerId: "w2", db: sp as unknown as typeof sql2 });
+            // Roll back any claimed step so this test is non-destructive.
+            throw new RollbackSavepoint(claimed);
           })
           .catch((err) => {
-            if (err instanceof Error && err.message === "ROLLBACK_TEST_W2") return;
+            if (err instanceof RollbackSavepoint) return err.step;
             throw err;
-          }),
-        new Promise<void>((_r, rej) => setTimeout(() => rej(new Error("Timed out waiting for step claim")), 500)),
-      ]);
+          });
+      }),
+      new Promise<Awaited<ReturnType<typeof claimNextStep>>>((_, rej) =>
+        setTimeout(() => rej(new Error("Timed out waiting for step claim")), 500),
+      ),
+    ]);
 
-      const step2 = await claimed2.promise;
-      if (claimedStepId) {
-        expect(step2?.id ?? null).not.toBe(claimedStepId);
+    try {
+      if (step2 && claimedStepId) {
+        expect(step2.id).not.toBe(claimedStepId);
       }
     } finally {
       // Always release tx1 even if assertions fail, to avoid cascading timeouts.

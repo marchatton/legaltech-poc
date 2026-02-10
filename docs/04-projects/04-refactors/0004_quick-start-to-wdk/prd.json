@@ -103,7 +103,7 @@
     {
       "id": "US-003",
       "title": "Remove legacy durable jobs runtime (execute_run + worker loop)",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002"
       ],
@@ -115,7 +115,10 @@
         "The legacy jobs worker does not support execute_run (remove job type/schema and handler).",
         "The worker process no longer starts the jobs worker loop (only the WDK worker remains).",
         "If any job-like runtime is reintroduced later, it must be explicit and documented, and must not be used for Quick Start."
-      ]
+      ],
+      "startedAt": "2026-02-10T22:29:48.450973+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T22:29:48.451004+00:00"
     },
     {
       "id": "US-004",
