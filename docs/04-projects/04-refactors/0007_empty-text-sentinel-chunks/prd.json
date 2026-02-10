@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "project": "Empty-Text Sentinel Chunks (Indexed Progress Without Per-Page Empties)",
+  "overview": "Ensure documents with no extracted text can still reach folder state `indexed` without generating per-page empty chunks. Make `@orbital-poc/core` chunking semantically clean (empty text => zero chunks), and have ingest write a single doc-level sentinel chunk when needed to satisfy the `indexed` invariant.",
+  "date": "2026-02-10",
+  "owner": "marc",
+  "status": "draft",
+  "goals": [
+    "Folders with scanned/no-text documents can reach `indexed` (runnable) rather than staying permanently `ingesting`.",
+    "Avoid writing per-page empty chunks for empty-text documents or post-cap pages.",
+    "Keep chunking semantics in `@orbital-poc/core` reusable (no app-specific progress hacks).",
+    "Preserve deterministic/idempotent re-ingest behavior for chunks."
+  ],
+  "nonGoals": [
+    "Implement OCR/layout-backed `line_window_v1` chunking or geometry-backed citations.",
+    "Change `ready` health checks or the extraction-quality heuristic/threshold.",
+    "Build an embedding job or change retrieval tuning/ranking."
+  ],
+  "successMetrics": [
+    "Empty-text documents produce exactly one chunk row per (document_id, index_version) (a sentinel), not one per page.",
+    "Folders with empty-text documents can transition to `indexed` and enable Quick Start (while staying out of `ready` if quality gates fail)."
+  ],
+  "openQuestions": [],
+  "qualityGates": ["pnpm test", "pnpm typecheck"],
+  "functionalRequirements": [
+    "FR-001: `charWindowV0Spans(\"\")` returns `[]`.",
+    "FR-002: Chunking param validation throws for invalid params even when text is empty.",
+    "FR-003: For each (document_id, index_version), ingest writes either one or more real chunks, or exactly one sentinel chunk (empty text + sentinel metadata).",
+    "FR-004: Sentinel chunks are safe for retrieval: lexical queries do not match empty text, and semantic retrieval does not return sentinels because they are not embedded.",
+    "FR-005: Emit a structured log when a sentinel is written (no extracted text content).",
+    "FR-006: Persist `documents.metadata_json.extraction_total_chars` (total extracted chars across all pages); `0` means “no extracted text”.",
+    "FR-007: UI shows a “No text extracted” badge/message for documents where `documents.metadata_json.extraction_total_chars = 0`."
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Core chunker returns zero chunks for empty text (with validation)",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an engineer, I want `char_window_v0` to treat empty text as producing no chunks (while still validating parameters) so downstream systems don't accumulate meaningless empty chunks and the core API stays semantically clean.",
+      "acceptanceCriteria": [
+        "Example: `charWindowV0Spans(\"\")` returns `[]` and `chunkPageCharWindowV0({ page_number: 1, text: \"\" })` returns `[]`.",
+        "Example: For non-empty text, chunking remains deterministic and overlapping windows match existing expectations.",
+        "Negative: `charWindowV0Spans(\"\", { maxChars: 0, overlapChars: 0 })` throws an error matching /maxChars/.",
+        "Negative: `charWindowV0Spans(\"\", { maxChars: 10, overlapChars: 10 })` throws an error matching /overlapChars/."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Ingest writes a single doc-level sentinel chunk when a document has zero real chunks",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As the system, I want ingest to write exactly one sentinel chunk for a document+index_version when no real chunks exist, so folder state can reach `indexed` without creating per-page empty chunks.",
+      "acceptanceCriteria": [
+        "Example: When all extracted page text is empty for a document, ingest writes exactly 1 chunk row for (document_id, index_version) with `text=\"\"` and sentinel metadata (e.g. `metadata_json.sentinel=\"no_extracted_text\"`).",
+        "Example: When extracted page text is empty for a document, persist `documents.metadata_json.extraction_total_chars = 0` as an explicit document-level signal.",
+        "Example: Stale-tail deletion removes old real chunks when re-ingest now produces only the sentinel (chunk_index >= 1 deleted).",
+        "Negative: When any non-empty chunks are produced for a document+index_version, ingest writes no sentinel chunk.",
+        "Negative: Sentinel chunks are never written per page (no explosion proportional to page_count)."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Add regression tests for empty-text documents and indexed progression",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an engineer, I want end-to-end tests proving empty-text docs do not flood chunks and still progress a folder to `indexed`, so the behavior stays stable as chunking/retrieval evolves.",
+      "acceptanceCriteria": [
+        "Example: Integration test mocks pdf.js extraction returning empty text for all pages and asserts `document_pages` count matches page_count and exactly 1 sentinel chunk exists for the doc+index_version.",
+        "Example: Derived folder state reaches `indexed` (and remains out of `ready` if extraction quality/health checks fail).",
+        "Negative: Retrieval does not return the sentinel chunk for a non-empty query (lexical branch should not match empty text; semantic branch requires embeddings).",
+        "Negative: Tests fail if more than 1 chunk is written for the empty-text document+index_version."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "UI shows a “No text extracted” badge/message for empty-text documents",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an end user, I want an explicit, document-level indicator when extracted text is empty so I can understand why a doc may be low-quality or non-searchable even though the folder can reach `indexed`.",
+      "acceptanceCriteria": [
+        "Example: In the matter/documents UI, documents with `documents.metadata_json.extraction_total_chars = 0` show a “No text extracted” badge/message.",
+        "Negative: Documents with `extraction_total_chars > 0` show no badge/message.",
+        "Negative: Documents without `extraction_total_chars` (older data) show no badge/message (avoid false positives).",
+        "Negative: The badge/message does not change folder state progression; it is informational only."
+      ]
+    }
+  ],
+  "risks": [
+    "Sentinel chunks could be embedded/retrieved later if an embedding/indexing pipeline does not filter empty text.",
+    "Some callers may interpret `indexed` as “high quality”; the intended distinction remains `ready` as the quality gate.",
+    "Chunk upsert may update content under a stable conflict target; downstream change detection must rely on `text_hash` if embeddings are introduced."
+  ],
+  "failureStatesAndUX": [
+    "Empty-text documents are expected to remain `indexed` rather than `ready` due to health checks (quality gate).",
+    "True ingest/write failures continue to transition folder/doc state to `failed` with safe user-facing errors."
+  ],
+  "metricsLogging": [
+    "Emit a structured log when writing a sentinel chunk (e.g. `ingest.no_extracted_text_sentinel_written`) with document_id, index_version, page_count, and total_chars."
+  ],
+  "verificationPlan": [
+    "Run `pnpm test` and `pnpm typecheck`.",
+    "Unit tests: `packages/core/src/chunking/char_window_v0.test.ts` updated for empty-text semantics and validation.",
+    "Integration tests: `apps/web/test/ingestDocumentStepIdempotency.int.test.ts` includes an empty-text extraction case."
+  ],
+  "rollbackDisablePath": [
+    "Rollback: revert the change and re-ingest (bump `folders.latest_index_version` / reload pack) to rebuild chunks.",
+    "Optional disable path (future): environment-controlled empty-text behavior mode (`doc_sentinel` vs `page_sentinel` vs `off`)."
+  ],
+  "links": [
+    "docs/03-architecture/20_state_model.md",
+    "docs/03-architecture/DECISIONS.md",
+    "apps/web/lib/ingest/ingestProcessor.server.ts",
+    "apps/web/lib/folderState.server.ts",
+    "packages/core/src/chunking/char_window_v0.ts"
+  ]
+}
