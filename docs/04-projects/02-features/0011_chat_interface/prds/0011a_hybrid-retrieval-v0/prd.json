@@ -20,12 +20,9 @@
     "Chunks are materially smaller than whole pages and carry deterministic metadata for citations.",
     "Debug endpoint outputs tuning context (lists/probes/hit counts) so retrieval can be tuned without guesswork."
   ],
-  "openQuestions": [
-    "Do we add a golden-questions Recall@K fixture now, or defer to a later retrieval quality slice?",
-    "Where should hybridSearch() live long-term: apps/web (web-only) or packages/core (shared) with adapters?"
-  ],
+  "openQuestions": [],
   "stack": {
-    "framework": "Next.js App Router (apps/web) + TypeScript",
+    "framework": "Next.js App Router (apps/web) + packages/core + TypeScript",
     "hosting": "Local dev (docker-compose) today; target deployments vary but must support Postgres + pgvector.",
     "database": "Postgres with pgvector extension",
     "auth": "PoC: no end-user auth; dev-only spike endpoints are gated (SPIKES_ENABLED) and some admin-only endpoints require X-Orbital-Admin-Token."
@@ -113,6 +110,8 @@
   "rules": [
     "Chunking must be deterministic for a given (document_id, index_version) input.",
     "hybridSearch() must return an IDs-only contract (chunk IDs + metadata), not hydrated chunk text.",
+    "hybridSearch() lives in packages/core and is framework-agnostic; apps/web owns HTTP routes (including /spikes/*).",
+    "If pgvector is missing/unavailable, semantic retrieval is disabled and hybridSearch() degrades to lexical-only; this must be explicit/observable (logs + debug endpoint) and must not silently pretend semantic search is working.",
     "Vector indexing must avoid IVFFlat tiny-dataset footguns by creating the index conservatively and logging tuning context (lists/probes/nVectors).",
     "Debug-only routes must live under /spikes/* and be gated; do not add new dev-only endpoints at target paths."
   ],
@@ -144,7 +143,7 @@
       "acceptanceCriteria": [
         "Example: Schema includes chunks.text_tsv (tsvector) with a GIN index, and lexical queries use websearch_to_tsquery('english', query) and ts_rank_cd for scoring.",
         "Example: Schema includes embedding vector(1536), embedding_model, embedded_at; embeddings are written for chunks during ingest, and IVFFlat index creation is deferred until nVectors >= 500 with lists computed as clamp(1,100,floor(nVectors/1000)).",
-        "Negative: If pgvector extension is missing/unavailable, semantic retrieval fails closed with a safe error (and does not silently pretend semantic search is working)."
+        "Negative: If pgvector extension is missing/unavailable, semantic retrieval is disabled and hybridSearch() degrades to lexical-only; debug output makes this explicit (and does not silently pretend semantic search is working)."
       ]
     },
     {
@@ -155,7 +154,9 @@
       "description": "As a feature builder (chat, quick start), I want a single hybridSearch() function that returns ranked chunk IDs so that downstream features can rely on one retrieval contract.",
       "acceptanceCriteria": [
         "Example: hybridSearch({folderId,indexVersion,queryText}) returns a deterministic ordered list of hits including chunk_id/document_id/page_start/page_end plus score and optional lex_score/sem_score; default tuning is kLex=20, kSem=20, kFinal=10, lexWeight=0.55, semWeight=0.45.",
+        "Example: hybridSearch() is implemented in packages/core and is called by apps/web (including the /spikes/retrieval/hybrid-search debug endpoint).",
         "Example: A dev-only spike endpoint /spikes/retrieval/hybrid-search returns the top K hits for a query and includes tuning context (nVectors, lists, probes, kLex/kSem/kFinal, hitCountsLex/hitCountsSem).",
+        "Automated: A small golden-questions smoke fixture (3-10 queries) asserts an expected doc/page appears in the top K results for a seeded fixture folder.",
         "Negative: If queryText is empty/invalid, the endpoint returns 400 with the standard safe error envelope and no internal stack trace or provider payload."
       ]
     }

@@ -32,8 +32,8 @@ After: a dev-only spike endpoint and/or harness can retrieve relevant `chunk_id`
 - Upgrade chunking from per-page to small deterministic chunks (char window).
 - Add lexical index (tsvector + GIN) for `chunks`.
 - Add semantic index (pgvector embeddings + IVFFlat) for `chunks`.
-- Implement `hybridSearch()` using “two queries + merge in TS” for debuggability.
-- Add a dev-only debug endpoint under `/spikes/*` to validate retrieval.
+- Implement `hybridSearch()` in `packages/core` using “two queries + merge in TS” for debuggability.
+- Add a dev-only debug endpoint under `/spikes/*` (in `apps/web`) to validate retrieval.
 
 ## Goals
 - `hybridSearch()` returns stable results for a fixed DB state and query.
@@ -72,7 +72,7 @@ As a developer, I want chunks to have both lexical and vector search fields, so 
   - `embedded_at TIMESTAMPTZ NULL`
 - AC-005: Lexical index exists: `GIN(chunks.text_tsv)`.
 - AC-006: Semantic indexing exists:
-  - pgvector extension enabled (or the system fails closed with a safe error)
+  - pgvector extension enabled (otherwise semantic retrieval is disabled and the system degrades to lexical-only, explicitly observable)
   - IVFFlat index on `embedding vector_cosine_ops` is created *conservatively* (see Technical Considerations).
 
 #### Verification
@@ -92,10 +92,12 @@ As a feature builder (chat, quick start), I want a single `hybridSearch()` funct
   - `lexWeight=0.55`, `semWeight=0.45`
 - AC-009: A dev-only debug endpoint exists under `/spikes/retrieval/*` to call `hybridSearch()` and inspect results.
 - AC-010: Logs include `{nVectors, lists, probes, kLex, kSem, kFinal, hitCountsLex, hitCountsSem}`.
+- AC-011: A small golden-questions smoke fixture exists (3-10 queries) that asserts an expected doc/page appears in top K results for a seeded fixture folder.
 
 #### Verification
 - Unit test: merge scoring is deterministic.
 - Manual: run debug endpoint against a fixture pack folder and inspect top hits.
+- Automated: run the golden-questions smoke fixture.
 
 ## Technical Considerations (Pinned Details)
 
@@ -113,6 +115,13 @@ Semantic:
 Merge:
 - dedupe by `chunk_id`
 - `score = lexWeight*lex + semWeight*sem`
+
+### Retrieval smoke fixture (golden questions)
+
+- Keep this small (3-10 representative queries).
+- Assert a known expected document/page appears in top K for each query.
+- Keep it CI-safe:
+  - no live provider calls in tests (stub embeddings and/or validate lexical-only baselines).
 
 ### IVFFlat index creation (avoid tiny-dataset footguns)
 
@@ -155,7 +164,7 @@ This makes early behavior predictable and avoids confusing “limited results”
 
 ## Failure States & UX
 - If pgvector extension is missing/unavailable:
-  - fail closed with a safe error, or explicitly degrade to lexical-only (pick one behavior and make it observable).
+  - degrade to lexical-only (semantic branch disabled) and make it observable in logs and the debug endpoint.
 - If embeddings provider fails:
   - ingest fails closed for that document/index_version and surfaces a safe error state.
 - Never return raw provider payloads or stack traces to clients; use the standard error envelope.
@@ -180,10 +189,10 @@ This makes early behavior predictable and avoids confusing “limited results”
 - Chunk sizes support citations (snippets are not whole pages).
 - Debug endpoint makes tuning behavior legible (no “black box” retrieval).
 
-## Open Questions
-- Q1: When pgvector is missing, do we fail closed or degrade to lexical-only?
-- Q2: Do we want a golden-questions Recall@K fixture now, or defer?
-- Q3: Where should `hybridSearch()` live long-term (`apps/web` vs `packages/core`)?
+## Decisions (Resolved)
+- When pgvector is missing/unavailable: degrade to lexical-only (semantic branch disabled) and make it observable (logs + debug endpoint).
+- Retrieval quality: add a small golden-questions smoke fixture now (3-10 queries).
+- `hybridSearch()` location: implement in `packages/core`; `apps/web` owns the spike route.
 
 ## Sources
 - `docs/00-strategy/initiatives/100_chat_interface/100_chat_interface.md`

@@ -4,6 +4,7 @@
   "overview": "Add per-matter chat that streams assistant responses and shows locked, clickable sources per assistant message, preserving the evidence-first trust posture.",
   "goals": [
     "Enable a chat panel in the Matter detail view where users can send messages and receive streaming assistant replies.",
+    "Support multiple threads per matter (thread list + titles) so chats can be separated by topic.",
     "Persist chat threads and messages, including correct streaming/complete terminal states.",
     "Lock sources (citations) per assistant message and render them under the assistant bubble.",
     "Provide an evidence viewer page for chat citations without conflicting with the existing /citations/:id API route.",
@@ -22,11 +23,7 @@
     "When retrieval finds no evidence, the assistant returns exactly 'Not found in provided documents.' and sources are empty.",
     "API failures are explicit and safe: standard error envelope only, no stack traces or provider payloads returned."
   ],
-  "openQuestions": [
-    "Should chat be enabled dev-only first, or also in a production-build demo mode (e.g., ORBITAL_MODE=demo-prod)?",
-    "Should there be one thread per matter (simplest) or multiple threads with a list and titles (more scope)?",
-    "Do we later unify chat_citations with the existing citations table, or keep them separate long-term?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js App Router (apps/web) + TypeScript",
     "hosting": "Local dev today; target deployments vary. Chat should be feature-flagged so enablement can be controlled per environment.",
@@ -42,12 +39,12 @@
     {
       "path": "/folders/:id/chat",
       "name": "Chat Message API",
-      "purpose": "Accept a user message and stream an assistant response for a matter."
+      "purpose": "Accept a user message (including thread_id) and stream an assistant response for a matter."
     },
     {
-      "path": "/chat-citations/:id",
-      "name": "Chat Citation API",
-      "purpose": "Return locked citation payload for a chat citation id."
+      "path": "/citations/:id",
+      "name": "Citation API (Existing, Extended)",
+      "purpose": "Return locked citation payload for a citation id (used for both report rows and chat)."
     },
     {
       "path": "/evidence/:id",
@@ -56,6 +53,7 @@
     }
   ],
   "uiNotes": [
+    "Chat panel includes a thread list (titles) with a simple create-new-thread action; thread titles are derived from the first user message in v0.",
     "Sources render under assistant messages as chips (doc id + page number).",
     "v0 highlight polygons are coarse full-page boxes; UI labels as page-level until OCR geometry exists.",
     "Chat is embedded as a panel in the Matter detail page (server-first; keep client islands small)."
@@ -70,16 +68,19 @@
       "fields": ["id", "thread_id", "role", "content", "status", "created_at"]
     },
     {
-      "entity": "chat_citations",
+      "entity": "citations",
       "fields": [
         "id",
-        "chat_message_id",
+        "report_row_id (nullable)",
+        "chat_message_id (nullable)",
         "document_id",
         "page_number",
         "snippet",
         "snippet_hash",
         "polygons_json",
-        "created_at"
+        "locked_at",
+        "created_at",
+        "constraint: exactly one of report_row_id or chat_message_id is set"
       ]
     }
   ],
@@ -108,7 +109,7 @@
     "steps": [
       {
         "key": "load_thread_context",
-        "purpose": "Fetch last N messages (e.g., N=20) from chat_messages for prompt context."
+        "purpose": "Fetch last N messages (e.g., N=20) from chat_messages for the selected thread to use as prompt context."
       },
       {
         "key": "hybrid_retrieve",
@@ -124,7 +125,7 @@
       },
       {
         "key": "lock_citations",
-        "purpose": "Persist chat_citations for the assistant message, including snippet_hash and polygons_json."
+        "purpose": "Persist citations for the assistant message in the unified citations table, including snippet_hash and polygons_json."
       },
       {
         "key": "finalise_message",
@@ -135,13 +136,14 @@
   },
   "featureFlags": [
     "CHAT_ENABLED (or equivalent): when disabled, the chat panel is hidden and /folders/:id/chat returns 404/disabled response.",
+    "Enable chat only in ORBITAL_MODE=dev or ORBITAL_MODE=demo-prod; default locked down when ORBITAL_MODE is unset or prod.",
     "Optional: enable chat in dev first; do not require completing the broader dev-only route migration unless explicitly required for demo/prod."
   ],
   "rules": [
     "Evidence-first: assistant answers must be grounded in retrieved chunks; if not supported, respond exactly 'Not found in provided documents.'.",
     "Locked sources are immutable: once an assistant message is complete, its citations do not change silently.",
     "Evidence viewer must not conflict with existing /citations/:id API route; use /evidence/:id (or similar) for the page.",
-    "Chat feature is flaggable so it can ship dev-first without forcing completion of broader 'dev-only route migration' work."
+    "Chat feature is flaggable and allowlisted by runtime mode so it can ship dev-first and be promoted to demo-prod without forcing completion of broader 'dev-only route migration' work."
   ],
   "qualityGates": [
     "pnpm -r typecheck",
@@ -157,8 +159,8 @@
       "dependsOn": [],
       "description": "As a user, I want to send a chat message in a Matter and receive a streaming reply so that I can explore the documents quickly.",
       "acceptanceCriteria": [
-        "Example: On /matters/:id, the chat panel shows prior messages and an input; submitting 'What is the closing date?' starts streaming an assistant reply without a page refresh.",
-        "Example: A user message is persisted immediately; an assistant message is created with status='streaming' and transitions to status='complete' when finished; refreshing the page shows the same message history.",
+        "Example: On /matters/:id, the chat panel shows a thread list (titles) and the selected thread's message history + input; creating a new thread and submitting 'What is the closing date?' starts streaming an assistant reply without a page refresh.",
+        "Example: A user message is persisted immediately; an assistant message is created with status='streaming' and transitions to status='complete' when finished; refreshing the page shows the same thread list and message history.",
         "Negative: If the request body is missing or message is empty/invalid, POST /folders/:id/chat returns 400 with the standard safe error envelope."
       ]
     },
@@ -170,8 +172,8 @@
       "description": "As a user, I want clickable sources under assistant messages that open an evidence viewer so that I can verify the answer.",
       "acceptanceCriteria": [
         "Example: After an assistant reply completes, the UI renders a 'Sources' section with one or more chips (document_id + page_number).",
-        "Example: Clicking a source navigates to /evidence/:id which loads citation payload from GET /chat-citations/:id and then loads render_url via GET /documents/:id/render?page=N; a highlight overlay renders using polygons_json (v0 full-page box).",
-        "Negative: If the citation id is not found, GET /chat-citations/:id returns 404 with a safe error envelope and /evidence/:id shows an explicit not-found state (no blank screen)."
+        "Example: Clicking a source navigates to /evidence/:id which loads citation payload from GET /citations/:id and then loads render_url via GET /documents/:id/render?page=N; a highlight overlay renders using polygons_json (v0 full-page box).",
+        "Negative: If the citation id is not found, GET /citations/:id returns 404 with a safe error envelope and /evidence/:id shows an explicit not-found state (no blank screen)."
       ]
     },
     {

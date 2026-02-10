@@ -30,9 +30,10 @@ Before: no chat; no evidence-backed Q&A.
 After: on a Matter page, users can send a message and receive a streaming response with clickable “Sources” that open a PDF viewer at the cited page.
 
 ### In Scope
-- New chat tables: `chat_threads`, `chat_messages`, `chat_citations`.
+- New chat tables: `chat_threads`, `chat_messages`.
+- Extend existing `citations` to support chat citations (unified citations table).
 - `POST /folders/:id/chat` to send messages and stream assistant response.
-- `GET /chat-citations/:id` to fetch locked chat citations.
+- `GET /citations/:id` to fetch locked citations (used for both report rows and chat).
 - UI chat panel in Matter view + evidence viewer page at a non-conflicting route (recommend: `/evidence/:id`).
 - Coarse page-level highlight polygons until OCR/layout geometry lands.
 
@@ -50,11 +51,15 @@ After: on a Matter page, users can send a message and receive a streaming respon
 As a user, I want to ask a question in a Matter chat and receive a streaming reply, so that I can explore the documents quickly.
 
 #### Acceptance Criteria
-- AC-001: On a Matter page, a chat panel renders a message list and an input.
-- AC-002: Submitting a message calls `POST /folders/:id/chat` and the assistant response streams to the UI.
+- AC-001: On a Matter page, a chat panel renders:
+  - a thread list (titles)
+  - a message list for the selected thread
+  - an input
+- AC-002: Submitting a message calls `POST /folders/:id/chat` (with a thread id) and the assistant response streams to the UI.
 - AC-003: Messages are persisted:
   - user message inserted immediately
   - assistant message starts as `streaming` then becomes `complete`
+- AC-004: Users can create and switch threads within a matter; thread titles are derived from the first user message (truncated) in v0.
 
 #### Verification
 - Manual: in dev mode, open a seeded folder, send a message, observe streaming, refresh and confirm messages persist.
@@ -64,12 +69,12 @@ As a user, I want to ask a question in a Matter chat and receive a streaming rep
 As a user, I want to click a source under an assistant message and open a PDF viewer at the cited evidence, so that I can verify the answer.
 
 #### Acceptance Criteria
-- AC-004: Each assistant message renders a “Sources” section containing citation chips (doc/page labels).
-- AC-005: Clicking a citation chip navigates to `/evidence/:id` (or similar) and loads:
-  - citation payload from `GET /chat-citations/:id`
+- AC-005: Each assistant message renders a “Sources” section containing citation chips (doc/page labels).
+- AC-006: Clicking a citation chip navigates to `/evidence/:id` (or similar) and loads:
+  - citation payload from `GET /citations/:id`
   - render_url from `GET /documents/:id/render?page=N`
   - pdf.js viewer with a highlight overlay
-- AC-006: With no geometry available, v0 citations store a full-page polygon:
+- AC-007: With no geometry available, v0 citations store a full-page polygon:
   - `[[[0,0],[1,0],[1,1],[0,1]]]`
   and UI labels the highlight as “page-level”.
 
@@ -81,9 +86,9 @@ As a user, I want to click a source under an assistant message and open a PDF vi
 As a user, I want the assistant to be honest about missing evidence and for failures to be explicit, so that the system remains trustworthy.
 
 #### Acceptance Criteria
-- AC-007: If retrieval returns no chunks, assistant responds exactly `Not found in provided documents.` and sources are empty.
-- AC-008: If the model call fails mid-stream, the assistant message is marked with a terminal failure status and UI shows an explicit error state (no silent failure).
-- AC-009: All API errors return the standard safe error envelope; no stack traces or provider payloads are returned to clients.
+- AC-008: If retrieval returns no chunks, assistant responds exactly `Not found in provided documents.` and sources are empty.
+- AC-009: If the model call fails mid-stream, the assistant message is marked with a terminal failure status and UI shows an explicit error state (no silent failure).
+- AC-010: All API errors return the standard safe error envelope; no stack traces or provider payloads are returned to clients.
 
 #### Verification
 - Manual: simulate a folder with no chunks; observe exact answer string.
@@ -111,7 +116,7 @@ v0 shape:
   2) `hybrid_retrieve` (call `hybridSearch()`)
   3) `hydrate_chunks` (fetch chunk text + doc/page metadata)
   4) `stream_answer` (model streaming writes tokens)
-  5) `lock_citations` (persist `chat_citations`)
+  5) `lock_citations` (persist `citations`)
   6) `finalise_message` (mark complete)
 
 Idempotency:
@@ -126,9 +131,9 @@ Idempotency:
 ## Functional Requirements
 - FR-001: Chat API input validation uses Zod and fails closed with safe error envelopes.
 - FR-002: Assistant must be prompted to answer using only retrieved sources; missing evidence yields the exact string `Not found in provided documents.`.
-- FR-003: Locked citations are immutable and stored separately from existing `citations` (avoid refactor in this slice).
+- FR-003: Locked citations are immutable and stored in the existing `citations` table (unified citations), with a strict one-of association (either `report_row_id` or `chat_message_id`).
 - FR-004: Evidence viewer route must not conflict with the existing `/citations/:id` API route; use `/evidence/:id` (or equivalent).
-- FR-005: Chat can be feature-flagged (enable in dev first); do not require completing “move off dev-only routes” unless explicitly required for demo/prod.
+- FR-005: Chat can be feature-flagged and enabled in dev first; allow enabling in demo-prod mode explicitly via `ORBITAL_MODE=demo-prod`.
 
 ## Non-Goals (Out of Scope)
 - Cross-matter chat.
@@ -149,7 +154,7 @@ Idempotency:
   - success/failure counts by safe error code
 
 ## Rollback / Disable Plan
-- Gate chat behind an env flag (or `ORBITAL_MODE`) so it can be disabled safely.
+- Gate chat behind an env flag (e.g. `CHAT_ENABLED=1`) and allow it only in `ORBITAL_MODE=dev` or `ORBITAL_MODE=demo-prod` (default to locked down when unset/`prod`).
 - Safe fallback: hide chat panel and return 404/disabled response for chat endpoints when disabled.
 
 ## Risks & Dependencies
@@ -162,10 +167,10 @@ Idempotency:
 - At least one meaningful source is attached and is clickable to an evidence viewer.
 - When evidence is missing, the exact missing-evidence string is used and sources are empty.
 
-## Open Questions
-- Q1: Enable chat in dev-only first, or in demo-prod mode as part of a production-build demo?
-- Q2: One thread per matter (simplest) or multiple threads with a list?
-- Q3: Should we later unify `chat_citations` with `citations`, or keep separate long-term?
+## Decisions (Resolved)
+- Enablement: dev-first, but support production-build demos by allowing chat when `ORBITAL_MODE=demo-prod` (behind an explicit enable flag).
+- Threads: multiple threads per matter, with a thread list and titles (v0 titles derived from first user message, truncated).
+- Citations: unify chat citations with the existing `citations` table (no separate `chat_citations` table).
 
 ## Sources
 - `docs/00-strategy/initiatives/100_chat_interface/100_chat_interface.md`
