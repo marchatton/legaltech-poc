@@ -158,3 +158,39 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-1
   - `FOR UPDATE SKIP LOCKED` behavior is easiest to verify by holding an open transaction on one worker and asserting the second claim returns quickly (no blocking).
   - For 1-based attempt counters that increment on claim, queued steps should start at attempt 0 and increment inside the claim UPDATE.
 ---
+
+## [2026-02-10 13:56:35 +0000] - US-002: wdk_smoke workflow proves conventions + retries
+Thread:
+Run: 20260210-130418-29584 (iteration 2)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-2.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: d68dd9a feat(wdk): add wdk_smoke workflow retry path
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/app/(api)/spikes/wdk/smoke/start/route.ts
+  - apps/web/app/(api)/spikes/wdk/smoke/state/route.ts
+  - apps/web/lib/wdk/stepQueue.server.ts
+  - apps/web/scripts/worker.ts
+  - apps/web/steps/wdkSmokeDone.step.server.ts
+  - apps/web/steps/wdkSmokeFlaky.step.server.ts
+  - apps/web/steps/wdkSmokeInit.step.server.ts
+  - apps/web/steps/wdkSmokeStepHandlers.server.ts
+  - apps/web/test/wdkStepQueue.int.test.ts
+  - apps/web/workflows/wdkSmokeWorkflow.server.ts
+  - docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.json
+- What was implemented
+  - Added a tiny `wdk_smoke` workflow plus 3 durable steps (`init`, `flaky`, `done`) that include `"use workflow"` / `"use step"` directive literals.
+  - Implemented a fail-once step that exercises durable retry scheduling with exponential backoff and an incrementing attempt counter.
+  - Added dev-only spikes routes to start the workflow and inspect durable run/step state (`/spikes/wdk/smoke/start`, `/spikes/wdk/smoke/state`).
+  - Wired `pnpm --filter @orbital-poc/web worker` to run the WDK worker loop alongside the existing jobs worker.
+  - Made `scheduleStep()` default `available_at` to Postgres `now()` to avoid app-vs-DB clock skew.
+- **Learnings for future iterations:**
+  - When `available_at` is derived from JS time, even small DB/app clock skew can make freshly scheduled steps briefly unclaimable; defaulting to DB `now()` avoids flaky drains.
+  - Vitest runs test files in parallel; DB-backed queue tests should avoid cross-file concurrency (or share a single integration test file) to prevent lock contention and queue interference.
+---
