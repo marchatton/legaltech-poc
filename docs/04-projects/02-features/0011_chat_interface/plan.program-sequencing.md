@@ -18,10 +18,15 @@ Constraints
 
 ## Locked Decisions (for sequencing)
 1. WDK is the durable orchestration runtime going forward. New long-running side effects go into WDK steps.
-2. Quick Start is refactored onto WDK now (to match ADR-0005 and to avoid compounding drift).
-3. `0011b` depends on `0011a` (chat must be grounded, not “ungrounded chat”).
-4. Citations are a unified primitive (no parallel citation systems). `GET /citations/:id` becomes real (DB-first), with fixture fallback only for dev/demo packs.
-5. Geometry remains out of scope for v0; we explicitly support coarse page-level highlights when `has_geometry=false`.
+2. WDK “world” state is stored in the existing `runs` + `run_steps` tables (no parallel WDK tables + mirroring).
+3. Quick Start is refactored onto WDK now (to match ADR-0005 and to avoid compounding drift).
+4. `0011b` depends on `0011a` (chat must be grounded, not “ungrounded chat”).
+5. Citations are a unified primitive (no parallel citation systems).
+   - `GET /citations/:id` becomes real (DB-first) for real docs (Workstream E), with fixture fallback only for dev/demo packs.
+   - The citations API remains behind `FEATURE_CITATIONS_API` until RH3 evidence is recorded (per `0001c`).
+6. Geometry remains out of scope for v0; we explicitly support coarse page-level highlights when `has_geometry=false`.
+7. Pre-geometry retrieval v0 uses `char_window_v0` chunking on `document_pages.text` (no OCR/layout lines yet).
+   - When OCR/layout geometry lands, switch to ADR-0015 `line_window_v1` and bump `index_version` (per ADR-0015).
 
 ## Dependency Map (what blocks what)
 
@@ -42,7 +47,8 @@ Execution note (PRD-level):
   - Chat PRD B: `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.md`
 - DB-first citations contract blocks chat sources being trustworthy outside fixture packs:
   - Canonical citations contract PRD: `docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md`
-  - Additional requirement for this program (not a separate PRD yet): make existing `GET /citations/:id` read DB first for real docs, and use fixture fallback only where explicitly gated.
+  - Workstream E PRD (execute via Ralph): `docs/04-projects/04-refactors/0005_citations-db-first/prd.json`
+  - Note: `0001c` is explicitly NO-GO until RH3 evidence is recorded; keep `FEATURE_CITATIONS_API=0` until RH3 is complete.
 
 ### Soft dependencies (can be parallel)
 - Docs alignment can run in parallel with early implementation work, as long as we keep a single source-of-truth “current runtime” section accurate.
@@ -62,7 +68,8 @@ Edits to make (checklist):
   - Align `/spikes/*` vs `/demo/*` conventions and gating (`SPIKES_ENABLED`, `ORBITAL_MODE`, etc).
   - Add explicit note: any new debug/retrieval endpoints for 0011a must be `/spikes/retrieval/*`.
 - `docs/03-architecture/40_rag_and_agents.md`
-  - Add explicit geometry maturity ladder and the v0 “full page polygon” fallback for `has_geometry=false`.
+  - Confirm geometry maturity ladder and the v0 “full page polygon” fallback for `has_geometry=false`.
+  - Add explicit note: pre-geometry retrieval uses `char_window_v0` until OCR/layout lines exist (then migrate to ADR-0015 `line_window_v1` via `index_version` bump).
 - `docs/03-architecture/DECISIONS.md`
   - Ensure ADR-0005 is reflected as “implemented” once Quick Start is on WDK.
 - `docs/04-projects/02-features/0011_chat_interface/*`
@@ -82,6 +89,7 @@ Goal: introduce WDK into the repo as the real runtime (not an abstraction layere
 Outcomes:
 - A WDK worker process exists (separate from Next.js web) and can execute steps durably.
 - WDK “world” uses Postgres and has a clear migration/DDL story (idempotent; compatible with current runtime DDL approach).
+- WDK durable state is in the existing `runs` + `run_steps` tables (single source of truth).
 - Conventions are real in code (`"use workflow"`, `"use step"`).
 
 Deliverable:
@@ -110,6 +118,10 @@ Goal: make real uploaded docs searchable and debuggable (lexical + semantic), ID
 Dependencies:
 - Can start before Quick Start refactor completes, but should target the same WDK runtime posture for any long-running embedding work.
 
+Chunking posture (v0):
+- Implement `char_window_v0` chunking on `document_pages.text` (pre-geometry bridge).
+- Plan a deliberate migration to ADR-0015 `line_window_v1` once OCR/layout geometry lands, via `index_version` bump.
+
 Important design constraint (avoid future pain):
 - `packages/core` should not depend on `apps/web` DB layer. If PRD A currently implies that, adjust:
   - Keep DB + AI calls in `apps/web` server modules.
@@ -126,13 +138,13 @@ Outcomes:
 - `GET /citations/:id` reads DB first; fixture fallback only where explicitly allowed.
 - Unified citations table supports exactly-one association (`report_row_id` OR `chat_message_id`) as required by PRD B.
 - Coarse highlight polygons supported when `has_geometry=false` (explicit, labeled).
+- `FEATURE_CITATIONS_API` stays off by default until RH3 evidence is recorded; enable explicitly for dev/demo-prod once RH3 is complete.
 
 Deliverable:
 - Citations contract PRD (base):
   - `docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md`
 - Plus program-required hardening:
-  - Make existing `GET /citations/:id` DB-first for real documents (fixture fallback only when explicitly gated).
-  - Extend citations association to support chat (required by PRD B): `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.md` (FR-003).
+  - `docs/04-projects/04-refactors/0005_citations-db-first/prd.json` (DB-first GET /citations/:id + unified associations)
 
 ### Workstream F: Matter Chat (0011b) (PRD B as a whole)
 Goal: ship evidence-first chat with WDK durability and locked sources.
@@ -168,7 +180,7 @@ Goal: keep 0009/0010 consistent with the trust substrate, without forcing them i
 
 ### Phase 2: “Make Evidence + Retrieval Real”
 3. Workstream D: Implement PRD A retrieval substrate (0011a).
-4. Workstream E: DB-first citations + unify associations (chat/report).
+4. Workstream E: RH3 + enable `FEATURE_CITATIONS_API` + DB-first citations + unify associations (chat/report).
 
 ### Phase 3: “Ship Grounded Chat”
 5. Workstream F: Implement PRD B chat (0011b).
@@ -182,7 +194,7 @@ Once this plan is accepted, create refactor dossiers (one per coherent PR/track)
 1. `0003_wdk-runtime/` (WDK runtime + worker + smoke workflow + ingest cutover)
 2. `0004_quick-start-to-wdk/` (remove jobs orchestration for Quick Start; keep state model)
 3. `0011_chat_interface/` already contains PRDs: `prds/0011a_hybrid-retrieval-v0/` (retrieval substrate) and `prds/0011b_matter-chat-v0/` (matter chat)
-4. Optional to create (if Workstream E needs a dedicated dossier/PRD): `citations-db-first/` (DB-first read path + unify association for chat)
+4. `0005_citations-db-first/` (Workstream E PRD JSON: `docs/04-projects/04-refactors/0005_citations-db-first/prd.json`)
 
 ## Definition of Done (program-level)
 - WDK is real in code (not just in docs), and Quick Start runs on it.
