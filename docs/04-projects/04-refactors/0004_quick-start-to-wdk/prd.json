@@ -65,7 +65,7 @@
     {
       "id": "US-001",
       "title": "Quick Start is executed by a WDK workflow",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a developer, I want Quick Start run execution to be orchestrated by WDK so that the repo has one durable runtime posture and Quick Start is resumable under the worker.",
       "acceptanceCriteria": [
@@ -76,13 +76,13 @@
         "Logs clearly indicate orchestration mode (WDK) for the run and step execution."
       ],
       "startedAt": "2026-02-10T14:28:00.661741+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T14:28:00.661770+00:00"
+      "completedAt": "2026-02-10T14:58:35.771432+00:00",
+      "updatedAt": "2026-02-10T14:58:35.771391+00:00"
     },
     {
       "id": "US-002",
       "title": "Run-start route uses WDK immediately (no rollout flag)",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -94,7 +94,10 @@
         "Run idempotency is preserved.",
         "Example: repeating POST /folders/:id/runs with the same Idempotency-Key returns the previously created run.",
         "Negative: duplicate runs are not created for the same (folder_id, idempotency_key)."
-      ]
+      ],
+      "startedAt": "2026-02-10T14:58:38.041558+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T14:58:38.041576+00:00"
     },
     {
       "id": "US-003",
