@@ -223,7 +223,7 @@
     {
       "id": "US-002",
       "title": "Lexical + vector fields exist on chunks and are indexed safely",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -236,13 +236,13 @@
         "Negative: If pgvector extension is missing/unavailable, semantic retrieval is disabled and the system degrades to lexical-only (explicitly observable in logs/debug endpoint)."
       ],
       "startedAt": "2026-02-10T15:10:25.082471+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T15:10:25.082484+00:00"
+      "completedAt": "2026-02-10T15:52:29.727136+00:00",
+      "updatedAt": "2026-02-10T15:52:29.727087+00:00"
     },
     {
       "id": "US-003",
       "title": "hybridSearch() returns ranked chunk hits and a debug endpoint makes tuning visible",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001",
         "US-002"
@@ -256,7 +256,10 @@
         "AC-011: Small golden-questions smoke fixture exists (3-10 queries) asserting an expected doc/page appears in top K for a seeded fixture folder.",
         "Example: Merge scoring is deterministic (same DB state + same query yields same ordered hits).",
         "Negative: When semantic retrieval is unavailable (pgvector missing/unavailable), hybridSearch still returns results using lexical-only and reports the semantic branch as disabled (no silent pretending)."
-      ]
+      ],
+      "startedAt": "2026-02-10T15:52:32.554100+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T15:52:32.554113+00:00"
     }
   ],
   "sources": [

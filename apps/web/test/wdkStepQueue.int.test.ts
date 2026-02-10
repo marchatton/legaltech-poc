@@ -9,6 +9,8 @@ import { drainWdkStepsOnce, type StepHandlerMap } from "../lib/wdk/wdkWorker.ser
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
 import { startWdkSmokeWorkflow } from "../workflows/wdkSmokeWorkflow.server";
 
+const VERY_OLD = new Date(-2208988800000); // 1900-01-01T00:00:00.000Z
+
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL?.trim();
   if (url) {
@@ -58,16 +60,19 @@ describe("wdk step queue (db)", () => {
       stepKey,
       stepType: "test_side_effect",
       input: { ok: true },
+      availableAt: VERY_OLD,
       db: sql1,
     });
 
     const claimed = defer<void>();
     const release = defer<void>();
+    let claimedStepId: string | null = null;
 
     const tx1 = sql1
       .begin(async (tx) => {
         const step = await claimNextStep({ workerId: "w1", db: tx as unknown as typeof sql1 });
         expect(step).not.toBeNull();
+        claimedStepId = step?.id ?? null;
         claimed.resolve();
         await release.promise;
         throw new Error("ROLLBACK_TEST");
@@ -80,14 +85,31 @@ describe("wdk step queue (db)", () => {
     await claimed.promise;
 
     // If SKIP LOCKED is missing, this would block on tx1's row lock.
-    const step2 = await Promise.race([
-      claimNextStep({ workerId: "w2", db: sql2 }),
-      new Promise<null>((_r, rej) => setTimeout(() => rej(new Error("Timed out waiting for step claim")), 500)),
-    ]);
-    expect(step2).toBeNull();
+    // If the shared DB has other queued steps, a worker may claim those; use a
+    // rollback transaction to keep this test non-destructive.
+    let step2: Awaited<ReturnType<typeof claimNextStep>> = null;
+    try {
+      await Promise.race([
+        sql2
+          .begin(async (tx) => {
+            step2 = await claimNextStep({ workerId: "w2", db: tx as unknown as typeof sql2 });
+            throw new Error("ROLLBACK_TEST_W2");
+          })
+          .catch((err) => {
+            if (err instanceof Error && err.message === "ROLLBACK_TEST_W2") return;
+            throw err;
+          }),
+        new Promise<void>((_r, rej) => setTimeout(() => rej(new Error("Timed out waiting for step claim")), 500)),
+      ]);
 
-    release.resolve();
-    await tx1;
+      if (step2 && claimedStepId) {
+        expect(step2.id).not.toBe(claimedStepId);
+      }
+    } finally {
+      // Always release tx1 even if assertions fail, to avoid cascading timeouts.
+      release.resolve();
+      await tx1;
+    }
 
     await sql1`DELETE FROM run_steps WHERE run_id = ${runId}`;
     await sql1`DELETE FROM runs WHERE id = ${runId}`;
@@ -109,6 +131,7 @@ describe("wdk step queue (db)", () => {
       stepKey,
       stepType: "test_side_effect",
       input: { ok: true },
+      availableAt: VERY_OLD,
       db: sql1,
     });
 
@@ -163,7 +186,7 @@ describe("wdk step queue (db)", () => {
     `;
 
     // Make this the oldest stale lock so the test is resilient to a dirty shared dev DB.
-    const lockedAt = new Date(0);
+    const lockedAt = VERY_OLD;
     await sql1`
       INSERT INTO run_steps (
         id,
@@ -213,8 +236,13 @@ describe("wdk step queue (db)", () => {
 
   it("executes wdk_smoke with retry + backoff", async () => {
     const started = await startWdkSmokeWorkflow({ traceId: `trc_${randomUUID()}`, db: sql1 });
+    // Ensure smoke steps win the queue even if the shared dev DB has other work.
+    await sql1`UPDATE run_steps SET available_at = ${VERY_OLD} WHERE run_id = ${started.runId}`;
 
-    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 10, db: sql1 });
+    // Execute steps deterministically even if the shared DB has other queued work.
+    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // init
+    await sql1`UPDATE run_steps SET available_at = ${VERY_OLD} WHERE run_id = ${started.runId} AND state = 'queued'`;
+    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // flaky (fails once)
 
     const initRows = await sql1<Array<{ state: string; attempt: number }>>`
       SELECT state, attempt
@@ -244,15 +272,18 @@ describe("wdk step queue (db)", () => {
     expect(backoffMs).toBeGreaterThanOrEqual(500);
     expect(backoffMs).toBeLessThanOrEqual(35_000);
 
-    // Fast-forward the scheduled retry without waiting for the wall clock.
+    // Fast-forward the scheduled retry (and make it win the queue) without
+    // waiting for the wall clock.
     await sql1`
       UPDATE run_steps
-      SET available_at = now()
+      SET available_at = ${VERY_OLD}
       WHERE run_id = ${started.runId}
         AND step_key = 'wdk_smoke:flaky'
     `;
 
-    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 10, db: sql1 });
+    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // flaky (succeeds)
+    await sql1`UPDATE run_steps SET available_at = ${VERY_OLD} WHERE run_id = ${started.runId} AND state = 'queued'`;
+    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // done
 
     const finalFlakyRows = await sql1<Array<{ state: string; attempt: number; error_json: any }>>`
       SELECT state, attempt, error_json

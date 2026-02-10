@@ -32,7 +32,23 @@ export async function hybridSearch(args: {
   queryText: string;
   opts?: HybridSearchOpts;
 }): Promise<HybridSearchHit[]>;
-export async function hybridSearch(): Promise<HybridSearchHit[]> {
-  throw new Error("hybridSearch() is not implemented (PR0 placeholder).");
-}
+export async function hybridSearch(
+  folderIdOrArgs: string | { folderId: string; indexVersion: string; queryText: string; opts?: HybridSearchOpts },
+  indexVersion?: string,
+  queryText?: string,
+  opts?: HybridSearchOpts,
+): Promise<HybridSearchHit[]> {
+  // This contract module intentionally avoids DB/AI imports so chat can compile
+  // independently. The runtime implementation lives in a server-only module.
+  if (typeof window !== "undefined") {
+    throw new Error("hybridSearch() is server-only.");
+  }
 
+  const args =
+    typeof folderIdOrArgs === "string"
+      ? { folderId: folderIdOrArgs, indexVersion: indexVersion ?? "", queryText: queryText ?? "", opts }
+      : folderIdOrArgs;
+
+  const mod = await import("./hybridSearch.server");
+  return mod.hybridSearch(args);
+}
