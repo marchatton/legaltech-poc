@@ -2,7 +2,14 @@ import "server-only";
 
 import { z } from "zod";
 
-import { claimNextJob, markJobFailed, markJobSucceeded, rescheduleJob, type JobRow } from "./jobQueue.server";
+import {
+  claimNextJob,
+  markJobFailed,
+  markJobSucceeded,
+  requeueStaleRunningJobs,
+  rescheduleJob,
+  type JobRow,
+} from "./jobQueue.server";
 import { processDocumentIngest } from "../ingest/ingestProcessor.server";
 import { processQuickStartRun } from "../quickStartRunProcessor.server";
 
@@ -58,19 +65,21 @@ export async function drainJobsOnce(args: { workerId: string; maxJobs?: number }
 
     try {
       await handleJob(job);
-      await markJobSucceeded(job.id);
+      await markJobSucceeded({ jobId: job.id, workerId: args.workerId });
     } catch (err) {
       const maxAttempts = 3;
       if (job.attempts < maxAttempts) {
         const ms = backoffMs(job.attempts);
         await rescheduleJob({
           jobId: job.id,
+          workerId: args.workerId,
           availableAt: new Date(Date.now() + ms),
           error: { code: "JOB_FAILED_RETRYING", message: "Job failed; retry scheduled." },
         });
       } else {
         await markJobFailed({
           jobId: job.id,
+          workerId: args.workerId,
           error: { code: "JOB_FAILED", message: "Job failed permanently." },
         });
       }
@@ -116,15 +125,22 @@ export async function runContinuousJobWorker(args: {
 }): Promise<never> {
   const pollIntervalMs = args.pollIntervalMs ?? 1_000;
   const maxJobsPerTick = args.maxJobsPerTick ?? 25;
+  const staleLockMs = 5 * 60 * 1000;
 
   // eslint-disable-next-line no-console
   console.info("jobs.worker.started", { worker_id: args.workerId, poll_interval_ms: pollIntervalMs });
 
   while (true) {
-    const n = await drainJobsOnce({ workerId: args.workerId, maxJobs: maxJobsPerTick });
-    if (n === 0) {
+    try {
+      await requeueStaleRunningJobs({ cutoff: new Date(Date.now() - staleLockMs), limit: 100 });
+      const n = await drainJobsOnce({ workerId: args.workerId, maxJobs: maxJobsPerTick });
+      if (n === 0) {
+        await new Promise((r) => setTimeout(r, pollIntervalMs));
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("jobs.worker.tick_failed", { worker_id: args.workerId, message: safeErrMessage(err) });
       await new Promise((r) => setTimeout(r, pollIntervalMs));
     }
   }
 }
-

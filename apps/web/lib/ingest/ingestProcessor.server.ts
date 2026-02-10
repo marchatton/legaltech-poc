@@ -109,7 +109,7 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
     return;
   }
 
-  await sql`
+  const claimed = await sql<Array<{ id: string }>>`
     UPDATE documents
     SET parse_status = 'parsing',
         ocr_status = 'running',
@@ -118,7 +118,10 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
     WHERE id = ${documentId}
       AND parse_status = 'queued'
       AND ocr_status = 'queued'
+    RETURNING id
   `;
+  // Another worker (or a duplicate job) already moved the document out of queued.
+  if (!claimed[0]) return;
   await refreshFolderState(doc.folder_id);
   // Yield a tiny window so polling UIs can observe progress states.
   await new Promise((r) => setTimeout(r, 150));
@@ -316,4 +319,3 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
 
   await refreshFolderState(doc.folder_id);
 }
-

@@ -123,22 +123,31 @@ export async function claimNextJob(args: { workerId: string }): Promise<JobRow |
   return { ...job, type: parsedType.data };
 }
 
-export async function markJobSucceeded(jobId: string): Promise<void> {
+export async function markJobSucceeded(args: { jobId: string; workerId: string }): Promise<void> {
   await ensureSchema();
-  await sql`
+  const rows = await sql<Array<{ id: string }>>`
     UPDATE jobs
     SET state = 'succeeded',
         locked_at = NULL,
         locked_by = NULL,
         error_json = NULL,
         updated_at = now()
-    WHERE id = ${jobId}
+    WHERE id = ${args.jobId}
+      AND state = 'running'
+      AND locked_by = ${args.workerId}
+    RETURNING id
   `;
+  if (!rows[0]) throw new Error("JOBS_MARK_SUCCEEDED_LOST_LOCK");
 }
 
-export async function rescheduleJob(args: { jobId: string; availableAt: Date; error: { code: string; message: string } }): Promise<void> {
+export async function rescheduleJob(args: {
+  jobId: string;
+  workerId: string;
+  availableAt: Date;
+  error: { code: string; message: string };
+}): Promise<void> {
   await ensureSchema();
-  await sql`
+  const rows = await sql<Array<{ id: string }>>`
     UPDATE jobs
     SET state = 'queued',
         available_at = ${args.availableAt},
@@ -147,12 +156,20 @@ export async function rescheduleJob(args: { jobId: string; availableAt: Date; er
         error_json = ${sql.json(args.error)},
         updated_at = now()
     WHERE id = ${args.jobId}
+      AND state = 'running'
+      AND locked_by = ${args.workerId}
+    RETURNING id
   `;
+  if (!rows[0]) throw new Error("JOBS_RESCHEDULE_LOST_LOCK");
 }
 
-export async function markJobFailed(args: { jobId: string; error: { code: string; message: string } }): Promise<void> {
+export async function markJobFailed(args: {
+  jobId: string;
+  workerId: string;
+  error: { code: string; message: string };
+}): Promise<void> {
   await ensureSchema();
-  await sql`
+  const rows = await sql<Array<{ id: string }>>`
     UPDATE jobs
     SET state = 'failed',
         locked_at = NULL,
@@ -160,5 +177,44 @@ export async function markJobFailed(args: { jobId: string; error: { code: string
         error_json = ${sql.json(args.error)},
         updated_at = now()
     WHERE id = ${args.jobId}
+      AND state = 'running'
+      AND locked_by = ${args.workerId}
+    RETURNING id
   `;
+  if (!rows[0]) throw new Error("JOBS_MARK_FAILED_LOST_LOCK");
+}
+
+export async function requeueStaleRunningJobs(args: {
+  cutoff: Date;
+  limit?: number;
+}): Promise<{ n: number }> {
+  await ensureSchema();
+
+  const limit = Math.max(1, Math.min(500, args.limit ?? 50));
+  const stale = await sql<Array<{ id: string }>>`
+    WITH next AS (
+      SELECT id
+      FROM jobs
+      WHERE state = 'running'
+        AND locked_at IS NOT NULL
+        AND locked_at < ${args.cutoff}
+      ORDER BY locked_at ASC
+      FOR UPDATE SKIP LOCKED
+      LIMIT ${limit}
+    )
+    UPDATE jobs
+    SET state = 'queued',
+        available_at = now(),
+        locked_at = NULL,
+        locked_by = NULL,
+        error_json = COALESCE(
+          error_json,
+          ${sql.json({ code: "JOB_STALE_REQUEUED", message: "Job reclaimed after stale lock." })}
+        ),
+        updated_at = now()
+    WHERE id IN (SELECT id FROM next)
+    RETURNING id
+  `;
+
+  return { n: stale.length };
 }
