@@ -101,8 +101,7 @@ describe("ingest_document workflow (wdk)", () => {
     const jobs = await sql1<Array<{ id: string }>>`
       SELECT id
       FROM jobs
-      WHERE type = 'ingest_document'
-        AND job_key = ${`document:${documentId}`}
+      WHERE job_key = ${`document:${documentId}`}
       LIMIT 1
     `;
     expect(jobs[0]).toBeFalsy();

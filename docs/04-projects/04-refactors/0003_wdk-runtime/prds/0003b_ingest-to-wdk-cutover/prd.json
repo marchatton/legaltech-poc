@@ -76,7 +76,7 @@
     {
       "id": "US-002",
       "title": "WDK ingest step is idempotent at the step boundary",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -87,13 +87,13 @@
         "Negative: repeated retries must not leave the document in a permanently inconsistent state or multiply chunks/pages."
       ],
       "startedAt": "2026-02-10T14:57:35.094714+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T14:57:35.094733+00:00"
+      "completedAt": "2026-02-10T15:32:15.218335+00:00",
+      "updatedAt": "2026-02-10T15:32:15.218314+00:00"
     },
     {
       "id": "US-003",
       "title": "Legacy ingest jobs path is deletable after rollout",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -102,7 +102,10 @@
         "Provide a roll-forward checklist and then delete legacy ingest job enqueue + handler references once default is WDK.",
         "Example: after rollout, there are no remaining references to jobs(type=ingest_document) in code.",
         "Negative: there is no silent fallback that reintroduces jobs runtime for ingest when WDK is enabled."
-      ]
+      ],
+      "startedAt": "2026-02-10T15:32:17.805638+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T15:32:17.805652+00:00"
     }
   ],
   "verificationPlan": {

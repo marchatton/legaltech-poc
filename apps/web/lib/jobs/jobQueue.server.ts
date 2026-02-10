@@ -5,7 +5,7 @@ import { z } from "zod";
 import { ensureSchema, sql } from "../db.server";
 import { newId } from "../ids";
 
-export const JobTypeSchema = z.enum(["ingest_document", "execute_run"]);
+export const JobTypeSchema = z.enum(["execute_run"]);
 export type JobType = z.infer<typeof JobTypeSchema>;
 
 export type JobState = "queued" | "running" | "succeeded" | "failed";

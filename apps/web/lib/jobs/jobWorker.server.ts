@@ -10,7 +10,6 @@ import {
   rescheduleJob,
   type JobRow,
 } from "./jobQueue.server";
-import { processDocumentIngest } from "../ingest/ingestProcessor.server";
 import { processQuickStartRun } from "../quickStartRunProcessor.server";
 
 type GlobalJobsWorker = typeof globalThis & {
@@ -20,7 +19,6 @@ type GlobalJobsWorker = typeof globalThis & {
 const g = globalThis as GlobalJobsWorker;
 if (!g.__orbitalInlineJobWorker) g.__orbitalInlineJobWorker = { draining: false };
 
-const IngestPayloadSchema = z.object({ document_id: z.string().min(1) });
 const RunPayloadSchema = z.object({ run_id: z.string().min(1) });
 
 function safeErrMessage(err: unknown): string {
@@ -37,13 +35,6 @@ function backoffMs(attempt: number): number {
 }
 
 async function handleJob(job: JobRow): Promise<void> {
-  if (job.type === "ingest_document") {
-    const parsed = IngestPayloadSchema.safeParse(job.payload_json);
-    if (!parsed.success) throw new Error("JOB_PAYLOAD_INVALID");
-    await processDocumentIngest(parsed.data.document_id);
-    return;
-  }
-
   if (job.type === "execute_run") {
     const parsed = RunPayloadSchema.safeParse(job.payload_json);
     if (!parsed.success) throw new Error("JOB_PAYLOAD_INVALID");
