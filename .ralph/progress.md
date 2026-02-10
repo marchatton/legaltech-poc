@@ -6,6 +6,33 @@ Started: Sun Feb  8 10:59:34 PM UTC 2026
 
 ---
 
+## [2026-02-10 14:17:50 +0000] - US-003: Lightweight directive guardrail exists
+Thread:
+Run: 20260210-130418-29584 (iteration 3)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-3.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: f41aed7 test(wdk): add directive guardrail
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/lib/wdk/wdkDirectiveGuardrail.server.ts
+  - apps/web/test/wdkDirectiveGuardrail.test.ts
+  - apps/web/test/wdkStepQueue.int.test.ts
+  - docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.json
+- What was implemented
+  - Added a lightweight (best-effort) directive check that asserts `"use workflow"` / `"use step"` appear as the first statement in a workflow/step function body (via `Function#toString` scanning).
+  - Added a Vitest guardrail that checks the registered `wdk_smoke` workflow + step handlers and fails CI if a directive is removed.
+  - Made the stale-lock requeue integration test resilient to dirty shared dev DB state (still asserts the inserted stale step is requeued).
+- **Learnings for future iterations:**
+  - Directive guardrails can be enforced without a full TS parser by scanning function source for a directive prologue (string literal expression statement).
+  - DB-backed tests should avoid assuming a clean shared DB; make ordering/selection deterministic or isolate via a dedicated test DB.
+---
+
 ## [2026-02-09 08:33:23 +0000] - US-001: Export Memo Docx
 Thread:
 Run: 20260209-075351-22094 (iteration 1)
