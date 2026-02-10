@@ -31,10 +31,12 @@ function isAllowedInDemoProd(req: NextRequest): boolean {
   // Viewer overlay (fixture-backed).
   if (p.startsWith("/citations/")) return m === "GET";
   if (p.startsWith("/documents/")) return m === "GET";
+  if (p.startsWith("/evidence/")) return m === "GET";
 
   // Quick Start + report surfaces.
   if (/^\/folders\/[^/]+\/runs$/.test(p)) return m === "POST";
   if (/^\/folders\/[^/]+\/report$/.test(p)) return m === "GET";
+  if (/^\/folders\/[^/]+\/chat$/.test(p)) return m === "POST";
   if (/^\/runs\/[^/]+$/.test(p)) return m === "GET";
 
   // Exports + downloads.
@@ -72,4 +74,3 @@ export const config = {
   // Run on all routes so we can protect pages, APIs, PDF bytes, and artefact downloads.
   matcher: ["/:path*"],
 };
-

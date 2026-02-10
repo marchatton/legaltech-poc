@@ -16,7 +16,7 @@ import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 import { Select } from "../../../ui/Input";
 
 type Props = {
-  packId: string;
+  packId: string | null;
   citationId: string;
   pdfUrl: string;
   documentId: string;
@@ -270,9 +270,16 @@ export function CitationViewerClient(props: Props) {
               {pdfPageCount ? <span className="text-muted-foreground">(of {pdfPageCount})</span> : null}
             </div>
             <div>
-              <span className="font-medium text-foreground">pack:</span> {props.packId}{" "}
-              <span className="ml-2 font-medium text-foreground">pdfjs:</span>{" "}
-              {hud.pdfjsVersion ?? "(loading)"}
+              {props.packId ? (
+                <>
+                  <span className="font-medium text-foreground">pack:</span> {props.packId}{" "}
+                  <span className="ml-2 font-medium text-foreground">pdfjs:</span> {hud.pdfjsVersion ?? "(loading)"}
+                </>
+              ) : (
+                <>
+                  <span className="font-medium text-foreground">pdfjs:</span> {hud.pdfjsVersion ?? "(loading)"}
+                </>
+              )}
             </div>
           </div>
 

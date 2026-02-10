@@ -67,19 +67,23 @@ function CitationChips(props: {
   citationIds: string[];
   citations: Record<string, { document_id: string; page_number: number }> | undefined;
 }) {
-  if (!props.citationIds.length) return <div className="text-xs text-muted-foreground">(no citations)</div>;
+  if (!props.citationIds.length) return <div className="text-xs text-muted-foreground">(no sources)</div>;
 
   return props.citationIds.map((cid) => {
     const cit = props.citations?.[cid];
-    const params = new URLSearchParams({ pack: props.packId, citation: cid });
-    if (cit) {
-      params.set("document_id", cit.document_id);
-      params.set("page", String(cit.page_number));
-    }
+    const params = new URLSearchParams({ pack: props.packId });
+    const label = cit ? `${cit.document_id} p.${cit.page_number}` : cid;
+    const title = cit ? `${cid} (${label})` : cid;
 
     return (
-      <Chip key={cid} variant="citation" as="a" href={`/matters/viewer?${params.toString()}`}>
-        {cid}
+      <Chip
+        key={cid}
+        variant="citation"
+        as="a"
+        href={`/evidence/${encodeURIComponent(cid)}?${params.toString()}`}
+        title={title}
+      >
+        {label}
       </Chip>
     );
   });
@@ -183,7 +187,7 @@ function ExceptionsPayload(props: {
               ) : null}
 
               <div>
-                <div className="font-medium text-foreground">Evidence (locked citations)</div>
+                <div className="font-medium text-foreground">Sources</div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <CitationChips
                     packId={props.packId}
@@ -310,7 +314,7 @@ export default async function MattersPage(props: {
     <Page>
       <PageHeader
         title="Matters"
-        subtitle="Demo-only UI: rows with citation chips that open a PDF viewer + highlight overlay (fail-closed on invalid citations)."
+        subtitle="Demo-only UI: rows with sources that open an evidence viewer + highlight overlay (fail-closed on invalid citations)."
       />
 
       <PageSection>
@@ -415,9 +419,12 @@ export default async function MattersPage(props: {
                   <MissingDocsChecklist provenance={(row as { provenance_json?: unknown }).provenance_json} />
                 ) : null}
 
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <CitationChips packId={packId} citationIds={row.citation_ids} citations={snapshot.citations} />
-                </div>
+                <section className="mt-3">
+                  <div className="text-xs font-semibold text-foreground">Sources</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <CitationChips packId={packId} citationIds={row.citation_ids} citations={snapshot.citations} />
+                  </div>
+                </section>
               </Card>
             ))}
           </section>

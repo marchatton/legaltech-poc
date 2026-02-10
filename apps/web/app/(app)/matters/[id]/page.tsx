@@ -16,6 +16,7 @@ import { ExportCsvButton } from "../ExportCsvButton";
 
 import { ExportMemoButton } from "./ExportMemoButton";
 import { QuickStartPanel } from "./QuickStartPanel";
+import { ChatPanel } from "./ChatPanel";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -117,6 +118,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
 
   const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
   const completedRunId = latestRun?.state === "completed" ? latestRun.id : null;
+  const chatEnabled = process.env.CHAT_ENABLED === "1";
 
   const runnable = folder.state === "indexed" || folder.state === "ready";
   let quickStartDisabledReason: string | null = null;
@@ -211,6 +213,18 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           </div>
         )}
       </Card>
+
+      {chatEnabled ? (
+        <Card className="mt-8 p-4">
+          <SectionTitle>Chat</SectionTitle>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Evidence-first chat over the indexed documents in this matter.
+          </p>
+          <div className="mt-4">
+            <ChatPanel folderId={folderId} />
+          </div>
+        </Card>
+      ) : null}
 
       <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
