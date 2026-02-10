@@ -21,21 +21,24 @@
     "Folders with empty-text documents can transition to `indexed` and enable Quick Start (while staying out of `ready` if quality gates fail)."
   ],
   "openQuestions": [],
-  "qualityGates": ["pnpm test", "pnpm typecheck"],
+  "qualityGates": [
+    "pnpm test",
+    "pnpm typecheck"
+  ],
   "functionalRequirements": [
     "FR-001: `charWindowV0Spans(\"\")` returns `[]`.",
     "FR-002: Chunking param validation throws for invalid params even when text is empty.",
     "FR-003: For each (document_id, index_version), ingest writes either one or more real chunks, or exactly one sentinel chunk (empty text + sentinel metadata).",
     "FR-004: Sentinel chunks are safe for retrieval: lexical queries do not match empty text, and semantic retrieval does not return sentinels because they are not embedded.",
     "FR-005: Emit a structured log when a sentinel is written (no extracted text content).",
-    "FR-006: Persist `documents.metadata_json.extraction_total_chars` (total extracted chars across all pages); `0` means “no extracted text”.",
-    "FR-007: UI shows a “No text extracted” badge/message for documents where `documents.metadata_json.extraction_total_chars = 0`."
+    "FR-006: Persist `documents.metadata_json.extraction_total_chars` (total extracted chars across all pages); `0` means \u201cno extracted text\u201d.",
+    "FR-007: UI shows a \u201cNo text extracted\u201d badge/message for documents where `documents.metadata_json.extraction_total_chars = 0`."
   ],
   "stories": [
     {
       "id": "US-001",
       "title": "Core chunker returns zero chunks for empty text (with validation)",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As an engineer, I want `char_window_v0` to treat empty text as producing no chunks (while still validating parameters) so downstream systems don't accumulate meaningless empty chunks and the core API stays semantically clean.",
       "acceptanceCriteria": [
@@ -43,13 +46,18 @@
         "Example: For non-empty text, chunking remains deterministic and overlapping windows match existing expectations.",
         "Negative: `charWindowV0Spans(\"\", { maxChars: 0, overlapChars: 0 })` throws an error matching /maxChars/.",
         "Negative: `charWindowV0Spans(\"\", { maxChars: 10, overlapChars: 10 })` throws an error matching /overlapChars/."
-      ]
+      ],
+      "updatedAt": "2026-02-10T23:23:12.283902+00:00",
+      "completedAt": "2026-02-10T23:23:12.283937+00:00",
+      "startedAt": "2026-02-10T23:23:12.283949+00:00"
     },
     {
       "id": "US-002",
       "title": "Ingest writes a single doc-level sentinel chunk when a document has zero real chunks",
-      "status": "open",
-      "dependsOn": ["US-001"],
+      "status": "in_progress",
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As the system, I want ingest to write exactly one sentinel chunk for a document+index_version when no real chunks exist, so folder state can reach `indexed` without creating per-page empty chunks.",
       "acceptanceCriteria": [
         "Example: When all extracted page text is empty for a document, ingest writes exactly 1 chunk row for (document_id, index_version) with `text=\"\"` and sentinel metadata (e.g. `metadata_json.sentinel=\"no_extracted_text\"`).",
@@ -57,13 +65,18 @@
         "Example: Stale-tail deletion removes old real chunks when re-ingest now produces only the sentinel (chunk_index >= 1 deleted).",
         "Negative: When any non-empty chunks are produced for a document+index_version, ingest writes no sentinel chunk.",
         "Negative: Sentinel chunks are never written per page (no explosion proportional to page_count)."
-      ]
+      ],
+      "startedAt": "2026-02-10T23:23:14.551234+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T23:23:14.551250+00:00"
     },
     {
       "id": "US-003",
       "title": "Add regression tests for empty-text documents and indexed progression",
       "status": "open",
-      "dependsOn": ["US-002"],
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As an engineer, I want end-to-end tests proving empty-text docs do not flood chunks and still progress a folder to `indexed`, so the behavior stays stable as chunking/retrieval evolves.",
       "acceptanceCriteria": [
         "Example: Integration test mocks pdf.js extraction returning empty text for all pages and asserts `document_pages` count matches page_count and exactly 1 sentinel chunk exists for the doc+index_version.",
@@ -74,12 +87,14 @@
     },
     {
       "id": "US-004",
-      "title": "UI shows a “No text extracted” badge/message for empty-text documents",
+      "title": "UI shows a \u201cNo text extracted\u201d badge/message for empty-text documents",
       "status": "open",
-      "dependsOn": ["US-002"],
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As an end user, I want an explicit, document-level indicator when extracted text is empty so I can understand why a doc may be low-quality or non-searchable even though the folder can reach `indexed`.",
       "acceptanceCriteria": [
-        "Example: In the matter/documents UI, documents with `documents.metadata_json.extraction_total_chars = 0` show a “No text extracted” badge/message.",
+        "Example: In the matter/documents UI, documents with `documents.metadata_json.extraction_total_chars = 0` show a \u201cNo text extracted\u201d badge/message.",
         "Negative: Documents with `extraction_total_chars > 0` show no badge/message.",
         "Negative: Documents without `extraction_total_chars` (older data) show no badge/message (avoid false positives).",
         "Negative: The badge/message does not change folder state progression; it is informational only."
@@ -88,7 +103,7 @@
   ],
   "risks": [
     "Sentinel chunks could be embedded/retrieved later if an embedding/indexing pipeline does not filter empty text.",
-    "Some callers may interpret `indexed` as “high quality”; the intended distinction remains `ready` as the quality gate.",
+    "Some callers may interpret `indexed` as \u201chigh quality\u201d; the intended distinction remains `ready` as the quality gate.",
     "Chunk upsert may update content under a stable conflict target; downstream change detection must rely on `text_hash` if embeddings are introduced."
   ],
   "failureStatesAndUX": [

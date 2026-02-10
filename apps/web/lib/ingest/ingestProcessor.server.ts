@@ -337,7 +337,7 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
         UPDATE documents
         SET ocr_status = 'done',
             extraction_quality = ${extractionQuality},
-            metadata_json = metadata_json || ${t.json({
+            metadata_json = COALESCE(metadata_json, '{}'::jsonb) || ${t.json({
               extraction_method: extractionMethod,
               extraction_has_geometry: false,
               extraction_quality_method: extractionQualityMethod,
