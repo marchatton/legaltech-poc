@@ -1,5 +1,6 @@
 import "server-only";
 
+import { chunkPageCharWindowV0 } from "@orbital-poc/core";
 import { hashSnippet } from "@orbital-poc/core/citations/snippet";
 
 import { ensureSchema, sql } from "../db.server";
@@ -233,6 +234,37 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
   `;
   const indexVersion = folders[0]?.latest_index_version ?? "v1";
 
+  const chunksToWrite: Array<{
+    chunk_index: number;
+    page_start: number;
+    page_end: number;
+    text: string;
+    metadata_json: { chunker_id: string; page_number: number; char_start: number; char_end: number };
+    text_hash: string;
+  }> = [];
+
+  let chunkIndex = 0;
+  for (const p of pages) {
+    const pageChunks = chunkPageCharWindowV0({ page_number: p.page_number, text: p.text });
+    for (const c of pageChunks) {
+      const textHash = hashSnippet(c.text);
+      chunksToWrite.push({
+        chunk_index: chunkIndex,
+        page_start: c.page_number,
+        page_end: c.page_number,
+        text: c.text,
+        metadata_json: {
+          chunker_id: c.chunker_id,
+          page_number: c.page_number,
+          char_start: c.char_start,
+          char_end: c.char_end,
+        },
+        text_hash: textHash,
+      });
+      chunkIndex += 1;
+    }
+  }
+
   try {
     await sql.begin(async (tx) => {
       // postgres.js TransactionSql types lose call signatures; cast for tagged template usage.
@@ -267,16 +299,9 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
         WHERE id = ${documentId}
       `;
 
-      await t`
-        DELETE FROM chunks
-        WHERE document_id = ${documentId}
-          AND index_version = ${indexVersion}
-      `;
-
-      // Minimal chunking: one chunk per page.
-      for (let i = 0; i < pages.length; i++) {
-        const p = pages[i]!;
-        const textHash = hashSnippet(p.text);
+      // Deterministic, page-bounded chunking suitable for citations.
+      // Use UPSERT to make re-ingest idempotent by (document_id, index_version, chunk_index).
+      for (const c of chunksToWrite) {
         await t`
           INSERT INTO chunks (
             id,
@@ -294,16 +319,30 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
             ${newId("chk")},
             ${documentId},
             ${indexVersion},
-            ${i},
-            ${p.page_number},
-            ${p.page_number},
-            ${p.text},
-            ${t.json({ page_number: p.page_number })},
-            ${textHash},
+            ${c.chunk_index},
+            ${c.page_start},
+            ${c.page_end},
+            ${c.text},
+            ${t.json(c.metadata_json)},
+            ${c.text_hash},
             now()
           )
+          ON CONFLICT (document_id, index_version, chunk_index) DO UPDATE SET
+            page_start = EXCLUDED.page_start,
+            page_end = EXCLUDED.page_end,
+            text = EXCLUDED.text,
+            metadata_json = EXCLUDED.metadata_json,
+            text_hash = EXCLUDED.text_hash
         `;
       }
+
+      // If chunk count decreases (caps/tuning/version changes), delete stale tails.
+      await t`
+        DELETE FROM chunks
+        WHERE document_id = ${documentId}
+          AND index_version = ${indexVersion}
+          AND chunk_index >= ${chunksToWrite.length}
+      `;
     });
   } catch {
     await sql`

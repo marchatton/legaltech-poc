@@ -26,7 +26,7 @@
   "openQuestions": [],
   "stack": {
     "framework": "Next.js App Router (apps/web) + TypeScript",
-    "hosting": "Local dev today; target deployments vary. Chat should be feature-flagged so enablement can be controlled per environment.",
+    "hosting": "Local dev today; target deployments vary. Chat should be feature-flagged so enablement can be controlled per environment. Sprite note: Docker Compose is not required in Sprite.",
     "database": "Postgres",
     "auth": "PoC: no end-user auth; some endpoints are admin-token gated and spike endpoints require SPIKES_ENABLED=1."
   },

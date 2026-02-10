@@ -1,5 +1,6 @@
 export * from "./geometry/anchors";
 export * from "./geometry/mapToViewport";
+export * from "./chunking/char_window_v0";
 export * from "./exception-matching/matchExceptionsToInstrumentDocs";
 export * from "./missing-docs/detectMissingDocs";
 export * from "./missing-docs/schemas";
