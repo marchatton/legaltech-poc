@@ -25,16 +25,24 @@ Constraints
 
 ## Dependency Map (what blocks what)
 
+Execution note (PRD-level):
+- If you are running via Ralph, you do not have to “finish PRD-1” before starting PRD-2.
+- You can start a dependent PRD as soon as the **specific prerequisite story** is done.
+  - Example: once `0003a.US-001` (WDK worker can execute steps) is done, you can start `0003b` and `0004` in parallel even if other `0003a` stories remain.
+
 ### Foundation dependencies (hard blockers)
 - WDK runtime (worker + world + conventions) blocks:
-  - Quick Start refactor to WDK
-  - `0011b` chat (since PRD B assumes WDK run shape)
-- Retrieval substrate (`0011a`) blocks:
-  - Grounded chat (`0011b`)
-  - Any “answer using sources” behavior for real uploaded docs
-- DB-backed citations contract blocks:
-  - Chat sources being trustworthy outside fixture packs
-  - CiteCapsules (0010) being meaningful beyond “toy demo”
+  - `docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.md`
+  - Quick Start cutover to WDK: `docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.md`
+  - `0011b` chat: `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.md` (PRD B assumes WDK step/run shape)
+- Ingest cutover to WDK is enabled by the WDK runtime and can run in parallel with Quick Start cutover:
+  - `docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003b_ingest-to-wdk-cutover/prd.md`
+- Retrieval substrate (`0011a`) blocks grounded chat (`0011b`):
+  - Retrieval PRD A: `docs/04-projects/02-features/0011_chat_interface/prds/0011a_hybrid-retrieval-v0/prd.md`
+  - Chat PRD B: `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.md`
+- DB-first citations contract blocks chat sources being trustworthy outside fixture packs:
+  - Canonical citations contract PRD: `docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md`
+  - Additional requirement for this program (not a separate PRD yet): make existing `GET /citations/:id` read DB first for real docs, and use fixture fallback only where explicitly gated.
 
 ### Soft dependencies (can be parallel)
 - Docs alignment can run in parallel with early implementation work, as long as we keep a single source-of-truth “current runtime” section accurate.
@@ -77,7 +85,9 @@ Outcomes:
 - Conventions are real in code (`"use workflow"`, `"use step"`).
 
 Deliverable:
-- A “WDK runtime” refactor dossier (to be created under `docs/04-projects/04-refactors/`) and a corresponding code PR.
+- WDK runtime PRDs (execute in series, then parallelise as dependencies allow):
+  - `docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003a_wdk-runtime-skeleton/prd.md`
+  - `docs/04-projects/04-refactors/0003_wdk-runtime/prds/0003b_ingest-to-wdk-cutover/prd.md`
 
 ### Workstream C: Refactor Quick Start to WDK (do now, not later)
 Goal: close the biggest architectural drift and avoid two orchestration systems long-term.
@@ -91,7 +101,8 @@ Notes:
 - Keep domain logic outside WDK integration layer where possible (pure functions in `packages/core`; orchestration in `apps/web` WDK workflow/steps).
 
 Deliverable:
-- Quick Start runs are WDK-owned; the legacy job processor is deleted or made explicitly “legacy only” with a short deprecation window.
+- Quick Start cutover PRD:
+  - `docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.md`
 
 ### Workstream D: Retrieval Substrate (0011a) (PRD A as a whole)
 Goal: make real uploaded docs searchable and debuggable (lexical + semantic), IDs-only contract.
@@ -105,7 +116,8 @@ Important design constraint (avoid future pain):
   - Factor pure scoring/merge logic into `packages/core` if needed.
 
 Deliverable:
-- PRD A implemented end-to-end, including `/spikes/retrieval/*` debug endpoint and a tiny golden-questions smoke fixture.
+- PRD A:
+  - `docs/04-projects/02-features/0011_chat_interface/prds/0011a_hybrid-retrieval-v0/prd.md`
 
 ### Workstream E: Citations Contract Hardening (DB-first) + Unified Associations
 Goal: make evidence primitives real (not fixture-only), and support chat + quick start + future features without duplicating invariants.
@@ -116,7 +128,11 @@ Outcomes:
 - Coarse highlight polygons supported when `has_geometry=false` (explicit, labeled).
 
 Deliverable:
-- Evidence viewer can load citations for both report rows and chat.
+- Citations contract PRD (base):
+  - `docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md`
+- Plus program-required hardening:
+  - Make existing `GET /citations/:id` DB-first for real documents (fixture fallback only when explicitly gated).
+  - Extend citations association to support chat (required by PRD B): `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.md` (FR-003).
 
 ### Workstream F: Matter Chat (0011b) (PRD B as a whole)
 Goal: ship evidence-first chat with WDK durability and locked sources.
@@ -127,8 +143,8 @@ Hard dependencies:
 - DB-first citations + unified associations (Workstream E)
 
 Deliverable:
-- `POST /folders/:id/chat` streams, persists messages, and locks citations per assistant message.
-- Evidence viewer page at a non-conflicting route (PRD suggests `/evidence/:id`).
+- PRD B:
+  - `docs/04-projects/02-features/0011_chat_interface/prds/0011b_matter-chat-v0/prd.md`
 
 ### Workstream G: Feature Alignment (0009 + 0010)
 Goal: keep 0009/0010 consistent with the trust substrate, without forcing them into the critical path.
@@ -163,11 +179,10 @@ Goal: keep 0009/0010 consistent with the trust substrate, without forcing them i
 
 ## Dossiers To Create Next (under `docs/04-projects/04-refactors/`)
 Once this plan is accepted, create refactor dossiers (one per coherent PR/track):
-1. `wdk-runtime/` (install + worker + minimal example workflow/step)
-2. `quick-start-to-wdk/` (remove jobs orchestration; keep state model)
-3. `retrieval-0011a/` (schema + chunking + embeddings + hybrid search + spikes endpoint)
-4. `citations-db-first/` (DB-first read path + unify association for chat)
-5. `chat-0011b/` (chat tables + API + UI + evidence viewer route)
+1. `0003_wdk-runtime/` (WDK runtime + worker + smoke workflow + ingest cutover)
+2. `0004_quick-start-to-wdk/` (remove jobs orchestration for Quick Start; keep state model)
+3. `0011_chat_interface/` already contains PRDs: `prds/0011a_hybrid-retrieval-v0/` (retrieval substrate) and `prds/0011b_matter-chat-v0/` (matter chat)
+4. Optional to create (if Workstream E needs a dedicated dossier/PRD): `citations-db-first/` (DB-first read path + unify association for chat)
 
 ## Definition of Done (program-level)
 - WDK is real in code (not just in docs), and Quick Start runs on it.

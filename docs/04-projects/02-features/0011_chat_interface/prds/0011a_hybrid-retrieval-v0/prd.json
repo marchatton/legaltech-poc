@@ -21,6 +21,13 @@
     "Debug endpoint outputs tuning context (lists/probes/hit counts) so retrieval can be tuned without guesswork."
   ],
   "openQuestions": [],
+  "metadata": {
+    "owner": "marc",
+    "status": "Draft",
+    "date": "2026-02-09",
+    "slug": "0011a_hybrid-retrieval-v0",
+    "sourceMarkdown": "docs/04-projects/02-features/0011_chat_interface/prds/0011a_hybrid-retrieval-v0/prd.md"
+  },
   "stack": {
     "framework": "Next.js App Router (apps/web) + packages/core + TypeScript",
     "hosting": "Local dev (docker-compose) today; target deployments vary but must support Postgres + pgvector.",
@@ -35,6 +42,15 @@
     }
   ],
   "uiNotes": [],
+  "inScope": [
+    "Upgrade chunking from per-page to small deterministic chunks (char window) suitable for citations.",
+    "Add lexical index for chunks (tsvector + GIN).",
+    "Add semantic index for chunks (pgvector embeddings + IVFFlat) with conservative, data-aware creation.",
+    "Implement hybridSearch() as an IDs-only retrieval contract for downstream features (chat hydrates separately).",
+    "Implement retrieval as two DB queries (lexical + semantic) and merge/dedupe in TypeScript for debuggability.",
+    "Optional: extract the pure merge/scoring logic into packages/core; keep DB + embeddings + logging in apps/web.",
+    "Add a dev-only debug endpoint under /spikes/* (apps/web) to validate retrieval."
+  ],
   "dataModel": [
     {
       "entity": "chunks",
@@ -62,6 +78,34 @@
     "metadataFields": ["page_number", "char_start", "char_end"],
     "determinism": "Deterministic for (document_id, index_version); re-ingest produces identical chunk boundaries and hashes."
   },
+  "functionalRequirements": [
+    "FR-001: Chunking must be deterministic for a given (document_id, index_version) input.",
+    "FR-002: Hybrid retrieval must be IDs-only at the contract boundary (return chunk IDs + metadata).",
+    "FR-003: Lexical retrieval uses Postgres tsvector query strategy suitable for user input (websearch_to_tsquery).",
+    "FR-004: Semantic retrieval uses pgvector cosine distance and supports IVFFlat.",
+    "FR-005: Vector index creation must be explicit and safe for small datasets (threshold + conservative lists).",
+    "FR-006: Debug-only routes must live under /spikes/* and be gated (no new dev-only endpoints at target paths)."
+  ],
+  "failureStatesUx": [
+    "If pgvector extension is missing/unavailable: degrade to lexical-only (semantic branch disabled) and make it observable in logs and the debug endpoint.",
+    "If embeddings provider fails: ingest fails closed for that document/index_version and surfaces a safe error state.",
+    "Never return raw provider payloads or stack traces to clients; use the standard error envelope."
+  ],
+  "metricsLogging": {
+    "metrics": [
+      "Retrieval latency (lexical, semantic, merge, total).",
+      "Hit counts per branch (hitCountsLex, hitCountsSem).",
+      "Chunks embedded per document.",
+      "Embedding failures (by error code)."
+    ],
+    "logs": [
+      "{nVectors, lists, probes, kLex, kSem, kFinal, hitCountsLex, hitCountsSem} for debug endpoint calls."
+    ]
+  },
+  "rollbackDisablePlan": [
+    "Feature flag the semantic branch (vector search) so the system can run lexical-only if needed.",
+    "Ability to drop/recreate IVFFlat index when vector counts grow and tuning changes."
+  ],
   "retrievalContract": {
     "idsOnly": true,
     "hitShape": {
@@ -110,7 +154,7 @@
   "rules": [
     "Chunking must be deterministic for a given (document_id, index_version) input.",
     "hybridSearch() must return an IDs-only contract (chunk IDs + metadata), not hydrated chunk text.",
-    "hybridSearch() lives in packages/core and is framework-agnostic; apps/web owns HTTP routes (including /spikes/*).",
+    "apps/web owns the hybridSearch() server-only orchestrator (DB + embeddings + logs). packages/core may own pure merge/scoring helpers (no DB/provider/framework dependencies).",
     "If pgvector is missing/unavailable, semantic retrieval is disabled and hybridSearch() degrades to lexical-only; this must be explicit/observable (logs + debug endpoint) and must not silently pretend semantic search is working.",
     "Vector indexing must avoid IVFFlat tiny-dataset footguns by creating the index conservatively and logging tuning context (lists/probes/nVectors).",
     "Debug-only routes must live under /spikes/* and be gated; do not add new dev-only endpoints at target paths."
@@ -121,6 +165,24 @@
     "pnpm -r test",
     "pnpm -r build"
   ],
+  "verificationPlan": [
+    "Unit test: same input text => same chunk boundaries and hashes.",
+    "Integration: ingest a 2-page fixture PDF and observe chunks count > page count.",
+    "Schema validation: columns exist and indexes exist.",
+    "Integration: stub vectors in DB and validate semantic query ordering.",
+    "Unit test: merge scoring is deterministic.",
+    "Manual: run debug endpoint against a fixture pack folder and inspect top hits.",
+    "Automated: small golden-questions smoke fixture (3-10 queries) asserts an expected doc/page appears in top K for a seeded fixture folder."
+  ],
+  "risksDependencies": {
+    "dependencies": [
+      "Environment support for pgvector.",
+      "AI Gateway embedding model wrapper (assumed in PRD0)."
+    ],
+    "risks": [
+      "IVFFlat tuning sensitivity (lists, ivfflat.probes)."
+    ]
+  },
   "stories": [
     {
       "id": "US-001",
@@ -129,9 +191,9 @@
       "dependsOn": [],
       "description": "As a developer, I want ingest to produce small deterministic chunks per page so that citations and retrieval operate on meaningful units.",
       "acceptanceCriteria": [
-        "Example: Given a two-page PDF with ~3000 chars per page, ingest persists more than 2 chunks total for index_version=v1; each chunk has metadata_json.chunker_id='char_window_v0' with page_number and char_start/char_end.",
-        "Example: Re-ingesting the same document_id for the same index_version produces identical chunk boundaries and identical text_hash values (idempotent by unique (document_id, index_version, chunk_index)).",
-        "Negative: If a PDF exceeds ingest caps (e.g., > MAX_PAGES), ingest fails closed with a safe error and does not write partial chunk rows for that document/index_version."
+        "AC-001: Ingest replaces 1 chunk per page with deterministic char-window chunking (max_chars=1500, overlap_chars=200) and boundaries prefer whitespace when possible.",
+        "AC-002: Chunk metadata persists in chunks.metadata_json including chunker_id='char_window_v0', page_number, char_start, char_end.",
+        "AC-003: Chunk uniqueness remains idempotent via UNIQUE(document_id, index_version, chunk_index)."
       ]
     },
     {
@@ -141,9 +203,9 @@
       "dependsOn": ["US-001"],
       "description": "As a developer, I want chunks to support both lexical and semantic retrieval so that exact-term and conceptual queries can find evidence.",
       "acceptanceCriteria": [
-        "Example: Schema includes chunks.text_tsv (tsvector) with a GIN index, and lexical queries use websearch_to_tsquery('english', query) and ts_rank_cd for scoring.",
-        "Example: Schema includes embedding vector(1536), embedding_model, embedded_at; embeddings are written for chunks during ingest, and IVFFlat index creation is deferred until nVectors >= 500 with lists computed as clamp(1,100,floor(nVectors/1000)).",
-        "Negative: If pgvector extension is missing/unavailable, semantic retrieval is disabled and hybridSearch() degrades to lexical-only; debug output makes this explicit (and does not silently pretend semantic search is working)."
+        "AC-004: chunks gains columns: text_tsv tsvector; embedding vector(1536); embedding_model TEXT NOT NULL DEFAULT 'openai/text-embedding-3-small'; embedded_at TIMESTAMPTZ NULL.",
+        "AC-005: Lexical index exists: GIN(chunks.text_tsv).",
+        "AC-006: Semantic indexing exists: pgvector extension enabled (otherwise semantic retrieval disabled and system degrades to lexical-only, explicitly observable); IVFFlat index on embedding vector_cosine_ops is created conservatively."
       ]
     },
     {
@@ -153,12 +215,19 @@
       "dependsOn": ["US-001", "US-002"],
       "description": "As a feature builder (chat, quick start), I want a single hybridSearch() function that returns ranked chunk IDs so that downstream features can rely on one retrieval contract.",
       "acceptanceCriteria": [
-        "Example: hybridSearch({folderId,indexVersion,queryText}) returns a deterministic ordered list of hits including chunk_id/document_id/page_start/page_end plus score and optional lex_score/sem_score; default tuning is kLex=20, kSem=20, kFinal=10, lexWeight=0.55, semWeight=0.45.",
-        "Example: hybridSearch() is implemented in packages/core and is called by apps/web (including the /spikes/retrieval/hybrid-search debug endpoint).",
-        "Example: A dev-only spike endpoint /spikes/retrieval/hybrid-search returns the top K hits for a query and includes tuning context (nVectors, lists, probes, kLex/kSem/kFinal, hitCountsLex/hitCountsSem).",
-        "Automated: A small golden-questions smoke fixture (3-10 queries) asserts an expected doc/page appears in the top K results for a seeded fixture folder.",
-        "Negative: If queryText is empty/invalid, the endpoint returns 400 with the standard safe error envelope and no internal stack trace or provider payload."
+        "AC-007: hybridSearch({ folderId, indexVersion, queryText, opts }) returns chunk_id, document_id, page_start, page_end; merged ranking from lexical + semantic branches; optional per-branch scores (lex_score, sem_score) for debugging.",
+        "AC-008: Default tuning is explicit: kLex=20, kSem=20, kFinal=10; lexWeight=0.55, semWeight=0.45.",
+        "AC-009: Dev-only debug endpoint exists under /spikes/retrieval/* to call hybridSearch() and inspect results.",
+        "AC-010: Logs include {nVectors, lists, probes, kLex, kSem, kFinal, hitCountsLex, hitCountsSem}.",
+        "AC-011: Small golden-questions smoke fixture exists (3-10 queries) asserting an expected doc/page appears in top K for a seeded fixture folder."
       ]
     }
+  ],
+  "sources": [
+    "docs/00-strategy/initiatives/100_chat_interface/100_chat_interface.md",
+    "docs/04-projects/02-features/0011_chat_interface/plan.ms-0011a_hybrid-retrieval-v0.md",
+    "docs/03-architecture/06_frameworks_agents_rag_evals.md",
+    "docs/03-architecture/07_current_poc_runtime.md",
+    "docs/03-architecture/50_api_surface.md"
   ]
 }
