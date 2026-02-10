@@ -12,7 +12,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/gateway": "2.0.35",
     "@orbital-poc/core": "workspace:*",
+    "ai": "5.0.129",
     "docx": "^9.5.1",
     "next": "^15.0.0",
     "pdfjs-dist": "^4.0.0",
