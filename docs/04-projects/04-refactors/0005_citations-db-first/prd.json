@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "project": "Citations DB-First + Unified Associations (Workstream E)",
+  "overview": "Make GET /citations/:id DB-first for real documents behind FEATURE_CITATIONS_API (default off until RH3 evidence per 0001c), with fixture fallback only in ORBITAL_MODE=dev|demo-prod, and update citations schema to support exactly-one association: report_row_id XOR chat_message_id. This hard-blocks grounded chat and must be completed before 0011b is executed against real docs.",
+  "goals": [
+    "DB-first citations fetch with safe, stable response shape.",
+    "Fixture fallback remains available only for dev/demo packs in dev or demo-prod mode.",
+    "Unified citation association model supports report rows and chat messages (one-of constraint).",
+    "Idempotent runtime DDL for schema changes."
+  ],
+  "nonGoals": [
+    "Implement citation locking (chunk_id -> snippet/hash/polygons).",
+    "Implement chat tables or chat APIs (owned by PRD B).",
+    "Implement OCR/geometry improvements beyond coarse polygons.",
+    "Add auth/RBAC."
+  ],
+  "successMetrics": [
+    "With FEATURE_CITATIONS_API=1: if a citation exists in Postgres, GET /citations/:id returns it in all runtime modes.",
+    "In prod mode, fixture citation ids do not resolve (404).",
+    "Citations enforce exactly-one association: report_row_id XOR chat_message_id."
+  ],
+  "openQuestions": [
+    "Should we add a foreign key for citations.chat_message_id once chat_messages exists (follow-up slice)?"
+  ],
+  "stack": {
+    "framework": "Next.js App Router (apps/web) + TypeScript",
+    "hosting": "Local dev and demo-prod; prod posture is locked down by ORBITAL_MODE",
+    "database": "Postgres (runtime DDL via ensureSchema)",
+    "auth": "None (PoC)"
+  },
+  "routes": [
+    {
+      "path": "/citations/:id",
+      "name": "Get Citation (DB-first)",
+      "purpose": "Return locked citation payload for viewer/chat. DB-first with fixture fallback only in dev/demo-prod."
+    }
+  ],
+  "uiNotes": [
+    "No new UI required; this enables evidence viewer and chat sources."
+  ],
+  "dataModel": [
+    {
+      "entity": "citations",
+      "fields": [
+        "id",
+        "report_row_id (nullable)",
+        "chat_message_id (nullable)",
+        "document_id",
+        "page_number",
+        "snippet",
+        "snippet_hash",
+        "polygons_json",
+        "constraint: exactly one of report_row_id or chat_message_id is set"
+      ]
+    }
+  ],
+  "rules": [
+    "DB-first behavior is enabled only when FEATURE_CITATIONS_API=1 (default off until RH3 evidence is recorded per 0001c).",
+    "DB-first: attempt Postgres lookup by citations.id before any fixture lookup.",
+    "Fixture fallback allowed only when ORBITAL_MODE is dev or demo-prod.",
+    "Errors use safe error envelope; no stack traces/provider payloads returned."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm verify"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "GET /citations/:id reads Postgres first (DB-first)",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a user, I want a citation id to resolve to a real locked citation from Postgres so that evidence viewing works for uploaded documents, not only fixtures.",
+      "acceptanceCriteria": [
+        "Example: with FEATURE_CITATIONS_API=1 and a citation row inserted in Postgres, GET /citations/:id returns {citation:{id,document_id,page_number,polygons,snippet,snippet_hash}} in all runtime modes.",
+        "Example: not found in Postgres returns 404 NOT_FOUND unless fixture fallback is allowed (US-002).",
+        "Negative: the handler does not require ORBITAL_MODE=dev|demo-prod to serve DB-backed citations."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Fixture fallback is allowed only in dev/demo-prod",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want fixture citations to keep working in dev/demo-prod for demos, but never leak into prod behavior.",
+      "acceptanceCriteria": [
+        "Example: in ORBITAL_MODE=dev, a known fixture citation id resolves via seed snapshots when not present in Postgres.",
+        "Example: in ORBITAL_MODE=prod, a fixture citation id that is not in Postgres returns 404 (no fixture fallback).",
+        "Negative: ambiguous fixture ids across packs return 409 CONFLICT with a safe envelope and do not guess a pack."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Citations schema supports report rows and chat messages (one-of association)",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want citations to attach to either report rows or chat assistant messages so we can reuse the same citations primitive everywhere.",
+      "acceptanceCriteria": [
+        "Example: schema adds citations.chat_message_id (nullable) and makes citations.report_row_id nullable.",
+        "Example: a strict one-of constraint exists: exactly one of report_row_id or chat_message_id is set.",
+        "Negative: inserting a citation with both set (or neither set) fails."
+      ]
+    }
+  ],
+  "verificationPlan": {
+    "automated": [
+      "Route test: insert a DB citation row and assert GET /citations/:id returns DB payload in prod mode.",
+      "Mode test: force ORBITAL_MODE=prod and assert fixture ids do not resolve when missing in DB.",
+      "Schema test/smoke: verify one-of constraint and chat_message_id index exist."
+    ],
+    "manualSmoke": [
+      "pnpm dev",
+      "Insert one citation row in Postgres and GET /citations/:id; confirm DB response",
+      "In dev, call a fixture citation id; confirm fixture fallback works",
+      "Set ORBITAL_MODE=prod; confirm fixture citation ids return 404"
+    ]
+  }
+}
