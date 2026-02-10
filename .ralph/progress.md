@@ -221,3 +221,37 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-130418-29584-iter-2
   - When `available_at` is derived from JS time, even small DB/app clock skew can make freshly scheduled steps briefly unclaimable; defaulting to DB `now()` avoids flaky drains.
   - Vitest runs test files in parallel; DB-backed queue tests should avoid cross-file concurrency (or share a single integration test file) to prevent lock contention and queue interference.
 ---
+## [2026-02-10 14:55:17 +0000] - US-001: Feature-flagged ingest uses WDK workflow execution
+Thread:
+Run: 20260210-142753-27765 (iteration 1)
+Run log: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-1.log
+Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 9ee97d3 feat(ingest): add FEATURE_WDK_INGEST cutover
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/app/(api)/demo/load-pack/route.ts
+  - apps/web/app/(api)/documents/[id]/complete/route.ts
+  - apps/web/lib/ingest/ingestQueue.server.ts
+  - apps/web/lib/wdk/wdkInlineKick.server.ts
+  - apps/web/steps/ingestDocumentProcess.step.server.ts
+  - apps/web/steps/wdkSmokeStepHandlers.server.ts
+  - apps/web/test/ingestCutoverFlag.test.ts
+  - apps/web/test/ingestDocumentWorkflow.int.test.ts
+  - apps/web/test/wdkDirectiveGuardrail.test.ts
+  - apps/web/workflows/ingestDocumentWorkflow.server.ts
+- What was implemented
+  - Added `FEATURE_WDK_INGEST` cutover in `startDocumentIngest()` to choose WDK vs legacy jobs orchestration.
+  - Implemented a WDK `ingest_document` workflow that creates a durable `runs` row and schedules an `ingest_document.process` step.
+  - Implemented `ingest_document.process` step handler that calls existing `processDocumentIngest(documentId)` and marks the run `completed` on success.
+  - Added a dev-only inline WDK drain helper to preserve existing “kick worker” DX when WDK ingest is enabled.
+  - Added automated tests for the flag switch and for run/step row creation.
+- **Learnings for future iterations:**
+  - When TypeScript `strictFunctionTypes` is enabled, directive guardrail checks need casts because step/workflow handlers are not assignable to `(...args: unknown[]) => unknown`.
+  - WDK ingest can reuse `runs.idempotency_key` + `run_steps.step_key` to match the old jobs enqueue idempotency semantics.
+---
