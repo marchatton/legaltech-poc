@@ -4,7 +4,7 @@ import { z } from "zod";
 import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 import { ensureSchema, sql } from "../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { newId } from "../../../../lib/ids";
 import {
   createSignedGetHeaders,
@@ -94,7 +94,7 @@ function snapshotRowForKind(snapshot: NonNullable<ReturnType<typeof loadSeedSnap
 // In dev, we also support fixture-backed runs from tmp/fixture-seed for tracer bullets.
 export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   await ensureSchema();

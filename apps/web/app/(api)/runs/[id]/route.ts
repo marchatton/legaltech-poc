@@ -3,7 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -24,7 +24,7 @@ function asFailureCounts(val: unknown): Record<string, number> {
 
 export async function GET(_req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   await ensureSchema();

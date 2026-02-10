@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@orbital-poc/core";
 
-import { assertDevOnly } from "../../../lib/devOnly";
+import { assertDevOrDemoProd } from "../../../lib/devOnly";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
 
 import { ExportCsvButton } from "./ExportCsvButton";
@@ -286,7 +286,7 @@ function MissingDocsChecklist(props: { provenance: unknown }) {
 export default async function MattersPage(props: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  assertDevOnly();
+  assertDevOrDemoProd();
 
   const searchParams = (await props.searchParams) ?? {};
   const seeded = listSeededPackIds();

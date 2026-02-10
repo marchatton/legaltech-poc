@@ -8,11 +8,12 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { parseSingleRangeHeader } from "../../../../../lib/httpRange.server";
 import { createObjectReadStream, statObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
 import { safePdfFilename } from "../../../../../lib/safePdfFilename.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
+import { isDevOrDemoProd } from "../../../../../lib/runtimeMode";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ const ParamsSchema = z.object({
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   const rawParams = await ctx.params;
@@ -76,8 +77,8 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   const fixture = parseFixtureDocumentId(documentId);
   if (fixture.ok) {
-    // Fixture documents are only available in dev.
-    if (process.env.NODE_ENV !== "development") {
+    // Fixture documents are only available in dev and demo-prod.
+    if (!isDevOrDemoProd()) {
       return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
         status: 404,
         headers,

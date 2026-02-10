@@ -5,7 +5,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import {
   createObjectReadStream,
   objectExists,
@@ -59,7 +59,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   const { traceId, headers } = createTraceContext();
   headers.set("Cache-Control", "no-store, no-cache");
 
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   const rawParams = await ctx.params;
@@ -165,4 +165,3 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   const nodeStream = createObjectReadStream(artefact.storage_key);
   return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 200, headers: outHeaders });
 }
-

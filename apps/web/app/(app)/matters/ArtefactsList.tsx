@@ -1,45 +1,26 @@
 import { z } from "zod";
 
-import { headers } from "next/headers";
-
 import { Badge } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { Table, TableFrame, TD, TH, TR } from "../../ui/Table";
 
+import { ensureSchema, sql } from "../../../lib/db.server";
+import { createSignedGetHeaders } from "../../../lib/objectStore.server";
+
 type Props = {
   folderId: string;
 };
 
-const ArtefactSchema = z
-  .object({
-    id: z.string().min(1),
-    kind: z.string().min(1),
-    filename: z.string().min(1),
-    created_at: z.string().min(1),
-    download_url: z.string().min(1),
-  })
-  .passthrough();
+const FolderIdSchema = z.string().trim().min(1).max(200).regex(/^[A-Za-z0-9_-]+$/);
 
-const ArtefactsResponseSchema = z
-  .object({
-    artefacts: z.array(ArtefactSchema),
-  })
-  .passthrough();
-
-type SafeErr = { code: string; message: string };
-
-function safeErrFromJson(json: unknown, fallback: SafeErr): SafeErr {
-  if (!json || typeof json !== "object" || Array.isArray(json)) return fallback;
-  const env = (json as { error?: unknown }).error;
-  if (!env || typeof env !== "object" || Array.isArray(env)) return fallback;
-  const code = (env as { code?: unknown }).code;
-  const message = (env as { message?: unknown }).message;
-  return {
-    code: typeof code === "string" && code.trim() ? code.trim() : fallback.code,
-    message: typeof message === "string" && message.trim() ? message.trim() : fallback.message,
-  };
-}
+type ArtefactRow = {
+  id: string;
+  kind: string;
+  filename: string;
+  created_at: Date;
+  storage_key: string;
+};
 
 function formatCreatedAt(iso: string): string {
   const d = new Date(iso);
@@ -51,51 +32,36 @@ function isUnsafeFilename(filename: string): boolean {
   return filename.toUpperCase().includes(".UNSAFE.");
 }
 
-function hrefFromDownloadUrl(downloadUrl: string): string {
-  try {
-    // List endpoints may return absolute URLs; keep the signature but drop origin so
-    // links work regardless of the current host.
-    const u = new URL(downloadUrl, "http://localhost:3000");
-    return `${u.pathname}${u.search}`;
-  } catch {
-    return downloadUrl;
-  }
-}
-
-function safeLocalOriginFromHostHeader(host: string): string {
-  // Avoid trusting arbitrary hostnames (SSRF). Keep internal fetches pinned to localhost,
-  // but allow dynamic ports (Next dev may fall back to 3001, 3002, etc.).
-  const m = host.match(/:(\d{1,5})$/);
-  const portFromHost = m?.[1] ? Number(m[1]) : null;
-  const envPort = process.env.PORT ? Number(process.env.PORT) : null;
-
-  const port =
-    (portFromHost && Number.isInteger(portFromHost) && portFromHost >= 1 && portFromHost <= 65535
-      ? portFromHost
-      : null) ??
-    (envPort && Number.isInteger(envPort) && envPort >= 1 && envPort <= 65535 ? envPort : null) ??
-    3000;
-
-  return `http://127.0.0.1:${port}`;
+function signedArtefactDownloadHref(args: { artefactId: string; storageKey: string; issued: string }): string {
+  const signed = createSignedGetHeaders({ storageKey: args.storageKey });
+  return `/artefacts/${encodeURIComponent(args.artefactId)}/download?${new URLSearchParams({
+    expires: String(signed.expires_at_ms),
+    sig: signed.signature,
+    issued: args.issued,
+  }).toString()}`;
 }
 
 export async function ArtefactsList(props: Props) {
-  const h = await headers();
-  const origin = safeLocalOriginFromHostHeader(h.get("host") ?? "");
-  let res: Response;
-  try {
-    res = await fetch(`${origin}/folders/${encodeURIComponent(props.folderId)}/artefacts`, { cache: "no-store" });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+  const parsedId = FolderIdSchema.safeParse(props.folderId);
+  if (!parsedId.success) {
     return (
       <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
         <div className="text-sm font-semibold text-destructive">Artefacts</div>
-        <div className="mt-2 text-xs text-destructive">{message}</div>
+        <div className="mt-2 text-xs text-destructive">Invalid folder id.</div>
       </section>
     );
   }
 
-  if (res.status === 404) {
+  await ensureSchema();
+
+  const folderId = parsedId.data;
+  const found = await sql<{ id: string }[]>`
+    SELECT id
+    FROM folders
+    WHERE id = ${folderId}
+    LIMIT 1
+  `;
+  if (!found[0]) {
     return (
       <Card className="p-4">
         <div className="text-sm font-semibold text-foreground">Artefacts</div>
@@ -104,33 +70,13 @@ export async function ArtefactsList(props: Props) {
     );
   }
 
-  const json: unknown = await res.json().catch(() => null);
-  if (!res.ok) {
-    const e = safeErrFromJson(json, {
-      code: "ARTEFACTS_FETCH_FAILED",
-      message: `Request failed (${res.status}).`,
-    });
-    return (
-      <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
-        <div className="text-sm font-semibold text-destructive">Artefacts</div>
-        <div className="mt-2 text-xs text-destructive">
-          {e.code}: {e.message}
-        </div>
-      </section>
-    );
-  }
+  const artefacts = await sql<ArtefactRow[]>`
+    SELECT id, kind, filename, created_at, storage_key
+    FROM artefacts
+    WHERE folder_id = ${folderId}
+    ORDER BY created_at DESC
+  `;
 
-  const parsed = ArtefactsResponseSchema.safeParse(json);
-  if (!parsed.success) {
-    return (
-      <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
-        <div className="text-sm font-semibold text-destructive">Artefacts</div>
-        <div className="mt-2 text-xs text-destructive">Invalid artefacts payload.</div>
-      </section>
-    );
-  }
-
-  const artefacts = parsed.data.artefacts;
   if (!artefacts.length) {
     return (
       <Card className="p-4">
@@ -160,26 +106,47 @@ export async function ArtefactsList(props: Props) {
           <tbody>
             {artefacts.map((a) => {
               const unsafe = isUnsafeFilename(a.filename);
-              const downloadHref = hrefFromDownloadUrl(a.download_url);
+              let downloadHref: string;
+              try {
+                downloadHref = signedArtefactDownloadHref({
+                  artefactId: a.id,
+                  storageKey: a.storage_key,
+                  issued: "rsc",
+                });
+              } catch (err) {
+                const message = err instanceof Error ? err.message : String(err);
+                return (
+                  <TR key={a.id}>
+                    <TD colSpan={4}>
+                      <div className="text-xs text-destructive">
+                        Failed to sign artefact download: <span className="font-mono">{message}</span>
+                      </div>
+                    </TD>
+                  </TR>
+                );
+              }
               return (
                 <TR key={a.id}>
                   <TD>
                     <div className="flex flex-wrap items-center gap-2">
-                      {unsafe ? <Badge variant="destructive" size="sm">UNSAFE</Badge> : null}
+                      {unsafe ? (
+                        <Badge variant="destructive" size="sm">
+                          UNSAFE
+                        </Badge>
+                      ) : null}
                       <span className="font-mono">{a.filename}</span>
                     </div>
                   </TD>
                   <TD>
-                    <Badge variant="muted" size="sm" className="font-mono">{a.kind}</Badge>
+                    <Badge variant="muted" size="sm" className="font-mono">
+                      {a.kind}
+                    </Badge>
                   </TD>
                   <TD>
-                    <span className="font-mono">{formatCreatedAt(a.created_at)}</span>
+                    <span className="font-mono">{formatCreatedAt(a.created_at.toISOString())}</span>
                   </TD>
                   <TD className="text-right">
-                    <a
-                      className={buttonClassName({ variant: "secondary", size: "sm" })}
-                      href={downloadHref}
-                    >
+                    <a className={buttonClassName({ variant: "secondary", size: "sm" })} href={downloadHref}>
                       Download
                     </a>
                   </TD>

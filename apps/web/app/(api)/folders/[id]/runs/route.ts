@@ -3,7 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { newId } from "../../../../../lib/ids";
 import { enqueueQuickStartRun } from "../../../../../lib/quickStartRunQueue.server";
@@ -73,7 +73,7 @@ async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey:
 
 export async function POST(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   await ensureSchema();

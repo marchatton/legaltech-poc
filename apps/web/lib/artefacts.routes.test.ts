@@ -15,6 +15,7 @@ vi.mock("./db.server", () => ({
 
 vi.mock("./devOnlyApi.server", () => ({
   assertDevOnlyApi: () => null,
+  assertDevOrDemoProdApi: () => null,
 }));
 
 function queueSqlResults(results: unknown[]) {
@@ -165,4 +166,3 @@ describe("artefacts list + download", () => {
     }
   });
 });
-

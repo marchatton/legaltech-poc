@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import Link from "next/link";
 
-import { assertDevOnly } from "../../../../lib/devOnly";
+import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
@@ -68,7 +68,7 @@ function renderUrl(doc: DocRow): string | null {
 }
 
 export default async function MatterPage(props: { params: Promise<Record<string, string | string[] | undefined>> }) {
-  assertDevOnly();
+  assertDevOrDemoProd();
 
   const rawParams = await props.params;
   const parsed = ParamsSchema.safeParse(rawParams);

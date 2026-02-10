@@ -10,7 +10,7 @@ import {
 } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { newId } from "../../../../lib/ids";
 import { createSignedGetHeaders, putObject, validateArtefactDocxStorageKey } from "../../../../lib/objectStore.server";
 import { createTraceContext } from "../../../../lib/trace.server";
@@ -135,7 +135,7 @@ function collectCitationIds(payload: ListPayloadV0): string[] {
 
 export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   await ensureSchema();

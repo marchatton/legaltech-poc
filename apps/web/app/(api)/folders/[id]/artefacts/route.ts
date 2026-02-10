@@ -3,7 +3,7 @@ import { z } from "zod";
 import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
-import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { createSignedGetHeaders } from "../../../../../lib/objectStore.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
@@ -29,7 +29,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   const { traceId, headers } = createTraceContext();
   headers.set("Cache-Control", "no-store, no-cache");
 
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
   await ensureSchema();
@@ -96,4 +96,3 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     { status: 200, headers },
   );
 }
-

@@ -7,7 +7,8 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDemoModeEnabledApi } from "../../../../lib/demoMode.server";
-import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
+import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
+import { orbitalMode } from "../../../../lib/runtimeMode";
 import { refreshFolderState } from "../../../../lib/folderState.server";
 import { enqueueDocumentIngest } from "../../../../lib/ingest/ingestQueue.server";
 import { newId } from "../../../../lib/ids";
@@ -58,10 +59,14 @@ function demoFolderName(packId: string): string {
 
 export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
-  const devGate = assertDevOnlyApi(traceId, headers);
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
-  const demoGate = assertDemoModeEnabledApi(traceId, headers);
-  if (demoGate) return demoGate;
+
+  // Demo toolbar remains dev-only, but pack loading is allowed in demo-prod.
+  if (orbitalMode() === "dev") {
+    const demoGate = assertDemoModeEnabledApi(traceId, headers);
+    if (demoGate) return demoGate;
+  }
 
   await ensureSchema();
 

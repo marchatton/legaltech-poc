@@ -5,7 +5,7 @@ import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 
 import { headers } from "next/headers";
 
-import { assertDevOnly } from "../../../../lib/devOnly";
+import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
 
 import { Page } from "../../../ui/Page";
@@ -50,11 +50,17 @@ const RenderResponseSchema = z.object({
 
 async function originFromRequestHeaders(): Promise<string> {
   const h = await headers();
+  // Avoid trusting arbitrary hostnames (SSRF). Keep internal fetches pinned to
+  // loopback, but allow dynamic ports in dev.
   const host = h.get("host") ?? "";
-  const proto = h.get("x-forwarded-proto") ?? "http";
-  if (host) return `${proto}://${host}`;
-  // Best-effort fallback for local dev.
-  return "http://localhost:3000";
+  const m = host.match(/:(\d{1,5})$/);
+  const portFromHost = m?.[1] ? Number(m[1]) : null;
+  const envPort = process.env.PORT ? Number(process.env.PORT) : null;
+  const port =
+    (portFromHost && Number.isInteger(portFromHost) && portFromHost >= 1 && portFromHost <= 65535 ? portFromHost : null) ??
+    (envPort && Number.isInteger(envPort) && envPort >= 1 && envPort <= 65535 ? envPort : null) ??
+    3000;
+  return `http://127.0.0.1:${port}`;
 }
 
 type SafeErr = { code: string; message: string };
@@ -74,7 +80,7 @@ function safeErrFromJson(json: unknown, fallback: SafeErr): SafeErr {
 export default async function MatterViewerPage(props: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  assertDevOnly();
+  assertDevOrDemoProd();
 
   const searchParams = (await props.searchParams) ?? {};
   const parsed = SearchSchema.safeParse(searchParams);
@@ -106,11 +112,14 @@ export default async function MatterViewerPage(props: {
   }
 
   const origin = await originFromRequestHeaders();
+  const h = await headers();
+  const auth = h.get("authorization");
 
   let citationJson: unknown;
   try {
     const res = await fetch(`${origin}/citations/${encodeURIComponent(citationId)}?${new URLSearchParams({ pack: packId }).toString()}`, {
       cache: "no-store",
+      headers: auth ? { authorization: auth } : undefined,
     });
     citationJson = await res.json().catch(() => null);
     if (!res.ok) {
@@ -202,6 +211,7 @@ export default async function MatterViewerPage(props: {
   try {
     const res = await fetch(`${origin}/documents/${encodeURIComponent(resolvedDocId)}/render?page=${resolvedPage}`, {
       cache: "no-store",
+      headers: auth ? { authorization: auth } : undefined,
     });
     renderJson = await res.json().catch(() => null);
     if (!res.ok) {

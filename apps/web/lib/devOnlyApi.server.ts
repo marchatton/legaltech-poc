@@ -10,3 +10,11 @@ export function assertDevOnlyApi(traceId: string, headers: Headers): Response | 
   });
 }
 
+export function assertDevOrDemoProdApi(traceId: string, headers: Headers): Response | null {
+  const mode = process.env.ORBITAL_MODE?.trim();
+  if (process.env.NODE_ENV === "development" || mode === "dev" || mode === "demo-prod") return null;
+  return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Not found.", traceId }), {
+    status: 404,
+    headers,
+  });
+}
