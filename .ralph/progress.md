@@ -368,3 +368,38 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-3
   - Removing a job type from the jobs worker should be paired with an explicit “drain/cleanup queued rows” step; otherwise unknown job types will fail loudly at claim time.
   - Using a deterministic `job_key` prefix (`document:<id>`) makes it easy to audit/clear retired jobs safely during roll-forward.
 ---
+
+## [2026-02-10 16:27:01 +0000] - US-003: hybridSearch() returns ranked chunk hits and a debug endpoint makes tuning visible
+Thread:
+Run: 20260210-142810-28413 (iteration 3)
+Run log: /home/sprite/orbital-c/.ralph/runs/run-20260210-142810-28413-iter-3.log
+Run summary: /home/sprite/orbital-c/.ralph/runs/run-20260210-142810-28413-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: d00b4f4 feat(retrieval): add hybridSearch and debug spike
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm -r typecheck -> PASS
+  - Command: pnpm -r lint -> PASS
+  - Command: pnpm -r test -> PASS
+  - Command: pnpm -r build -> PASS
+- Files changed:
+  - apps/web/app/(api)/spikes/retrieval/hybrid-search/route.ts
+  - apps/web/lib/retrieval/hybridSearch.server.ts
+  - apps/web/lib/retrieval/mergeHybridHits.ts
+  - apps/web/lib/retrieval/types.ts
+  - apps/web/test/fixtures/retrieval_golden_questions.v0.json
+  - apps/web/test/hybridSearchGoldenQuestions.smoke.int.test.ts
+  - apps/web/test/hybridSearchMerge.test.ts
+  - apps/web/test/wdkStepQueue.int.test.ts
+  - docs/04-projects/02-features/0011_chat_interface/prds/0011a_hybrid-retrieval-v0/prd.json
+- What was implemented
+  - Implemented server-only `hybridSearch()` with two-query retrieval (lexical tsvector + semantic pgvector) and deterministic merge/dedupe into an IDs-only hit contract.
+  - Default tuning is explicit (`kLex=20`, `kSem=20`, `kFinal=10`, `lexWeight=0.55`, `semWeight=0.45`), with optional per-branch scores (`lex_score`, `sem_score`) and ivfflat probe tuning.
+  - Added dev-only debug endpoint `/spikes/retrieval/hybrid-search` (SPIKES_ENABLED gated) to inspect hits + debug context; logs include `{nVectors, lists, probes, kLex, kSem, kFinal, hitCountsLex, hitCountsSem}`.
+  - Added golden-questions smoke fixture (3 queries) asserting expected doc/page appears in top K for a seeded folder, plus a unit test asserting merge determinism.
+  - Stabilized WDK step-queue DB integration tests against dirty shared DBs by prioritizing test steps and ensuring rollback/cleanup behavior.
+- **Learnings for future iterations:**
+  - DB-backed integration tests should not assume an empty global queue; making the test workload win ordering (or rolling back incidental claims) prevents flakiness when running against a shared dev DB.
+  - Dynamic import from the types-only retrieval contract is a practical way to keep chat compilation free of DB/AI imports while still providing a single callable `hybridSearch()`.
+---
