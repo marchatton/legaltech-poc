@@ -4,6 +4,8 @@ import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@orbital-po
 import type { ListPayloadV0 } from "@orbital-poc/core";
 import { z } from "zod";
 
+import { csvEscape } from "./csvEscape.server";
+
 export const ExportCsvKindSchema = z.enum(["requirements_tracker", "exceptions_table", "survey_issues"]);
 export type ExportCsvKind = z.infer<typeof ExportCsvKindSchema>;
 
@@ -55,16 +57,6 @@ export type SourceRowForCsv = {
   failure_code: string;
   notes: string | null;
 };
-
-function csvEscape(val: unknown): string {
-  let s = val === null || val === undefined ? "" : String(val);
-  // Prevent CSV formula injection in Excel/Sheets. Quoting is not sufficient.
-  // Prefix when the first non-whitespace character is a formula sentinel.
-  if (/^[\t\r\n ]*[=+\-@]/.test(s)) s = `'${s}`;
-  const needsQuotes = /[",\n\r]/.test(s);
-  const escaped = s.replace(/"/g, '""');
-  return needsQuotes ? `"${escaped}"` : escaped;
-}
 
 function asNonEmptyTrimmedString(val: unknown): string | null {
   if (typeof val !== "string") return null;

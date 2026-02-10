@@ -59,44 +59,59 @@
     {
       "id": "US-001",
       "title": "Stop Docker secret leakage (SEC-001)",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As an operator, I want Docker builds to exclude local .env* files so secrets cannot be baked into image layers by accident.",
       "acceptanceCriteria": [
         ".dockerignore excludes **/.env and **/.env.* while allowing explicit templates like .env.example.",
         "Building the apps/web Dockerfile from a worktree containing apps/web/.env.local does not include that file in image layers.",
         "Optional: CI guard fails if non-template .env* files appear in the Docker build context."
-      ]
+      ],
+      "startedAt": "2026-02-10T22:09:59.624216+00:00",
+      "completedAt": "2026-02-10T22:28:17.796599+00:00",
+      "updatedAt": "2026-02-10T22:28:17.796576+00:00"
     },
     {
       "id": "US-002",
       "title": "Make spikes dev-only + harden spikes CSV export (SEC-002, SEC-007)",
-      "status": "open",
-      "dependsOn": ["US-001"],
+      "status": "done",
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As a developer, I want spikes endpoints to be impossible to expose outside dev and for spikes CSV exports to apply the same hardening as production exports.",
       "acceptanceCriteria": [
         "assertSpikesEnabled requires ORBITAL_MODE=dev and/or NODE_ENV=development in addition to SPIKES_ENABLED=1.",
         "In demo-prod/prod, spikes endpoints return 404/403 regardless of SPIKES_ENABLED.",
         "Spikes CSV export reuses the hardened CSV escaping helper so formula-leading values are prefixed safely."
-      ]
+      ],
+      "startedAt": "2026-02-10T22:28:20.059981+00:00",
+      "completedAt": "2026-02-10T22:40:23.645380+00:00",
+      "updatedAt": "2026-02-10T22:40:23.645346+00:00"
     },
     {
       "id": "US-003",
       "title": "Prevent demo-prod CSRF-by-side-effects (SEC-004)",
-      "status": "open",
-      "dependsOn": ["US-002"],
+      "status": "in_progress",
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As an operator, I want demo-prod mutations to be same-origin so cross-site requests cannot trigger exports, runs, or other side effects.",
       "acceptanceCriteria": [
         "In demo-prod, non-GET/HEAD requests are rejected unless Origin/Sec-Fetch-Site/Referer indicates same-origin.",
         "JSON mutation endpoints enforce Content-Type: application/json (or equivalently safe policy).",
         "Same-origin UI requests continue to work in demo-prod."
-      ]
+      ],
+      "startedAt": "2026-02-10T22:40:25.891913+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-10T22:40:25.891928+00:00"
     },
     {
       "id": "US-004",
       "title": "Remove Host-derived loopback SSRF (SEC-003)",
       "status": "open",
-      "dependsOn": ["US-003"],
+      "dependsOn": [
+        "US-003"
+      ],
       "description": "As an operator, I want server-side fetches to not be influenced by Host headers to prevent loopback SSRF/port scanning in demo-prod/dev contexts.",
       "acceptanceCriteria": [
         "Viewer code does not derive internal fetch origin from request Host header/port.",
@@ -107,7 +122,9 @@
       "id": "US-005",
       "title": "Baseline security headers + staged CSP rollout (SEC-005)",
       "status": "open",
-      "dependsOn": ["US-003"],
+      "dependsOn": [
+        "US-003"
+      ],
       "description": "As a developer, I want baseline security headers and a staged CSP plan so clickjacking and content-sniffing protections are explicit and consistent.",
       "acceptanceCriteria": [
         "Baseline headers are set consistently (X-Content-Type-Options, Referrer-Policy, Permissions-Policy, clickjacking defense via frame-ancestors).",
@@ -118,7 +135,9 @@
       "id": "US-006",
       "title": "Harden demo-prod compose defaults (SEC-008, SEC-010)",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As an operator, I want demo-prod compose to avoid DB host exposure and fail fast when critical secrets are missing.",
       "acceptanceCriteria": [
         "docker-compose.demo-prod.yml does not publish Postgres to the host by default (no 5432:5432).",
@@ -130,7 +149,9 @@
       "id": "US-007",
       "title": "Add PDF ingest wall-clock timeout (SEC-006)",
       "status": "open",
-      "dependsOn": ["US-006"],
+      "dependsOn": [
+        "US-006"
+      ],
       "description": "As an operator, I want PDF ingest to fail closed with a timeout to reduce DoS risk from worst-case PDFs.",
       "acceptanceCriteria": [
         "PDF ingest has a per-document wall-clock timeout.",
@@ -141,7 +162,9 @@
       "id": "US-008",
       "title": "Run runtime containers as non-root (Report-RP #9)",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As an operator, I want the runtime container to run as non-root to reduce blast radius if an RCE is introduced.",
       "acceptanceCriteria": [
         "apps/web Dockerfile runtime stage runs as a non-root user.",
@@ -152,7 +175,9 @@
       "id": "US-009",
       "title": "Avoid Host-header dependent absolute URL generation (Report-RP #10)",
       "status": "open",
-      "dependsOn": ["US-004"],
+      "dependsOn": [
+        "US-004"
+      ],
       "description": "As a developer, I want exported URLs to be relative or derived from trusted config so Host header poisoning cannot influence absolute URLs.",
       "acceptanceCriteria": [
         "Endpoints do not use new URL(req.url).origin to generate absolute URLs unless origin is trusted/allowlisted.",

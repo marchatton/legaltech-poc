@@ -15,6 +15,7 @@ import {
   validateArtefactMetadataStorageKey,
 } from "../../../../../lib/objectStore.server";
 import { assertSpikesEnabled } from "../../../../../lib/spikes.server";
+import { spikesSnapshotToCsv } from "../../../../../lib/spikesCsv.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -51,27 +52,6 @@ function unsafeOverrideAllowed(req: Request): boolean {
   if (!provided) return false;
 
   return safeEqual(provided, expected);
-}
-
-function csvEscape(val: unknown): string {
-  const s = val === null || val === undefined ? "" : String(val);
-  const needsQuotes = /[",\n\r]/.test(s);
-  const escaped = s.replace(/"/g, '""');
-  return needsQuotes ? `"${escaped}"` : escaped;
-}
-
-function snapshotToCsv(snapshot: ReturnType<typeof loadSeedSnapshot>): string {
-  const header = ["question_id", "question", "answer", "status", "citation_ids"].join(",");
-  const lines = (snapshot?.rows ?? []).map((r) =>
-    [
-      csvEscape(r.question_id),
-      csvEscape(r.question),
-      csvEscape(r.answer),
-      csvEscape(r.status),
-      csvEscape((r.citation_ids ?? []).join(" ")),
-    ].join(","),
-  );
-  return [header, ...lines].join("\n") + "\n";
 }
 
 type RowFailure = { question_id: string; reason_code: string };
@@ -217,7 +197,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const artefactId = newId("art");
   const createdAt = new Date();
-  const csv = snapshotToCsv(snapshot);
+  const csv = spikesSnapshotToCsv(snapshot);
 
   const filename = unsafeOverride ? `${kind}.UNSAFE.csv` : `${kind}.csv`;
 

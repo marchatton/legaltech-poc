@@ -1,6 +1,12 @@
 .git
 .DS_Store
 
+# Never send local env secrets to the Docker build context.
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.template
+
 **/node_modules
 **/.next
 
@@ -8,4 +14,3 @@ tmp
 **/tmp
 
 throwaway
-
