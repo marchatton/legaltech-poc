@@ -201,8 +201,7 @@ If you do nothing else, ship these and you can start actually closing spikes by 
 **Docs**
 
 * Update `docs/03-architecture/07_current_poc_runtime.md`
-  It currently claims Quick Start is jobs-based. Your run route schedules WDK steps. Pick one truth and write it down.
-  (Given your stated intent: update doc to “Quick Start is WDK”.)
+  It should state Quick Start is WDK-owned (route schedules WDK steps) and treat the legacy jobs runtime as unused/pending removal.
 
 * Reconcile `list_payload_v0` doc with `packages/core/src/schemas/list_payload_v0.ts`
 
@@ -217,7 +216,7 @@ If you do nothing else, ship these and you can start actually closing spikes by 
 
   * stop creating `execute_run` jobs for Quick Start
   * remove handler for it or make it error loudly
-  * keep jobs runtime only for ingest if needed
+  * delete jobs runtime unless another producer is explicitly needed
 
 ### 2) Add a spike runner that produces the required proof files
 

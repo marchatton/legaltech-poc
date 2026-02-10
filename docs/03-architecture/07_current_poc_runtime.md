@@ -10,11 +10,10 @@ Current PoC is:
 - Next.js App Router (`apps/web`) using Node runtime route handlers
 - Postgres via `postgres` driver with runtime DDL (`apps/web/lib/db.server.ts`)
 - Local filesystem “object store” under `tmp/object-store` (`apps/web/lib/objectStore.server.ts`)
-- WDK durable workflows/steps for document ingest (`runs` + `run_steps`) with a worker loop (`apps/web/lib/wdk/wdkWorker.server.ts`)
+- WDK durable workflows/steps for document ingest and Quick Start runs (`runs` + `run_steps`) with a worker loop (`apps/web/lib/wdk/wdkWorker.server.ts`)
   - In dev (`pnpm dev`): ingest enqueue kicks an inline WDK worker drainer (same process)
   - Outside dev: run the worker process (`pnpm --filter @orbital-poc/web worker`)
-- Postgres-backed durable jobs for Quick Start runs (`apps/web/lib/jobs/jobQueue.server.ts`) with a worker loop (`apps/web/lib/jobs/jobWorker.server.ts`)
-  - Today, `pnpm --filter @orbital-poc/web worker` runs both the jobs worker and the WDK worker (until Quick Start is ported to WDK in refactor 0004).
+- Legacy Postgres-backed durable jobs runtime exists in code but has no known enqueue paths; the worker script still starts it today and it is scheduled for removal (refactor 0004). (`apps/web/lib/jobs/*`, `apps/web/scripts/worker.ts`)
 - PDF extraction via `pdfjs-dist` text extraction (not OCR; no geometry) (`apps/web/lib/ingest/ingestProcessor.server.ts`)
 - Fixture-backed “evidence” for demos (seed snapshots under `tmp/fixture-seed`) used by citations, trace export, and spike export flows (`apps/web/lib/fixtureSeed.server.ts`, `scripts/fixtures/seed.ts`)
 
@@ -32,12 +31,8 @@ highlight overlay (fixture citations)"]
   subgraph WEB["Next.js server (apps/web)"]
     API["Route handlers
 Zod boundary validation"]
-    JOBS["Durable jobs table (Postgres)
-(Quick Start run queue)"]
     WDKQ["WDK run_steps table (Postgres)
-(ingest queue)"]
-    WKR["Jobs worker
-(standalone)"]
+(ingest + Quick Start queue)"]
     WDKWKR["WDK worker
 (dev inline + standalone)"]
   end
@@ -54,12 +49,8 @@ tmp/fixture-seed"]
   UI --> API
   API --> PG
   API --> FS
-  API --> JOBS
-  JOBS --> WKR
   API --> WDKQ
   WDKQ --> WDKWKR
-  WKR --> PG
-  WKR --> FS
   WDKWKR --> PG
   WDKWKR --> FS
   API --> SEED
@@ -86,13 +77,16 @@ Code:
 - `apps/web/lib/objectStore.server.ts`
 
 ## What “Quick Start run” means today
-- Runs are executed via a durable job (`type="execute_run"`) processed by the worker.
+- Runs are executed via WDK steps (`run_steps`) processed by the WDK worker.
+- `POST /folders/:id/runs` schedules one queued per-question step (`step_type='quick_start_title_survey.write_row_v0'`) and logs `orchestration: \"wdk\"`.
 - Current run implementation writes placeholder terminal `report_rows` for each question.
 - It does not do retrieval, drafting, locking citations, or verification against real data.
 
 Code:
-- `apps/web/lib/quickStartRunQueue.server.ts` (enqueue)
-- `apps/web/lib/quickStartRunProcessor.server.ts` (processing)
+- `apps/web/app/(api)/folders/[id]/runs/route.ts` (run creation + step scheduling)
+- `apps/web/workflows/quickStartTitleSurveyWorkflow.server.ts` (per-question step scheduling)
+- `apps/web/steps/quickStartWriteRowV0.step.server.ts` (row writing)
+- `apps/web/test/foldersRunsRoute.wdk.int.test.ts` (WDK scheduling + idempotency + “no execute_run jobs”)
 
 ## Evidence and citations (current state)
 Evidence-first UX exists for fixture packs only:
@@ -119,7 +113,7 @@ Code:
 
 ## Known drift vs target architecture
 The largest gaps relative to target docs:
-- WDK exists and is used for ingest, but Quick Start run execution is still jobs-based (until refactor 0004 completes).
+- WDK exists and is used for ingest and Quick Start, but the legacy durable jobs runtime code still exists (unused) and the worker script still starts it (until refactor 0004 removes it).
 - No OCR/layout provider and no geometry-backed citations.
 - No retrieval/draft/lock pipeline; current runs write placeholder rows.
 - “Evidence-first” is implemented for fixture/demo mode, not for real uploaded documents.
@@ -132,7 +126,7 @@ This doc stays “implemented today”. For the intended sequence of upcoming re
 - `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`
 
 Key planned closures (not implemented yet, at time of writing):
-- Finish retiring the durable jobs worker orchestration once Quick Start is ported to WDK (refactor 0004).
+- Remove the legacy durable jobs runtime now that Quick Start is WDK-owned (refactor 0004).
 - Make citations DB-backed for real uploaded documents (with fixture fallback only where explicitly gated).
   - Ship behind `FEATURE_CITATIONS_API` (default off until RH3 evidence is recorded).
 - Implement hybrid retrieval (lexical + semantic) as the retrieval substrate enabling grounded chat and evidence-first features beyond fixtures.

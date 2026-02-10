@@ -44,7 +44,7 @@ Evidence: `docs/04-projects/04-refactors/0004_quick-start-to-wdk/stuck-extract.m
 - Question set version drift exists between fixture packs and runtime:
   - Manifest expects `qs:quick_start_title_survey:v1`. (`docs/08-example-data/pack_01_clean/manifest.json:5`)
   - Runtime pins `qs:0002:v1.0:sha256:<hash>`. (`apps/web/lib/questionSet.server.ts:70`)
-- “Implemented today” orchestration doc indicates Quick Start is still jobs-based, but the run route handler logs `orchestration: \"wdk\"` and schedules a WDK workflow. (`docs/03-architecture/07_current_poc_runtime.md:16`, `apps/web/app/(api)/folders/[id]/runs/route.ts:270`)
+- Quick Start orchestration is WDK-owned (route logs `orchestration: \"wdk\"` and schedules WDK steps); keep “implemented today” docs aligned to prevent drift. (`docs/03-architecture/07_current_poc_runtime.md`, `apps/web/app/(api)/folders/[id]/runs/route.ts:270`)
 **Conclusion:** Confirmed. The repo has the comparator/validator layer and a truth-driven seeding layer, but it lacks the extraction producer + spike runner that creates the proof artefacts required to flip the dossier to GO.
 
 ## Root Cause
@@ -56,7 +56,7 @@ The 0002 dossier is stuck in NO-GO because the required gating spikes cannot be 
 
 3) The fixture snapshot generator that does exist (`scripts/fixtures/seed.ts`) is truth-driven: it reads truth CSVs and materializes payload items, which is useful for harnessing/demos but does not close the “parsing/matching baseline” spikes credibly. (`scripts/fixtures/seed.ts:493`)
 
-Contributing factor: contract drift (list payload schema + question set version formats + orchestration doc) increases ambiguity and slows closure, even where tooling exists. (`docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md:16`, `packages/core/src/schemas/list_payload_v0.ts:5`, `docs/08-example-data/pack_01_clean/manifest.json:5`, `apps/web/lib/questionSet.server.ts:70`, `docs/03-architecture/07_current_poc_runtime.md:16`, `apps/web/app/(api)/folders/[id]/runs/route.ts:270`)
+Contributing factor: contract drift (list payload schema + question set version formats) increases ambiguity and slows closure, even where tooling exists. (`docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md:16`, `packages/core/src/schemas/list_payload_v0.ts:5`, `docs/08-example-data/pack_01_clean/manifest.json:5`, `apps/web/lib/questionSet.server.ts:70`)
 
 ## Recommendations
 1. Decide spike closure strategy explicitly (recommended: offline fixture producer first).
@@ -64,7 +64,7 @@ Contributing factor: contract drift (list payload schema + question set version 
 3. Eliminate spec drift now (cheap, high leverage):
    - Reconcile `docs/.../specs/list_payload_v0.schema.md` with `packages/core/src/schemas/list_payload_v0.ts` (kinds, exception item fields).
    - Standardize `question_set_version` format between fixture manifests and runtime (pick hashed pinning as canonical).
-   - Update `docs/03-architecture/07_current_poc_runtime.md` to reflect current orchestration reality for Quick Start.
+   - Ensure `docs/03-architecture/07_current_poc_runtime.md` stays aligned with current Quick Start orchestration reality (WDK).
 4. For SP-2.8, implement a deterministic Recall@K harness against fixture layout text/anchors (per spike stub) and commit results + misses log.
 
 ## Preventive Measures

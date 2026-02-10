@@ -20,7 +20,7 @@ There is real drift between `docs/03-architecture/*` and the current implementat
 
 ### 2026-02-10 - Phase 2/3 - Context Builder Audit
 **Hypothesis:** Drift clusters around orchestration, evidence/citations, retrieval substrate, and API gating.
-**Findings:** Confirmed multiple drift themes with concrete doc+code evidence; PR0 foundations for chat/retrieval exist, but target components (WDK, hybrid retrieval, OCR/geometry-backed citations) are not implemented yet.
+**Findings:** Confirmed multiple drift themes with concrete doc+code evidence; PR0 foundations for chat/retrieval exist, but several target components (hybrid retrieval, OCR/geometry-backed citations) are not implemented yet. WDK is implemented and used for ingest and Quick Start, while a legacy jobs runtime still exists in code and is started by the worker script.
 **Evidence:**
 - Docs baseline: `docs/03-architecture/00_overview.md`, `docs/03-architecture/07_current_poc_runtime.md`, `docs/03-architecture/DECISIONS.md`, `docs/03-architecture/50_api_surface.md`
 - Code baseline: `apps/web/lib/jobs/jobWorker.server.ts`, `apps/web/lib/ingest/ingestProcessor.server.ts`, `apps/web/app/(api)/citations/[id]/route.ts`, `apps/web/middleware.ts`
@@ -41,11 +41,11 @@ Each item includes: doc (“should”), code (“is”), impact, and minimal fix
 
 ### 1) Orchestration Runtime Drift: WDK workflows/steps vs Postgres-backed jobs worker
 **Docs (should):** WDK `use workflow` / `use step` semantics and orchestration posture: `docs/03-architecture/06_frameworks_agents_rag_evals.md`, `docs/03-architecture/10_system_architecture.md`, WDK ADR(s) in `docs/03-architecture/DECISIONS.md`.  
-**Code (is):** Jobs queue + worker loop: `apps/web/lib/jobs/jobQueue.server.ts`, `apps/web/lib/jobs/jobWorker.server.ts`; Quick Start is job-driven: `apps/web/lib/quickStartRunProcessor.server.ts`.  
-**Impact:** “Steps do side effects” is not enforceable; future WDK adoption risks a rewrite.  
+**Code (is):** WDK run_steps + worker loop for ingest and Quick Start; Quick Start is WDK-driven (route schedules per-question steps): `apps/web/app/(api)/folders/[id]/runs/route.ts`, `apps/web/workflows/quickStartTitleSurveyWorkflow.server.ts`, `apps/web/test/foldersRunsRoute.wdk.int.test.ts`. A legacy jobs runtime still exists and is started by the worker script, but appears to have no producers: `apps/web/lib/jobs/*`, `apps/web/scripts/worker.ts`.  
+**Impact:** Dual-runtime confusion remains (the worker still starts the legacy jobs loop) even though Quick Start is WDK-owned; stale docs will mislead engineers.  
 **Fix options:**
-- Doc-only: explicitly state “current runtime uses jobs worker; WDK is a target migration” in `docs/03-architecture/07_current_poc_runtime.md` (if not already explicit enough).
-- Code (recommended): introduce a thin “step runtime” abstraction that persists `run_steps` transitions and is callable from job processors; later swap its backend to WDK without rewriting domain logic.
+- Doc-only: explicitly state “Quick Start is WDK-owned; legacy jobs runtime exists but is unused and pending removal” in `docs/03-architecture/07_current_poc_runtime.md` and related dossiers.
+- Code (recommended): remove the legacy durable jobs runtime (`apps/web/lib/jobs/*`, `apps/web/lib/quickStartRunQueue.server.ts`) and stop starting the jobs worker loop in `apps/web/scripts/worker.ts`.
 
 ### 2) Evidence/Citations Drift: Target DB-backed locked citations vs fixture-only `/citations/:id`
 **Docs (should):** `/citations/:id` returns locked citations (snippet + hash + polygons) stored in Postgres: `docs/03-architecture/50_api_surface.md`, citation ADR(s) in `docs/03-architecture/DECISIONS.md`.  
@@ -95,7 +95,7 @@ Each item includes: doc (“should”), code (“is”), impact, and minimal fix
 - Code: implement `chat_threads` + `chat_messages` (and then decide how citations associate: unify `citations` vs separate `chat_citations`).
 
 ## Root Cause
-The docs define a strong “target posture” (WDK orchestration, geometry-backed locked citations, hybrid retrieval), while the implementation is currently a PR0/PR1 runtime (jobs worker, fixture-only evidence UX, pdf.js ingest without geometry, retrieval placeholders). Some docs already acknowledge “current runtime” (`docs/03-architecture/07_current_poc_runtime.md`), but several other documents and PRDs read like the target is already implemented, creating practical drift.
+The docs define a strong “target posture” (WDK orchestration, geometry-backed locked citations, hybrid retrieval), while the implementation is currently a PR0/PR1 runtime (WDK worker for ingest/Quick Start, fixture-only evidence UX, pdf.js ingest without geometry, retrieval placeholders). Some docs already acknowledge “current runtime” (`docs/03-architecture/07_current_poc_runtime.md`), but several other documents and PRDs read like the target is already implemented, creating practical drift.
 
 ## Recommendations (Priority Order)
 1. Clarify “current vs target” explicitly where it’s easy to misread as implemented (especially `docs/03-architecture/50_api_surface.md` and the 0011 PRDs).

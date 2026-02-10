@@ -26,6 +26,7 @@ docs/04-projects/**/throwaway/
 /.agents/backup/
 /.agents/skills/00-product-sense/
 tmp/fixture-seed/
+tmp/fixture-eval/
 tmp/object-store/
 .agents/skills/00-utilities/dev-browser/tmp/
 .agents/skills/00-utilities/dev-browser/profiles/

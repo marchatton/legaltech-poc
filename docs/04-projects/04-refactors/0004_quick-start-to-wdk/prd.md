@@ -8,27 +8,28 @@ Slug: quick-start-to-wdk
 ## Introduction / Overview
 
 ### Problem
-Quick Start run execution is currently orchestrated via the durable `jobs` runtime (`apps/web/lib/jobs/*`). Workstream B introduces WDK as the durable orchestration runtime going forward, but until Quick Start is moved over, we have two competing orchestration systems and continued drift from the "WDK now" posture.
+Quick Start is already WDK-owned in code (route schedules per-question WDK steps and does not enqueue `execute_run` jobs), but the docs and legacy durable jobs runtime code still imply a jobs-based execution path. That creates confusing drift and keeps an unused worker loop running.
 
 ### Goal
-Make Quick Start runs WDK-owned:
-- `POST /folders/:id/runs` starts a WDK workflow for Quick Start.
-- Quick Start execution is driven by the WDK worker.
-- Quick Start no longer creates `jobs(type=execute_run)` rows.
+Finish the migration by making the repo single-runtime:
+- `POST /folders/:id/runs` schedules WDK steps for Quick Start (already true).
+- Quick Start never creates `jobs(type=execute_run)` rows (already true).
+- Remove the legacy durable jobs runtime (`apps/web/lib/jobs/*`, `apps/web/lib/quickStartRunQueue.server.ts`) and stop starting the jobs worker in `apps/web/scripts/worker.ts`.
 
 ### Primary Observable Effect
 - With the WDK worker running, starting Quick Start results in durable progress (visible via `GET /runs/:id`) and a terminal run state without relying on the legacy jobs worker.
 
 ### Scope / Slice
 This PRD is intentionally scoped to **2a**:
-- Remove **only** Quick Start's dependency on the durable jobs runtime.
-- Jobs may remain temporarily for ingest (or other legacy uses) until those are ported to WDK.
+- Make Quick Start WDK-owned (already landed).
+- Remove the unused legacy durable jobs runtime so WDK is the only worker loop advancing runs.
 
 ## Goals
 - Move Quick Start execution to WDK with minimal product-semantic change.
 - Preserve run-level idempotency (folder_id + idempotency_key) and step-level idempotency (deterministic step_key).
-- Keep the system debuggable: logs and DB rows should make it obvious whether WDK or jobs executed a run.
+- Keep the system debuggable: logs and DB rows should make it obvious the run is WDK-orchestrated.
 - Remove `execute_run` job handling and any enqueue path for Quick Start.
+- Remove the legacy durable jobs worker loop and job type/schema so the worker process is WDK-only.
 
 ## Non-goals (explicit cuts)
 - Do not implement retrieval/draft/lock/verify for Quick Start (this slice is orchestration refactor).
@@ -68,24 +69,24 @@ As a developer, I want Quick Start to switch to WDK immediately (we are not live
   - Negative: duplicate runs are not created for the same `(folder_id, idempotency_key)`.
 
 #### Verification
-- Automated: unit test around route behavior ensuring it does not call `enqueueQuickStartRun`.
+- Automated: integration test asserting the route schedules WDK steps immediately, preserves idempotency, and does not enqueue `execute_run` jobs.
 - Manual: POST twice with same key, confirm same run id.
 
-### US-003: Legacy `execute_run` jobs path is removed (jobs remain for ingest)
-As a developer, I want the legacy Quick Start enqueue and worker handler removed so that Quick Start cannot accidentally execute via jobs.
+### US-003: Remove legacy durable jobs runtime (execute_run + worker loop)
+As a developer, I want the unused legacy durable jobs runtime removed so Quick Start cannot accidentally execute via jobs and the worker runs only WDK.
 
 #### Acceptance Criteria
 - AC-006: No new `jobs(type=execute_run)` rows are created by starting Quick Start.
   - Example: after starting a run, querying DB shows no matching execute_run job for that run.
-  - Negative: there is no code path remaining that enqueues `execute_run` for Quick Start.
-- AC-007: The jobs worker no longer supports the `execute_run` job type (removed or explicitly rejected).
-- AC-008: Any remaining jobs runtime behavior is clearly marked legacy-only in code comments.
+  - Negative: there is no remaining code path (including helper functions) that can enqueue `execute_run` jobs for Quick Start.
+- AC-007: The legacy jobs runtime does not support the `execute_run` job type (remove type/schema and worker handler).
+- AC-008: The worker process no longer starts the jobs worker loop (only WDK worker remains).
 
 #### Verification
-- Automated: unit test for worker handler map (execute_run unsupported).
-- Manual: start run; confirm no execute_run jobs appear.
+- Automated: integration test still passes (no `execute_run` jobs created).
+- Manual: `pnpm --filter @orbital-poc/web worker` starts WDK only (no legacy jobs worker).
 
-### US-004 (recommended follow-up within this PRD if feasible): Quick Start uses real WDK steps, not a single "job-like" step
+### US-004: Quick Start uses per-question WDK steps (avoid a single job-like step)
 As a developer, I want Quick Start to be broken into per-question durable steps so that restarts do not re-run the entire processor and progress is naturally incremental.
 
 #### Acceptance Criteria
@@ -103,7 +104,7 @@ As a developer, I want Quick Start to be broken into per-question durable steps 
   - Initial allowed implementation: one step calls `processQuickStartRun(runId)`.
   - Recommended evolution: per-question `write_row` steps.
 - FR-003: Update the run-start route to create/reuse the run row (via idempotency) and start WDK workflow execution with input `{ run_id }`.
-- FR-004: Remove `execute_run` job enqueue surface and worker handler.
+- FR-004: Remove legacy durable jobs runtime codepaths and worker loop (delete execute_run queue/worker, remove jobs worker startup).
 - FR-005: Ensure WDK worker is the only mechanism that can advance Quick Start runs (no silent in-process completion).
 
 ## Failure States + UX
@@ -126,8 +127,7 @@ As a developer, I want Quick Start to be broken into per-question durable steps 
 
 ## Verification Plan
 Automated:
-- Unit test that `POST /folders/:id/runs` does not call `enqueueQuickStartRun`.
-- Unit test that the legacy jobs worker rejects/does not handle `execute_run`.
+- Integration test that `POST /folders/:id/runs` starts WDK unconditionally, preserves idempotency, and does not enqueue `execute_run` jobs.
 
 Manual smoke:
 1. `pnpm dev`
@@ -153,6 +153,9 @@ Packs:
 - `docs/04-projects/04-refactors/0004_quick-start-to-wdk/plan.md`
 - `docs/04-projects/04-refactors/0003_wdk-runtime/plan.md`
 - `apps/web/app/(api)/folders/[id]/runs/route.ts`
+- `apps/web/workflows/quickStartTitleSurveyWorkflow.server.ts`
+- `apps/web/test/foldersRunsRoute.wdk.int.test.ts`
+- `apps/web/scripts/worker.ts`
 - `apps/web/lib/quickStartRunQueue.server.ts`
 - `apps/web/lib/jobs/jobWorker.server.ts`
 - `apps/web/lib/quickStartRunProcessor.server.ts`
