@@ -255,6 +255,33 @@ Run summary: /home/sprite/orbital-a/.ralph/runs/run-20260210-142753-27765-iter-1
   - When TypeScript `strictFunctionTypes` is enabled, directive guardrail checks need casts because step/workflow handlers are not assignable to `(...args: unknown[]) => unknown`.
   - WDK ingest can reuse `runs.idempotency_key` + `run_steps.step_key` to match the old jobs enqueue idempotency semantics.
 ---
+## [2026-02-10 15:16:52 +0000] - US-002: Fixture fallback is allowed only in dev/demo-prod
+Thread:
+Run: 20260210-142817-28705 (iteration 2)
+Run log: /home/sprite/orbital-poc/.ralph/runs/run-20260210-142817-28705-iter-2.log
+Run summary: /home/sprite/orbital-poc/.ralph/runs/run-20260210-142817-28705-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 8bc5e9d fix(citations): gate fixture fallback by ORBITAL_MODE
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm verify -> PASS
+- Files changed:
+  - apps/web/app/(api)/citations/[id]/route.ts
+  - apps/web/lib/citations.routes.test.ts
+  - apps/web/lib/wdk/wdkDirectiveGuardrail.server.ts
+  - docs/04-projects/04-refactors/0005_citations-db-first/prd.json
+- What was implemented
+  - Added a dev/demo-prod-only seed snapshot fallback for GET /citations/:id when FEATURE_CITATIONS_API=1 and the citation is missing from Postgres.
+  - Ensured ORBITAL_MODE=prod never uses fixture fallback (404 on DB miss).
+  - Returned 409 CONFLICT (safe envelope) when a fixture citation id is ambiguous across seeded packs.
+  - Added route-level tests covering DB-first behavior plus dev fallback/prod no-fallback/ambiguity.
+- **Learnings for future iterations:**
+  - ORBITAL_MODE=dev fails closed to prod unless NODE_ENV=development; tests must set both when asserting dev behavior.
+  - Prefer runtime-mode checks (isDevOrDemoProd) for conditional fallbacks to avoid changing the prod/miss error envelope.
+---
 ## [2026-02-10 15:30:17 +0000] - US-002: WDK ingest step is idempotent at the step boundary
 Thread:
 Run: 20260210-142753-27765 (iteration 2)
