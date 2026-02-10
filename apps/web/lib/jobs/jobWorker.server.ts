@@ -2,6 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { safeErrMessage } from "../safeErrMessage";
+
 import {
   claimNextJob,
   markJobFailed,
@@ -20,11 +22,6 @@ const g = globalThis as GlobalJobsWorker;
 if (!g.__orbitalInlineJobWorker) g.__orbitalInlineJobWorker = { draining: false };
 
 const RunPayloadSchema = z.object({ run_id: z.string().min(1) });
-
-function safeErrMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return String(err);
-}
 
 function backoffMs(attempt: number): number {
   // attempt is 1-based and increments when the job is claimed.

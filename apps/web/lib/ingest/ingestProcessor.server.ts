@@ -7,6 +7,7 @@ import { ensureSchema, sql } from "../db.server";
 import { refreshFolderState } from "../folderState.server";
 import { newId } from "../ids";
 import { readObject } from "../objectStore.server";
+import { safeErrMessage } from "../safeErrMessage";
 
 type PdfJsTextItem = { str?: string };
 
@@ -157,7 +158,7 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
     // eslint-disable-next-line no-console
     console.error("pdfjs getDocument failed", {
       documentId,
-      message: err instanceof Error ? err.message : String(err),
+      message: safeErrMessage(err),
     });
     await failDocument({
       documentId,

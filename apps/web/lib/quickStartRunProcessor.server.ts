@@ -10,6 +10,7 @@ import {
 import { ensureSchema, sql } from "./db.server";
 import { newId } from "./ids";
 import { loadQuestionSetV1 } from "./questionSet.server";
+import { safeErrMessage } from "./safeErrMessage";
 
 type RunRow = {
   id: string;
@@ -33,7 +34,6 @@ function missingInputRow(args: { folderId: string; questionSetVersion: string; q
     question: args.question,
     answer: "Not found in provided documents.",
     status: "missing_input" as const,
-    citation_ids: [] as string[],
     notes: null as string | null,
     provenance_json: {
       missing_docs_checklist: [
@@ -63,7 +63,6 @@ function citationFailedRow(args: { folderId: string; questionSetVersion: string;
     question: args.question,
     answer: "Unable to produce locked citations in this slice.",
     status: "citation_failed" as const,
-    citation_ids: [] as string[],
     notes: null as string | null,
     provenance_json: {
       reason_code: "NO_CITATIONS",
@@ -354,7 +353,7 @@ export async function processQuickStartRun(runId: string): Promise<void> {
         trace_id: traceId,
         step_key: stepKey,
         question_id: q.question_id,
-        message: err instanceof Error ? err.message : String(err),
+        message: safeErrMessage(err),
       });
 
       const fallback = citationFailedRow({
@@ -530,4 +529,3 @@ export async function processQuickStartRun(runId: string): Promise<void> {
   // eslint-disable-next-line no-console
   console.info("run.completed", { run_id: runId, trace_id: run.trace_id ?? null });
 }
-

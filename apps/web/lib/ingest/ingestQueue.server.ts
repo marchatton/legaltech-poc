@@ -1,13 +1,9 @@
 import "server-only";
 
+import { safeErrMessage } from "../safeErrMessage";
 import { kickInlineWdkWorker } from "../wdk/wdkInlineKick.server";
 import { wdkSmokeStepHandlers } from "../../steps/wdkSmokeStepHandlers.server";
 import { startIngestDocumentWorkflow } from "../../workflows/ingestDocumentWorkflow.server";
-
-function safeErrMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return String(err);
-}
 
 export async function startDocumentIngest(args: {
   documentId: string;
