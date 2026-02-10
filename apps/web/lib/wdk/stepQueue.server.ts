@@ -100,9 +100,10 @@ export async function scheduleStep(args: {
   return { id: row.id, inserted: false };
 }
 
-export async function claimNextStep(args: { workerId: string; db?: Sql }): Promise<StepRow | null> {
+export async function claimNextStep(args: { workerId: string; runId?: string; db?: Sql }): Promise<StepRow | null> {
   if (!args.db) await ensureSchema();
   const s = withDb(args.db);
+  const runId = args.runId ?? null;
 
   const rows = await s<StepRow[]>`
     WITH next AS (
@@ -110,6 +111,7 @@ export async function claimNextStep(args: { workerId: string; db?: Sql }): Promi
       FROM run_steps
       WHERE state = 'queued'
         AND available_at <= now()
+        AND run_id = COALESCE(${runId}, run_id)
       ORDER BY available_at ASC, created_at ASC
       FOR UPDATE SKIP LOCKED
       LIMIT 1

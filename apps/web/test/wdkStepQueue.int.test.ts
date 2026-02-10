@@ -41,7 +41,7 @@ describe("wdk step queue (db)", () => {
 
   beforeAll(async () => {
     await ensureAllSchemas(sql1);
-  });
+  }, 30_000);
 
   afterAll(async () => {
     await sql1.end({ timeout: 2 });
@@ -73,7 +73,7 @@ describe("wdk step queue (db)", () => {
 
     const tx1 = sql1
       .begin(async (tx) => {
-        const step = await claimNextStep({ workerId: "w1", db: tx as unknown as typeof sql1 });
+        const step = await claimNextStep({ workerId: "w1", runId, db: tx as unknown as typeof sql1 });
         expect(step).not.toBeNull();
         claimedStepId = step?.id ?? null;
         claimed.resolve();
@@ -148,8 +148,8 @@ describe("wdk step queue (db)", () => {
     };
 
     await Promise.all([
-      drainWdkStepsOnce({ workerId: "w1", handlers, maxSteps: 1, db: sql1 }),
-      drainWdkStepsOnce({ workerId: "w2", handlers, maxSteps: 1, db: sql2 }),
+      drainWdkStepsOnce({ workerId: "w1", runId, handlers, maxSteps: 1, db: sql1 }),
+      drainWdkStepsOnce({ workerId: "w2", runId, handlers, maxSteps: 1, db: sql2 }),
     ]);
 
     expect(executions.length).toBe(1);
@@ -242,10 +242,7 @@ describe("wdk step queue (db)", () => {
     // Ensure smoke steps win the queue even if the shared dev DB has other work.
     await sql1`UPDATE run_steps SET available_at = ${VERY_OLD} WHERE run_id = ${started.runId}`;
 
-    // Execute steps deterministically even if the shared DB has other queued work.
-    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // init
-    await sql1`UPDATE run_steps SET available_at = ${VERY_OLD} WHERE run_id = ${started.runId} AND state = 'queued'`;
-    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // flaky (fails once)
+    await drainWdkStepsOnce({ workerId: "w1", runId: started.runId, handlers: wdkSmokeStepHandlers, maxSteps: 10, db: sql1 });
 
     const initRows = await sql1<Array<{ state: string; attempt: number }>>`
       SELECT state, attempt
@@ -284,9 +281,7 @@ describe("wdk step queue (db)", () => {
         AND step_key = 'wdk_smoke:flaky'
     `;
 
-    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // flaky (succeeds)
-    await sql1`UPDATE run_steps SET available_at = ${VERY_OLD} WHERE run_id = ${started.runId} AND state = 'queued'`;
-    await drainWdkStepsOnce({ workerId: "w1", handlers: wdkSmokeStepHandlers, maxSteps: 1, db: sql1 }); // done
+    await drainWdkStepsOnce({ workerId: "w1", runId: started.runId, handlers: wdkSmokeStepHandlers, maxSteps: 10, db: sql1 });
 
     const finalFlakyRows = await sql1<Array<{ state: string; attempt: number; error_json: any }>>`
       SELECT state, attempt, error_json
@@ -320,7 +315,7 @@ describe("wdk step queue (db)", () => {
     await sql1`DELETE FROM folders WHERE id = ${started.folderId}`;
   });
 
-  it("executes quick_start_title_survey via WDK execute_v0", async () => {
+  it("executes quick_start_title_survey via per-question WDK steps", async () => {
     const { version: questionSetVersion, questionSet } = await loadQuestionSetV1();
 
     const folderId = `fld_${randomUUID()}`;
@@ -381,23 +376,58 @@ describe("wdk step queue (db)", () => {
     `;
 
     const scheduled = await startQuickStartTitleSurveyWorkflow({ runId, questionSetVersion, traceId, db: sql1 });
-    expect(scheduled.stepType).toBe("quick_start_title_survey.execute_v0");
-    expect(scheduled.stepKey).toBe(`quick_start:${questionSetVersion}:execute_v0`);
+    expect(scheduled.stepType).toBe("quick_start_title_survey.write_row_v0");
+    expect(scheduled.steps.length).toBe(questionsTotal);
 
-    // Ensure this step is the oldest queued item so the test is resilient to a dirty shared dev DB.
-    await sql1`UPDATE run_steps SET available_at = ${new Date(0)} WHERE id = ${scheduled.stepId}`;
+    const expectedKeys = questionSet.questions.map((q) => `quick_start:${questionSetVersion}:question:${q.question_id}:write_row`);
+    expect(scheduled.steps.map((s) => s.stepKey).sort()).toEqual([...expectedKeys].sort());
 
-    await drainWdkStepsOnce({ workerId: "w1", handlers: quickStartStepHandlers, maxSteps: 5, db: sql1 });
+    // Ensure these steps are the oldest queued items so the test is resilient to a dirty shared dev DB.
+    await sql1`
+      UPDATE run_steps
+      SET available_at = ${new Date(0)},
+          created_at = ${new Date(0)}
+      WHERE run_id = ${runId}
+        AND step_type = 'quick_start_title_survey.write_row_v0'
+    `;
 
-    const stepRows = await sql1<Array<{ state: string; attempt: number; output_json: any }>>`
-      SELECT state, attempt, output_json
-      FROM run_steps
-      WHERE id = ${scheduled.stepId}
+    // Simulate a worker dying mid-run: process a subset of steps, then "restart" with a new worker.
+    const half = Math.max(1, Math.floor(questionsTotal / 2));
+    await drainWdkStepsOnce({ workerId: "w1", runId, handlers: quickStartStepHandlers, maxSteps: half, db: sql1 });
+
+    const midRun = await sql1<Array<{ state: string; questions_total: number; questions_done: number }>>`
+      SELECT state, questions_total, questions_done
+      FROM runs
+      WHERE id = ${runId}
       LIMIT 1
     `;
-    expect(stepRows[0]?.state).toBe("succeeded");
-    expect(stepRows[0]?.attempt).toBe(1);
-    expect(stepRows[0]?.output_json?.ok).toBe(true);
+    expect(midRun[0]?.state).toBe("running");
+    expect(midRun[0]?.questions_total).toBe(questionsTotal);
+    expect(midRun[0]?.questions_done).toBeGreaterThan(0);
+    expect(midRun[0]?.questions_done).toBeLessThan(questionsTotal);
+
+    const midRows = await sql1<Array<{ n: number }>>`
+      SELECT COUNT(*)::int as n
+      FROM report_rows
+      WHERE run_id = ${runId}
+    `;
+    expect(midRows[0]?.n).toBe(midRun[0]?.questions_done);
+
+    await drainWdkStepsOnce({ workerId: "w2", runId, handlers: quickStartStepHandlers, maxSteps: questionsTotal + 5, db: sql1 });
+
+    const outputRows = await sql1<Array<{ n: number }>>`
+      SELECT COUNT(*)::int as n
+      FROM report_rows
+      WHERE run_id = ${runId}
+    `;
+    expect(outputRows[0]?.n).toBe(questionsTotal);
+
+    const uniqueRows = await sql1<Array<{ n: number }>>`
+      SELECT COUNT(DISTINCT question_id)::int as n
+      FROM report_rows
+      WHERE run_id = ${runId}
+    `;
+    expect(uniqueRows[0]?.n).toBe(questionsTotal);
 
     const runRows = await sql1<Array<{ state: string; questions_total: number; questions_done: number }>>`
       SELECT state, questions_total, questions_done
@@ -409,12 +439,14 @@ describe("wdk step queue (db)", () => {
     expect(runRows[0]?.questions_total).toBe(questionsTotal);
     expect(runRows[0]?.questions_done).toBe(questionsTotal);
 
-    const outputRows = await sql1<Array<{ n: number }>>`
+    const remaining = await sql1<Array<{ n: number }>>`
       SELECT COUNT(*)::int as n
-      FROM report_rows
+      FROM run_steps
       WHERE run_id = ${runId}
+        AND step_type = 'quick_start_title_survey.write_row_v0'
+        AND state = 'queued'
     `;
-    expect(outputRows[0]?.n).toBe(questionsTotal);
+    expect(remaining[0]?.n).toBe(0);
 
     await sql1`DELETE FROM folders WHERE id = ${folderId}`;
   });

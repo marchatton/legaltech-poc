@@ -295,6 +295,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     traceId,
     db: sql,
   });
+  const insertedSteps = scheduled.steps.reduce((acc, s) => acc + (s.inserted ? 1 : 0), 0);
 
   // eslint-disable-next-line no-console
   console.info("wdk.workflow_scheduled", {
@@ -302,10 +303,9 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     trace_id: traceId,
     run_id: runId,
     workflow_type: parsedBody.data.type,
-    step_id: scheduled.stepId,
-    step_key: scheduled.stepKey,
     step_type: scheduled.stepType,
-    inserted: scheduled.inserted,
+    steps_total: scheduled.steps.length,
+    steps_inserted: insertedSteps,
   });
 
   return Response.json(runResponse(created), { status: 200, headers });

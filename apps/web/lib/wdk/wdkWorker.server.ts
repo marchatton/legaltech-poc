@@ -54,6 +54,7 @@ async function handleStep(args: { step: StepRow; workerId: string; handlers: Ste
 
 export async function drainWdkStepsOnce(args: {
   workerId: string;
+  runId?: string;
   handlers: StepHandlerMap;
   maxSteps?: number;
   maxAttempts?: number;
@@ -64,7 +65,7 @@ export async function drainWdkStepsOnce(args: {
 
   let processed = 0;
   for (let i = 0; i < maxSteps; i += 1) {
-    const step = await claimNextStep({ workerId: args.workerId, db: args.db });
+    const step = await claimNextStep({ workerId: args.workerId, runId: args.runId, db: args.db });
     if (!step) return processed;
 
     // eslint-disable-next-line no-console
@@ -162,4 +163,3 @@ export async function runContinuousWdkWorker(args: {
     }
   }
 }
-

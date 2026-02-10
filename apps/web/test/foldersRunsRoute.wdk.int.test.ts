@@ -4,10 +4,12 @@ import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { ensureAllSchemas } from "../lib/db/schema/index.server";
+import { loadQuestionSetV1 } from "../lib/questionSet.server";
 import { drainWdkStepsOnce } from "../lib/wdk/wdkWorker.server";
 import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
 import { wdkSmokeStepHandlers } from "../steps/wdkSmokeStepHandlers.server";
 import { POST } from "../app/(api)/folders/[id]/runs/route";
+import { GET as GET_RUN } from "../app/(api)/runs/[id]/route";
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL?.trim();
@@ -28,7 +30,7 @@ describe("POST /folders/:id/runs (quick start)", () => {
   beforeAll(async () => {
     process.env.ORBITAL_MODE = "demo-prod";
     await ensureAllSchemas(sql);
-  });
+  }, 30_000);
 
   afterAll(async () => {
     if (prevMode === undefined) delete process.env.ORBITAL_MODE;
@@ -79,17 +81,26 @@ describe("POST /folders/:id/runs (quick start)", () => {
     `;
     expect(jobRows[0]).toBeFalsy();
 
-    // Route should schedule the Quick Start WDK step immediately.
+    const { version: expectedQuestionSetVersion, questionSet } = await loadQuestionSetV1();
+    expect(expectedQuestionSetVersion).toBe(questionSetVersion);
+
+    const expectedStepKeys = questionSet.questions.map(
+      (q) => `quick_start:${questionSetVersion}:question:${q.question_id}:write_row`,
+    );
+
+    // Route should schedule the Quick Start WDK steps immediately (one per question_id).
     const stepRows = await sql<Array<{ id: string; step_key: string; step_type: string; state: string }>>`
       SELECT id, step_key, step_type, state
       FROM run_steps
       WHERE run_id = ${runId}
-        AND step_key = ${`quick_start:${questionSetVersion}:execute_v0`}
-      LIMIT 1
+        AND step_type = 'quick_start_title_survey.write_row_v0'
     `;
-    expect(stepRows[0]).toBeTruthy();
-    expect(stepRows[0]?.state).toBe("queued");
-    expect(stepRows[0]?.step_type).toBe("quick_start_title_survey.execute_v0");
+    expect(stepRows.length).toBe(questionSet.questions.length);
+    for (const row of stepRows) {
+      expect(row.state).toBe("queued");
+      expect(row.step_type).toBe("quick_start_title_survey.write_row_v0");
+    }
+    expect(stepRows.map((r) => r.step_key).sort()).toEqual([...expectedStepKeys].sort());
 
     // Idempotency: second request returns the existing run (no duplicates).
     const req2 = new Request(`http://localhost/folders/${folderId}/runs`, {
@@ -113,11 +124,36 @@ describe("POST /folders/:id/runs (quick start)", () => {
 
     // Example: with a WDK worker running, the run can reach a terminal state.
     const oldest = new Date(0);
-    await sql`UPDATE run_steps SET available_at = ${oldest}, created_at = ${oldest} WHERE id = ${stepRows[0]!.id}`;
+    await sql`
+      UPDATE run_steps
+      SET available_at = ${oldest},
+          created_at = ${oldest}
+      WHERE run_id = ${runId}
+        AND step_type = 'quick_start_title_survey.write_row_v0'
+    `;
+
+    // Progress should increment as each per-question step completes.
     await drainWdkStepsOnce({
       workerId: "test:wdk",
+      runId,
       handlers: { ...wdkSmokeStepHandlers, ...quickStartStepHandlers },
       maxSteps: 1,
+      db: sql,
+    });
+
+    const progressRes = await GET_RUN(new Request(`http://localhost/runs/${runId}`, { method: "GET" }), {
+      params: Promise.resolve({ id: runId }),
+    });
+    expect(progressRes.status).toBe(200);
+    const progressBody = (await progressRes.json()) as any;
+    expect(progressBody?.run?.progress?.questions_done).toBe(1);
+    expect(progressBody?.run?.progress?.questions_total).toBe(questionSet.questions.length);
+
+    await drainWdkStepsOnce({
+      workerId: "test:wdk",
+      runId,
+      handlers: { ...wdkSmokeStepHandlers, ...quickStartStepHandlers },
+      maxSteps: questionSet.questions.length + 5,
       db: sql,
     });
 
