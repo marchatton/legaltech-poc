@@ -18,8 +18,18 @@
     "Document upload flows to readiness with visible state transitions.",
     "Quick Start readiness always includes explicit reason copy."
   ],
-  "openQuestions": [
-    "Which readiness state set is sufficient for setup UX without exposing pipeline internals?"
+  "openQuestions": [],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-03",
+      "decision": "Lock setup readiness to canonical folder/document states in parity v1.",
+      "details": [
+        "Folder readiness states exposed in setup UX: empty, ingesting, indexed, ready, failed.",
+        "Quick Start remains runnable when folder.state is indexed or ready, and blocked otherwise.",
+        "Document ingest rows expose parse/ocr progression only: queued, parsing/running, parsed/done, failed.",
+        "Do not expose internal pipeline step internals beyond these states in setup surfaces."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 app router + TypeScript",
@@ -57,6 +67,7 @@
   "rules": [
     "U12 pre-run checklist state machine remains out-of-scope for parity v1.",
     "Runs/Alerts/Settings remain disabled placeholders in this slice.",
+    "Readiness UX must map only canonical folder/document states without adding inferred internal pipeline phases.",
     "Upload capability claims must match backend-supported MIME/size rules."
   ],
   "qualityGates": [

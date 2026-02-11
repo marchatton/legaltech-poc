@@ -18,8 +18,17 @@
     "Retry actions appear only on retryable errors.",
     "Support escalation action is available or gracefully degrades with fallback guidance."
   ],
-  "openQuestions": [
-    "Which support escalation target should be used in parity v1?"
+  "openQuestions": [],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-04",
+      "decision": "Use a config-driven mailto escalation target in parity v1 (no ticketing endpoint).",
+      "details": [
+        "ErrorBanner support action opens a configured mailto target with prefilled safe context (`code`, `trace_id`, route).",
+        "When no support mailto target is configured, hide external escalation link and show fallback instructions with copyable identifiers.",
+        "Do not introduce backend ticket creation or external support integrations in parity v1."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 + TypeScript",
@@ -48,6 +57,7 @@
   "rules": [
     "No internal error payload leakage to client surfaces.",
     "Retry visibility is controlled by `retryable` only.",
+    "Support escalation uses configured mailto in parity v1; fallback guidance is required when unset.",
     "Escalation action must degrade gracefully when target is unavailable."
   ],
   "qualityGates": [

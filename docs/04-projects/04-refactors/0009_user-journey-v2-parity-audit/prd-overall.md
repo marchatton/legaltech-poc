@@ -147,9 +147,12 @@ As a lead, I want spike candidates called out early so that risky contract assum
 
 - SP-0009-01: What is the precise run/index binding behavior for `POST /api/folders/:id/chat` when `run_id` is stale or missing?
 - SP-0009-02: What percentage of chat/report citations currently include resolvable document/page anchors for reliable jump-to-evidence?
-- SP-0009-03: Which document readiness states are required for setup/documents IA without exposing backend pipeline internals?
-- SP-0009-04: Which endpoint owns support escalation (`mailto`, internal ticket, or placeholder action) for deterministic error handling?
 - SP-0009-05: Are run timestamps sufficient for coarse checklist elapsed minutes, or is additional telemetry needed?
+
+## Resolved Spike Decisions
+
+- SP-0009-03 resolved: setup readiness is locked to canonical folder/document states in parity v1 (`0009a`).
+- SP-0009-04 resolved: support escalation is config-driven `mailto` with safe context + fallback instructions in parity v1 (`0009f`).
 
 ## Sources
 

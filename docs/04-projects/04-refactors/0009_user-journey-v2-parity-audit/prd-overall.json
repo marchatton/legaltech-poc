@@ -20,8 +20,7 @@
   ],
   "openQuestions": [
     "How should stale or unavailable run_id be handled in run-scoped chat L1?",
-    "What fallback is acceptable when citation anchors are missing?",
-    "Which support escalation target is appropriate for deterministic error banners?"
+    "What fallback is acceptable when citation anchors are missing?"
   ],
   "stack": {
     "framework": "Next.js 15 + React 19 + TypeScript",
@@ -130,13 +129,17 @@
       "id": "SP-0009-03",
       "topic": "Document readiness model",
       "decisionNeeded": "Lock setup/document states needed for UI without leaking pipeline complexity.",
-      "impacts": ["0009a"]
+      "impacts": ["0009a"],
+      "status": "resolved",
+      "resolution": "Locked to canonical folder/document readiness states in parity v1 (0009a PRD JSON)."
     },
     {
       "id": "SP-0009-04",
       "topic": "Support escalation ownership",
       "decisionNeeded": "Choose endpoint/pattern for escalation action in ErrorBanner.",
-      "impacts": ["0009f"]
+      "impacts": ["0009f"],
+      "status": "resolved",
+      "resolution": "Locked to config-driven mailto escalation + fallback guidance in parity v1 (0009f PRD JSON)."
     },
     {
       "id": "SP-0009-05",
