@@ -372,3 +372,39 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
   - Useful context
   - Reusing derived document readiness data for both rendering and counters avoids duplicate status computations.
 ---
+## [2026-02-11 17:29:53 UTC] - US-001: Add operator checklist with coarse elapsed
+Thread: 73920
+Run: 20260211-171754-22506 (iteration 1)
+Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-1.log
+Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: e6a0435 feat(matters): add operator checklist elapsed
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: dev-browser smoke (`/matters/fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` and `/matters/fld_e2ffd731-43a9-4d27-8761-2cedf2a2bfed`) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/[id]/operatorChecklist.ts
+  - apps/web/test/operatorChecklist.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
+- What was implemented
+  - Added an Operator checklist card on matter detail with ordered `todo`/`in_progress`/`done` step badges derived from live Quick Start run state.
+  - Added minute-level elapsed rendering from run timestamps (`created_at` baseline, optional `started_at`, terminal freeze on `updated_at`) with `Elapsed unavailable` fallback.
+  - Added unit tests to lock checklist state transitions and elapsed formatting behavior.
+  - Browser-validated both completed-run and no-run states with screenshots:
+    - .agents/skills/00-utilities/dev-browser/tmp/us-001-checklist-completed.png
+    - .agents/skills/00-utilities/dev-browser/tmp/us-001-checklist-no-run.png
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Extracting checklist/elapsed rules into a pure helper makes run-state UX deterministic and easy to unit test.
+  - Gotchas encountered
+  - Dev-browser must run `--headless` in this VM because there is no X server for headed Chromium.
+  - Useful context
+  - A seeded demo matter with a completed Quick Start run exists in local DB (`fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63`) and is useful for operator-loop UI smoke checks.
+---
