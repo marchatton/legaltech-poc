@@ -483,3 +483,42 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
   - Useful context
   - `pnpm --filter @orbital-poc/web test` can intermittently trip Vitest hook timeout on integration setup; immediate rerun passed without code changes.
 ---
+## [2026-02-11 18:21:36 UTC] - US-004: Add download feedback and unsafe explanation pattern
+Thread: 
+Run: 20260211-171748-22180 (iteration 4)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-4.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 71eeebd feat(artefacts): add download feedback and unsafe tooltip
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: dev-browser smoke on http://localhost:3101/matters/fld_ui_us003?tab=artefacts -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/AGENTS.md
+  - apps/web/app/(app)/matters/ArtefactDownloadButton.tsx
+  - apps/web/app/(app)/matters/ArtefactsList.tsx
+  - apps/web/app/(app)/matters/UnsafeArtefactBadge.tsx
+  - apps/web/test/artefactDownloadFeedback.sync.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.json
+- What was implemented
+  - Added a client-side artefact download action that now surfaces explicit pending, completion, and stale/error feedback states.
+  - Added a freshness hint after download starts (`Signed link fresh for about ...`) and stale-link handling when the signed URL is expired.
+  - Replaced plain unsafe badges with tooltip-backed unsafe badges that explain the safety override context.
+  - Wired the new download feedback and unsafe explanation components into the artefacts table for all rows.
+  - Added `artefactDownloadFeedback.sync.test.ts` to lock the US-004 parity contract.
+  - Added an operational note to `apps/web/AGENTS.md` for local artefacts-tab verification flags.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Server-rendered tables can keep DB/query logic on the server while delegating per-row interactive feedback to small client components.
+  - Gotchas encountered
+  - For this repo’s local artefact flows, browser verification requires `FEATURE_ARTEFACTS_LIST=1` and `ALLOW_DEV_OBJECT_STORE_SECRET=1`.
+  - Useful context
+  - Browser evidence screenshot: `.agents/skills/00-utilities/dev-browser/tmp/us004-artefacts-feedback.png`.
+---

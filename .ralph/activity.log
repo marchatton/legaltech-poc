@@ -90,3 +90,4 @@
 [2026-02-11 18:08:44] Implemented US-004 UI changes: artefact download state feedback + unsafe tooltip badge pattern; added sync test
 [2026-02-11 18:19:02] US-004 verification complete: lint/typecheck/test/build PASS and dev-browser smoke PASS for download pending/completion/freshness + unsafe tooltip
 [2026-02-11 18:20:17] Added apps/web AGENTS operational note for artefacts-tab local dev verification flags
+[2026-02-11 18:21:58] US-004 progress.md updated with commit, verification, and browser evidence
