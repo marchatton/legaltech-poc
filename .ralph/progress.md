@@ -160,3 +160,54 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
   - Useful context
     - Browser smoke automation used request interception to force deterministic failure envelopes and validate banner consistency quickly.
 ---
+## [2026-02-11 15:26:28 +0000] - US-003: Add support escalation action pattern
+Thread: 
+Run: 20260211-143054-12725 (iteration 3)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-3.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 4f2e692 feat(error-banner): add support escalation pattern
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -- app/ui/ErrorBanner.test.tsx -> PASS
+  - Command: browser check http://localhost:3000/matters?review_error=VALIDATION_ERROR (fallback path) -> PASS
+  - Command: NEXT_PUBLIC_SUPPORT_ESCALATION_MAILTO=support@orbital.test pnpm exec next dev --port 3001 + browser check http://localhost:3001/matters?review_error=VALIDATION_ERROR (configured path) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/.env.example
+  - apps/web/app/(app)/matters/ArtefactsList.tsx
+  - apps/web/app/(app)/matters/ExportCsvButton.tsx
+  - apps/web/app/(app)/matters/ExportTraceButton.tsx
+  - apps/web/app/(app)/matters/[id]/ChatPanel.tsx
+  - apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx
+  - apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/ui/ErrorBanner.test.tsx
+  - apps/web/app/ui/ErrorBanner.tsx
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.json
+- What was implemented
+  - Extended `ErrorBanner` with an optional support escalation action pattern, including deterministic support context (`code`, `trace_id`, `route`).
+  - Added config-driven escalation target support via `NEXT_PUBLIC_SUPPORT_ESCALATION_MAILTO` and deterministic mailto payload generation.
+  - Implemented negative-path degradation: when the support target is unset, the banner hides the external action and shows explicit fallback instructions with copyable identifiers.
+  - Wired `supportRoute` through current `/matters` and `/matters/[id]` ErrorBanner callsites so escalation context includes route consistently.
+  - Added tests for configured mailto payload composition and unset-target fallback rendering.
+  - Browser-verified both paths with screenshots at:
+    - `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us003-fallback.png`
+    - `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us003-configured.png`
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Keep support-escalation payload construction in one reusable helper so the safe identifier contract stays deterministic.
+    - Passing `supportRoute` from callsites avoids brittle route inference and keeps server/client rendering stable.
+  - Gotchas encountered
+    - `dev-browser` requires headless mode in this environment because no X server is available.
+    - First load on a fresh dev port can exceed default Playwright navigation timeout due to Next.js compile time.
+  - Useful context
+    - Checkpoint `v12` was created after verification to preserve the passing state.
+---
