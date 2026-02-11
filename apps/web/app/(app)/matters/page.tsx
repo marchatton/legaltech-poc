@@ -19,7 +19,7 @@ import { Card } from "../../ui/Card";
 import { Chip } from "../../ui/Chip";
 import { ErrorBanner } from "../../ui/ErrorBanner";
 import { MonoId } from "../../ui/MonoId";
-import { Page, PageHeader, PageSection } from "../../ui/Page";
+import { Page, PageHeader, PageSection, SectionLabel } from "../../ui/Page";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -343,7 +343,9 @@ export default async function MattersPage(props: {
         </Card>
       ) : (
         <>
-          <Card className="mt-8 flex flex-wrap items-center gap-3 p-4">
+          <Card className="mt-8 p-4">
+            <SectionLabel>Run context</SectionLabel>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
             <div className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">pack_id:</span> {snapshot.meta.pack_id}
             </div>
@@ -363,6 +365,7 @@ export default async function MattersPage(props: {
               </div>
               {traceExportEnabled ? <ExportTraceButton folderId={packId} runId={runId} /> : null}
             </div>
+            </div>
           </Card>
 
           {artefactsListEnabled ? (
@@ -373,7 +376,7 @@ export default async function MattersPage(props: {
 
           <section className="mt-8 grid gap-4">
             {snapshot.rows.map((row) => (
-              <Card key={row.question_id} className="p-4">
+              <Card key={row.question_id} variant="interactive" className="p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <MonoId>{row.question_id}</MonoId>
                   <div className="text-sm font-semibold text-foreground">{row.question}</div>

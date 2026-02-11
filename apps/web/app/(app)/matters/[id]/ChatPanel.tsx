@@ -7,7 +7,9 @@ import { parseSafeErrorEnvelope } from "../../../../lib/safeErrorDisplay";
 import { Button } from "../../../ui/Button";
 import { Chip } from "../../../ui/Chip";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
+import { EmptyState } from "../../../ui/EmptyState";
 import { Input } from "../../../ui/Input";
+import { Spinner } from "../../../ui/Spinner";
 
 import { MISSING_EVIDENCE_TEXT, parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
 
@@ -69,6 +71,12 @@ async function readNdjsonStream(args: {
     if (evt) args.onEvent(evt);
   }
 }
+
+const SUGGESTED_PROMPTS = [
+  "Summarise the key obligations in these documents",
+  "Are there any unrecorded easements?",
+  "List all parties and their roles",
+];
 
 export function ChatPanel(props: { folderId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -212,10 +220,25 @@ export function ChatPanel(props: { folderId: string }) {
     <div className="grid gap-4">
       <div className="grid gap-3">
         {messages.length === 0 ? (
-          <div className="text-xs text-muted-foreground">
-            Ask a question about the documents in this matter. Answers are evidence-first. If retrieval finds no supporting chunks, the response is{" "}
-            <span className="font-mono">{MISSING_EVIDENCE_TEXT}</span>.
-          </div>
+          <EmptyState
+            title="Ask a question"
+            description={`Answers are evidence-first. If retrieval finds no supporting chunks, the response is "${MISSING_EVIDENCE_TEXT}".`}
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                {SUGGESTED_PROMPTS.map((prompt) => (
+                  <Chip
+                    key={prompt}
+                    as="button"
+                    onClick={() => {
+                      setInput(prompt);
+                    }}
+                  >
+                    {prompt}
+                  </Chip>
+                ))}
+              </div>
+            }
+          />
         ) : null}
 
         <div className="grid gap-3">
@@ -229,7 +252,11 @@ export function ChatPanel(props: { folderId: string }) {
               <div key={m.id} className="grid gap-2">
                 <div className={`max-w-[min(70ch,100%)] rounded-ui-lg border border-border px-3 py-2 shadow-ui-sm ${bubbleCls}`}>
                   <div className="whitespace-pre-wrap text-sm">
-                    {m.content || (m.status === "streaming" ? <span className="text-muted-foreground">(streaming)</span> : null)}
+                    {m.content || (m.status === "streaming" ? (
+                      <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                        <Spinner size="xs" /> Thinking&hellip;
+                      </span>
+                    ) : null)}
                   </div>
                 </div>
 
@@ -255,7 +282,7 @@ export function ChatPanel(props: { folderId: string }) {
                 ) : null}
 
                 {!isUser && m.status === "complete" && m.sources?.length ? (
-                  <section className="max-w-[min(70ch,100%)]">
+                  <section className="max-w-[min(70ch,100%)] rounded-ui-md bg-muted/50 p-3">
                     <div className="text-2xs font-semibold text-foreground">Sources</div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       {m.sources.map((s, idx) => (

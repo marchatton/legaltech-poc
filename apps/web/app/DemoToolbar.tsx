@@ -68,9 +68,9 @@ export function DemoToolbar() {
   }
 
   return (
-    <section className="sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur">
+    <section className="sticky top-0 z-50 border-t-[3px] border-t-primary border-b border-border bg-card/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl flex-wrap items-end gap-3 p-3">
-        <div className="text-xs font-semibold tracking-wide text-muted-foreground">DEMO MODE</div>
+        <div className="font-mono text-2xs font-semibold uppercase tracking-widest text-primary">DEMO MODE</div>
 
         <label className="grid gap-1 text-xs">
           <span className="text-muted-foreground">Pack</span>

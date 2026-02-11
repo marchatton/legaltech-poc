@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Select } from "../../ui/Input";
+import { SectionLabel } from "../../ui/Page";
 
 type Props = {
   packIds: string[];
@@ -28,7 +29,8 @@ export function MattersToolbar(props: Props) {
 
   return (
     <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-      <div className="flex flex-wrap items-end gap-3">
+      <SectionLabel>Seed data</SectionLabel>
+      <div className="mt-2 flex flex-wrap items-end gap-3">
         <label className="grid gap-1 text-sm">
           <span className="text-muted-foreground">Seeded pack</span>
           <Select

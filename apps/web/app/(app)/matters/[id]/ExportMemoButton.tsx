@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
-
+import { Alert } from "../../../ui/Alert";
 import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
@@ -233,7 +233,11 @@ export function ExportMemoButton(props: Props) {
         Export memo (Word)
       </Button>
 
-      {disabled ? <div className="text-xs text-muted-foreground">{disabled}</div> : null}
+      {disabled ? (
+        <Alert variant="info" className="text-left">
+          {disabled}
+        </Alert>
+      ) : null}
 
       {state.kind === "error" ? (
         <ErrorBanner

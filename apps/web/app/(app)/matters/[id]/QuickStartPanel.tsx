@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
-
+import { Alert } from "../../../ui/Alert";
 import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 
@@ -89,7 +89,11 @@ export function QuickStartPanel(props: Props) {
         Run Quick Start
       </Button>
 
-      {props.disabledReason ? <div className="text-xs text-muted-foreground">{props.disabledReason}</div> : null}
+      {props.disabledReason ? (
+        <Alert variant="info" className="text-left">
+          {props.disabledReason}
+        </Alert>
+      ) : null}
 
       {state.kind === "error" ? (
         <ErrorBanner

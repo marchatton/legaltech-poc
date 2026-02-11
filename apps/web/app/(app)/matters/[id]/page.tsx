@@ -7,11 +7,12 @@ import { ensureSchema, sql } from "../../../../lib/db.server";
 import { parseSafeErrorLike } from "../../../../lib/safeErrorDisplay";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
+import { Badge } from "../../../ui/Badge";
 import { Card } from "../../../ui/Card";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { EmptyState } from "../../../ui/EmptyState";
 import { MonoId } from "../../../ui/MonoId";
-import { Page, PageHeader, SectionTitle } from "../../../ui/Page";
+import { Page, PageHeader, SectionLabel, SectionTitle } from "../../../ui/Page";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { ArtefactsList } from "../ArtefactsList";
 import { ExportCsvButton } from "../ExportCsvButton";
@@ -161,9 +162,9 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             <span className="text-muted-foreground/60">•</span>
             <span className="font-medium text-foreground">{folder.name}</span>
             <span className="text-muted-foreground/60">•</span>
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
+            <Badge variant={runnable ? "info" : "muted"} size="sm">
               {folder.state}
-            </span>
+            </Badge>
           </span>
         }
         right={
@@ -174,7 +175,8 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       />
 
       <Card className="mt-8 p-4">
-        <SectionTitle>Seeded documents</SectionTitle>
+        <SectionLabel>Documents</SectionLabel>
+        <SectionTitle className="mt-1">Seeded documents</SectionTitle>
         <p className="mt-1 text-xs text-muted-foreground">
           This matter was created by the demo pack loader. Documents ingest in the background.
         </p>
@@ -192,9 +194,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
                     <div className="flex flex-wrap items-center gap-2">
                       <MonoId variant="inverted">{d.id}</MonoId>
                       <div className="text-sm font-medium text-foreground">{d.filename}</div>
-                      <div className="rounded-full bg-card px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
-                        {ingest}
-                      </div>
+                      <Badge variant="muted" size="sm">{ingest}</Badge>
                       {typeof d.extraction_quality === "number" ? (
                         <div className="text-xs text-muted-foreground">
                           quality: {Math.round(d.extraction_quality * 100)}%
@@ -236,7 +236,8 @@ export default async function MatterPage(props: { params: Promise<Record<string,
 
       {chatEnabled ? (
         <Card className="mt-8 p-4">
-          <SectionTitle>Chat</SectionTitle>
+          <SectionLabel>Chat</SectionLabel>
+          <SectionTitle className="mt-1">Chat</SectionTitle>
           <p className="mt-1 text-xs text-muted-foreground">
             Evidence-first chat over the indexed documents in this matter.
           </p>
@@ -249,7 +250,8 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <SectionTitle>Quick Start</SectionTitle>
+            <SectionLabel>Analysis</SectionLabel>
+            <SectionTitle className="mt-1">Quick Start</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
               fresh matter.
@@ -302,7 +304,8 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <SectionTitle>Exports</SectionTitle>
+            <SectionLabel>Exports</SectionLabel>
+            <SectionTitle className="mt-1">Exports</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               Export a Word memo (.docx) and CSV artefacts for the latest completed run. Exports are disabled until a run
               completes.

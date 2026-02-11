@@ -4,6 +4,7 @@ import { Badge } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { ErrorBanner } from "../../ui/ErrorBanner";
+import { SectionTitle } from "../../ui/Page";
 import { Table, TableFrame, TD, TH, TR } from "../../ui/Table";
 
 import { ensureSchema, sql } from "../../../lib/db.server";
@@ -68,7 +69,7 @@ export async function ArtefactsList(props: Props) {
   if (!found[0]) {
     return (
       <Card className="p-4">
-        <div className="text-sm font-semibold text-foreground">Artefacts</div>
+        <SectionTitle>Artefacts</SectionTitle>
         <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
       </Card>
     );
@@ -84,7 +85,7 @@ export async function ArtefactsList(props: Props) {
   if (!artefacts.length) {
     return (
       <Card className="p-4">
-        <div className="text-sm font-semibold text-foreground">Artefacts</div>
+        <SectionTitle>Artefacts</SectionTitle>
         <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
       </Card>
     );
@@ -93,7 +94,7 @@ export async function ArtefactsList(props: Props) {
   return (
     <Card className="p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <div className="text-sm font-semibold text-foreground">Artefacts</div>
+        <SectionTitle>Artefacts</SectionTitle>
         <div className="text-xs text-muted-foreground">{artefacts.length} item(s)</div>
       </div>
 
