@@ -74,3 +74,42 @@ Run summary: /home/sprite/orbital-h/orbital-poc/.ralph/runs/run-20260210-224307-
   - Use NDJSON event streams to make terminal failure states explicit without leaking provider errors.
   - Playwright in Sprite needs headless mode (no X server); run dev-browser with `--headless`.
 ---
+## [2026-02-11 14:44 UTC] - US-001: Standardize deterministic error envelope adoption
+Thread: 
+Run: 20260211-143054-12725 (iteration 1)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-1.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 764d6ae fix(api): standardize deterministic error envelopes
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -> PASS (booted on :3001, then stopped intentionally)
+- Files changed:
+  - packages/core/src/safe-error.ts
+  - apps/web/app/(api)/export/csv/route.ts
+  - apps/web/app/(api)/export/docx/route.ts
+  - apps/web/app/(api)/folders/[id]/chat/route.ts
+  - apps/web/lib/chat/protocol.ts
+  - apps/web/lib/jsonContentType.ts
+  - apps/web/lib/devOnlyApi.server.ts
+  - apps/web/lib/exportCsv.routes.test.ts
+  - apps/web/lib/exportDocx.routes.test.ts
+  - apps/web/lib/chat.routes.test.ts
+  - apps/web/lib/chat.protocol.test.ts
+  - .ralph/activity.log
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.json
+- What was implemented
+  - Extended the shared safe-error envelope contract to support deterministic `retryable` and optional `support_hint` fields.
+  - Standardized export CSV/DOCX failure envelopes to include deterministic `retryable` semantics and `trace_id`, and removed direct passthrough of caught exception strings in client-visible export errors.
+  - Standardized chat HTTP failure envelopes and NDJSON stream error events to include deterministic `code`, `trace_id`, `retryable`, and safe message text.
+  - Added route/protocol tests to assert deterministic export/chat error envelope behavior and fail-closed chat stream parsing.
+- **Learnings for future iterations:**
+  - Deriving `retryable` at route-level via small envelope helpers enables incremental contract rollout without breaking untouched routes.
+  - NDJSON terminal error events should carry their own trace metadata; relying only on a prior meta event is brittle for consumers.
+  - Error-detail payloads in catch paths should avoid raw thrown strings to reduce accidental internal leakage.
+---
