@@ -1,0 +1,297 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Fixed colour scales (mode-independent) ─── */
+:root {
+  /* Primary — Orange */
+  --primary-50:  255 247 240;
+  --primary-100: 254 224 200;
+  --primary-200: 253 189 148;
+  --primary-300: 252 154 96;
+  --primary-400: 252 126 61;
+  --primary-500: 251 99 27;
+  --primary-600: 232 85 16;
+  --primary-700: 196 74 14;
+  --primary-800: 154 58 11;
+  --primary-900: 114 44 9;
+
+  /* Secondary — Cyan */
+  --secondary-50:  240 250 254;
+  --secondary-100: 220 244 251;
+  --secondary-200: 192 240 251;
+  --secondary-300: 151 226 245;
+  --secondary-400: 109 207 235;
+  --secondary-500: 72 184 217;
+  --secondary-600: 42 153 187;
+  --secondary-700: 29 122 150;
+  --secondary-800: 21 92 113;
+  --secondary-900: 13 62 77;
+
+  /* Accent — Purple */
+  --accent-50:  248 240 255;
+  --accent-100: 239 217 255;
+  --accent-200: 228 195 255;
+  --accent-300: 216 172 255;
+  --accent-400: 200 143 255;
+  --accent-500: 181 114 255;
+  --accent-600: 155 79 239;
+  --accent-700: 126 56 204;
+  --accent-800: 98 43 163;
+  --accent-900: 71 32 122;
+
+  /* Semantic — Success (Green) */
+  --success-50:  236 249 243;
+  --success-100: 209 240 225;
+  --success-200: 153 218 188;
+  --success-300: 96 196 151;
+  --success-400: 59 170 120;
+  --success-500: 45 138 95;
+  --success-600: 36 114 78;
+  --success-700: 28 90 62;
+  --success-800: 22 70 48;
+  --success-900: 15 48 33;
+
+  /* Semantic — Warning (Amber) */
+  --warning-50:  255 249 235;
+  --warning-100: 254 237 198;
+  --warning-200: 250 214 130;
+  --warning-300: 245 191 68;
+  --warning-400: 232 166 22;
+  --warning-500: 212 146 11;
+  --warning-600: 178 120 8;
+  --warning-700: 142 96 6;
+  --warning-800: 108 73 5;
+  --warning-900: 76 52 4;
+
+  /* Semantic — Destructive (Red) */
+  --destructive-50:  254 242 242;
+  --destructive-100: 252 218 218;
+  --destructive-200: 247 175 175;
+  --destructive-300: 239 132 132;
+  --destructive-400: 232 100 100;
+  --destructive-500: 220 74 74;
+  --destructive-600: 193 54 54;
+  --destructive-700: 160 42 42;
+  --destructive-800: 126 33 33;
+  --destructive-900: 92 24 24;
+
+  /* Semantic — Info (Blue) */
+  --info-50:  236 247 254;
+  --info-100: 204 232 248;
+  --info-200: 150 203 237;
+  --info-300: 96 174 226;
+  --info-400: 50 148 212;
+  --info-500: 13 110 165;
+  --info-600: 10 90 138;
+  --info-700: 8 72 110;
+  --info-800: 6 55 84;
+  --info-900: 4 38 58;
+}
+
+/* ─── Light mode (default) ─── */
+@layer base {
+  :root {
+    --background: 255 254 251;
+    --foreground: 26 26 26;
+
+    --card: 255 255 255;
+    --card-foreground: 26 26 26;
+
+    --popover: 255 255 255;
+    --popover-foreground: 26 26 26;
+
+    --muted: 245 243 240;
+    --muted-foreground: 122 117 110;
+
+    --primary: 251 99 27;
+    --primary-foreground: 255 255 255;
+
+    --secondary: 192 240 251;
+    --secondary-foreground: 26 26 26;
+
+    --accent: 216 172 255;
+    --accent-foreground: 26 26 26;
+
+    --destructive: 220 74 74;
+    --destructive-foreground: 255 255 255;
+
+    --success: 45 138 95;
+    --success-foreground: 255 255 255;
+
+    --warning: 212 146 11;
+    --warning-foreground: 26 26 26;
+
+    --info: 13 110 165;
+    --info-foreground: 255 255 255;
+
+    --border: 232 229 224;
+    --input: 232 229 224;
+    --ring: 216 172 255;
+
+    --user-bubble: 220 244 251;
+    --user-bubble-foreground: 26 26 26;
+
+    --sidebar: 245 243 240;
+    --sidebar-foreground: 26 26 26;
+    --sidebar-accent: 255 254 251;
+    --sidebar-accent-foreground: 26 26 26;
+    --sidebar-border: 232 229 224;
+    --sidebar-ring: 216 172 255;
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-pill: 9999px;
+    --radius: 8px;
+  }
+
+  /* ─── Dark mode ─── */
+  .dark, :root[class~="dark"] {
+    --background: 10 10 10;
+    --foreground: 245 245 245;
+
+    --card: 23 23 23;
+    --card-foreground: 245 245 245;
+
+    --popover: 28 28 28;
+    --popover-foreground: 245 245 245;
+
+    --muted: 36 36 36;
+    --muted-foreground: 163 163 163;
+
+    --primary: 255 90 20;
+    --primary-foreground: 10 10 10;
+
+    --secondary: 192 240 251;
+    --secondary-foreground: 10 10 10;
+
+    --accent: 216 172 255;
+    --accent-foreground: 10 10 10;
+
+    --destructive: 239 100 100;
+    --destructive-foreground: 10 10 10;
+
+    --success: 74 190 133;
+    --success-foreground: 10 10 10;
+
+    --warning: 245 178 55;
+    --warning-foreground: 10 10 10;
+
+    --info: 70 160 220;
+    --info-foreground: 10 10 10;
+
+    --border: 46 46 46;
+    --input: 46 46 46;
+    --ring: 216 172 255;
+
+    --user-bubble: 20 38 46;
+    --user-bubble-foreground: 220 235 240;
+
+    --sidebar: 18 18 18;
+    --sidebar-foreground: 245 245 245;
+    --sidebar-accent: 28 28 28;
+    --sidebar-accent-foreground: 245 245 245;
+    --sidebar-border: 46 46 46;
+    --sidebar-ring: 216 172 255;
+  }
+
+  html {
+    color: rgb(var(--foreground));
+    background: rgb(var(--background));
+  }
+
+  * {
+    border-color: rgb(var(--border));
+  }
+
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Utility classes ─── */
+@layer utilities {
+  .skeleton {
+    background: linear-gradient(90deg, rgb(var(--muted)) 25%, rgb(var(--muted) / 0.5) 50%, rgb(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    border-radius: var(--radius-md);
+  }
+
+  .font-serif-heading {
+    font-family: 'Crimson Pro', Georgia, ui-serif, serif;
+  }
+
+  .text-display {
+    font-size: 3rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .text-heading-xl {
+    font-size: 2.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .text-heading-lg {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+
+  .text-heading-md {
+    font-size: 1.375rem;
+    line-height: 1.35;
+  }
+
+  .text-heading-sm {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+}
+
+/* ─── Animations ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progress-slide {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(250%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ─── Scrollbar styling ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted-foreground) / 0.4);
+}

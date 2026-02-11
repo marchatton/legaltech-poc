@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1049.45 2026" width="1049.45" height="2026" style="background:#FFFFFF">
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="#52525B" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="#52525B" />
+  </marker>
+</defs>
+<rect x="40" y="50" width="265.05" height="296" rx="0" ry="0" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+<rect x="40" y="50" width="265.05" height="28" rx="0" ry="0" fill="#F4F4F5" stroke="#D4D4D8" stroke-width="1" />
+<text x="52" y="64" dy="0.35em" font-size="12" font-weight="600" fill="#3F3F46">P1 Global Shell</text>
+<rect x="40" y="360" width="581.5" height="656" rx="0" ry="0" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+<rect x="40" y="360" width="581.5" height="28" rx="0" ry="0" fill="#F4F4F5" stroke="#D4D4D8" stroke-width="1" />
+<text x="52" y="374" dy="0.35em" font-size="12" font-weight="600" fill="#3F3F46">P2/P3/P4 Matter Surfaces</text>
+<rect x="40" y="1000" width="969.45" height="366" rx="0" ry="0" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+<rect x="40" y="1000" width="969.45" height="28" rx="0" ry="0" fill="#F4F4F5" stroke="#D4D4D8" stroke-width="1" />
+<text x="52" y="1014" dy="0.35em" font-size="12" font-weight="600" fill="#3F3F46">P5/P6 Trust Surfaces</text>
+<rect x="40" y="1350" width="969.45" height="416" rx="0" ry="0" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+<rect x="40" y="1350" width="969.45" height="28" rx="0" ry="0" fill="#F4F4F5" stroke="#D4D4D8" stroke-width="1" />
+<text x="52" y="1364" dy="0.35em" font-size="12" font-weight="600" fill="#3F3F46">P7/P8 Export Surfaces</text>
+<rect x="385.04999999999995" y="40" width="624.4000000000001" height="336" rx="0" ry="0" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+<rect x="385.04999999999995" y="40" width="624.4000000000001" height="28" rx="0" ry="0" fill="#F4F4F5" stroke="#D4D4D8" stroke-width="1" />
+<text x="397.04999999999995" y="54" dy="0.35em" font-size="12" font-weight="600" fill="#3F3F46">P9 Chat</text>
+<rect x="40" y="1750" width="969.45" height="236" rx="0" ry="0" fill="#FFFFFF" stroke="#D4D4D8" stroke-width="1" />
+<rect x="40" y="1750" width="969.45" height="28" rx="0" ry="0" fill="#F4F4F5" stroke="#D4D4D8" stroke-width="1" />
+<text x="52" y="1764" dy="0.35em" font-size="12" font-weight="600" fill="#3F3F46">P10/P11/P12 Demo</text>
+<polyline points="235,126 325.05,126 325.05,436 433.65000000000003,436" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="249.3,616 408.625,616" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="238.57500000000002,776 305.05,776 305.05,796 503.27500000000003,796 503.27500000000003,808" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="256.45000000000005,706 503.27500000000003,706 503.27500000000003,718" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="285.05,836 305.05,836 305.05,856 503.27500000000003,856 503.27500000000003,844" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="263.6,896 305.05,896 305.05,916 422.925,916" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="267.175,976 419.35,976" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="587.2,976 641.5,976 641.5,1076 793,1076" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="249.3,1116 426.5,1116" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="580.0500000000001,1116 855.475,1116 855.475,1128" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="569.325,1176 855.475,1176 855.475,1164" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="583.625,1576 621.5,1576 621.5,1606 796.575,1606" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="267.175,1516 503.27500000000003,1516 503.27500000000003,844" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="242.15,1666 419.35,1666" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="562.1750000000001,276 621.5,276 621.5,176 767.975,176" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="576.475,336 855.475,336 855.475,1128" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="252.875,1916 305.05,1916 305.05,1806 503.27500000000003,1806 503.27500000000003,844" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="252.875,1916 430.07500000000005,1916" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="252.875,1826 419.35,1826" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="587.2,1826 782.275,1826" fill="none" stroke="#71717A" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="263.6,896 305.05,896 305.05,776 503.27500000000003,776 503.27500000000003,754" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline points="590.7750000000001,1236 855.475,1236 855.475,1248" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline points="594.35,1296 855.475,1296 855.475,1284" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline points="583.625,1576 621.5,1576 621.5,1486 782.275,1486" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline points="587.2,1666 782.275,1666" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline points="562.1750000000001,276 621.5,276 621.5,296 757.25,296" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline points="587.2,216 621.5,216 621.5,236 778.7,236" fill="none" stroke="#71717A" stroke-width="0.75" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<rect x="110.05000000000001" y="108" width="124.95" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="85.025" y="168" width="175" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="106.475" y="228" width="132.10000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="110.05000000000001" y="288" width="124.95" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="433.65000000000003" y="418" width="139.25" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="455.1" y="478" width="96.35000000000001" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="437.225" y="538" width="132.10000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="95.75" y="598" width="153.55" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="106.475" y="758" width="132.10000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="408.625" y="598" width="189.3" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="440.8" y="658" width="124.95" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="88.6" y="688" width="167.85000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="433.65000000000003" y="718" width="139.25" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="60" y="818" width="225.05" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="405.05" y="808" width="196.45000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="81.45" y="878" width="182.15" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="422.925" y="898" width="160.70000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="77.875" y="958" width="189.3" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="419.35" y="958" width="167.85000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="793" y="1058" width="124.95" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="95.75" y="1098" width="153.55" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="426.5" y="1098" width="153.55" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="437.225" y="1158" width="132.10000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="775.125" y="1128" width="160.70000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="721.5" y="1248" width="267.95000000000005" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="415.77500000000003" y="1218" width="175" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="412.20000000000005" y="1278" width="182.15" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="750.1" y="1308" width="210.75000000000003" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="803.725" y="1408" width="103.5" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="782.275" y="1468" width="146.4" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="422.925" y="1558" width="160.70000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="750.1" y="1528" width="210.75000000000003" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="77.875" y="1498" width="189.3" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="796.575" y="1588" width="117.80000000000001" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="102.9" y="1648" width="139.25" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="782.275" y="1648" width="146.4" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="419.35" y="1648" width="167.85000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="789.425" y="1708" width="132.10000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="789.425" y="98" width="132.10000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="419.35" y="198" width="167.85000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="444.375" y="258" width="117.80000000000001" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="767.975" y="158" width="175" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="430.07500000000005" y="318" width="146.4" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="778.7" y="218" width="153.55" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="757.25" y="278" width="196.45000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="782.275" y="1808" width="146.4" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="778.7" y="1868" width="153.55" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="92.175" y="1898" width="160.70000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="760.825" y="1928" width="189.3" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="92.175" y="1808" width="160.70000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="419.35" y="1808" width="167.85000000000002" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<rect x="430.07500000000005" y="1898" width="146.4" height="36" rx="0" ry="0" fill="#FAFAFA" stroke="#D4D4D8" stroke-width="0.75" />
+<text x="172.525" y="126" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U1 Global nav</text>
+<text x="172.525" y="186" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U2 Environment badge</text>
+<text x="172.525" y="246" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U3 Breadcrumbs</text>
+<text x="172.525" y="306" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U4 Sticky IDs</text>
+<text x="503.27500000000003" y="436" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P2 Matters List</text>
+<text x="503.27500000000003" y="496" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U5 Search</text>
+<text x="503.27500000000003" y="556" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U6 Saved views</text>
+<text x="172.525" y="616" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U7 New Matter CTA</text>
+<text x="172.525" y="776" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U8 Open Matter</text>
+<text x="503.275" y="616" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P3 New Matter/Add Docs</text>
+<text x="503.27500000000003" y="676" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U9 Name field</text>
+<text x="172.525" y="706" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U10 Upload dropzone</text>
+<text x="503.27500000000003" y="736" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U11 Ingest rows</text>
+<text x="172.525" y="836" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U12 Required docs checklist</text>
+<text x="503.27500000000003" y="826" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P4 Matter Detail/Report</text>
+<text x="172.525" y="896" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U13 Start Quick Start</text>
+<text x="503.27500000000003" y="916" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U14 Progress meter</text>
+<text x="172.525" y="976" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U15 Report status tabs</text>
+<text x="503.27500000000003" y="976" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U17 Open row drawer</text>
+<text x="855.475" y="1076" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P5 Row Drawer</text>
+<text x="172.525" y="1116" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U18 Payload table</text>
+<text x="503.275" y="1116" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U19 Citation chip</text>
+<text x="503.27500000000003" y="1176" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U20 Split lock</text>
+<text x="855.475" y="1146" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P6 Evidence Viewer</text>
+<text x="855.475" y="1266" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U23 Zoom + verification indicator</text>
+<text x="503.27500000000003" y="1236" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U24 Reset to 100 CTA</text>
+<text x="503.27500000000003" y="1296" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U25 Highlight overlay</text>
+<text x="855.475" y="1326" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U27 citation_failed panel</text>
+<text x="855.475" y="1426" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P7 Exports</text>
+<text x="855.475" y="1486" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U29 Run selector</text>
+<text x="503.27500000000003" y="1576" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U30 Export buttons</text>
+<text x="855.475" y="1546" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U31 Export blocked banner</text>
+<text x="172.525" y="1516" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U32 Review failed rows</text>
+<text x="855.475" y="1606" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P8 Artefacts</text>
+<text x="172.525" y="1666" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U33 Kind filter</text>
+<text x="855.475" y="1666" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U34 Artefact row</text>
+<text x="503.27500000000003" y="1666" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U35 Download action</text>
+<text x="855.4749999999999" y="1726" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U36 UNSAFE tag</text>
+<text x="855.4749999999999" y="116" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P9 Matter Chat</text>
+<text x="503.27500000000003" y="216" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U37 Chat run picker</text>
+<text x="503.275" y="276" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U38 Composer</text>
+<text x="855.475" y="176" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U39 Streaming bubble</text>
+<text x="503.27500000000003" y="336" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U40 Source chips</text>
+<text x="855.475" y="236" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U42 Scope warning</text>
+<text x="855.475" y="296" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U43 Empty-context guard</text>
+<text x="855.475" y="1826" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P10 Demo Toolbar</text>
+<text x="855.475" y="1886" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U45 Pack selector</text>
+<text x="172.525" y="1916" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U46 Load demo pack</text>
+<text x="855.475" y="1946" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P11 Operator checklist</text>
+<text x="172.525" y="1826" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U48 Checklist card</text>
+<text x="503.27500000000003" y="1826" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">U49 Load pack again</text>
+<text x="503.27500000000003" y="1916" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="#18181B">P12 Demo history</text>
+</svg>

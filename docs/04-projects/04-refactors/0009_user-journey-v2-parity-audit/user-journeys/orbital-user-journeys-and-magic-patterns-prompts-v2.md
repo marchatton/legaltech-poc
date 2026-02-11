@@ -1,6 +1,6 @@
 # Orbital End-State User Journeys + Magic Patterns Prompts (V2, UI Breadboard)
 
-This is a second version of `docs/00-strategy/orbital-user-journeys-and-magic-patterns-prompts.md`, reshaped using breadboarding and scoped to UI affordances only.
+This is a second version of `docs/04-refactor/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts.md`, reshaped using breadboarding and scoped to UI affordances only.
 
 ## Context
 
@@ -156,6 +156,10 @@ This is a second version of `docs/00-strategy/orbital-user-journeys-and-magic-pa
 - Legend:
   - **Solid** = navigation / trigger / user action.
   - **Dashed** = UI-state reads and gating.
+- Rendered asset (for Markdown viewers without Mermaid support):
+  - ![Orbital v2 wiring diagram](./orbital-user-journeys-and-magic-patterns-prompts-v2-wiring.svg)
+- ASCII fallback:
+  - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2-wiring.txt`
 
 ```mermaid
 flowchart LR
