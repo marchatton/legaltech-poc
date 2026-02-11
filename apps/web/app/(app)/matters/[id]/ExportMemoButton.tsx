@@ -4,7 +4,10 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
+
 import { Button } from "../../../ui/Button";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
 import { Input } from "../../../ui/Input";
 
@@ -24,21 +27,12 @@ type ExportBlockedDetails = {
 type ExportState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "blocked"; message: string; details: ExportBlockedDetails }
-  | { kind: "error"; message: string }
+  | { kind: "blocked"; error: SafeErrorDisplay; details: ExportBlockedDetails }
+  | { kind: "error"; error: SafeErrorDisplay }
   | { kind: "done"; message: string };
 
 function isRecord(val: unknown): val is Record<string, unknown> {
   return !!val && typeof val === "object" && !Array.isArray(val);
-}
-
-function readSafeError(json: unknown): { code: string; message: string; details: unknown } | null {
-  const env = isRecord(json) && isRecord(json.error) ? json.error : null;
-  if (!env) return null;
-  const code = typeof env.code === "string" && env.code.trim() ? env.code.trim() : null;
-  const message = typeof env.message === "string" && env.message.trim() ? env.message.trim() : null;
-  if (!code || !message) return null;
-  return { code, message, details: (env as { details?: unknown }).details };
 }
 
 function parseBlockedDetails(details: unknown): ExportBlockedDetails | null {
@@ -90,7 +84,13 @@ export function ExportMemoButton(props: Props) {
     if (args.unsafeOverride) {
       const token = adminToken.trim();
       if (!token) {
-        setState({ kind: "error", message: "Admin token required for unsafe export." });
+        setState({
+          kind: "error",
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Admin token required for unsafe export.",
+          },
+        });
         return;
       }
     }
@@ -115,27 +115,33 @@ export function ExportMemoButton(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", message });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
       return;
     }
 
     const json: unknown = await res.json().catch(() => null);
     if (!res.ok) {
-      const env = readSafeError(json);
+      const env = parseSafeErrorEnvelope(json);
       if (env) {
         if (env.code === "EXPORT_BLOCKED") {
           const details = parseBlockedDetails(env.details);
           setState({
             kind: "blocked",
-            message: env.message,
+            error: env,
             details: details ?? { citationFailedCount: 0, failedQuestionIds: [], reasonCodes: [] },
           });
           return;
         }
-        setState({ kind: "error", message: `${env.code}: ${env.message}` });
+        setState({ kind: "error", error: env });
         return;
       }
-      setState({ kind: "error", message: `Request failed (${res.status}).` });
+      setState({
+        kind: "error",
+        error: {
+          code: `HTTP_${res.status}`,
+          message: `Request failed (${res.status}).`,
+        },
+      });
       return;
     }
 
@@ -146,65 +152,72 @@ export function ExportMemoButton(props: Props) {
   return (
     <div className="grid justify-items-end gap-2">
       {state.kind === "blocked" ? (
-        <div className="w-full max-w-sm rounded-ui-md border border-destructive/20 bg-destructive/[0.06] p-3 text-xs text-destructive">
-          <div className="font-semibold">Export blocked</div>
-          <div className="mt-1">
-            {state.details.citationFailedCount} row(s) are <span className="font-mono">citation_failed</span>.
+        <ErrorBanner
+          title="Export blocked"
+          code={state.error.code}
+          message={state.error.message}
+          traceId={state.error.traceId}
+          className="w-full max-w-md"
+        >
+          <div className="text-xs text-destructive">
+            <div>
+              {state.details.citationFailedCount} row(s) are <span className="font-mono">citation_failed</span>.
+            </div>
+
+            {state.details.failedQuestionIds.length ? (
+              <div className="mt-2">
+                Failed:{" "}
+                <span className="font-mono">
+                  {state.details.failedQuestionIds.slice(0, 6).join(", ")}
+                  {state.details.failedQuestionIds.length > 6 ? "…" : ""}
+                </span>
+              </div>
+            ) : null}
+
+            {reportHref ? (
+              <div className="mt-2">
+                <a className="font-medium underline" href={reportHref} target="_blank" rel="noreferrer">
+                  Next: open Report JSON to fix citations
+                </a>
+              </div>
+            ) : (
+              <div className="mt-2">Next: open the run report to fix citations.</div>
+            )}
+
+            {props.unsafeOverrideEnabled ? (
+              <div className="mt-3 rounded-ui-md border border-destructive/20 bg-card p-2">
+                <div className="text-2xs font-semibold uppercase tracking-wide text-destructive">Unsafe export (demo only)</div>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                  <label className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Admin token</span>
+                    <Input
+                      className="w-44 font-mono"
+                      uiSize="sm"
+                      type="password"
+                      value={adminToken}
+                      onChange={(e) => setAdminToken(e.target.value)}
+                      placeholder="x-orbital-admin-token"
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
+                  </label>
+
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => run({ unsafeOverride: true })}
+                    disabled={Boolean(disabled)}
+                  >
+                    Export UNSAFE memo
+                  </Button>
+                </div>
+                <div className="mt-2 text-2xs text-destructive">
+                  This will create <span className="font-mono">memo.UNSAFE.docx</span> even if citations failed.
+                </div>
+              </div>
+            ) : null}
           </div>
-
-          {state.details.failedQuestionIds.length ? (
-            <div className="mt-2">
-              Failed:{" "}
-              <span className="font-mono">
-                {state.details.failedQuestionIds.slice(0, 6).join(", ")}
-                {state.details.failedQuestionIds.length > 6 ? "…" : ""}
-              </span>
-            </div>
-          ) : null}
-
-          {reportHref ? (
-            <div className="mt-2">
-              <a className="font-medium underline" href={reportHref} target="_blank" rel="noreferrer">
-                Next: open Report JSON to fix citations
-              </a>
-            </div>
-          ) : (
-            <div className="mt-2">Next: open the run report to fix citations.</div>
-          )}
-
-          {props.unsafeOverrideEnabled ? (
-            <div className="mt-3 rounded-ui-md border border-destructive/20 bg-card p-2">
-              <div className="text-2xs font-semibold uppercase tracking-wide text-destructive">Unsafe export (demo only)</div>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                <label className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Admin token</span>
-                  <Input
-                    className="w-44 font-mono"
-                    uiSize="sm"
-                    type="password"
-                    value={adminToken}
-                    onChange={(e) => setAdminToken(e.target.value)}
-                    placeholder="x-orbital-admin-token"
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                </label>
-
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => run({ unsafeOverride: true })}
-                  disabled={Boolean(disabled)}
-                >
-                  Export UNSAFE memo
-                </Button>
-              </div>
-              <div className="mt-2 text-2xs text-destructive">
-                This will create <span className="font-mono">memo.UNSAFE.docx</span> even if citations failed.
-              </div>
-            </div>
-          ) : null}
-        </div>
+        </ErrorBanner>
       ) : null}
 
       <Button
@@ -219,7 +232,17 @@ export function ExportMemoButton(props: Props) {
 
       {disabled ? <div className="text-xs text-muted-foreground">{disabled}</div> : null}
 
-      <InlineStatus kind={state.kind === "error" ? "error" : "idle"}>{state.kind === "error" ? state.message : null}</InlineStatus>
+      {state.kind === "error" ? (
+        <ErrorBanner
+          title="Export failed"
+          code={state.error.code}
+          message={state.error.message}
+          traceId={state.error.traceId}
+          retryable={state.error.retryable}
+          onRetry={() => run({ unsafeOverride: false })}
+          className="w-full max-w-md"
+        />
+      ) : null}
       <InlineStatus kind={state.kind === "done" ? "success" : "idle"}>{state.kind === "done" ? state.message : null}</InlineStatus>
     </div>
   );

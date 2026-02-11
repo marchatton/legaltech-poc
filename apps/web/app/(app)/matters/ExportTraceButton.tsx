@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../lib/safeErrorDisplay";
+
 import { Button } from "../../ui/Button";
+import { ErrorBanner } from "../../ui/ErrorBanner";
 import { InlineStatus } from "../../ui/InlineStatus";
 import { Input } from "../../ui/Input";
 
@@ -14,22 +17,8 @@ type Props = {
 type ExportState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "error"; message: string }
+  | { kind: "error"; error: SafeErrorDisplay }
   | { kind: "downloaded"; message: string };
-
-function isRecord(val: unknown): val is Record<string, unknown> {
-  return !!val && typeof val === "object" && !Array.isArray(val);
-}
-
-function parseErrorEnvelope(json: unknown): { code: string; message: string; traceId?: string } | null {
-  const env = isRecord(json) && isRecord(json.error) ? json.error : null;
-  if (!env) return null;
-  const code = typeof env.code === "string" && env.code.trim() ? env.code.trim() : null;
-  const message = typeof env.message === "string" && env.message.trim() ? env.message.trim() : null;
-  const traceId = typeof env.trace_id === "string" && env.trace_id.trim() ? env.trace_id.trim() : undefined;
-  if (!code || !message) return null;
-  return { code, message, traceId };
-}
 
 export function ExportTraceButton(props: Props) {
   const [state, setState] = useState<ExportState>({ kind: "idle" });
@@ -42,7 +31,7 @@ export function ExportTraceButton(props: Props) {
   async function run() {
     const runId = runIdInput.trim();
     if (!runId) {
-      setState({ kind: "error", message: "Missing run_id." });
+      setState({ kind: "error", error: { code: "VALIDATION_ERROR", message: "Missing run_id." } });
       return;
     }
 
@@ -55,17 +44,21 @@ export function ExportTraceButton(props: Props) {
       res = await fetch(url, { method: "GET" });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", message });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
       return;
     }
 
     if (!res.ok) {
       const json: unknown = await res.json().catch(() => null);
-      const env = parseErrorEnvelope(json);
-      const code = env?.code ?? "UNKNOWN_ERROR";
-      const message = env?.message ?? `Request failed (${res.status})`;
-      const trace = env?.traceId ? ` (trace_id: ${env.traceId})` : "";
-      setState({ kind: "error", message: `${code}: ${message}${trace}` });
+      const env = parseSafeErrorEnvelope(json);
+      setState({
+        kind: "error",
+        error:
+          env ?? {
+            code: `HTTP_${res.status}`,
+            message: `Request failed (${res.status}).`,
+          },
+      });
       return;
     }
 
@@ -101,8 +94,20 @@ export function ExportTraceButton(props: Props) {
         </Button>
       </div>
 
-      <InlineStatus kind={state.kind === "error" ? "error" : state.kind === "downloaded" ? "success" : "idle"}>
-        {state.kind === "error" || state.kind === "downloaded" ? state.message : null}
+      {state.kind === "error" ? (
+        <ErrorBanner
+          title="Trace export failed"
+          code={state.error.code}
+          message={state.error.message}
+          traceId={state.error.traceId}
+          retryable={state.error.retryable}
+          onRetry={run}
+          className="w-full max-w-md"
+        />
+      ) : null}
+
+      <InlineStatus kind={state.kind === "downloaded" ? "success" : "idle"}>
+        {state.kind === "downloaded" ? state.message : null}
       </InlineStatus>
     </div>
   );

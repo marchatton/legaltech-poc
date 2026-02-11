@@ -4,7 +4,10 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../lib/safeErrorDisplay";
+
 import { Button } from "../../ui/Button";
+import { ErrorBanner } from "../../ui/ErrorBanner";
 import { InlineStatus } from "../../ui/InlineStatus";
 
 type Props = {
@@ -17,8 +20,8 @@ type Props = {
 type ExportState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "blocked"; message: string }
-  | { kind: "error"; message: string }
+  | { kind: "blocked"; error: SafeErrorDisplay }
+  | { kind: "error"; error: SafeErrorDisplay }
   | { kind: "downloaded"; message: string };
 
 function isRecord(val: unknown): val is Record<string, unknown> {
@@ -31,7 +34,7 @@ export function ExportCsvButton(props: Props) {
 
   async function run() {
     if (!props.runId) {
-      setState({ kind: "error", message: "Missing run_id." });
+      setState({ kind: "error", error: { code: "VALIDATION_ERROR", message: "Missing run_id." } });
       return;
     }
 
@@ -51,16 +54,18 @@ export function ExportCsvButton(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", message });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
       return;
     }
 
     if (!res.ok) {
       const json: unknown = await res.json().catch(() => null);
-      const env = isRecord(json) && isRecord(json.error) ? json.error : null;
-      const code = env && typeof env.code === "string" ? env.code : "UNKNOWN_ERROR";
-      const message = env && typeof env.message === "string" ? env.message : `Request failed (${res.status})`;
-      setState({ kind: code === "EXPORT_BLOCKED" ? "blocked" : "error", message: `${code}: ${message}` });
+      const env = parseSafeErrorEnvelope(json);
+      const error = env ?? {
+        code: `HTTP_${res.status}`,
+        message: `Request failed (${res.status}).`,
+      };
+      setState({ kind: error.code === "EXPORT_BLOCKED" ? "blocked" : "error", error });
       return;
     }
 
@@ -68,7 +73,13 @@ export function ExportCsvButton(props: Props) {
     const artefact = isRecord(json) && isRecord(json.artefact) ? json.artefact : null;
     const downloadUrl = artefact && typeof artefact.download_url === "string" ? artefact.download_url : null;
     if (!downloadUrl) {
-      setState({ kind: "error", message: "Missing artefact.download_url." });
+      setState({
+        kind: "error",
+        error: {
+          code: "BAD_RESPONSE",
+          message: "Missing artefact.download_url.",
+        },
+      });
       return;
     }
 
@@ -91,8 +102,20 @@ export function ExportCsvButton(props: Props) {
         {props.label ?? "Export CSV"}
       </Button>
 
-      <InlineStatus kind={state.kind === "blocked" || state.kind === "error" ? "error" : state.kind === "downloaded" ? "success" : "idle"}>
-        {state.kind === "blocked" || state.kind === "error" ? state.message : state.kind === "downloaded" ? state.message : null}
+      {state.kind === "blocked" || state.kind === "error" ? (
+        <ErrorBanner
+          title={state.kind === "blocked" ? "Export blocked" : "Export failed"}
+          code={state.error.code}
+          message={state.error.message}
+          traceId={state.error.traceId}
+          retryable={state.error.retryable}
+          onRetry={state.kind === "error" ? run : undefined}
+          className="w-full max-w-md"
+        />
+      ) : null}
+
+      <InlineStatus kind={state.kind === "downloaded" ? "success" : "idle"}>
+        {state.kind === "downloaded" ? state.message : null}
       </InlineStatus>
     </div>
   );

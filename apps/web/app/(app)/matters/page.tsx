@@ -17,6 +17,7 @@ import { Badge, type BadgeVariant } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { Chip } from "../../ui/Chip";
+import { ErrorBanner } from "../../ui/ErrorBanner";
 import { MonoId } from "../../ui/MonoId";
 import { Page, PageHeader, PageSection } from "../../ui/Page";
 
@@ -323,9 +324,7 @@ export default async function MattersPage(props: {
 
       {reviewErrorCode && !reviewErrorQid ? (
         <PageSection>
-          <Alert variant="destructive" title="Review not saved">
-            {reviewErrorMessage(reviewErrorCode)}
-          </Alert>
+          <ErrorBanner title="Review not saved" code={reviewErrorCode} message={reviewErrorMessage(reviewErrorCode)} />
         </PageSection>
       ) : null}
 
@@ -389,9 +388,12 @@ export default async function MattersPage(props: {
                 </div>
 
                 {reviewErrorCode && reviewErrorQid === row.question_id ? (
-                  <Alert variant="destructive" title="Review not saved" className="mt-3">
-                    {reviewErrorMessage(reviewErrorCode)}
-                  </Alert>
+                  <ErrorBanner
+                    title="Review not saved"
+                    code={reviewErrorCode}
+                    message={reviewErrorMessage(reviewErrorCode)}
+                    className="mt-3"
+                  />
                 ) : reviewedQid === row.question_id && row.status === "reviewed" ? (
                   <Alert variant="success" title="Saved" className="mt-3">
                     Marked as reviewed.

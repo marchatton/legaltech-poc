@@ -4,9 +4,11 @@ import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
+import { parseSafeErrorLike } from "../../../../lib/safeErrorDisplay";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
 import { Card } from "../../../ui/Card";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { EmptyState } from "../../../ui/EmptyState";
 import { MonoId } from "../../../ui/MonoId";
 import { Page, PageHeader, SectionTitle } from "../../../ui/Page";
@@ -66,6 +68,21 @@ function renderUrl(doc: DocRow): string | null {
     expires: String(signed.expires_at_ms),
     sig: signed.signature,
   }).toString()}`;
+}
+
+function documentErrorPayload(errorJson: unknown): { code: string; message: string; traceId?: string } {
+  const parsed = parseSafeErrorLike(errorJson);
+  if (parsed) {
+    return {
+      code: parsed.code,
+      message: parsed.message,
+      traceId: parsed.traceId,
+    };
+  }
+  return {
+    code: "DOCUMENT_ERROR",
+    message: "Document processing failed.",
+  };
 }
 
 export default async function MatterPage(props: { params: Promise<Record<string, string | string[] | undefined>> }) {
@@ -203,9 +220,11 @@ export default async function MatterPage(props: { params: Promise<Record<string,
                   </div>
 
                   {d.error_json ? (
-                    <pre className="mt-2 whitespace-pre-wrap text-xs text-destructive">
-                      {JSON.stringify(d.error_json, null, 2)}
-                    </pre>
+                    <ErrorBanner
+                      {...documentErrorPayload(d.error_json)}
+                      title="Document processing failed"
+                      className="mt-2"
+                    />
                   ) : null}
                 </div>
               );

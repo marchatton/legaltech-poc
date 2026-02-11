@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Badge } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
 import { Card } from "../../ui/Card";
+import { ErrorBanner } from "../../ui/ErrorBanner";
 import { Table, TableFrame, TD, TH, TR } from "../../ui/Table";
 
 import { ensureSchema, sql } from "../../../lib/db.server";
@@ -45,10 +46,7 @@ export async function ArtefactsList(props: Props) {
   const parsedId = FolderIdSchema.safeParse(props.folderId);
   if (!parsedId.success) {
     return (
-      <section className="rounded-ui-lg border border-destructive/30 bg-destructive/10 p-4">
-        <div className="text-sm font-semibold text-destructive">Artefacts</div>
-        <div className="mt-2 text-xs text-destructive">Invalid folder id.</div>
-      </section>
+      <ErrorBanner title="Artefacts unavailable" code="VALIDATION_ERROR" message="Invalid folder id." />
     );
   }
 
@@ -113,14 +111,15 @@ export async function ArtefactsList(props: Props) {
                   storageKey: a.storage_key,
                   issued: "rsc",
                 });
-              } catch (err) {
-                const message = err instanceof Error ? err.message : String(err);
+              } catch {
                 return (
                   <TR key={a.id}>
                     <TD colSpan={4}>
-                      <div className="text-xs text-destructive">
-                        Failed to sign artefact download: <span className="font-mono">{message}</span>
-                      </div>
+                      <ErrorBanner
+                        title="Artefact download unavailable"
+                        code="ARTEFACT_SIGN_FAILED"
+                        message="Failed to sign artefact download."
+                      />
                     </TD>
                   </TR>
                 );

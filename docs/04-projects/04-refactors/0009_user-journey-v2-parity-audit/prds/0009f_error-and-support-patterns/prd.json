@@ -76,7 +76,7 @@
     {
       "id": "US-001",
       "title": "Standardize deterministic error envelope adoption",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As an operator, I want consistent error payloads so I can understand and report issues reliably.",
       "acceptanceCriteria": [
@@ -85,13 +85,13 @@
         "Negative: raw stack traces/provider payloads are never returned in client-visible responses."
       ],
       "startedAt": "2026-02-11T14:30:54.300257+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T14:30:54.300273+00:00"
+      "completedAt": "2026-02-11T14:45:10.557402+00:00",
+      "updatedAt": "2026-02-11T14:45:10.557387+00:00"
     },
     {
       "id": "US-002",
       "title": "Integrate reusable ErrorBanner across surfaces",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -100,7 +100,10 @@
         "A reusable ErrorBanner component is integrated into setup, report actions, exports/artefacts, and chat.",
         "Example: report mutation and upload failures share the same banner layout and deterministic code display.",
         "Negative: bespoke one-off banners with inconsistent field mapping are not allowed."
-      ]
+      ],
+      "startedAt": "2026-02-11T14:45:13.043583+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T14:45:13.043599+00:00"
     },
     {
       "id": "US-003",

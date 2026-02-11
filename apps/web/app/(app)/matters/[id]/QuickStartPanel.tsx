@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
+import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
+
 import { Button } from "../../../ui/Button";
-import { InlineStatus } from "../../../ui/InlineStatus";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 
 type Props = {
   folderId: string;
@@ -13,20 +15,11 @@ type Props = {
 type QuickStartState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "error"; message: string }
+  | { kind: "error"; error: SafeErrorDisplay }
   | { kind: "started"; runId: string; runState: string };
 
-function isRecord(val: unknown): val is Record<string, unknown> {
-  return !!val && typeof val === "object" && !Array.isArray(val);
-}
-
-function readSafeError(json: unknown): { code: string; message: string } | null {
-  const env = isRecord(json) && isRecord(json.error) ? json.error : null;
-  if (!env) return null;
-  const code = typeof env.code === "string" && env.code.trim() ? env.code.trim() : null;
-  const message = typeof env.message === "string" && env.message.trim() ? env.message.trim() : null;
-  if (!code || !message) return null;
-  return { code, message };
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 export function QuickStartPanel(props: Props) {
@@ -48,19 +41,25 @@ export function QuickStartPanel(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", message });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
       return;
     }
 
     const json: unknown = await res.json().catch(() => null);
 
     if (!res.ok) {
-      const env = readSafeError(json);
+      const env = parseSafeErrorEnvelope(json);
       if (env) {
-        setState({ kind: "error", message: `${env.code}: ${env.message}` });
+        setState({ kind: "error", error: env });
         return;
       }
-      setState({ kind: "error", message: `Request failed (${res.status}).` });
+      setState({
+        kind: "error",
+        error: {
+          code: `HTTP_${res.status}`,
+          message: `Request failed (${res.status}).`,
+        },
+      });
       return;
     }
 
@@ -68,7 +67,7 @@ export function QuickStartPanel(props: Props) {
     const runId = run && typeof run.id === "string" ? run.id : null;
     const runState = run && typeof run.state === "string" ? run.state : "running";
     if (!runId) {
-      setState({ kind: "error", message: "Missing run.id in response." });
+      setState({ kind: "error", error: { code: "BAD_RESPONSE", message: "Missing run.id in response." } });
       return;
     }
 
@@ -88,9 +87,17 @@ export function QuickStartPanel(props: Props) {
 
       {props.disabledReason ? <div className="text-xs text-muted-foreground">{props.disabledReason}</div> : null}
 
-      <InlineStatus kind={state.kind === "error" ? "error" : "idle"}>
-        {state.kind === "error" ? state.message : null}
-      </InlineStatus>
+      {state.kind === "error" ? (
+        <ErrorBanner
+          title="Quick Start failed"
+          code={state.error.code}
+          message={state.error.message}
+          traceId={state.error.traceId}
+          retryable={state.error.retryable}
+          onRetry={start}
+          className="w-full max-w-md"
+        />
+      ) : null}
 
       {state.kind === "started" ? (
         <div className="grid gap-1 text-right text-xs text-muted-foreground">

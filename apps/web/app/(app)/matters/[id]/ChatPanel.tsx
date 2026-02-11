@@ -2,9 +2,11 @@
 
 import { useCallback, useMemo, useRef, useState, type FormEvent } from "react";
 
-import { Alert } from "../../../ui/Alert";
+import { parseSafeErrorEnvelope } from "../../../../lib/safeErrorDisplay";
+
 import { Button } from "../../../ui/Button";
 import { Chip } from "../../../ui/Chip";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { Input } from "../../../ui/Input";
 
 import { MISSING_EVIDENCE_TEXT, parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
@@ -17,7 +19,7 @@ type ChatMessage = {
   content: string;
   status?: MessageStatus;
   sources?: ChatSource[];
-  error?: { code: string; message: string };
+  error?: { code: string; message: string; traceId?: string; retryable?: boolean };
 };
 
 function safeRandomId(prefix: string): string {
@@ -107,10 +109,17 @@ export function ChatPanel(props: { folderId: string }) {
         if (!res.ok) {
           let code = `HTTP_${res.status}`;
           let message = "Chat request failed. Please retry.";
+          let traceId: string | undefined;
+          let retryable = true;
           try {
-            const json = (await res.json()) as { error?: { code?: unknown; message?: unknown } };
-            if (typeof json?.error?.code === "string") code = json.error.code;
-            if (typeof json?.error?.message === "string") message = json.error.message;
+            const json: unknown = await res.json();
+            const env = parseSafeErrorEnvelope(json);
+            if (env) {
+              code = env.code;
+              message = env.message;
+              traceId = env.traceId;
+              retryable = env.retryable ?? retryable;
+            }
           } catch {
             // ignore parse failures
           }
@@ -118,7 +127,7 @@ export function ChatPanel(props: { folderId: string }) {
           updateMessage(assistantId, (m) => ({
             ...m,
             status: "citation_failed",
-            error: { code, message },
+            error: { code, message, traceId, retryable },
           }));
           return;
         }
@@ -128,7 +137,7 @@ export function ChatPanel(props: { folderId: string }) {
           updateMessage(assistantId, (m) => ({
             ...m,
             status: "citation_failed",
-            error: { code: "NO_STREAM", message: "Chat response stream is missing. Please retry." },
+            error: { code: "NO_STREAM", message: "Chat response stream is missing. Please retry.", retryable: true },
           }));
           return;
         }
@@ -158,7 +167,7 @@ export function ChatPanel(props: { folderId: string }) {
               updateMessage(assistantId, (m) => ({
                 ...m,
                 status: "citation_failed",
-                error: { code: evt.code, message: evt.message },
+                error: { code: evt.code, message: evt.message, traceId: evt.trace_id, retryable: evt.retryable },
               }));
               return;
             }
@@ -171,7 +180,7 @@ export function ChatPanel(props: { folderId: string }) {
           updateMessage(assistantId, (m) => ({
             ...m,
             status: "citation_failed",
-            error: { code: "STREAM_ENDED", message: "Chat response ended unexpectedly. Please retry." },
+            error: { code: "STREAM_ENDED", message: "Chat response ended unexpectedly. Please retry.", retryable: true },
           }));
         }
       } finally {
@@ -222,27 +231,17 @@ export function ChatPanel(props: { folderId: string }) {
                 </div>
 
                 {!isUser && m.status === "citation_failed" ? (
-                  <Alert
-                    variant="destructive"
-                    title="Chat failed (citation_failed)"
+                  <ErrorBanner
+                    title="Chat failed"
                     className="max-w-[min(70ch,100%)]"
+                    code={m.error?.code ?? "CHAT_FAILED"}
+                    message={m.error?.message ?? "Chat failed. Please retry."}
+                    traceId={m.error?.traceId}
+                    retryable={m.error?.retryable}
+                    onRetry={m.error?.retryable === false || busy ? undefined : onRetryLast}
                   >
-                    {m.error ? (
-                      <div className="grid gap-2">
-                        <div>
-                          <span className="font-mono">{m.error.code}</span>: {m.error.message}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Button type="button" size="sm" variant="secondary" onClick={onRetryLast} disabled={busy}>
-                            Retry
-                          </Button>
-                          <div className="text-2xs text-muted-foreground">If this keeps failing, refresh the page.</div>
-                        </div>
-                      </div>
-                    ) : (
-                      "Chat failed. Please retry."
-                    )}
-                  </Alert>
+                    <div className="text-2xs text-muted-foreground">If this keeps failing, refresh the page.</div>
+                  </ErrorBanner>
                 ) : null}
 
                 {!isUser && m.status === "complete" && m.sources?.length ? (
