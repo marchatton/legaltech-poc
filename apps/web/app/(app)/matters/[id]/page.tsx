@@ -22,7 +22,7 @@ import { ExportCsvButton } from "../ExportCsvButton";
 
 import { ExportMemoButton } from "./ExportMemoButton";
 import { SetupDocumentsPanel } from "./SetupDocumentsPanel";
-import { QuickStartPanel } from "./QuickStartPanel";
+import { QuickStartPanel, type QuickStartReadiness } from "./QuickStartPanel";
 import { ChatPanel } from "./ChatPanel";
 
 export const runtime = "nodejs";
@@ -128,20 +128,6 @@ export default async function MatterPage(props: { params: Promise<Record<string,
   const completedRunId = latestRun?.state === "completed" ? latestRun.id : null;
   const chatEnabled = process.env.CHAT_ENABLED === "1";
 
-  const runnable = folder.state === "indexed" || folder.state === "ready";
-  let quickStartDisabledReason: string | null = null;
-  if (latestRun) {
-    quickStartDisabledReason =
-      "Quick Start already started for this matter. Load the pack again to create a fresh matter (no cleanup).";
-  } else if (!runnable) {
-    quickStartDisabledReason = `Quick Start is disabled until the matter is indexed/ready (current state: ${folder.state}). Refresh in a moment.`;
-  }
-
-  const unsafeOverrideEnabled =
-    process.env.DEMO_MODE === "1" &&
-    process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
-    Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
-
   const setupDocuments = docs.map((doc) => ({
     id: doc.id,
     folder_id: doc.folder_id,
@@ -160,6 +146,43 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     created_at: doc.created_at.toISOString(),
     open_pdf_url: renderUrl(doc),
   }));
+  const indexedReadyCount = setupDocuments.reduce(
+    (count, doc) => (doc.status === "indexed-ready" ? count + 1 : count),
+    0,
+  );
+
+  const runnable = folder.state === "indexed" || folder.state === "ready";
+  let quickStartReadiness: QuickStartReadiness;
+  if (latestRun?.state === "completed") {
+    quickStartReadiness = {
+      state: "already-complete",
+      reason:
+        "Latest Quick Start already completed. Review the outputs below, or load the pack again to create a fresh matter.",
+    };
+  } else if (latestRun) {
+    quickStartReadiness = {
+      state: "blocked",
+      reason: `Quick Start already ${latestRun.state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`,
+    };
+  } else if (!runnable) {
+    quickStartReadiness = {
+      state: "blocked",
+      reason:
+        indexedReadyCount === 0
+          ? `No indexed documents yet. Upload a source PDF and click Refresh readiness until at least one document reaches indexed-ready (current matter state: ${folder.state}).`
+          : `Matter state is ${folder.state}. Wait until the matter reaches indexed/ready, then run Quick Start.`,
+    };
+  } else {
+    quickStartReadiness = {
+      state: "ready",
+      reason: `${indexedReadyCount} indexed-ready document${indexedReadyCount === 1 ? "" : "s"} available. Run Quick Start now.`,
+    };
+  }
+
+  const unsafeOverrideEnabled =
+    process.env.DEMO_MODE === "1" &&
+    process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
+    Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
 
   return (
     <Page>
@@ -214,7 +237,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             </p>
           </div>
 
-          <QuickStartPanel folderId={folderId} disabledReason={quickStartDisabledReason} />
+          <QuickStartPanel folderId={folderId} readiness={quickStartReadiness} />
         </div>
 
         {latestRun ? (

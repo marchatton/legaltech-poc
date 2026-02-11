@@ -2,31 +2,57 @@
 
 import { useState } from "react";
 
-import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
-import { Alert } from "../../../ui/Alert";
 import { Button } from "../../../ui/Button";
-import { ErrorBanner } from "../../../ui/ErrorBanner";
+import { InlineStatus } from "../../../ui/InlineStatus";
+
+export type QuickStartReadinessState = "ready" | "blocked" | "already-complete";
+
+export type QuickStartReadiness = {
+  state: QuickStartReadinessState;
+  reason: string;
+};
 
 type Props = {
   folderId: string;
-  disabledReason: string | null;
+  readiness: QuickStartReadiness;
 };
 
 type QuickStartState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "error"; error: SafeErrorDisplay }
+  | { kind: "error"; message: string }
   | { kind: "started"; runId: string; runState: string };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object" && !Array.isArray(value);
+function isRecord(val: unknown): val is Record<string, unknown> {
+  return !!val && typeof val === "object" && !Array.isArray(val);
+}
+
+function readSafeError(json: unknown): { code: string; message: string } | null {
+  const env = isRecord(json) && isRecord(json.error) ? json.error : null;
+  if (!env) return null;
+  const code = typeof env.code === "string" && env.code.trim() ? env.code.trim() : null;
+  const message = typeof env.message === "string" && env.message.trim() ? env.message.trim() : null;
+  if (!code || !message) return null;
+  return { code, message };
+}
+
+function readinessLabel(state: QuickStartReadinessState): string {
+  if (state === "ready") return "Ready";
+  if (state === "already-complete") return "Already complete";
+  return "Blocked";
+}
+
+function readinessTextClass(state: QuickStartReadinessState): string {
+  if (state === "ready") return "text-success";
+  if (state === "already-complete") return "text-warning";
+  return "text-muted-foreground";
 }
 
 export function QuickStartPanel(props: Props) {
   const [state, setState] = useState<QuickStartState>({ kind: "idle" });
 
   async function start() {
-    if (props.disabledReason) return;
+    if (props.readiness.state !== "ready") return;
     setState({ kind: "loading" });
 
     let res: Response;
@@ -41,26 +67,19 @@ export function QuickStartPanel(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", error: { code: "NETWORK_ERROR", message, retryable: true } });
+      setState({ kind: "error", message });
       return;
     }
 
     const json: unknown = await res.json().catch(() => null);
 
     if (!res.ok) {
-      const env = parseSafeErrorEnvelope(json);
+      const env = readSafeError(json);
       if (env) {
-        setState({ kind: "error", error: env });
+        setState({ kind: "error", message: `${env.code}: ${env.message}` });
         return;
       }
-      setState({
-        kind: "error",
-        error: {
-          code: `HTTP_${res.status}`,
-          message: `Request failed (${res.status}).`,
-          retryable: res.status >= 500,
-        },
-      });
+      setState({ kind: "error", message: `Request failed (${res.status}).` });
       return;
     }
 
@@ -68,10 +87,7 @@ export function QuickStartPanel(props: Props) {
     const runId = run && typeof run.id === "string" ? run.id : null;
     const runState = run && typeof run.state === "string" ? run.state : "running";
     if (!runId) {
-      setState({
-        kind: "error",
-        error: { code: "BAD_RESPONSE", message: "Quick Start response was missing run.id.", retryable: false },
-      });
+      setState({ kind: "error", message: "Missing run.id in response." });
       return;
     }
 
@@ -80,33 +96,17 @@ export function QuickStartPanel(props: Props) {
 
   return (
     <div className="grid justify-items-end gap-2">
-      <Button
-        size="sm"
-        onClick={start}
-        disabled={Boolean(props.disabledReason)}
-        loading={state.kind === "loading"}
-      >
+      <Button size="sm" onClick={start} disabled={props.readiness.state !== "ready"} loading={state.kind === "loading"}>
         Run Quick Start
       </Button>
 
-      {props.disabledReason ? (
-        <Alert variant="info" className="text-left">
-          {props.disabledReason}
-        </Alert>
-      ) : null}
+      <div className={`max-w-sm text-right text-xs ${readinessTextClass(props.readiness.state)}`}>
+        <span className="font-semibold">{readinessLabel(props.readiness.state)}:</span> {props.readiness.reason}
+      </div>
 
-      {state.kind === "error" ? (
-        <ErrorBanner
-          title="Quick Start failed"
-          code={state.error.code}
-          message={state.error.message}
-          traceId={state.error.traceId}
-          supportRoute={`/matters/${props.folderId}`}
-          retryable={state.error.retryable}
-          onRetry={start}
-          className="w-full max-w-md"
-        />
-      ) : null}
+      <InlineStatus kind={state.kind === "error" ? "error" : "idle"}>
+        {state.kind === "error" ? state.message : null}
+      </InlineStatus>
 
       {state.kind === "started" ? (
         <div className="grid gap-1 text-right text-xs text-muted-foreground">
