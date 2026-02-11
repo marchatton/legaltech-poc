@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0009 Demo Operator Loop",
+  "overview": "Deterministic E2E validation for demo operator loop: persistent toolbar, allowlisted pack load/reload, checklist progression, elapsed timing, and history reopen behavior.",
+  "priority": "P1",
+  "goals": [
+    "Ensure repeatable demo operation.",
+    "Prevent non-allowlisted pack execution.",
+    "Keep checklist state and elapsed timing explicit."
+  ],
+  "nonGoals": [
+    "Second-level timing precision.",
+    "Arbitrary external pack loading."
+  ],
+  "successMetrics": [
+    "Demo pack load/reload consistently opens fresh matter context.",
+    "Checklist state progression is visible and coherent.",
+    "History reopen shortcuts preserve expected context."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/",
+      "name": "Global Demo Toolbar",
+      "purpose": "Pack selection and load controls"
+    },
+    {
+      "path": "/demo/load-pack",
+      "name": "Demo Load API",
+      "purpose": "Create/open demo matter"
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Checklist Context",
+      "purpose": "Observe checklist and elapsed timing"
+    }
+  ],
+  "uiNotes": [
+    "`DEMO MODE` indicator must be persistent.",
+    "Pack selector must enforce allowlist.",
+    "Checklist exposes `todo/in_progress/done` and minute-level elapsed only."
+  ],
+  "dataModel": [
+    {
+      "entity": "DemoPack",
+      "fields": ["pack_id", "allowlisted", "loaded_matter_id"]
+    },
+    {
+      "entity": "ChecklistState",
+      "fields": ["status", "created_at", "started_at", "updated_at", "elapsed_minutes"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario uses allowlisted packs and demo load endpoint.",
+    "example": {
+      "allowed_packs": ["pack_01_clean", "pack_02_missing_rea"]
+    }
+  },
+  "rules": [
+    "Only allowlisted packs can be loaded.",
+    "Elapsed display remains coarse (minute-level)."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/DemoToolbar.tsx",
+    "apps/web/app/(api)/demo/load-pack/route.ts",
+    "apps/web/app/(api)/runs/[id]/route.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Load and Replay Demo Packs Reliably",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a demo operator, I need repeatable pack loading with checklist visibility and quick reopen actions.",
+      "acceptanceCriteria": [
+        "Given demo mode is enabled, toolbar shows `DEMO MODE` and allowlisted pack options.",
+        "When loading a pack, system creates/opens a demo matter and checklist context appears.",
+        "Then checklist states and elapsed minutes are visible and update deterministically.",
+        "Example: `Load pack again` produces a fresh demo matter while previous history remains reopenable.",
+        "Negative: non-allowlisted pack submission returns validation error and opens no matter."
+      ]
+    }
+  ]
+}

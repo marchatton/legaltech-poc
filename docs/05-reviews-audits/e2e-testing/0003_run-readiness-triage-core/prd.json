@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0003 Run Readiness + Triage Core",
+  "overview": "Deterministic E2E validation that run start honors readiness gating and report triage tabs preserve run-scoped filtering.",
+  "priority": "P1",
+  "goals": [
+    "Enforce readiness-gated run start.",
+    "Keep run progress visible and accurate.",
+    "Validate deterministic triage tab filtering."
+  ],
+  "nonGoals": [
+    "Row mutation workflows.",
+    "Evidence viewer deep interactions."
+  ],
+  "successMetrics": [
+    "Blocked-run path returns explicit conflict state.",
+    "Triage filters match row status sets without scope loss."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Matter Detail",
+      "purpose": "Run start and progress"
+    },
+    {
+      "path": "/folders/:id/report?run_id=:runId",
+      "name": "Report JSON",
+      "purpose": "Run-scoped triage source"
+    }
+  ],
+  "uiNotes": [
+    "Quick Start blocked reason must be explicit.",
+    "Progress bar reflects questions done/total.",
+    "Triage tabs (`All`, `Needs Review`, `Reviewed`, `Flagged`) must produce deterministic subsets."
+  ],
+  "dataModel": [
+    {
+      "entity": "Run",
+      "fields": ["id", "state", "questions_total", "questions_done"]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": ["id", "question_id", "status", "citation_ids"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario uses seeded matter states for blocked and runnable preconditions.",
+    "example": {
+      "blocked_state": "ingesting",
+      "runnable_state": "ready"
+    }
+  },
+  "rules": [
+    "Non-runnable matters cannot start runs.",
+    "Triage filtering must preserve selected run scope."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(api)/folders/[id]/runs/route.ts",
+    "apps/web/app/(api)/folders/[id]/report/route.ts",
+    "apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Start Run When Ready, Then Triage by Status",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I need run start gating and triage filtering to stay deterministic so review work is trustworthy.",
+      "acceptanceCriteria": [
+        "Given a blocked matter, Quick Start shows blocked reason and does not create a run.",
+        "When matter becomes runnable and Quick Start is triggered, run state and progress become visible.",
+        "Then triage tabs filter report rows by status while preserving the active run scope.",
+        "Example: `Needs Review` tab shows only `needs_review` rows and count equals visible set.",
+        "Negative: blocked start attempt returns explicit conflict error and no hidden run creation."
+      ]
+    }
+  ]
+}

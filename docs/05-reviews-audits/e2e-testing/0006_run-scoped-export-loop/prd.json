@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0006 Run-Scoped Export Loop",
+  "overview": "P0 E2E validation for safe run-scoped exports, fail-closed blocked-export UX, and deep-link return to failed-row triage with context intact.",
+  "priority": "P0",
+  "goals": [
+    "Enforce fail-closed export posture.",
+    "Preserve run scope across export and triage surfaces.",
+    "Catch regressions in blocked-export recovery loop."
+  ],
+  "nonGoals": [
+    "Bulk export scheduling.",
+    "Unsafe override/admin export flows."
+  ],
+  "successMetrics": [
+    "Safe completed runs export successfully.",
+    "Blocked runs cannot export and always provide run-scoped failed-row recovery path."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Exports Surface",
+      "purpose": "Run selector and export actions"
+    },
+    {
+      "path": "/folders/:id/report?run_id=:runId&status=failed",
+      "name": "Failed-Row Recovery",
+      "purpose": "Blocked export triage return path"
+    }
+  ],
+  "uiNotes": [
+    "Run selector lists completed runs only.",
+    "Blocked-export panel includes deterministic failed-row count and CTA.",
+    "Recovery CTA preserves selected run context."
+  ],
+  "dataModel": [
+    {
+      "entity": "RunExportScope",
+      "fields": ["run_id", "run_state", "failed_citation_count"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario uses one completed safe run and one run with verification failures.",
+    "example": {
+      "safe_run_id": "run_safe_01",
+      "blocked_run_id": "run_blocked_01"
+    }
+  },
+  "rules": [
+    "Exports are run-scoped and fail closed when verification fails.",
+    "Blocked path must provide immediate triage return action."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(app)/matters/ExportCsvButton.tsx",
+    "apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx",
+    "apps/web/app/(api)/folders/[id]/report/route.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Export Safely and Recover via Failed Rows",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I need export controls to be safe and context-preserving so blocked runs route me directly to the right triage view.",
+      "acceptanceCriteria": [
+        "Given one safe completed run and one blocked run, export selector offers completed runs and scoped export actions.",
+        "When selecting a safe completed run, CSV/DOCX export actions succeed with downloadable outputs.",
+        "Then selecting a blocked run shows deterministic blocked panel with failed-row CTA preserving run scope.",
+        "Example: clicking `Review failed rows` opens report with matching `run_id` and failed filter.",
+        "Negative: blocked run must not produce exported file artifacts or silent success state."
+      ]
+    }
+  ]
+}

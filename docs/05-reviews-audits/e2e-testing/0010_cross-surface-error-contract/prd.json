@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0010 Cross-Surface Error Contract",
+  "overview": "P0 E2E validation that all major surfaces use deterministic error banner semantics: code, message, trace id, retry gating, and support escalation/fallback behavior.",
+  "priority": "P0",
+  "goals": [
+    "Unify failure communication across surfaces.",
+    "Ensure retry appears only when safe/retryable.",
+    "Guarantee support escalation carries safe context."
+  ],
+  "nonGoals": [
+    "Per-surface bespoke error UI.",
+    "External ticketing integration workflows."
+  ],
+  "successMetrics": [
+    "All tested surfaces render consistent ErrorBanner schema.",
+    "Retry button behavior follows `retryable` semantics.",
+    "Support configured/unconfigured branches both remain usable."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "List Surface",
+      "purpose": "Export and general error handling"
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Detail Surface",
+      "purpose": "Quick Start, chat, artefact error flows"
+    }
+  ],
+  "uiNotes": [
+    "ErrorBanner always displays deterministic `code` and message.",
+    "Retry button appears only for retryable errors with retry handler.",
+    "Support CTA uses configured target; fallback guidance appears when missing."
+  ],
+  "dataModel": [
+    {
+      "entity": "SafeErrorEnvelope",
+      "fields": ["code", "message", "traceId", "retryable"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario triggers representative errors across export, quick start, and chat surfaces.",
+    "example": {
+      "configured_support_target": "mailto:support@example.com",
+      "unconfigured_support_target": null
+    }
+  },
+  "rules": [
+    "Retry semantics are controlled solely by `retryable` flag.",
+    "Support context includes safe identifiers only."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/ui/ErrorBanner.tsx",
+    "apps/web/lib/safeErrorDisplay.ts",
+    "apps/web/app/(app)/matters/ExportCsvButton.tsx",
+    "apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx",
+    "apps/web/app/(app)/matters/[id]/ChatPanel.tsx"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Render Deterministic Error UX Across Surfaces",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I need every surface to expose the same error/retry/support contract so recovery is predictable.",
+      "acceptanceCriteria": [
+        "Given representative failures are triggered on export, quick start, and chat, each renders ErrorBanner with deterministic code/message.",
+        "When error is retryable, Retry CTA appears and replays action safely.",
+        "Then support action includes safe context (`code`, `trace_id`, `route`) via configured channel.",
+        "Example: non-retryable validation error hides Retry but keeps support action/fallback guidance.",
+        "Negative: when support target is absent, UI shows fallback support guidance instead of broken link."
+      ]
+    }
+  ]
+}

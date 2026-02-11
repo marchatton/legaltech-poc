@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0005 Trust Viewer Loop",
+  "overview": "P0 E2E validation of evidence trust loop: source jump, highlight verification, trust metadata rendering, and fail-closed citation recovery.",
+  "priority": "P0",
+  "goals": [
+    "Protect the highest-risk citation trust workflow.",
+    "Guarantee explicit verification posture at 100% zoom.",
+    "Enforce fail-closed behavior for invalid citations."
+  ],
+  "nonGoals": [
+    "Persistent citation dispute backend.",
+    "Fuzzy anchor fallback behaviors."
+  ],
+  "successMetrics": [
+    "Valid citation path renders highlight overlay and trust metadata.",
+    "Invalid citation path shows deterministic `citation_failed` reason with no overlay."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/evidence/:citationId?pack=:packId",
+      "name": "Evidence Viewer",
+      "purpose": "Citation verification and highlight rendering"
+    },
+    {
+      "path": "/matters/viewer?pack=:packId&citation=:citationId",
+      "name": "Viewer Fallback Route",
+      "purpose": "Direct viewer path for seeded scenarios"
+    }
+  ],
+  "uiNotes": [
+    "Viewer must expose `Reset to 100% to verify` behavior.",
+    "Trust footer fields (`doc_version`, `verified_at`, `loaded_state`) must be payload-backed.",
+    "`Flag citation wrong` remains UI acknowledgement only in this slice."
+  ],
+  "dataModel": [
+    {
+      "entity": "Citation",
+      "fields": ["id", "document_id", "page_number", "anchor_state", "reason_code"]
+    },
+    {
+      "entity": "TrustMetadata",
+      "fields": ["doc_version", "verified_at", "loaded_state"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario uses seeded citations with one valid and one intentionally broken anchor.",
+    "example": {
+      "valid_citation": "cit_TS-01_1",
+      "invalid_citation": "cit_TB_BAD_1"
+    }
+  },
+  "rules": [
+    "Source jumps are clickable only when anchor-ready.",
+    "Failed citations must never render highlight overlay."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(app)/matters/viewer/page.tsx",
+    "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx",
+    "apps/web/app/(api)/citations/[id]/route.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Verify Evidence and Fail Closed on Citation Errors",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I need source-to-evidence verification to be explicit for valid citations and fail closed for invalid ones.",
+      "acceptanceCriteria": [
+        "Given one valid and one broken citation, both are accessible from report/chat source chips.",
+        "When opening the valid citation, viewer renders PDF highlight overlay and trust metadata with explicit verification controls.",
+        "Then reset-to-100 action restores verifiable state and trust posture.",
+        "Example: valid citation renders one or more highlight polygons and no `citation_failed` panel.",
+        "Negative: broken citation renders deterministic `citation_failed` reason and zero highlight polygons."
+      ]
+    }
+  ]
+}

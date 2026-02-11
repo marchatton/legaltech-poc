@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0007 Artefact Provenance Retrieval",
+  "overview": "Deterministic E2E validation for artefact filtering, provenance visibility, unsafe labeling, and resilient download feedback.",
+  "priority": "P2",
+  "goals": [
+    "Ensure artefact retrieval remains auditable.",
+    "Keep unsafe outputs clearly signaled.",
+    "Catch download failure handling regressions."
+  ],
+  "nonGoals": [
+    "Artefact generation pipeline behavior.",
+    "Retention and archival policy changes."
+  ],
+  "successMetrics": [
+    "Filter behavior matches expected subsets.",
+    "All artefact rows expose provenance and safety status.",
+    "Download failures are explicit and recoverable."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Artefacts Panel",
+      "purpose": "Filter and inspect artefact rows"
+    },
+    {
+      "path": "/artefacts/:id/download",
+      "name": "Artefact Download",
+      "purpose": "Signed URL retrieval and download"
+    }
+  ],
+  "uiNotes": [
+    "Rows include `source_run_id` provenance field.",
+    "Unsafe rows show explicit `UNSAFE` label with explanation.",
+    "Download actions expose loading and deterministic failure states."
+  ],
+  "dataModel": [
+    {
+      "entity": "Artefact",
+      "fields": ["id", "kind", "type", "filename", "source_run_id", "download_url"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario uses mixed artefact fixtures (csv/docx + safe/unsafe).",
+    "example": {
+      "kinds": ["csv", "docx"],
+      "unsafe_filename_pattern": ".UNSAFE."
+    }
+  },
+  "rules": [
+    "Provenance must be visible on every artefact row.",
+    "Unsafe status must never be hidden from user."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(app)/matters/ArtefactsList.tsx",
+    "apps/web/app/(api)/folders/[id]/artefacts/route.ts",
+    "apps/web/app/(api)/artefacts/[id]/download/route.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Filter and Download Artefacts with Provenance",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I need artefact retrieval to include provenance and safety context before downloading outputs.",
+      "acceptanceCriteria": [
+        "Given mixed artefacts are present, list renders provenance and safety metadata for each row.",
+        "When applying kind/type/unsafe filters, visible rows update deterministically.",
+        "Then download action provides clear loading and completion/failure feedback.",
+        "Example: unsafe filter shows only rows marked `UNSAFE` and explanation text is available.",
+        "Negative: expired signed URL yields deterministic error UX, not silent failed download."
+      ]
+    }
+  ]
+}

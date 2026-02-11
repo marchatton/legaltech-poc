@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0002 Matter Discovery + Setup Lane",
+  "overview": "Deterministic E2E coverage for discovering/creating/opening matters and progressing setup through upload/readiness states with explicit guidance.",
+  "priority": "P1",
+  "goals": [
+    "Keep discovery actions deterministic.",
+    "Validate upload/readiness transitions end-to-end.",
+    "Guarantee actionable readiness reason copy."
+  ],
+  "nonGoals": [
+    "Checklist state-machine backend expansion.",
+    "Advanced upload orchestration (chunking/resume)."
+  ],
+  "successMetrics": [
+    "Single E2E path covers search/filter/create/upload/readiness.",
+    "Validation and blocked-readiness states remain explicit."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters List",
+      "purpose": "Search/filter/create/open entrypoint"
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Matter Setup",
+      "purpose": "Document readiness and upload progression"
+    }
+  ],
+  "uiNotes": [
+    "Saved-view chips must filter list deterministically.",
+    "Create matter requires explicit name input.",
+    "Readiness reasons must map to actionable next steps."
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": ["id", "name", "state"]
+    },
+    {
+      "entity": "DocumentReadiness",
+      "fields": ["document_id", "parse_status", "ocr_status", "page_count", "error"]
+    }
+  ],
+  "importFormat": {
+    "description": "No external import; scenario uses fixture seeding plus upload in app flow.",
+    "example": {
+      "seed_pack": "pack_01_clean",
+      "upload_file": "sample.pdf"
+    }
+  },
+  "rules": [
+    "Create without name is invalid.",
+    "Blocked readiness must explain why and what to do next."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(api)/folders/route.ts",
+    "apps/web/app/(api)/folders/[id]/documents/route.ts",
+    "apps/web/app/(api)/documents/[id]/upload/route.ts",
+    "apps/web/app/(api)/documents/[id]/complete/route.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Discover, Create, Upload, Reach Readiness Guidance",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I need to move from discovery to setup completion with explicit upload/readiness feedback.",
+      "acceptanceCriteria": [
+        "Given seeded matters and upload capability, `/matters` supports search and saved-view filtering with deterministic results.",
+        "When creating a matter with valid name and uploading a document, setup rows progress through ingest statuses.",
+        "Then readiness copy shows `ready`, `blocked`, or `already complete` with explicit next action.",
+        "Example: blocked readiness due to missing docs shows clear instruction to upload/index required documents.",
+        "Negative: submitting create without name returns validation and creates no matter."
+      ]
+    }
+  ]
+}

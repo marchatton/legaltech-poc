@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0008 L1 Run-Scoped Chat",
+  "overview": "Deterministic E2E validation for L1 run-scoped chat: run picker defaults, streaming UX, strict anchor-gated sources, scope mismatch disclosure, and no-context guard.",
+  "priority": "P1",
+  "goals": [
+    "Keep chat scope explicit and trustworthy.",
+    "Ensure source chips obey strict anchor gating.",
+    "Prevent dead-end chat interactions when no context exists."
+  ],
+  "nonGoals": [
+    "L2/L3 scope modes and compare/merge UX.",
+    "Anchor fuzzy fallback behavior."
+  ],
+  "successMetrics": [
+    "Run picker defaults to latest completed run.",
+    "Scope mismatch is disclosed whenever selected/effective differ.",
+    "No-context mode blocks sending and provides guidance."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Chat Panel",
+      "purpose": "Run-scoped chat interaction"
+    },
+    {
+      "path": "/folders/:id/chat",
+      "name": "Chat API",
+      "purpose": "Streaming response + scope metadata"
+    }
+  ],
+  "uiNotes": [
+    "Run picker should show recent completed runs.",
+    "Streaming state must be explicit while tokens arrive.",
+    "Source chips clickable only when anchor-ready; otherwise disabled with reason."
+  ],
+  "dataModel": [
+    {
+      "entity": "ChatScope",
+      "fields": ["selected_run_id", "effective_run_id", "scope_mismatch", "scope_reason"]
+    },
+    {
+      "entity": "ChatSource",
+      "fields": ["document_id", "page_number", "anchor_state"]
+    }
+  ],
+  "importFormat": {
+    "description": "Scenario uses a folder with completed runs and an additional no-context fixture path.",
+    "example": {
+      "folder_id": "fld_demo_01",
+      "no_context_case": true
+    }
+  },
+  "rules": [
+    "Selected/effective scope mismatch must always be disclosed.",
+    "Anchor-unready sources cannot be clickable evidence links."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(app)/matters/[id]/ChatPanel.tsx",
+    "apps/web/app/(api)/folders/[id]/chat/route.ts",
+    "apps/web/lib/chat/protocol.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Ask Within L1 Run Scope with Trustworthy Sources",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I need run-scoped chat to expose scope and source certainty so I can trust each answer.",
+      "acceptanceCriteria": [
+        "Given completed runs exist, chat defaults to the latest completed run in picker.",
+        "When sending a question, UI shows streaming state and then response with source chips.",
+        "Then source chips are anchor-gated and scope mismatch disclosure appears when selected/effective diverge.",
+        "Example: stale selected run causes mismatch warning with selected/effective identifiers.",
+        "Negative: when no indexed context exists, composer is disabled and request is not sent."
+      ]
+    }
+  ]
+}

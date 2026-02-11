@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0004 Drawer-First Review Decisions",
+  "overview": "Deterministic E2E validation for row decision flows in a drawer-first review surface, including mutation feedback and copy behavior.",
+  "priority": "P1",
+  "goals": [
+    "Validate drawer-driven review actions end-to-end.",
+    "Ensure mutation outcomes are explicit and immediate.",
+    "Catch silent failures in row decision workflows."
+  ],
+  "nonGoals": [
+    "Evidence viewer controls.",
+    "Reviewer assignment and queue systems."
+  ],
+  "successMetrics": [
+    "Decision actions update row status deterministically.",
+    "Mutation failure path always renders deterministic error UX."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Review Surface",
+      "purpose": "Launch row decision drawer"
+    }
+  ],
+  "uiNotes": [
+    "Drawer must preserve row context while actioning decisions.",
+    "`mark reviewed`, `flag issue`, and `copy extracted answer` are mandatory controls.",
+    "Mutation errors must render shared error contract."
+  ],
+  "dataModel": [
+    {
+      "entity": "ReviewDecision",
+      "fields": ["row_id", "action", "note", "status"]
+    }
+  ],
+  "importFormat": {
+    "description": "No import; scenario uses seeded rows requiring review decisions.",
+    "example": {
+      "row_status": "needs_review"
+    }
+  },
+  "rules": [
+    "Decision mutations must be explicit and auditable.",
+    "Clipboard action must show user-visible result."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/(app)/matters/actions.ts",
+    "apps/web/app/(api)/folders/[id]/report/route.ts"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Execute Row Decisions from Drawer",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I use one decision surface to mark reviewed, flag issues, and copy extracted answers with immediate feedback.",
+      "acceptanceCriteria": [
+        "Given a row in `needs_review`, opening row details reveals decision controls in drawer context.",
+        "When `mark reviewed` or `flag issue` is executed, row status updates in UI without hidden state transitions.",
+        "Then copy action places extracted answer in clipboard and surfaces confirmation.",
+        "Example: `mark reviewed` updates status chip from `needs_review` to `reviewed` immediately.",
+        "Negative: mutation API error renders deterministic `ErrorBanner` and row status does not falsely update."
+      ]
+    }
+  ]
+}

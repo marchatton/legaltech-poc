@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "project": "E2E-V3-0001 Shell Wayfinding Baseline",
+  "overview": "Deterministic E2E validation of shell wayfinding contract across list and detail navigation: active nav, environment posture, breadcrumbs, and sticky identifiers.",
+  "priority": "P2",
+  "goals": [
+    "Lock shell wayfinding as a stable baseline.",
+    "Catch regressions in environment posture and breadcrumb rendering.",
+    "Ensure object identifiers remain visible during navigation."
+  ],
+  "nonGoals": [
+    "Implement functional placeholder destinations.",
+    "Visual redesign of shell layout."
+  ],
+  "successMetrics": [
+    "E2E assertion coverage for U1-U4 passes consistently.",
+    "No missing shell orientation elements on list/detail transitions."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters List",
+      "purpose": "Baseline list surface with shell context"
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Matter Detail",
+      "purpose": "Detail surface to verify breadcrumb and sticky identity continuity"
+    }
+  ],
+  "uiNotes": [
+    "`Matters` nav item must be active on matters routes.",
+    "Environment badge must show deterministic posture text.",
+    "Breadcrumb chain and sticky IDs cannot render blank values."
+  ],
+  "dataModel": [
+    {
+      "entity": "ShellContext",
+      "fields": ["active_nav", "environment", "breadcrumb", "matter_id", "run_id"]
+    }
+  ],
+  "importFormat": {
+    "description": "No external import; scenario uses seeded/demo route state.",
+    "example": {
+      "pack": "pack_01_clean"
+    }
+  },
+  "rules": [
+    "Placeholder tabs remain visible but non-navigable until implemented.",
+    "Wayfinding must be explicit on both list and detail surfaces."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt",
+    "apps/web/app/page.tsx",
+    "apps/web/app/DemoToolbar.tsx",
+    "apps/web/app/(app)/matters/page.tsx"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Persistent Wayfinding Contract",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want persistent shell wayfinding so I can navigate list and detail surfaces without losing orientation.",
+      "acceptanceCriteria": [
+        "Given seeded data and demo mode, opening `/matters` renders shell context with `Matters` active.",
+        "When navigating `/matters` -> `/matters/:id` -> `/matters`, environment badge, breadcrumb chain, and sticky identifiers remain visible and consistent.",
+        "Then shell context contains non-empty environment, breadcrumb, and identifier values.",
+        "Example: badge displays `demo-dev` (or `demo-prod`) and detail breadcrumb includes matter name.",
+        "Negative: clicking placeholder tabs (`Runs`, `Alerts`, `Settings`) must not navigate to broken destinations."
+      ]
+    }
+  ]
+}
