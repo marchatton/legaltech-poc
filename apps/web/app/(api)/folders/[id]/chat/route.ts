@@ -38,6 +38,22 @@ function safeErrMessage(err: unknown): string {
   return String(err);
 }
 
+function chatErrorEnvelope(opts: {
+  code: string;
+  message: string;
+  details?: unknown;
+  traceId: string;
+  retryable?: boolean;
+}): ReturnType<typeof safeErrorEnvelope> {
+  return safeErrorEnvelope({
+    code: opts.code,
+    message: opts.message,
+    details: opts.details,
+    traceId: opts.traceId,
+    retryable: opts.retryable ?? opts.code === "INTERNAL",
+  });
+}
+
 function ndjsonStream(args: {
   traceId: string;
   folderId: string;
@@ -58,16 +74,23 @@ function ndjsonStream(args: {
       send({ type: "meta", trace_id: args.traceId });
 
       let terminalSent = false;
-      const fail = (opts: { code: string; message: string }) => {
+      const fail = (opts: { code: string; message: string; retryable: boolean }) => {
         if (terminalSent) return;
         terminalSent = true;
-        send({ type: "error", status: "citation_failed", code: opts.code, message: opts.message });
+        send({
+          type: "error",
+          status: "citation_failed",
+          code: opts.code,
+          message: opts.message,
+          trace_id: args.traceId,
+          retryable: opts.retryable,
+        });
         controller.close();
       };
 
       try {
         if (args.abortSignal.aborted) {
-          fail({ code: "ABORTED", message: "Chat request was cancelled." });
+          fail({ code: "ABORTED", message: "Chat request was cancelled.", retryable: true });
           return;
         }
 
@@ -132,7 +155,7 @@ function ndjsonStream(args: {
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("chat.stream_failed", { trace_id: args.traceId, message: safeErrMessage(err) });
-        fail({ code: "MODEL_STREAM_FAILED", message: "Chat response failed. Please retry." });
+        fail({ code: "MODEL_STREAM_FAILED", message: "Chat response failed. Please retry.", retryable: true });
       }
     },
   });
@@ -146,7 +169,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 
   const chatEnabled = process.env.CHAT_ENABLED === "1";
   if (!chatEnabled) {
-    return Response.json(safeErrorEnvelope({ code: "CHAT_DISABLED", message: "Chat is disabled.", traceId }), {
+    return Response.json(chatErrorEnvelope({ code: "CHAT_DISABLED", message: "Chat is disabled.", traceId, retryable: false }), {
       status: 404,
       headers,
     });
@@ -156,11 +179,12 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   const parsedParams = ParamsSchema.safeParse(rawParams);
   if (!parsedParams.success) {
     return Response.json(
-      safeErrorEnvelope({
+      chatErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
         traceId,
+        retryable: false,
       }),
       { status: 400, headers },
     );
@@ -170,7 +194,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   try {
     json = await req.json();
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
+    return Response.json(chatErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId, retryable: false }), {
       status: 400,
       headers,
     });
@@ -179,11 +203,12 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   const parsedBody = BodySchema.safeParse(json);
   if (!parsedBody.success) {
     return Response.json(
-      safeErrorEnvelope({
+      chatErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Body did not match schema.",
         details: parsedBody.error.flatten(),
         traceId,
+        retryable: false,
       }),
       { status: 400, headers },
     );
@@ -200,7 +225,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   `;
   const folder = folders[0] ?? null;
   if (!folder) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+    return Response.json(chatErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId, retryable: false }), {
       status: 404,
       headers,
     });

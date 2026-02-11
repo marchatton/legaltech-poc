@@ -78,6 +78,21 @@ function unsafeOverrideAllowed(req: Request): boolean {
   return safeEqual(provided, expected);
 }
 
+function exportErrorEnvelope(opts: {
+  code: string;
+  message: string;
+  details?: unknown;
+  traceId: string;
+}): ReturnType<typeof safeErrorEnvelope> {
+  return safeErrorEnvelope({
+    code: opts.code,
+    message: opts.message,
+    details: opts.details,
+    traceId: opts.traceId,
+    retryable: opts.code === "INTERNAL",
+  });
+}
+
 function extractReasonCode(provenance: unknown): string | null {
   if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return null;
   const rec = provenance as Record<string, unknown>;
@@ -150,7 +165,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
       status: 400,
       headers,
     });
@@ -159,7 +174,7 @@ export async function POST(req: Request): Promise<Response> {
   const parsedBody = BodySchema.safeParse(body);
   if (!parsedBody.success) {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Body did not match schema.",
         details: parsedBody.error.flatten(),
@@ -181,7 +196,7 @@ export async function POST(req: Request): Promise<Response> {
   `;
   const folder = folders[0] ?? null;
   if (!folder) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
       status: 404,
       headers,
     });
@@ -196,7 +211,7 @@ export async function POST(req: Request): Promise<Response> {
   `;
   const run = runs[0] ?? null;
   if (!run) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
       status: 404,
       headers,
     });
@@ -204,7 +219,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (run.state !== "completed") {
     return Response.json(
-      safeErrorEnvelope({ code: "CONFLICT", message: "Export is only available for completed runs.", traceId }),
+      exportErrorEnvelope({ code: "CONFLICT", message: "Export is only available for completed runs.", traceId }),
       { status: 409, headers },
     );
   }
@@ -225,7 +240,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (citationFailures.length > 0 && !unsafeOverride) {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "EXPORT_BLOCKED",
         message: `Export blocked: ${citationFailures.length} row(s) failed verification.`,
         details: {
@@ -241,7 +256,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (unsafeOverride && !unsafeOverrideAllowed(req)) {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "UNAUTHORISED",
         message: "Unsafe override is demo-only.",
         traceId,
@@ -256,7 +271,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (!requirementsRow || !exceptionsRow || !surveyIssuesRow) {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "INTERNAL",
         message: "Export requires list-shaped report rows.",
         details: {
@@ -277,13 +292,12 @@ export async function POST(req: Request): Promise<Response> {
     requirements = requireListPayload(requirementsRow, "requirements_tracker");
     exceptions = requireListPayload(exceptionsRow, "exceptions_table");
     surveyIssues = requireListPayload(surveyIssuesRow, "survey_issues");
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+  } catch {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "INTERNAL",
         message: "Export requires structured list payloads.",
-        details: { reason: message },
+        details: { reason: "payload_contract_mismatch" },
         traceId,
       }),
       { status: 500, headers },
@@ -329,7 +343,7 @@ export async function POST(req: Request): Promise<Response> {
     const missing = citationIds.filter((cid) => !citationsById.has(cid));
     if (missing.length) {
       return Response.json(
-        safeErrorEnvelope({
+        exportErrorEnvelope({
           code: "INTERNAL",
           message: "Export could not resolve locked citations.",
           details: { missing_citation_ids: missing.slice(0, 25), missing_count: missing.length },
@@ -362,7 +376,7 @@ export async function POST(req: Request): Promise<Response> {
       run_id: runId,
       message: err instanceof Error ? err.message : String(err),
     });
-    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to render memo docx.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "INTERNAL", message: "Failed to render memo docx.", traceId }), {
       status: 500,
       headers,
     });
@@ -373,7 +387,7 @@ export async function POST(req: Request): Promise<Response> {
   const keyOk = validateArtefactDocxStorageKey(storageKey);
   if (!keyOk.ok) {
     return Response.json(
-      safeErrorEnvelope({ code: "INTERNAL", message: "Generated invalid storage key.", traceId }),
+      exportErrorEnvelope({ code: "INTERNAL", message: "Generated invalid storage key.", traceId }),
       { status: 500, headers },
     );
   }

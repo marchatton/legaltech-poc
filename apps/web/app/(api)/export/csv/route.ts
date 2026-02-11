@@ -78,6 +78,21 @@ function unsafeOverrideAllowed(req: Request): boolean {
   return safeEqual(provided, expected);
 }
 
+function exportErrorEnvelope(opts: {
+  code: string;
+  message: string;
+  details?: unknown;
+  traceId: string;
+}): ReturnType<typeof safeErrorEnvelope> {
+  return safeErrorEnvelope({
+    code: opts.code,
+    message: opts.message,
+    details: opts.details,
+    traceId: opts.traceId,
+    retryable: opts.code === "INTERNAL",
+  });
+}
+
 function collectCitationIdsFromPayload(payloadSchemaVersion: string | null, payloadJson: unknown): string[] {
   if (payloadSchemaVersion !== LIST_PAYLOAD_V0_SCHEMA_VERSION) return [];
   const parsed = ListPayloadV0Schema.safeParse(payloadJson);
@@ -133,7 +148,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
       status: 400,
       headers,
     });
@@ -142,7 +157,7 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Body did not match schema.",
         details: parsed.error.flatten(),
@@ -159,7 +174,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (unsafeOverride && !unsafeOverrideAllowed(req)) {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "UNAUTHORISED",
         message: "Unsafe override is not allowed.",
         traceId,
@@ -179,7 +194,7 @@ export async function POST(req: Request): Promise<Response> {
   const run = runs[0] ?? null;
   if (run && run.state !== "completed") {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "CONFLICT",
         message: "Run is not completed yet.",
         details: { run_id: runId, state: run.state },
@@ -214,7 +229,7 @@ export async function POST(req: Request): Promise<Response> {
         ).sort();
 
         return Response.json(
-          safeErrorEnvelope({
+          exportErrorEnvelope({
             code: "EXPORT_BLOCKED",
             message: `Export blocked: ${failed.length} row(s) failed verification.`,
             details: {
@@ -241,7 +256,7 @@ export async function POST(req: Request): Promise<Response> {
     `;
     if (rows.length === 0) {
       return Response.json(
-        safeErrorEnvelope({
+        exportErrorEnvelope({
           code: "CONFLICT",
           message: "Export requires structured payload_json, but no matching row was found.",
           details: { run_id: runId, kind, dependency: "Initiative 002" },
@@ -252,7 +267,7 @@ export async function POST(req: Request): Promise<Response> {
     }
     if (rows.length > 1) {
       return Response.json(
-        safeErrorEnvelope({
+        exportErrorEnvelope({
           code: "CONFLICT",
           message: "Export found multiple structured payload rows for this kind.",
           details: { run_id: runId, kind, row_ids: rows.map((r) => r.id) },
@@ -283,7 +298,7 @@ export async function POST(req: Request): Promise<Response> {
       const missing = citationIds.filter((id) => !citationById.has(id));
       if (missing.length) {
         return Response.json(
-          safeErrorEnvelope({
+          exportErrorEnvelope({
             code: "CONFLICT",
             message: "Export requires locked citations, but some citation_ids were missing.",
             details: { missing_citation_ids: missing.slice(0, 25) },
@@ -297,7 +312,7 @@ export async function POST(req: Request): Promise<Response> {
     // Fixture-backed tracer bullets: folder_id maps to pack_id.
     const snapshot = /^pack_\d{2}_[a-z0-9_]+$/i.test(folderId) ? loadSeedSnapshot(folderId) : null;
     if (!snapshot) {
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
+      return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
         status: 404,
         headers,
       });
@@ -306,7 +321,7 @@ export async function POST(req: Request): Promise<Response> {
     const metaRunId = isRecord(snapshot.meta) && typeof snapshot.meta.run_id === "string" ? snapshot.meta.run_id : null;
     if (metaRunId && metaRunId !== runId) {
       return Response.json(
-        safeErrorEnvelope({
+        exportErrorEnvelope({
           code: "CONFLICT",
           message: "run_id did not match seeded snapshot.",
           details: { expected: metaRunId },
@@ -319,7 +334,7 @@ export async function POST(req: Request): Promise<Response> {
     sourceRow = snapshotRowForKind(snapshot, kind);
     if (!sourceRow) {
       return Response.json(
-        safeErrorEnvelope({
+        exportErrorEnvelope({
           code: "CONFLICT",
           message: "Export requires structured payload_json, but no matching row was found.",
           details: { run_id: runId, kind, dependency: "Initiative 002" },
@@ -333,7 +348,7 @@ export async function POST(req: Request): Promise<Response> {
       const failed = (snapshot.rows ?? []).filter((r) => r?.status === "citation_failed");
       if (failed.length > 0) {
         return Response.json(
-          safeErrorEnvelope({
+          exportErrorEnvelope({
             code: "EXPORT_BLOCKED",
             message: `Export blocked: ${failed.length} row(s) failed verification.`,
             details: {
@@ -361,7 +376,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   if (!sourceRow) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
       status: 404,
       headers,
     });
@@ -386,12 +401,12 @@ export async function POST(req: Request): Promise<Response> {
       citationById,
       unsafeOverride,
     });
-  } catch (err) {
+  } catch {
     return Response.json(
-      safeErrorEnvelope({
+      exportErrorEnvelope({
         code: "CONFLICT",
         message: "Export failed to map structured payload to CSV.",
-        details: { kind, message: err instanceof Error ? err.message : String(err) },
+        details: { kind },
         traceId,
       }),
       { status: 409, headers },
@@ -405,7 +420,7 @@ export async function POST(req: Request): Promise<Response> {
   const storageKey = `folders/${folderId}/artefacts/${artefactId}.csv`;
   const keyOk = validateArtefactCsvStorageKey(storageKey);
   if (!keyOk.ok) {
-    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Generated invalid storage key.", traceId }), {
+    return Response.json(exportErrorEnvelope({ code: "INTERNAL", message: "Generated invalid storage key.", traceId }), {
       status: 500,
       headers,
     });

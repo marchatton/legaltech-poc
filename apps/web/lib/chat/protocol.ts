@@ -10,7 +10,7 @@ export type ChatStreamEvent =
   | { type: "token"; token: string }
   | { type: "sources"; sources: ChatSource[] }
   | { type: "done"; status: "complete" }
-  | { type: "error"; status: "citation_failed"; code: string; message: string };
+  | { type: "error"; status: "citation_failed"; code: string; message: string; trace_id: string; retryable: boolean };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -60,10 +60,17 @@ export function parseChatStreamEvent(line: string): ChatStreamEvent | null {
 
   if (json.type === "error") {
     if (json.status !== "citation_failed") return null;
-    if (!isString(json.code) || !isString(json.message)) return null;
-    return { type: "error", status: "citation_failed", code: json.code, message: json.message };
+    if (!isString(json.code) || !isString(json.message) || !isString(json.trace_id)) return null;
+    if (typeof json.retryable !== "boolean") return null;
+    return {
+      type: "error",
+      status: "citation_failed",
+      code: json.code,
+      message: json.message,
+      trace_id: json.trace_id,
+      retryable: json.retryable,
+    };
   }
 
   return null;
 }
-

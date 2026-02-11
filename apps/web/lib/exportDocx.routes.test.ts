@@ -42,6 +42,21 @@ function errorCode(json: unknown): string | null {
   return typeof code === "string" && code.trim() ? code.trim() : null;
 }
 
+function errorTraceId(json: unknown): string | null {
+  if (!isRecord(json)) return null;
+  const env = json.error;
+  if (!isRecord(env)) return null;
+  const traceId = env.trace_id;
+  return typeof traceId === "string" && traceId.trim() ? traceId : null;
+}
+
+function errorRetryable(json: unknown): boolean | null {
+  if (!isRecord(json)) return null;
+  const env = json.error;
+  if (!isRecord(env)) return null;
+  return typeof env.retryable === "boolean" ? env.retryable : null;
+}
+
 function errorDetails(json: unknown): Record<string, unknown> | null {
   if (!isRecord(json)) return null;
   const env = json.error;
@@ -165,6 +180,8 @@ describe("export docx (memo)", () => {
     expect(res.status).toBe(409);
     const json: unknown = await res.json().catch(() => null);
     expect(errorCode(json)).toBe("EXPORT_BLOCKED");
+    expect(errorTraceId(json)).toMatch(/^trc_/);
+    expect(errorRetryable(json)).toBe(false);
     const details = errorDetails(json);
     expect(details?.citation_failed_count).toBe(1);
     expect(details?.failed_question_ids).toEqual(["TS-99"]);

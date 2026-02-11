@@ -42,6 +42,21 @@ function errorCode(json: unknown): string | null {
   return typeof code === "string" && code.trim() ? code.trim() : null;
 }
 
+function errorTraceId(json: unknown): string | null {
+  if (!isRecord(json)) return null;
+  const env = json.error;
+  if (!isRecord(env)) return null;
+  const traceId = env.trace_id;
+  return typeof traceId === "string" && traceId.trim() ? traceId : null;
+}
+
+function errorRetryable(json: unknown): boolean | null {
+  if (!isRecord(json)) return null;
+  const env = json.error;
+  if (!isRecord(env)) return null;
+  return typeof env.retryable === "boolean" ? env.retryable : null;
+}
+
 describe("export csv", () => {
   beforeEach(() => {
     process.env.OBJECT_STORE_SIGNING_SECRET = "test-secret";
@@ -102,6 +117,8 @@ describe("export csv", () => {
     expect(res.status).toBe(409);
     const json: unknown = await res.json().catch(() => null);
     expect(errorCode(json)).toBe("EXPORT_BLOCKED");
+    expect(errorTraceId(json)).toMatch(/^trc_/);
+    expect(errorRetryable(json)).toBe(false);
   });
 
   it("allows unsafe_override=true in dev when properly authorized", async () => {

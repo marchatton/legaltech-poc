@@ -23,8 +23,8 @@ export function assertJsonContentType(args: {
       code: "UNSUPPORTED_MEDIA_TYPE",
       message: "Content-Type must be application/json.",
       traceId: args.traceId,
+      retryable: false,
     }),
     { status: 415, headers: args.headers },
   );
 }
-

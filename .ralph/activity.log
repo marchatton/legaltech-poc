@@ -33,3 +33,7 @@
 [2026-02-10 23:39:28] US-003 verification: pnpm -r typecheck/lint/test/build + pnpm fixture:eval:all PASS
 [2026-02-10 23:41:24] US-003 progress log updated (.ralph/progress.md)
 [2026-02-10 23:44:35] ITERATION 3 end (duration=2860s)
+[2026-02-11 14:30:54] ITERATION 1 start (mode=build story=US-001)
+[2026-02-11 14:31:08] Start US-001 deterministic error envelope adoption audit
+[2026-02-11 14:37:55] Implemented US-001 error envelope contract updates in safe-error, export routes, chat route/protocol, and route tests
+[2026-02-11 14:42:32] Completed verification gates: web lint/typecheck/test, root build, and web dev server boot smoke

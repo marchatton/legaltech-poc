@@ -51,7 +51,13 @@
   "dataModel": [
     {
       "entity": "Safe error envelope",
-      "fields": ["code", "trace_id", "retryable", "message", "support_hint"]
+      "fields": [
+        "code",
+        "trace_id",
+        "retryable",
+        "message",
+        "support_hint"
+      ]
     }
   ],
   "rules": [
@@ -70,20 +76,25 @@
     {
       "id": "US-001",
       "title": "Standardize deterministic error envelope adoption",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As an operator, I want consistent error payloads so I can understand and report issues reliably.",
       "acceptanceCriteria": [
         "Targeted API surfaces return envelope with code, trace_id, retryable, and safe message fields.",
         "Example: export failure and chat failure both include deterministic code and trace_id.",
         "Negative: raw stack traces/provider payloads are never returned in client-visible responses."
-      ]
+      ],
+      "startedAt": "2026-02-11T14:30:54.300257+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T14:30:54.300273+00:00"
     },
     {
       "id": "US-002",
       "title": "Integrate reusable ErrorBanner across surfaces",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As an operator, I want one error panel pattern across workflows so recovery is familiar and fast.",
       "acceptanceCriteria": [
         "A reusable ErrorBanner component is integrated into setup, report actions, exports/artefacts, and chat.",
@@ -95,7 +106,9 @@
       "id": "US-003",
       "title": "Add support escalation action pattern",
       "status": "open",
-      "dependsOn": ["US-002"],
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As an operator, I want a support action for non-self-service failures so escalation is immediate.",
       "acceptanceCriteria": [
         "ErrorBanner includes optional support action carrying safe context fields (code, trace_id, route).",
@@ -107,7 +120,9 @@
       "id": "US-004",
       "title": "Normalize retry semantics across surfaces",
       "status": "open",
-      "dependsOn": ["US-002"],
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As an operator, I want retry behavior to be predictable so I can recover from transient failures confidently.",
       "acceptanceCriteria": [
         "Retry CTA renders only for retryable errors and invokes idempotent retry flow per surface.",
