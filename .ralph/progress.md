@@ -565,3 +565,44 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
   - Useful context
   - Folder `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` has mixed report statuses and was used for browser evidence.
 ---
+## [2026-02-11 18:35:39 UTC] - US-003: Ship split-view evidence controls and verification states
+Thread: 
+Run: 20260211-171747-21967 (iteration 3)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-3.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: bffcf5d feat(report-viewer): add split-view evidence controls
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (US-003 split-view script) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx
+  - apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+  - apps/web/test/reportEvidenceViewer.sync.test.ts
+  - apps/web/AGENTS.md
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Added split-view lock controls in the row drawer with browser-local persistence and an evidence pane that keeps row context + viewer visible together.
+  - Replaced iframe embedding with an inline `CitationViewerClient` render path because runtime CSP (`frame-ancestors 'none'`) blocks iframe embedding in this app.
+  - Added explicit evidence-viewer loading skeleton, page controls (prev/next + page input), and a `Reset to 100% to verify` CTA when zoom is not 100%.
+  - Added keyboard-safe close behavior that returns focus to the originating citation trigger, and confirmed lock persistence after page reload.
+  - Added sync coverage for US-003 split-view/focus-return and viewer control markers.
+  - Browser verification evidence screenshots:
+    - .agents/skills/00-utilities/dev-browser/tmp/us003-split-view-open.png
+    - .agents/skills/00-utilities/dev-browser/tmp/us003-zoom-reset-cta.png
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - For split-view integrations in this app, prefer inline component rendering over iframe embeds because app CSP forbids framing.
+  - Gotchas encountered
+  - Local evidence route validation required enabling `FEATURE_CITATIONS_API=1` plus `ALLOW_DEV_OBJECT_STORE_SECRET=1` to exercise DB-backed citation + render flows end-to-end.
+  - Useful context
+  - Matter `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` (run `run_us002_browser_seed`) was used for browser verification; one local dev citation (`cit_us003_demo_1`) was seeded for UI exercise.
+---

@@ -110,3 +110,4 @@
 [2026-02-11 18:02:10] Start US-003 iteration 3: split-view evidence controls and verification states
 [2026-02-11 18:09:05] Implemented US-003 UI changes: split-view lock + focus-return behavior in ReportTriagePanel and viewer loading/page/reset controls in CitationViewerClient; added sync coverage
 [2026-02-11 18:32:07] Verification complete for US-003: lint/typecheck/test/build all pass; browser validation confirmed split-view lock persistence, loading skeleton, page controls, reset CTA, and focus return on close
+[2026-02-11 18:36:05] US-003 progress log updated with commit, verification matrix, browser evidence, and CSP implementation note
