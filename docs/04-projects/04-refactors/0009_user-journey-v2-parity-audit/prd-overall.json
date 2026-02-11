@@ -18,9 +18,10 @@
     "All PRD JSON files parse and contain required keys.",
     "Every slice has 3-10 stories and explicit quality gates."
   ],
-  "openQuestions": [
-    "Should chat source references be persisted as citation rows or emitted as ephemeral anchors in parity v1?",
-    "Should scope metadata be emitted as a dedicated `scope` stream event or folded into existing `meta` events?"
+  "openQuestions": [],
+  "resolvedImplementationDecisions": [
+    "Chat sources are persisted as citation rows (chat message + citation records), not ephemeral-only anchors.",
+    "Scope metadata is emitted as a dedicated early `scope` stream event rather than folded into `meta`."
   ],
   "stack": {
     "framework": "Next.js 15 + React 19 + TypeScript",
@@ -129,7 +130,7 @@
       "decisionNeeded": "Define selected vs effective run behavior and mismatch disclosure when run_id is unavailable.",
       "impacts": ["0009c", "0009d"],
       "status": "resolved",
-      "resolution": "Soft fallback is locked with `selected_run_id`, `effective_run_id`, `scope_mismatch`, and `scope_reason` disclosure."
+      "resolution": "Soft fallback is locked with `selected_run_id`, `effective_run_id`, `scope_mismatch`, and `scope_reason` disclosure, with persisted citation-backed sources and dedicated `scope` stream events."
     },
     {
       "id": "SP-0009-02",
