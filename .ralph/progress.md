@@ -291,3 +291,45 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
   - Useful context
   - First-load Next.js compile in dev can exceed default browser automation timeouts; use extended navigation timeout for smoke scripts.
 ---
+## [2026-02-11 15:35:23 UTC] - US-003: Deliver setup documents and upload flow
+Thread: 
+Run: 20260211-143026-12311 (iteration 3)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-3.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: cb18719 feat(setup): add document upload readiness flow
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: dev-browser smoke (`/matters/[id]` upload success + unsupported MIME sad path) -> PASS
+- Files changed:
+  - apps/web/lib/documentSetup.ts
+  - apps/web/app/(api)/folders/[id]/documents/route.ts
+  - apps/web/app/(api)/documents/[id]/upload/route.ts
+  - apps/web/app/(api)/documents/[id]/complete/route.ts
+  - apps/web/app/(app)/matters/[id]/SetupDocumentsPanel.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/lib/documentSetup.test.ts
+  - apps/web/lib/foldersDocuments.routes.test.ts
+  - apps/web/test/setupDocuments.sync.test.ts
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.json
+- What was implemented
+  - Added a first-class setup documents panel on matter detail with PDF upload init/put/complete flow, readiness status rendering, and explicit handoff messaging to Quick Start/review.
+  - Added shared document setup contract utilities so upload capabilities and readiness state derivation stay consistent across UI and API.
+  - Extended folder documents API payloads to include parse/ocr + derived readiness `status`, readiness aggregates, capability envelope, and signed PDF URLs; upload-init now enforces the same PDF/size contract used by upload route.
+  - Updated upload-complete response to return readiness `status` so the UI can transition document rows immediately after completion.
+  - Added regression tests for readiness derivation, route contract behavior, and setup UI flow wiring/capability claims.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep upload capability constraints in one shared module to avoid API/UI drift and unsupported claim regressions.
+  - Gotchas encountered
+  - Browser smoke upload in dev requires object-store signing config (`ALLOW_DEV_OBJECT_STORE_SECRET=1` or explicit secret); otherwise upload-init fails at runtime.
+  - Useful context
+  - Browser verification artifacts saved to `.agents/skills/00-utilities/dev-browser/tmp/us003-setup-upload.png` and `.agents/skills/00-utilities/dev-browser/tmp/us003-setup-upload-unsupported.png`.
+---
