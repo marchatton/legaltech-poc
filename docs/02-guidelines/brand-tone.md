@@ -1,54 +1,86 @@
-# Brand Tone (Distilled)
+# Brand Tone (V5 Final)
 
-This is the writing/voice guide for the Orbital Copilot PoC (docs + product UI).
-
-Source material (generated Brand DNA):
-- `docs/02-guidelines/inspiration/brand_guidelines.md` (current run: `brand-dna-2026-02-06`)
-- `docs/02-guidelines/inspiration/prompt_library.json`
+This is the writing and microcopy standard for Orbital product UI and docs, distilled from:
+- `docs/02-guidelines/v5-final/design-system.html`
+- `docs/02-guidelines/v5-final/tokens.css`
 
 ## Voice traits
-- Developer-first: direct, specific, minimally salesy.
-- Evidence-led: “show your work” (citations, examples, concrete steps).
-- Polished and tool-like: calm confidence, not hype.
-- Editorial when explaining: use structure, headings, and crisp opinions.
+- Direct and practical: say what happened, what it means, and what to do next.
+- Evidence-first: claims should be traceable to citations, documents, or explicit system state.
+- Calm and precise: no hype language, no legal overreach, no vague confidence.
+- Structured by default: use short headings, lists, and concrete labels.
 
-## Writing principles
-- Prefer nouns and verbs over adjectives.
-- State constraints up front (what’s in scope / out of scope).
-- When unsure, say so and surface the next step to resolve it.
-- Use consistent domain terms:
-  - API/DB: **Folder**
-  - UI: **Matter**
+## Core writing principles
+- Lead with the outcome in plain language.
+- Follow with the reason or count (for example: `3 citations could not be matched`).
+- Offer a safe next action when work is blocked.
+- Prefer specific nouns over adjectives.
+- If evidence is missing, state that explicitly.
 
-## Microcopy patterns
-CTAs:
-- Verb-first, concrete: “Run Quick Start”, “Export CSV”, “Open evidence”, “Retry ingest”.
+## Product vocabulary
+- Primary user-facing object: `Matter`.
+- Technical identifiers can remain explicit (`folder_id`, source sections, page references).
+- Status labels should stay canonical and repeated consistently.
 
-Statuses (use the canonical words):
-- “Needs review”, “Reviewed”, “Missing input”, “Citation failed”.
+## Canonical status language
+Use these terms exactly when possible:
+- `Reviewed`
+- `Needs review`
+- `Missing input`
+- `Citation failed`
+- `In progress`
+- `Pending`
+- `Failed`
+- `Missing`
 
-Errors:
-- Calm, short summary first.
-- Provide a safe next action (retry, view details, contact).
-- Never leak provider internals or stack traces.
+## CTA style
+- Verb-first and concrete.
+- Keep labels short and scannable.
+- Good patterns from V5:
+  - `Run Quick Start`
+  - `View Evidence`
+  - `Export CSV`
+  - `Upload documents`
+  - `Clear filters`
+  - `Verify missing items`
 
-Evidence language:
-- If there is no evidence, do not imply certainty.
-- Prefer “Not found in provided documents.” when evidence is missing (canonical string; see `docs/03-architecture/20_state_model.md`).
+## Error and warning style
+- Start with a short, unambiguous title.
+- Include a concrete count or scope when available.
+- Explain the recovery path.
 
-## Do / Don’t
+Preferred patterns:
+- `Verification failed` + `3 citations could not be matched.`
+- `Export blocked` + `2 rows failed verification. Resolve before exporting.`
+- `3 documents need review` + `Missing source instruments for referenced commitments.`
+
+## Evidence language
+- Never imply certainty without a traceable source.
+- For unresolved extraction/search results, use the canonical phrase:
+  - `Not found in provided documents.`
+- When possible, include concrete anchors (for example: section, page, source name).
+
+## Empty states and guidance copy
+- Be specific about what is missing.
+- Tell the user exactly what to do next.
+
+Patterns:
+- `No documents yet` + `Upload PDFs to get started with document analysis.`
+- `No results found` + `Try different search terms or adjust your filters.`
+
+## Conversation style (assistant)
+- Summarize findings with counts before detail.
+- Use ordered lists for extracted results.
+- Ask focused follow-up questions that unblock the next action.
+- Keep assistant responses compact and operational.
+
+## Do / Don't
 Do:
-- “We couldn’t find supporting evidence for this in the uploaded documents.”
-- “This exception references an instrument we don’t have. Upload the referenced document or mark as reviewed.”
-- “Export blocked: 2 rows failed citation verification.”
+- `Found 12 unverified carbon commitments.`
+- `Upload the referenced document or mark as reviewed with a note.`
+- `Ingestion started. Processing 14 documents.`
 
-Don’t:
-- “All clear” (unless proven)
-- “We think…” without evidence
-- “This is legally compliant” / legal advice framing
-
-## Docs posture
-Docs should read like a practical playbook:
-- One decision per section.
-- Link to the canonical contract/doc (state model, API surface, ADRs).
-- If a doc is a summary/TL;DR, say so explicitly and link to the canonical source.
+Don't:
+- `Everything looks good` without verification.
+- `Probably` or `we think` without source-backed context.
+- Long promotional tone in system feedback.

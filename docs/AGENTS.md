@@ -22,7 +22,7 @@ Single place for workflow artefacts + docs outputs.
     - `08-example-data/` contains worked examples with synthetic yet realistic data.
     - `02-guidelines/`: brand ui guidelines and design system guidelines.
   - Archive: 
-    - `99-archive/` mirrors the live structure for closed work + old context
+    - `99-archive/` mirrors the live structure for closed work + old context. If you cannot find a file that you were expecting, look here.
 
 ## Guidelines
 - Keep docs append-only where that’s the existing convention (e.g. `CHANGELOG.md`, `LEARNINGS.md`).

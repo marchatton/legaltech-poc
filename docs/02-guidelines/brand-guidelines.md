@@ -1,74 +1,98 @@
-# Brand Guidelines (Distilled)
+# Brand Guidelines (V5 Final)
 
-These are the human-readable brand guidelines for this repo (web app + docs where relevant).
-
-They are distilled from the generated Brand DNA outputs in:
-- `docs/02-guidelines/inspiration/brand_guidelines.md` (current run: `brand-dna-2026-02-06`)
-- `docs/02-guidelines/inspiration/design_tokens.json`
-- `docs/02-guidelines/inspiration/prompt_library.json`
-
-Archived run snapshots live under `docs/02-guidelines/inspiration/brand-dna-YYYY-MM-DD/`.
+This is the human-readable brand system for Orbital, distilled from the canonical V5 files:
+- `docs/02-guidelines/v5-final/design-system.html`
+- `docs/02-guidelines/v5-final/tokens.css`
+- `docs/02-guidelines/v5-final/tailwind.preset.ts`
 
 ## One-line direction
-An engineered tool with editorial clarity: calm surfaces, sharp hierarchy, disciplined high-chroma accents, and fast tactile motion.
+Calm, evidence-first product UI: near-white cream surfaces, sharp editorial hierarchy, and restrained orange used only for high-signal actions.
 
-## Visual stance (defaults)
-- High contrast hierarchy; typography does most of the work.
-- Flat surfaces by default; elevation is rare and purposeful.
-- Compact-but-readable density (especially tables).
-- One-screen rule: “neutral + one accent”. If you can see orange + cyan + purple all at once, you probably over-used accents.
+## Visual stance
+- Default to a warm, low-noise canvas (`#FFFEFB`) and white cards (`#FFFFFF`).
+- Keep hierarchy typographic first, decorative second.
+- Use orange sparingly for only the most important action/state.
+- Prefer neutral structure (borders, spacing, rhythm) over heavy effects.
 
-## Colour roles (reference)
-Source of truth for exact tokens: `docs/02-guidelines/inspiration/design_tokens.json`.
+## Core color roles
+- `Primary` (high signal): `#FB631B`
+- `Secondary` (support/select): `#C0F0FB`
+- `Accent` (focus/ring): `#D8ACFF`
+- `Background`: `#FFFEFB`
+- `Foreground`: `#1A1A1A`
+- `Muted`: `#F5F3F0`
 
-Role mapping used across docs and UI:
-- **Primary (action):** `#FB631B` (primary CTAs, active states)
-- **Secondary (selection/highlight):** `#C0F0FB` (chips, selection, subtle emphasis backgrounds; not primary text)
-- **Accent (spark):** `#D8ACFF` (focus rings, links, occasional delight; use sparingly)
+## Semantic colors
+- `Success`: `#2D8A5F`
+- `Warning`: `#D4920B`
+- `Destructive`: `#DC4A4A`
+- `Info`: `#0D6EA5`
 
-Suggested canvases:
-- Light: background `#DFDFC1`, text `#0B0D0B`
-- Dark: background `#07080A`, text `#FFFFFF`
+## Dark mode baseline
+- `Background`: `#0A0A0A`
+- `Foreground`: `#F5F5F5`
+- `Card`: `#171717`
+- `Muted`: `#242424`
+- `Primary` boost for contrast: `#FF5A14`
+- Keep `Secondary` and `Accent` consistent (`#C0F0FB`, `#D8ACFF`).
+
+## Color scale policy
+- Brand and semantic colors ship with full `50-900` ramps.
+- The base semantic token maps to the `500` step.
+- Use `50-200` for subtle surfaces/tints, `400-700` for actionable states, `800-900` for deep contrast cases.
 
 ## Typography roles
-- Body: clean UI sans (Switzer/Inter-like stack).
-- Headings: editorial serif (Signifier-like) for hierarchy and long-form explainers.
-- Monospace: GeistMono/FT System Mono/Berkeley Mono for IDs, code-like UI, timestamps.
+- Heading/display: `Crimson Pro` (editorial emphasis, section anchors, major numbers).
+- Body/UI: `Inter` (clarity and compact readability).
+- Data/IDs/code-like UI: `JetBrains Mono`.
 
-Rule of thumb:
-- Tables/forms: sans.
-- Headings/long explanation: serif is allowed.
+## Type scale (reference)
+- Display: `48px`
+- Heading XL: `36px`
+- Heading LG: `28px`
+- Heading MD: `22px`
+- Heading SM: `18px`
+- Body: `15px`
+- Body small/metadata: `13px`
+- Overline/meta labels: `11px` mono uppercase
 
-## Spacing, layout, and shape
-- Base spacing step: 4px (4/8/12/16/24/32/48/64).
-- Default radius: small (6-10px); pills are allowed for chips/tags.
-- Borders > shadows for most components.
+## Shape, borders, and elevation
+- Radius tokens: `6px`, `8px`, `12px`, `16px`, `pill`.
+- Borders are default structure (`--border`) before shadows.
+- Shadows are light and sparse (`ui-sm`, `ui-md`, `ui-lg`) and should support depth, not style-for-style.
 
 ## Motion posture
-- Durations: 150ms (micro), 200ms (standard), 400ms (large transitions only).
-- Easing: `cubic-bezier(0.4, 0, 0.2, 1)` or `ease-in-out`.
-- No bounce by default; prefer subtle opacity/colour shifts and 1-2px transforms.
+- Durations:
+  - `150ms` micro
+  - `200ms` standard
+  - `400ms` large transitions only
+- Easing: `cubic-bezier(0.4, 0, 0.2, 1)`.
+- Motion should feel precise and calm; avoid bounce-heavy or ornamental movement.
 
-## Component guidance (app UI)
-Buttons:
-- Primary: filled primary; high-contrast text.
-- Secondary: neutral surface with subtle border.
-- Tertiary: text-only; underline-on-hover allowed.
+## Component usage rules
+- Buttons:
+  - Primary (orange) for one dominant action in view.
+  - Secondary/ghost/outline for supportive paths.
+  - Destructive uses semantic red, never primary orange.
+- Inputs:
+  - Quiet default states; clear visible focus ring using accent/ring token.
+  - Errors must include text, not color-only cues.
+- Tables and evidence surfaces:
+  - Compact layout, strong row rhythm, and easy status scanning.
+  - Show uncertainty explicitly (`Needs review`, `Missing input`, `Citation failed`).
 
-Inputs and forms:
-- Quiet styling; clear focus ring (prefer accent over primary).
-- Error states: colour + copy (never colour-only).
+## Chat-specific rules
+- User bubble uses soft cyan tint (`secondary-100` / `#DCF4FB` in light mode).
+- Reserve orange for assistant identity and action emphasis only.
+- In dark mode, user bubble shifts to deep teal (`#14262E`) with high-contrast text.
 
-Tables and “trust surfaces”:
-- Compact density with clear row separators.
-- Ensure citations and evidence are visually scannable (chips, consistent placement).
-- Prefer “Not found” / “Needs review” honesty over speculative completeness.
+## Anti-style
+- Do not turn accent colors into competing primaries in one screen.
+- Do not use orange for low-priority controls.
+- Do not hide uncertainty with optimistic copy or decorative noise.
 
-## Anti-style (avoid)
-- Generic purple-on-white SaaS defaults.
-- Empty slogans and unjustified superlatives.
-- Over-decorated UIs (shadows everywhere, gradients without purpose).
-
-## Canonical sources
-- Brand DNA (generated): `docs/02-guidelines/inspiration/*`
-- App interpretation (generated): `docs/02-guidelines/inspiration/brand-dna-2026-02-06/web-app-design-language.md`
+## Canonical source
+Treat the V5 files as source of truth for implementation details:
+- `docs/02-guidelines/v5-final/tokens.css`
+- `docs/02-guidelines/v5-final/tailwind.preset.ts`
+- `docs/02-guidelines/v5-final/design-system.html`
