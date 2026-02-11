@@ -12,6 +12,12 @@ import {
   type DocumentParseStatus,
 } from "../../../../lib/documentSetup";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
+import {
+  countReportRowsByTab,
+  filterReportRowsByTab,
+  parseReportTriageFilters,
+  type ReportTriageTab,
+} from "../../../../lib/reportTriage.server";
 
 import { Alert } from "../../../ui/Alert";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
@@ -82,6 +88,69 @@ type RunSelectorDbRow = {
   created_at: Date;
   updated_at: Date;
 };
+
+type ReportRow = {
+  id: string;
+  question_id: string;
+  question: string;
+  answer: string;
+  status: string;
+  notes: string | null;
+  provenance_json: unknown;
+  updated_at: Date;
+};
+
+type ReportRowWithCounts = ReportRow & {
+  citation_count: number;
+};
+
+const RunIdSchema = z.string().trim().min(1).max(200);
+
+const REPORT_TRIAGE_TABS: Array<{ id: ReportTriageTab; label: string }> = [
+  { id: "all", label: "All" },
+  { id: "needs_review", label: "Needs Review" },
+  { id: "reviewed", label: "Reviewed" },
+  { id: "flagged", label: "Flagged" },
+];
+
+function firstString(value: string | string[] | undefined): string | undefined {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return undefined;
+}
+
+function parseRunIdFilter(searchParams: Record<string, string | string[] | undefined>): string | null {
+  const raw = firstString(searchParams.run_id);
+  if (!raw) return null;
+  const parsed = RunIdSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
+}
+
+function formatTimestamp(isoDate: Date): string {
+  return isoDate.toISOString().slice(0, 16).replace("T", " ");
+}
+
+function statusPresentation(status: string): { label: string; variant: BadgeVariant } {
+  if (status === "reviewed") return { label: "Reviewed", variant: "success" };
+  if (status === "needs_review") return { label: "Needs Review", variant: "warning" };
+  if (status === "citation_failed") return { label: "Citation Failed", variant: "destructive" };
+  if (status === "missing_input") return { label: "Missing Input", variant: "destructive" };
+  return { label: status, variant: "muted" };
+}
+
+function reasonCodeFromProvenance(provenance: unknown): string | null {
+  if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return null;
+  const reasonCode = (provenance as { reason_code?: unknown }).reason_code;
+  return typeof reasonCode === "string" && reasonCode.trim().length > 0 ? reasonCode : null;
+}
+
+function reportTabHref(args: { folderId: string; runId: string | null; rowTab: ReportTriageTab }): string {
+  const params = new URLSearchParams();
+  if (args.runId) params.set("run_id", args.runId);
+  if (args.rowTab !== "all") params.set("row_tab", args.rowTab);
+  const query = params.toString();
+  return query.length > 0 ? `/matters/${encodeURIComponent(args.folderId)}?${query}` : `/matters/${encodeURIComponent(args.folderId)}`;
+}
 
 function renderUrl(doc: DocRow): string | null {
   if (!doc.storage_key || !doc.upload_completed_at) return null;
@@ -163,6 +232,8 @@ export default async function MatterPage(props: {
   const operatorChecklistSteps = deriveOperatorChecklistSteps(checklistSignal);
   const operatorElapsedLabel = formatOperatorElapsedLabel(checklistSignal);
   const requestedRunId = firstSearchParamValue(rawSearchParams.run_id);
+  const triageFilters = parseReportTriageFilters(rawSearchParams);
+  const reportRequestedRunId = parseRunIdFilter(rawSearchParams);
 
   const completedRuns = await sql<RunSelectorDbRow[]>`
     SELECT id, state, created_at, updated_at
@@ -182,6 +253,51 @@ export default async function MatterPage(props: {
   const initialExportRunId = resolveSelectedRunId({
     availableRuns: runOptions,
     requestedRunId,
+  });
+
+  let reportRun = latestRun;
+  if (reportRequestedRunId && reportRequestedRunId !== latestRun?.id) {
+    const requestedRuns = await sql<RunSummaryRow[]>`
+      SELECT id, state, questions_total, questions_done, created_at, updated_at
+      FROM runs
+      WHERE id = ${reportRequestedRunId}
+        AND folder_id = ${folderId}
+        AND type = 'quick_start_title_survey'
+      LIMIT 1
+    `;
+    reportRun = requestedRuns[0] ?? latestRun;
+  }
+
+  const reportRows = reportRun
+    ? await sql<ReportRow[]>`
+        SELECT id, question_id, question, answer, status, notes, provenance_json, updated_at
+        FROM report_rows
+        WHERE run_id = ${reportRun.id}
+        ORDER BY created_at ASC, question_id ASC
+      `
+    : [];
+  const reportRowIds = reportRows.map((row) => row.id);
+  const reportCitationCounts = reportRowIds.length
+    ? await sql<Array<{ report_row_id: string; count: number | string }>>`
+        SELECT report_row_id, COUNT(*)::int AS count
+        FROM citations
+        WHERE report_row_id = ANY(${reportRowIds})
+        GROUP BY report_row_id
+      `
+    : [];
+  const citationCountByRow = new Map<string, number>();
+  for (const item of reportCitationCounts) {
+    const count = typeof item.count === "number" ? item.count : Number(item.count);
+    citationCountByRow.set(item.report_row_id, Number.isFinite(count) ? count : 0);
+  }
+  const reportRowsWithCounts: ReportRowWithCounts[] = reportRows.map((row) => ({
+    ...row,
+    citation_count: citationCountByRow.get(row.id) ?? 0,
+  }));
+  const reportRowCounts = countReportRowsByTab(reportRowsWithCounts);
+  const visibleReportRows = filterReportRowsByTab({
+    rows: reportRowsWithCounts,
+    rowTab: triageFilters.rowTab,
   });
 
   const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
@@ -394,6 +510,151 @@ export default async function MatterPage(props: {
           </div>
         ) : (
           <EmptyState title="No runs yet" description="Start a Quick Start run to analyse this matter." />
+        )}
+      </Card>
+
+      <Card className="mt-8 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <SectionTitle>Report Triage</SectionTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Filter report rows by status and scan long outputs using a dense, sticky-header table.
+            </p>
+          </div>
+          {reportRun ? (
+            <div className="grid justify-items-end gap-1 text-xs text-muted-foreground">
+              <div>
+                run: <span className="font-mono">{reportRun.id}</span>
+              </div>
+              <div>
+                showing {visibleReportRows.length} of {reportRowsWithCounts.length}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {reportRun ? (
+          <>
+            <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Report row status tabs">
+              {REPORT_TRIAGE_TABS.map((tab) => {
+                const isActive = triageFilters.rowTab === tab.id;
+                return (
+                  <Link
+                    key={tab.id}
+                    href={reportTabHref({
+                      folderId,
+                      runId: reportRun?.id ?? null,
+                      rowTab: tab.id,
+                    })}
+                    aria-current={isActive ? "page" : undefined}
+                    className={
+                      isActive
+                        ? "inline-flex items-center gap-2 rounded-full border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                        : "inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                    }
+                  >
+                    <span>{tab.label}</span>
+                    <span
+                      className={
+                        isActive
+                          ? "rounded-full bg-primary-foreground/20 px-1.5 py-0.5 text-2xs font-semibold"
+                          : "rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground"
+                      }
+                    >
+                      {reportRowCounts[tab.id]}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {reportRowsWithCounts.length === 0 ? (
+              <div className="mt-4">
+                <EmptyState title="No report rows yet" description="Run Quick Start to generate report rows for triage." />
+              </div>
+            ) : (
+              <div className="mt-4 max-h-[34rem] overflow-auto rounded-ui-md border border-border">
+                <table className="w-full min-w-[1080px] border-collapse text-left text-xs">
+                  <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
+                    <tr>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        QID
+                      </th>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        Question
+                      </th>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        Answer
+                      </th>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        Status
+                      </th>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        Citations
+                      </th>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        Provenance
+                      </th>
+                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                        Updated
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleReportRows.length === 0 ? (
+                      <tr>
+                        <td className="px-3 py-6 text-sm text-muted-foreground" colSpan={7}>
+                          No rows match <span className="font-mono">{triageFilters.rowTab}</span>.
+                        </td>
+                      </tr>
+                    ) : (
+                      visibleReportRows.map((row) => {
+                        const status = statusPresentation(row.status);
+                        const reasonCode = reasonCodeFromProvenance(row.provenance_json);
+                        return (
+                          <tr key={row.id} className="border-b border-border/60 align-top hover:bg-muted/30">
+                            <td className="px-3 py-2">
+                              <span className="font-mono text-2xs text-muted-foreground">{row.question_id}</span>
+                            </td>
+                            <td className="px-3 py-2 text-foreground">
+                              <div className="max-w-sm leading-relaxed">{row.question}</div>
+                            </td>
+                            <td className="px-3 py-2 text-muted-foreground">
+                              <div className="max-w-xl whitespace-pre-wrap break-words leading-relaxed">
+                                {row.answer.trim().length > 0 ? row.answer : "Not provided."}
+                              </div>
+                            </td>
+                            <td className="px-3 py-2">
+                              <Badge variant={status.variant} size="sm">
+                                {status.label}
+                              </Badge>
+                            </td>
+                            <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{row.citation_count}</td>
+                            <td className="px-3 py-2 text-muted-foreground">
+                              <div className="max-w-52 break-words">
+                                {reasonCode ? (
+                                  <span className="font-mono text-2xs">{reasonCode}</span>
+                                ) : row.notes?.trim() ? (
+                                  row.notes
+                                ) : (
+                                  "None"
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{formatTimestamp(row.updated_at)}</td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="mt-4">
+            <EmptyState title="No runs to review" description="Start Quick Start first, then triage report rows here." />
+          </div>
         )}
       </Card>
 
