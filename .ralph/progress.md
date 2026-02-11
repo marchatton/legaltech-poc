@@ -333,3 +333,42 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
   - Useful context
   - Browser verification artifacts saved to `.agents/skills/00-utilities/dev-browser/tmp/us003-setup-upload.png` and `.agents/skills/00-utilities/dev-browser/tmp/us003-setup-upload-unsupported.png`.
 ---
+## [2026-02-11 15:50:10 UTC] - US-004: Show Quick Start readiness reasons
+Thread: 
+Run: 20260211-143026-12311 (iteration 4)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-4.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 8e5ad8e feat(quick-start): show readiness reason states
+- Post-commit status: `clean`
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (checked `/matters/fld_us004_blocked`, `/matters/fld_us004_ready`, `/matters/fld_us004_complete`) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/test/quickStartReadiness.sync.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.json
+- What was implemented
+  - Added an explicit Quick Start readiness model (`ready`, `blocked`, `already-complete`) and rendered operator-facing reason copy for each state.
+  - Added actionable blocked guidance for missing indexed docs (upload + refresh readiness path) without adding backend checklist persistence or new run-state APIs.
+  - Added completed-run specific copy so operators understand the matter is already done and what to do next.
+  - Added sync test coverage to lock the readiness state contract and reason-copy presence.
+  - Browser-verified all three readiness states with screenshots:
+    - .agents/skills/00-utilities/dev-browser/tmp/us004-blocked.png
+    - .agents/skills/00-utilities/dev-browser/tmp/us004-ready.png
+    - .agents/skills/00-utilities/dev-browser/tmp/us004-complete.png
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Model user-facing run affordances as explicit UI states to keep copy and disabled behavior aligned.
+  - Gotchas encountered
+  - First request to a newly compiled Next.js route can exceed default 30s Playwright navigation timeout; increase timeout for first-hit browser checks.
+  - Useful context
+  - Reusing derived document readiness data for both rendering and counters avoids duplicate status computations.
+---
