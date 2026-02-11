@@ -21,9 +21,9 @@ import { MonoId } from "../../../ui/MonoId";
 import { Page, PageHeader, SectionTitle } from "../../../ui/Page";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { ArtefactsList } from "../ArtefactsList";
-import { ExportCsvButton } from "../ExportCsvButton";
+import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
 
-import { ExportMemoButton } from "./ExportMemoButton";
+import { ExportsPanel } from "./ExportsPanel";
 import { SetupDocumentsPanel } from "./SetupDocumentsPanel";
 import { QuickStartPanel, type QuickStartReadiness } from "./QuickStartPanel";
 import { ChatPanel } from "./ChatPanel";
@@ -40,6 +40,8 @@ export const dynamic = "force-dynamic";
 const ParamsSchema = z.object({
   id: z.string().min(1),
 });
+
+type SearchParamRecord = Record<string, string | string[] | undefined>;
 
 type FolderRow = {
   id: string;
@@ -74,6 +76,13 @@ type RunSummaryRow = {
   started_at: Date | null;
 };
 
+type RunSelectorDbRow = {
+  id: string;
+  state: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
 function renderUrl(doc: DocRow): string | null {
   if (!doc.storage_key || !doc.upload_completed_at) return null;
   const keyValid = validateStorageKey(doc.storage_key);
@@ -92,10 +101,14 @@ function checklistBadgeVariant(state: OperatorChecklistState): BadgeVariant {
   return "muted";
 }
 
-export default async function MatterPage(props: { params: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function MatterPage(props: {
+  params: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Promise<SearchParamRecord>;
+}) {
   assertDevOrDemoProd();
 
   const rawParams = await props.params;
+  const rawSearchParams = (await props.searchParams) ?? {};
   const parsed = ParamsSchema.safeParse(rawParams);
   if (!parsed.success) {
     return (
@@ -149,9 +162,29 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     : null;
   const operatorChecklistSteps = deriveOperatorChecklistSteps(checklistSignal);
   const operatorElapsedLabel = formatOperatorElapsedLabel(checklistSignal);
+  const requestedRunId = firstSearchParamValue(rawSearchParams.run_id);
+
+  const completedRuns = await sql<RunSelectorDbRow[]>`
+    SELECT id, state, created_at, updated_at
+    FROM runs
+    WHERE folder_id = ${folderId}
+      AND type = 'quick_start_title_survey'
+      AND state = 'completed'
+    ORDER BY created_at DESC, updated_at DESC, id DESC
+    LIMIT 25
+  `;
+  const runOptions: RunSelectorOption[] = completedRuns.map((run) => ({
+    run_id: run.id,
+    status: run.state,
+    created_at: run.created_at.toISOString(),
+    updated_at: run.updated_at.toISOString(),
+  }));
+  const initialExportRunId = resolveSelectedRunId({
+    availableRuns: runOptions,
+    requestedRunId,
+  });
 
   const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
-  const completedRunId = latestRun?.state === "completed" ? latestRun.id : null;
   const chatEnabled = process.env.CHAT_ENABLED === "1";
 
   const setupDocuments = docs.map((doc) => ({
@@ -369,29 +402,17 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           <div>
             <SectionTitle>Exports</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
-              Export a Word memo (.docx) and CSV artefacts for the latest completed run. Exports are disabled until a run
-              completes.
+              Export a Word memo (.docx) and CSV artefacts for a selected completed run. Review links keep the same run
+              scope.
             </p>
           </div>
 
-          <div className="grid justify-items-end gap-2">
-            <ExportMemoButton
-              folderId={folderId}
-              runId={latestRun?.id ?? null}
-              runState={latestRun?.state ?? null}
-              unsafeOverrideEnabled={unsafeOverrideEnabled}
-            />
-            <div className="flex flex-wrap items-start justify-end gap-2">
-              <ExportCsvButton
-                folderId={folderId}
-                runId={completedRunId}
-                kind="requirements_tracker"
-                label="Export requirements"
-              />
-              <ExportCsvButton folderId={folderId} runId={completedRunId} kind="exceptions_table" label="Export exceptions" />
-              <ExportCsvButton folderId={folderId} runId={completedRunId} kind="survey_issues" label="Export survey issues" />
-            </div>
-          </div>
+          <ExportsPanel
+            folderId={folderId}
+            runOptions={runOptions}
+            initialRunId={initialExportRunId}
+            unsafeOverrideEnabled={unsafeOverrideEnabled}
+          />
         </div>
       </Card>
 

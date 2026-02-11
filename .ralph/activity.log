@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-11 17:26:18 | run=20260211-171748-22180 | iter=1 | mode=build | story=US-001 | duration=510s | status=success
 - 2026-02-11 15:51:15 | run=20260211-143026-12311 | iter=4 | mode=build | story=US-004 | duration=888s | status=success
 - 2026-02-11 15:36:23 | run=20260211-143026-12311 | iter=3 | mode=build | story=US-003 | duration=1170s | status=success
 - 2026-02-11 15:16:47 | run=20260211-143026-12311 | iter=2 | mode=build | story=US-002 | duration=1659s | status=success
@@ -68,3 +69,8 @@
 [2026-02-11 17:21:14] Implemented US-001 route changes: added GET /folders/:id/runs selector contract, middleware allowance, and route tests
 [2026-02-11 17:24:00] Verification complete for US-001: lint/typecheck/test/build all passing
 [2026-02-11 17:25:38] Updated .ralph/progress.md with US-001 run summary and verification details
+[2026-02-11 17:26:18] ITERATION 1 end (duration=510s)
+[2026-02-11 17:26:26] ITERATION 2 start (mode=build story=US-002)
+[2026-02-11 17:26:42] Start US-002 run-scoped export panel + failed-row deep-link (iter 2)
+[2026-02-11 17:32:49] Implemented US-002 run-scope utilities, export panel selector, and review-failed-rows deep-links
+[2026-02-11 17:38:24] Verification complete for US-002 (lint/typecheck/test/build + browser deep-link smoke)

@@ -91,7 +91,7 @@
     {
       "id": "US-001",
       "title": "Ship run selector API contract for export/report",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As an operator, I want recent runs available in selectors so export/report actions target the intended run.",
       "acceptanceCriteria": [
@@ -100,13 +100,13 @@
         "Negative: non-completed runs are not included in parity v1 selector options."
       ],
       "startedAt": "2026-02-11T17:17:48.246206+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T17:17:48.246229+00:00"
+      "completedAt": "2026-02-11T17:26:20.705754+00:00",
+      "updatedAt": "2026-02-11T17:26:20.705712+00:00"
     },
     {
       "id": "US-002",
       "title": "Add run-scoped export panel and failed-row deep-link",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -115,7 +115,10 @@
         "Export panel displays selected run and applies it to all export actions.",
         "Example: blocked export shows `Review failed rows` link to `/matters/:id?tab=report&run_id=<id>&status=failed`.",
         "Negative: deep-link navigation must not drop run scope or status filter."
-      ]
+      ],
+      "startedAt": "2026-02-11T17:26:25.501408+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T17:26:25.501434+00:00"
     },
     {
       "id": "US-003",

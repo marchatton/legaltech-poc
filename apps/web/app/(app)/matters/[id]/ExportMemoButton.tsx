@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,7 @@ import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
 import { Input } from "../../../ui/Input";
+import { buildMatterTabHref } from "../runScope";
 
 type Props = {
   folderId: string;
@@ -71,11 +72,18 @@ export function ExportMemoButton(props: Props) {
 
   const disabled = disabledReason(props);
 
-  const reportHref = props.runId
-    ? `/folders/${encodeURIComponent(props.folderId)}/report?${new URLSearchParams({
-        run_id: props.runId,
-      }).toString()}`
+  const reviewFailedRowsHref = props.runId
+    ? buildMatterTabHref({
+        matterId: props.folderId,
+        tab: "report",
+        runId: props.runId,
+        status: "failed",
+      })
     : null;
+
+  useEffect(() => {
+    setState({ kind: "idle" });
+  }, [props.runId]);
 
   async function run(args: { unsafeOverride: boolean }) {
     if (disabled) return;
@@ -177,10 +185,10 @@ export function ExportMemoButton(props: Props) {
               </div>
             ) : null}
 
-            {reportHref ? (
+            {reviewFailedRowsHref ? (
               <div className="mt-2">
-                <a className="font-medium underline" href={reportHref} target="_blank" rel="noreferrer">
-                  Next: open Report JSON to fix citations
+                <a className="font-medium underline" href={reviewFailedRowsHref}>
+                  Review failed rows
                 </a>
               </div>
             ) : (

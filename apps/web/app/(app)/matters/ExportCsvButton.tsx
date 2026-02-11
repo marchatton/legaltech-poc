@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -9,6 +9,7 @@ import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../lib/safe
 import { Button } from "../../ui/Button";
 import { ErrorBanner } from "../../ui/ErrorBanner";
 import { InlineStatus } from "../../ui/InlineStatus";
+import { buildMatterTabHref } from "./runScope";
 
 type Props = {
   folderId: string;
@@ -31,6 +32,18 @@ function isRecord(val: unknown): val is Record<string, unknown> {
 export function ExportCsvButton(props: Props) {
   const router = useRouter();
   const [state, setState] = useState<ExportState>({ kind: "idle" });
+  const reviewFailedRowsHref = props.runId
+    ? buildMatterTabHref({
+        matterId: props.folderId,
+        tab: "report",
+        runId: props.runId,
+        status: "failed",
+      })
+    : null;
+
+  useEffect(() => {
+    setState({ kind: "idle" });
+  }, [props.runId]);
 
   async function run() {
     if (!props.runId) {
@@ -122,6 +135,12 @@ export function ExportCsvButton(props: Props) {
           onRetry={state.kind === "error" ? run : undefined}
           className="w-full max-w-md"
         />
+      ) : null}
+
+      {state.kind === "blocked" && reviewFailedRowsHref ? (
+        <a className="text-xs font-medium underline" href={reviewFailedRowsHref}>
+          Review failed rows
+        </a>
       ) : null}
 
       <InlineStatus kind={state.kind === "downloaded" ? "success" : "idle"}>
