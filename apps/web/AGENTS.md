@@ -21,6 +21,10 @@ Next.js App Router web application.
 - The intended operator flow is: iterate locally (Sprite/host) first, then deploy to a single Hetzner VM via Docker Compose.
 - Canonical runbook: `docs/04-projects/02-features/0007_demo-prod-deploy/runbook.md`
 
+## Local verification notes
+- For artefacts tab UI checks in local dev, enable list rendering + dev signing fallback:
+  `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3101`
+
 ## Frontend skills
 - `generating-tailwind-brand-config` for brand tokens/config
 - `baseline-ui`, `interface-design`, `frontend-design`, and `web-design-guidelines` for UI

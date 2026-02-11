@@ -22,6 +22,8 @@ import {
   uniqueFilterValues,
   type ArtefactFilterSearchParams,
 } from "./artefactsFilters";
+import { ArtefactDownloadButton } from "./ArtefactDownloadButton";
+import { UnsafeArtefactBadge } from "./UnsafeArtefactBadge";
 
 type Props = {
   folderId: string;
@@ -236,9 +238,7 @@ export async function ArtefactsList(props: Props) {
                   <TD>
                     <div className="flex flex-wrap items-center gap-2">
                       {unsafe ? (
-                        <Badge variant="destructive" size="sm">
-                          UNSAFE
-                        </Badge>
+                        <UnsafeArtefactBadge label="UNSAFE" />
                       ) : null}
                       <span className="font-mono">{artefact.filename}</span>
                     </div>
@@ -255,9 +255,7 @@ export async function ArtefactsList(props: Props) {
                   </TD>
                   <TD>
                     {unsafe ? (
-                      <Badge variant="destructive" size="sm">
-                        unsafe
-                      </Badge>
+                      <UnsafeArtefactBadge label="unsafe" />
                     ) : (
                       <Badge variant="success" size="sm">
                         safe
@@ -273,9 +271,7 @@ export async function ArtefactsList(props: Props) {
                     </span>
                   </TD>
                   <TD className="text-right">
-                    <a className={buttonClassName({ variant: "secondary", size: "sm" })} href={downloadHref}>
-                      Download
-                    </a>
+                    <ArtefactDownloadButton href={downloadHref} filename={artefact.filename} />
                   </TD>
                 </TR>
               );
