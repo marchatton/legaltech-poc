@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-11 15:10:21 | run=20260211-143054-12725 | iter=2 | mode=build | story=US-002 | duration=1507s | status=success
 - 2026-02-11 14:45:06 | run=20260211-143054-12725 | iter=1 | mode=build | story=US-001 | duration=851s | status=success
 - 2026-02-10 23:44:35 | run=20260210-224307-10605 | iter=3 | mode=build | story=US-003 | duration=2860s | status=success
 - 2026-02-10 22:56:52 | run=20260210-224307-10605 | iter=2 | mode=build | story=US-002 | duration=746s | status=success
@@ -45,3 +46,8 @@
 [2026-02-11 14:53:40] US-002 major code changes complete: added shared ErrorBanner + safe-error parser and integrated across setup/report/export/artefacts/chat surfaces
 [2026-02-11 14:57:36] US-002 verification complete: lint, typecheck, test, and build passed
 [2026-02-11 15:09:32] US-002 progress log updated with commit, verification, and browser evidence details
+[2026-02-11 15:10:19] ITERATION 2 end (duration=1507s)
+[2026-02-11 15:10:28] ITERATION 3 start (mode=build story=US-003)
+[2026-02-11 15:11:17] US-003 iteration 3: starting work and reviewing required context files
+[2026-02-11 15:18:09] US-003: implemented ErrorBanner support escalation pattern and wired supportRoute across matters surfaces
+[2026-02-11 15:24:41] US-003: verification complete (lint/typecheck/test/build + browser checks for fallback and configured support action)

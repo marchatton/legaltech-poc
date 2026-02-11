@@ -100,6 +100,7 @@ export function ExportTraceButton(props: Props) {
           code={state.error.code}
           message={state.error.message}
           traceId={state.error.traceId}
+          supportRoute="/matters"
           retryable={state.error.retryable}
           onRetry={run}
           className="w-full max-w-md"

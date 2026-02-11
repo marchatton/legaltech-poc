@@ -157,6 +157,7 @@ export function ExportMemoButton(props: Props) {
           code={state.error.code}
           message={state.error.message}
           traceId={state.error.traceId}
+          supportRoute={`/matters/${props.folderId}`}
           className="w-full max-w-md"
         >
           <div className="text-xs text-destructive">
@@ -238,6 +239,7 @@ export function ExportMemoButton(props: Props) {
           code={state.error.code}
           message={state.error.message}
           traceId={state.error.traceId}
+          supportRoute={`/matters/${props.folderId}`}
           retryable={state.error.retryable}
           onRetry={() => run({ unsafeOverride: false })}
           className="w-full max-w-md"

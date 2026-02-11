@@ -11,6 +11,7 @@ import { createSignedGetHeaders } from "../../../lib/objectStore.server";
 
 type Props = {
   folderId: string;
+  supportRoute?: string;
 };
 
 const FolderIdSchema = z.string().trim().min(1).max(200).regex(/^[A-Za-z0-9_-]+$/);
@@ -46,7 +47,12 @@ export async function ArtefactsList(props: Props) {
   const parsedId = FolderIdSchema.safeParse(props.folderId);
   if (!parsedId.success) {
     return (
-      <ErrorBanner title="Artefacts unavailable" code="VALIDATION_ERROR" message="Invalid folder id." />
+      <ErrorBanner
+        title="Artefacts unavailable"
+        code="VALIDATION_ERROR"
+        message="Invalid folder id."
+        supportRoute={props.supportRoute}
+      />
     );
   }
 
@@ -119,6 +125,7 @@ export async function ArtefactsList(props: Props) {
                         title="Artefact download unavailable"
                         code="ARTEFACT_SIGN_FAILED"
                         message="Failed to sign artefact download."
+                        supportRoute={props.supportRoute}
                       />
                     </TD>
                   </TR>

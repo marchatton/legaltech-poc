@@ -93,6 +93,7 @@ export function QuickStartPanel(props: Props) {
           code={state.error.code}
           message={state.error.message}
           traceId={state.error.traceId}
+          supportRoute={`/matters/${props.folderId}`}
           retryable={state.error.retryable}
           onRetry={start}
           className="w-full max-w-md"

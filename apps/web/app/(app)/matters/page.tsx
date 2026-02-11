@@ -324,7 +324,12 @@ export default async function MattersPage(props: {
 
       {reviewErrorCode && !reviewErrorQid ? (
         <PageSection>
-          <ErrorBanner title="Review not saved" code={reviewErrorCode} message={reviewErrorMessage(reviewErrorCode)} />
+          <ErrorBanner
+            title="Review not saved"
+            code={reviewErrorCode}
+            message={reviewErrorMessage(reviewErrorCode)}
+            supportRoute="/matters"
+          />
         </PageSection>
       ) : null}
 
@@ -362,7 +367,7 @@ export default async function MattersPage(props: {
 
           {artefactsListEnabled ? (
             <div className="mt-8">
-              <ArtefactsList folderId={packId} />
+              <ArtefactsList folderId={packId} supportRoute="/matters" />
             </div>
           ) : null}
 
@@ -392,6 +397,7 @@ export default async function MattersPage(props: {
                     title="Review not saved"
                     code={reviewErrorCode}
                     message={reviewErrorMessage(reviewErrorCode)}
+                    supportRoute="/matters"
                     className="mt-3"
                   />
                 ) : reviewedQid === row.question_id && row.status === "reviewed" ? (

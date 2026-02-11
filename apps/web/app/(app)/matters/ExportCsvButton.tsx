@@ -108,6 +108,7 @@ export function ExportCsvButton(props: Props) {
           code={state.error.code}
           message={state.error.message}
           traceId={state.error.traceId}
+          supportRoute="/matters"
           retryable={state.error.retryable}
           onRetry={state.kind === "error" ? run : undefined}
           className="w-full max-w-md"

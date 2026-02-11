@@ -237,6 +237,7 @@ export function ChatPanel(props: { folderId: string }) {
                     code={m.error?.code ?? "CHAT_FAILED"}
                     message={m.error?.message ?? "Chat failed. Please retry."}
                     traceId={m.error?.traceId}
+                    supportRoute={`/matters/${props.folderId}`}
                     retryable={m.error?.retryable}
                     onRetry={m.error?.retryable === false || busy ? undefined : onRetryLast}
                   >

@@ -223,6 +223,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
                     <ErrorBanner
                       {...documentErrorPayload(d.error_json)}
                       title="Document processing failed"
+                      supportRoute={`/matters/${folderId}`}
                       className="mt-2"
                     />
                   ) : null}
@@ -331,7 +332,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
 
       {artefactsListEnabled ? (
         <div className="mt-8">
-          <ArtefactsList folderId={folderId} />
+          <ArtefactsList folderId={folderId} supportRoute={`/matters/${folderId}`} />
         </div>
       ) : null}
     </Page>
