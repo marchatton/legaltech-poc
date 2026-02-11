@@ -150,7 +150,7 @@ describe("artefacts list + download", () => {
       const downloadUrl = listJson.artefacts[0]?.download_url;
       expect(typeof downloadUrl).toBe("string");
 
-      const downloadRes = await downloadGet(new Request(downloadUrl!), {
+      const downloadRes = await downloadGet(new Request(new URL(downloadUrl!, "http://localhost:3000")), {
         params: Promise.resolve({ id: artefactId }),
       });
 

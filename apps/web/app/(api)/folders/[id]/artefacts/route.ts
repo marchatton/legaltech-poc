@@ -69,13 +69,11 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     ORDER BY created_at DESC
   `;
 
-  const origin = new URL(req.url).origin;
-
   return Response.json(
     {
       artefacts: artefacts.map((a) => {
         const signed = createSignedGetHeaders({ storageKey: a.storage_key });
-        const downloadUrl = `${origin}/artefacts/${a.id}/download?${new URLSearchParams({
+        const downloadUrl = `/artefacts/${a.id}/download?${new URLSearchParams({
           expires: String(signed.expires_at_ms),
           sig: signed.signature,
           issued: traceId,

@@ -48,13 +48,14 @@ async function main() {
   const initJson = await readJson(initRes);
   const documentId = String(initJson.document?.id ?? "");
   const storageKey = String(initJson.upload?.storage_key ?? "");
-  const uploadUrl = String(initJson.upload?.url ?? "");
+  const uploadUrlRaw = String(initJson.upload?.url ?? "");
   const uploadHeaders = (initJson.upload?.headers ?? {}) as Record<string, string>;
 
-  if (!documentId || !storageKey || !uploadUrl) {
+  if (!documentId || !storageKey || !uploadUrlRaw) {
     throw new Error(`Init upload response missing fields: ${JSON.stringify(initJson)}`);
   }
 
+  const uploadUrl = new URL(uploadUrlRaw, base).toString();
   const putRes = await fetch(uploadUrl, {
     method: "PUT",
     headers: uploadHeaders,
@@ -94,8 +95,9 @@ async function main() {
   if (!renderRes.ok) throw new Error(`Render URL fetch failed: ${JSON.stringify(await readJson(renderRes))}`);
   const renderJson = await readJson(renderRes);
 
-  const renderUrl = String(renderJson.render_url ?? "");
-  if (!renderUrl) throw new Error(`Missing render_url in response: ${JSON.stringify(renderJson)}`);
+  const renderUrlRaw = String(renderJson.render_url ?? "");
+  if (!renderUrlRaw) throw new Error(`Missing render_url in response: ${JSON.stringify(renderJson)}`);
+  const renderUrl = new URL(renderUrlRaw, base).toString();
 
   const rangeRes = await fetch(renderUrl, {
     headers: {

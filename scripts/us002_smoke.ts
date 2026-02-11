@@ -52,13 +52,14 @@ async function main() {
       const initJson = await readJson(initRes);
       const documentId = String(initJson.document?.id ?? "");
       const storageKey = String(initJson.upload?.storage_key ?? "");
-      const uploadUrl = String(initJson.upload?.url ?? "");
+      const uploadUrlRaw = String(initJson.upload?.url ?? "");
       const uploadHeaders = (initJson.upload?.headers ?? {}) as Record<string, string>;
 
-      if (!documentId || !storageKey || !uploadUrl) {
+      if (!documentId || !storageKey || !uploadUrlRaw) {
         throw new Error(`Init upload response missing fields: ${JSON.stringify(initJson)}`);
       }
 
+      const uploadUrl = new URL(uploadUrlRaw, base).toString();
       const putRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: uploadHeaders,

@@ -173,7 +173,7 @@
     {
       "id": "US-008",
       "title": "Run runtime containers as non-root (Report-RP #9)",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -183,13 +183,13 @@
         "demo-prod compose still works with mounted volumes (object store remains writable)."
       ],
       "startedAt": "2026-02-11T00:17:28.628265+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T00:17:28.628279+00:00"
+      "completedAt": "2026-02-11T00:30:07.423481+00:00",
+      "updatedAt": "2026-02-11T00:30:07.423447+00:00"
     },
     {
       "id": "US-009",
       "title": "Avoid Host-header dependent absolute URL generation (Report-RP #10)",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-004"
       ],
@@ -197,7 +197,10 @@
       "acceptanceCriteria": [
         "Endpoints do not use new URL(req.url).origin to generate absolute URLs unless origin is trusted/allowlisted.",
         "Relative URLs are preferred where possible, or PUBLIC_ORIGIN is used with an allowlist."
-      ]
+      ],
+      "startedAt": "2026-02-11T00:30:09.668770+00:00",
+      "completedAt": "2026-02-11T00:40:04.800764+00:00",
+      "updatedAt": "2026-02-11T00:40:04.800728+00:00"
     }
   ],
   "verificationPlan": {

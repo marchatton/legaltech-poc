@@ -447,9 +447,8 @@ export async function POST(req: Request): Promise<Response> {
     )
   `;
 
-  const origin = new URL(req.url).origin;
   const signed = createSignedGetHeaders({ storageKey });
-  const downloadUrl = `${origin}/artefacts/${artefactId}/download?${new URLSearchParams({
+  const downloadUrl = `/artefacts/${artefactId}/download?${new URLSearchParams({
     expires: String(signed.expires_at_ms),
     sig: signed.signature,
     issued: traceId,

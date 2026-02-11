@@ -185,7 +185,6 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     )
   `;
 
-  const origin = new URL(req.url).origin;
   const signed = createSignedPutHeaders({ storageKey });
 
   return Response.json(
@@ -199,7 +198,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       },
       upload: {
         storage_key: storageKey,
-        url: `${origin}/documents/${documentId}/upload`,
+        url: `/documents/${documentId}/upload`,
         method: "PUT",
         headers: {
           "Content-Type": parsedBody.data.mime,

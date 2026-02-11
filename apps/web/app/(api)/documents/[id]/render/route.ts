@@ -87,9 +87,8 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
       });
     }
 
-    const origin = new URL(req.url).origin;
     const signed = createSignedGetHeaders({ storageKey: `fixture:${documentId}` });
-    const renderUrl = `${origin}/documents/${documentId}/pdf?${new URLSearchParams({
+    const renderUrl = `/documents/${documentId}/pdf?${new URLSearchParams({
       expires: String(signed.expires_at_ms),
       sig: signed.signature,
     }).toString()}`;
@@ -164,9 +163,8 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     );
   }
 
-  const origin = new URL(req.url).origin;
   const signed = createSignedGetHeaders({ storageKey: doc.storage_key });
-  const renderUrl = `${origin}/documents/${documentId}/pdf?${new URLSearchParams({
+  const renderUrl = `/documents/${documentId}/pdf?${new URLSearchParams({
     expires: String(signed.expires_at_ms),
     sig: signed.signature,
   }).toString()}`;
