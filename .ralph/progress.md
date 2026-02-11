@@ -408,3 +408,41 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-
   - Useful context
   - A seeded demo matter with a completed Quick Start run exists in local DB (`fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63`) and is useful for operator-loop UI smoke checks.
 ---
+## [2026-02-11 17:43:30 UTC] - US-002: Add explicit fixture context banner guidance
+Thread: 
+Run: 20260211-171754-22506 (iteration 2)
+Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-2.log
+Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 63121ae feat(matters): add fixture context banner guidance
+- Post-commit status: `clean`
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-f/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (load pack + verify fixture context banner fields) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/fixtureContextBanner.ts
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/test/fixtureContextBanner.sync.test.ts
+  - apps/web/test/fixtureContextBanner.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
+- What was implemented
+  - Added a fixture context banner model that derives active pack, load state (`ready`/`blocked`/`already complete`), and next-step guidance directly from current matter/readiness signals.
+  - Added a visible, high-salience "Fixture context" banner card on the matter detail page with explicit `Active pack`, `Load state`, and `Next step` fields.
+  - Aligned banner guidance with existing Quick Start readiness messaging so blocked states surface prerequisite/action hints consistently.
+  - Added unit tests for banner state mapping and sync tests enforcing explicit banner copy presence.
+  - Browser-verified the flow on a demo-loaded matter (`pack_02_missing_rea`) with screenshot:
+    - .agents/skills/00-utilities/dev-browser/tmp/us-002-fixture-context-banner.png
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep operator-facing guidance contracts in pure derivation helpers so UI copy stays deterministic and testable.
+  - Gotchas encountered
+  - Browser verification of `/matters/[id]` needs `ALLOW_DEV_OBJECT_STORE_SECRET=1` in local dev to avoid `OBJECT_STORE_SIGNING_SECRET_MISSING` runtime errors.
+  - Useful context
+  - `pack_02_missing_rea` is a useful fixture for blocked-readiness UI checks because it reliably exercises action-hint messaging.
+---
