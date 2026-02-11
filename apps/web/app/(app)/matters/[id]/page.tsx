@@ -18,7 +18,6 @@ import {
   parseReportTriageFilters,
   type ReportTriageTab,
 } from "../../../../lib/reportTriage.server";
-
 import { Alert } from "../../../ui/Alert";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Card } from "../../../ui/Card";
@@ -39,6 +38,7 @@ import {
   type OperatorChecklistState,
 } from "./operatorChecklist";
 import { deriveFixtureContextBanner } from "./fixtureContextBanner";
+import { ReportTriagePanel } from "./ReportTriagePanel";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -75,6 +75,7 @@ type DocRow = {
 type RunSummaryRow = {
   id: string;
   state: string;
+  agent_bundle_version: string | null;
   questions_total: number;
   questions_done: number;
   created_at: Date;
@@ -97,11 +98,14 @@ type ReportRow = {
   status: string;
   notes: string | null;
   provenance_json: unknown;
+  payload_schema_version: string | null;
+  payload_json: unknown;
   updated_at: Date;
 };
 
 type ReportRowWithCounts = ReportRow & {
   citation_count: number;
+  citation_ids: string[];
 };
 
 const RunIdSchema = z.string().trim().min(1).max(200);
@@ -124,24 +128,6 @@ function parseRunIdFilter(searchParams: Record<string, string | string[] | undef
   if (!raw) return null;
   const parsed = RunIdSchema.safeParse(raw);
   return parsed.success ? parsed.data : null;
-}
-
-function formatTimestamp(isoDate: Date): string {
-  return isoDate.toISOString().slice(0, 16).replace("T", " ");
-}
-
-function statusPresentation(status: string): { label: string; variant: BadgeVariant } {
-  if (status === "reviewed") return { label: "Reviewed", variant: "success" };
-  if (status === "needs_review") return { label: "Needs Review", variant: "warning" };
-  if (status === "citation_failed") return { label: "Citation Failed", variant: "destructive" };
-  if (status === "missing_input") return { label: "Missing Input", variant: "destructive" };
-  return { label: status, variant: "muted" };
-}
-
-function reasonCodeFromProvenance(provenance: unknown): string | null {
-  if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return null;
-  const reasonCode = (provenance as { reason_code?: unknown }).reason_code;
-  return typeof reasonCode === "string" && reasonCode.trim().length > 0 ? reasonCode : null;
 }
 
 function reportTabHref(args: { folderId: string; runId: string | null; rowTab: ReportTriageTab }): string {
@@ -213,7 +199,7 @@ export default async function MatterPage(props: {
   `;
 
   const runs = await sql<RunSummaryRow[]>`
-    SELECT id, state, questions_total, questions_done, created_at, updated_at, NULL::timestamptz AS started_at
+    SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at, NULL::timestamptz AS started_at
     FROM runs
     WHERE folder_id = ${folderId}
       AND type = 'quick_start_title_survey'
@@ -258,7 +244,7 @@ export default async function MatterPage(props: {
   let reportRun = latestRun;
   if (reportRequestedRunId && reportRequestedRunId !== latestRun?.id) {
     const requestedRuns = await sql<RunSummaryRow[]>`
-      SELECT id, state, questions_total, questions_done, created_at, updated_at
+      SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at
       FROM runs
       WHERE id = ${reportRequestedRunId}
         AND folder_id = ${folderId}
@@ -270,29 +256,35 @@ export default async function MatterPage(props: {
 
   const reportRows = reportRun
     ? await sql<ReportRow[]>`
-        SELECT id, question_id, question, answer, status, notes, provenance_json, updated_at
+        SELECT id, question_id, question, answer, status, notes, provenance_json, payload_schema_version, payload_json, updated_at
         FROM report_rows
         WHERE run_id = ${reportRun.id}
         ORDER BY created_at ASC, question_id ASC
       `
     : [];
   const reportRowIds = reportRows.map((row) => row.id);
-  const reportCitationCounts = reportRowIds.length
-    ? await sql<Array<{ report_row_id: string; count: number | string }>>`
-        SELECT report_row_id, COUNT(*)::int AS count
+  const reportCitations = reportRowIds.length
+    ? await sql<Array<{ report_row_id: string; citation_id: string }>>`
+        SELECT report_row_id, id AS citation_id
         FROM citations
         WHERE report_row_id = ANY(${reportRowIds})
-        GROUP BY report_row_id
+        ORDER BY report_row_id ASC, id ASC
       `
     : [];
-  const citationCountByRow = new Map<string, number>();
-  for (const item of reportCitationCounts) {
-    const count = typeof item.count === "number" ? item.count : Number(item.count);
-    citationCountByRow.set(item.report_row_id, Number.isFinite(count) ? count : 0);
+  const citationIdsByRow = new Map<string, string[]>();
+  for (const item of reportCitations) {
+    const existing = citationIdsByRow.get(item.report_row_id);
+    if (existing) existing.push(item.citation_id);
+    else citationIdsByRow.set(item.report_row_id, [item.citation_id]);
   }
   const reportRowsWithCounts: ReportRowWithCounts[] = reportRows.map((row) => ({
     ...row,
-    citation_count: citationCountByRow.get(row.id) ?? 0,
+    citation_count: citationIdsByRow.get(row.id)?.length ?? 0,
+    citation_ids: citationIdsByRow.get(row.id) ?? [],
+  }));
+  const reportRowsForClient = reportRowsWithCounts.map((row) => ({
+    ...row,
+    updated_at: row.updated_at.toISOString(),
   }));
   const reportRowCounts = countReportRowsByTab(reportRowsWithCounts);
   const visibleReportRows = filterReportRowsByTab({
@@ -573,82 +565,12 @@ export default async function MatterPage(props: {
                 <EmptyState title="No report rows yet" description="Run Quick Start to generate report rows for triage." />
               </div>
             ) : (
-              <div className="mt-4 max-h-[34rem] overflow-auto rounded-ui-md border border-border">
-                <table className="w-full min-w-[1080px] border-collapse text-left text-xs">
-                  <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
-                    <tr>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        QID
-                      </th>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        Question
-                      </th>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        Answer
-                      </th>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        Status
-                      </th>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        Citations
-                      </th>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        Provenance
-                      </th>
-                      <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                        Updated
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleReportRows.length === 0 ? (
-                      <tr>
-                        <td className="px-3 py-6 text-sm text-muted-foreground" colSpan={7}>
-                          No rows match <span className="font-mono">{triageFilters.rowTab}</span>.
-                        </td>
-                      </tr>
-                    ) : (
-                      visibleReportRows.map((row) => {
-                        const status = statusPresentation(row.status);
-                        const reasonCode = reasonCodeFromProvenance(row.provenance_json);
-                        return (
-                          <tr key={row.id} className="border-b border-border/60 align-top hover:bg-muted/30">
-                            <td className="px-3 py-2">
-                              <span className="font-mono text-2xs text-muted-foreground">{row.question_id}</span>
-                            </td>
-                            <td className="px-3 py-2 text-foreground">
-                              <div className="max-w-sm leading-relaxed">{row.question}</div>
-                            </td>
-                            <td className="px-3 py-2 text-muted-foreground">
-                              <div className="max-w-xl whitespace-pre-wrap break-words leading-relaxed">
-                                {row.answer.trim().length > 0 ? row.answer : "Not provided."}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2">
-                              <Badge variant={status.variant} size="sm">
-                                {status.label}
-                              </Badge>
-                            </td>
-                            <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{row.citation_count}</td>
-                            <td className="px-3 py-2 text-muted-foreground">
-                              <div className="max-w-52 break-words">
-                                {reasonCode ? (
-                                  <span className="font-mono text-2xs">{reasonCode}</span>
-                                ) : row.notes?.trim() ? (
-                                  row.notes
-                                ) : (
-                                  "None"
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{formatTimestamp(row.updated_at)}</td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <ReportTriagePanel
+                folderId={folderId}
+                rowTab={triageFilters.rowTab}
+                rows={reportRowsForClient}
+                modelVersion={reportRun.agent_bundle_version}
+              />
             )}
           </>
         ) : (

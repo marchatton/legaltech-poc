@@ -5,6 +5,7 @@
 - 2026-02-11 18:04:47 | run=20260211-171748-22180 | iter=3 | mode=build | story=US-003 | duration=1441s | status=success
 - 2026-02-11 17:40:41 | run=20260211-171748-22180 | iter=2 | mode=build | story=US-002 | duration=855s | status=success
 - 2026-02-11 17:26:18 | run=20260211-171748-22180 | iter=1 | mode=build | story=US-001 | duration=510s | status=success
+- 2026-02-11 17:37:13 | run=20260211-171747-21967 | iter=1 | mode=build | story=US-001 | duration=1162s | status=success
 - 2026-02-11 15:51:15 | run=20260211-143026-12311 | iter=4 | mode=build | story=US-004 | duration=888s | status=success
 - 2026-02-11 15:36:23 | run=20260211-143026-12311 | iter=3 | mode=build | story=US-003 | duration=1170s | status=success
 - 2026-02-11 15:16:47 | run=20260211-143026-12311 | iter=2 | mode=build | story=US-002 | duration=1659s | status=success
@@ -93,3 +94,12 @@
 [2026-02-11 18:20:17] Added apps/web AGENTS operational note for artefacts-tab local dev verification flags
 [2026-02-11 18:21:58] US-004 progress.md updated with commit, verification, and browser evidence
 [2026-02-11 18:22:30] ITERATION 4 end (duration=1059s)
+[2026-02-11 17:18:19] US-001 iteration 1: started work; reviewed guardrails, errors log, and PRD context
+[2026-02-11 17:23:35] US-001: implemented report triage tabs, URL row_tab sync, and dense sticky-header table in matter detail; added report triage tests
+[2026-02-11 17:34:51] US-001: verification complete (lint/typecheck/test/build PASS) and browser checks passed for row_tab URL sync, refresh persistence, and flagged/needs_review filtering
+[2026-02-11 17:36:17] US-001: appended progress entry with commit/test/browser evidence
+[2026-02-11 17:37:09] ITERATION 1 end (duration=1162s)
+[2026-02-11 17:37:21] ITERATION 2 start (mode=build story=US-002)
+[2026-02-11 17:39:36] US-002 iteration 2 start: reviewed guardrails/errors/PRD and auditing report triage + row action flow.
+[2026-02-11 17:45:45] US-002 major code changes: added ReportTriagePanel drawer UI with optimistic mark-reviewed flow and new PATCH /report-rows/:id API route; wired matter page to pass payload + citation metadata.
+[2026-02-11 17:59:31] US-002 verification: lint/typecheck/build passed; browser scenario passed for drawer success + failure feedback; full web test gate flaky with integration DB timeouts under full-suite load.

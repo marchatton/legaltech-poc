@@ -25,8 +25,8 @@ describe("US-001 report triage tabs and dense table behavior", () => {
 
   it("renders dense table markers with sticky header", () => {
     const root = repoRootFromWebPackage();
-    const pagePath = path.join(root, "apps/web/app/(app)/matters/[id]/page.tsx");
-    const source = readUtf8(pagePath);
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
+    const source = readUtf8(panelPath);
 
     expect(source).toContain("max-h-[34rem] overflow-auto");
     expect(source).toContain("sticky top-0 z-10");

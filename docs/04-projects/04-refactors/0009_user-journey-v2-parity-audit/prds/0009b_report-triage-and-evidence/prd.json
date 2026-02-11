@@ -92,7 +92,7 @@
     {
       "id": "US-001",
       "title": "Add report triage tabs and dense scanning behavior",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As an operator, I want row-status tabs and scalable table behavior so I can focus review efforts quickly.",
       "acceptanceCriteria": [
@@ -101,13 +101,13 @@
         "Negative: tab/filter state must not reset unexpectedly during table interactions."
       ],
       "startedAt": "2026-02-11T17:17:47.186256+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T17:17:47.186275+00:00"
+      "completedAt": "2026-02-11T17:37:16.648533+00:00",
+      "updatedAt": "2026-02-11T17:37:16.648512+00:00"
     },
     {
       "id": "US-002",
       "title": "Use row drawer as primary review decision surface",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -116,7 +116,10 @@
         "Rows open into a drawer with structured payload, citation summary, and metadata fields.",
         "Example: `Mark reviewed` updates row state immediately and confirms success.",
         "Negative: mutation failures must not silently fail or disappear from UI feedback."
-      ]
+      ],
+      "startedAt": "2026-02-11T17:37:18.959472+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T17:37:18.959489+00:00"
     },
     {
       "id": "US-003",
