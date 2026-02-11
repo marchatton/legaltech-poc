@@ -142,7 +142,7 @@
     {
       "id": "US-004",
       "title": "Show Quick Start readiness reasons",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-003"
       ],
@@ -153,8 +153,8 @@
         "Negative: this story does not introduce checklist-gating backend persistence or new state machine APIs."
       ],
       "startedAt": "2026-02-11T15:36:27.511193+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T15:36:27.511210+00:00"
+      "completedAt": "2026-02-11T15:51:18.027013+00:00",
+      "updatedAt": "2026-02-11T15:51:18.026981+00:00"
     }
   ],
   "sources": [
