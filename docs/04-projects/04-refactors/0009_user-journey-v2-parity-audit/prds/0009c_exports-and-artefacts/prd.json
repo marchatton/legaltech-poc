@@ -106,7 +106,7 @@
     {
       "id": "US-002",
       "title": "Add run-scoped export panel and failed-row deep-link",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -117,13 +117,13 @@
         "Negative: deep-link navigation must not drop run scope or status filter."
       ],
       "startedAt": "2026-02-11T17:26:25.501408+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T17:26:25.501434+00:00"
+      "completedAt": "2026-02-11T17:40:44.142548+00:00",
+      "updatedAt": "2026-02-11T17:40:44.142514+00:00"
     },
     {
       "id": "US-003",
       "title": "Implement artefact filtering and provenance display",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -132,7 +132,10 @@
         "Artefacts support filter inputs for kind/type and unsafe state, and display source_run_id.",
         "Example: filtering to `unsafe` shows only unsafe outputs with source run shown per row.",
         "Negative: provenance fields must not disappear when filters are changed."
-      ]
+      ],
+      "startedAt": "2026-02-11T17:40:46.403728+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T17:40:46.403743+00:00"
     },
     {
       "id": "US-004",

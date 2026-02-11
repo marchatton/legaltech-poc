@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-11 17:40:41 | run=20260211-171748-22180 | iter=2 | mode=build | story=US-002 | duration=855s | status=success
 - 2026-02-11 17:26:18 | run=20260211-171748-22180 | iter=1 | mode=build | story=US-001 | duration=510s | status=success
 - 2026-02-11 15:51:15 | run=20260211-143026-12311 | iter=4 | mode=build | story=US-004 | duration=888s | status=success
 - 2026-02-11 15:36:23 | run=20260211-143026-12311 | iter=3 | mode=build | story=US-003 | duration=1170s | status=success
@@ -75,3 +76,9 @@
 [2026-02-11 17:32:49] Implemented US-002 run-scope utilities, export panel selector, and review-failed-rows deep-links
 [2026-02-11 17:38:24] Verification complete for US-002 (lint/typecheck/test/build + browser deep-link smoke)
 [2026-02-11 17:40:12] Updated .ralph/progress.md with US-002 implementation + verification details
+[2026-02-11 17:40:40] ITERATION 2 end (duration=855s)
+[2026-02-11 17:40:46] ITERATION 3 start (mode=build story=US-003)
+[2026-02-11 17:41:07] US-003 start: auditing artefacts filtering and provenance display implementation
+[2026-02-11 17:46:00] US-003 code changes: added artefact filters (kind/type/safety), source_run_id column, and filter helper tests
+[2026-02-11 18:00:20] US-003 verification: lint/typecheck/test/build passed; browser smoke confirmed kind/type/safety filters and source_run_id visibility
+[2026-02-11 18:02:23] US-003 final verification rerun: lint/typecheck/test/build all PASS on final patch; browser smoke PASS with screenshots

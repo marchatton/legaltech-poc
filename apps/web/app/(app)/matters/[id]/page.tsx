@@ -418,7 +418,7 @@ export default async function MatterPage(props: {
 
       {artefactsListEnabled ? (
         <div className="mt-8">
-          <ArtefactsList folderId={folderId} />
+          <ArtefactsList folderId={folderId} searchParams={rawSearchParams} />
         </div>
       ) : null}
     </Page>
