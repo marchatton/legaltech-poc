@@ -33,3 +33,28 @@ export function SkeletonCircle({
     />
   );
 }
+
+const DEFAULT_LINE_WIDTHS = ["80%", "100%", "60%"];
+
+export function SkeletonBlock({
+  lines = 3,
+  circle = false,
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & { lines?: number; circle?: boolean }) {
+  return (
+    <div className={cn("rounded-ui-lg border border-border bg-card p-5", className)} aria-hidden {...props}>
+      <div className={cn(circle && "flex items-start gap-4")}>
+        {circle ? <SkeletonCircle /> : null}
+        <div className="flex-1">
+          {Array.from({ length: lines }, (_, i) => (
+            <SkeletonLine
+              key={i}
+              width={DEFAULT_LINE_WIDTHS[i % DEFAULT_LINE_WIDTHS.length]}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

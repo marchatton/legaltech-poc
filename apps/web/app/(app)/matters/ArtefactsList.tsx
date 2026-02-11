@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Badge } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
 import { Card } from "../../ui/Card";
+import { EmptyState } from "../../ui/EmptyState";
 import { ErrorBanner } from "../../ui/ErrorBanner";
 import { Select } from "../../ui/Input";
 import { SectionTitle } from "../../ui/Page";
@@ -79,7 +80,7 @@ export async function ArtefactsList(props: Props) {
     return (
       <Card className="p-4">
         <SectionTitle>Artefacts</SectionTitle>
-        <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
+        <EmptyState variant="compact" title="No artefacts yet" description="Artefacts will appear after export runs complete." />
       </Card>
     );
   }
@@ -95,7 +96,7 @@ export async function ArtefactsList(props: Props) {
     return (
       <Card className="p-4">
         <SectionTitle>Artefacts</SectionTitle>
-        <div className="mt-2 text-xs text-muted-foreground">No artefacts yet.</div>
+        <EmptyState variant="compact" title="No artefacts yet" description="Artefacts will appear after export runs complete." />
       </Card>
     );
   }

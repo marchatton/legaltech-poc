@@ -24,7 +24,7 @@ describe("US-003 repeat-load and demo-history shortcuts", () => {
     expect(mattersPageSource).toContain("Recent Demo Matters");
     expect(mattersPageSource).toContain("Reopen");
     expect(mattersPageSource).toContain('view: "demo_packs"');
-    expect(mattersPageSource).toContain("No demo history yet.");
+    expect(mattersPageSource).toContain("No demo history");
   });
 
   it("does not hardcode wireframe sample history rows", () => {

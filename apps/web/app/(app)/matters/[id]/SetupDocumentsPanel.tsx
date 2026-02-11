@@ -2,8 +2,10 @@
 
 import { FormEvent, useMemo, useRef, useState } from "react";
 
+import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { EmptyState } from "../../../ui/EmptyState";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { MonoId } from "../../../ui/MonoId";
 import { SectionTitle } from "../../../ui/Page";
 
@@ -62,6 +64,12 @@ type UploadCompleteResponse = {
   };
 };
 
+type StructuredError = {
+  code: string;
+  message: string;
+  retryable?: boolean;
+};
+
 function isRecord(input: unknown): input is Record<string, unknown> {
   return !!input && typeof input === "object" && !Array.isArray(input);
 }
@@ -79,31 +87,37 @@ function statusLabel(status: DocumentStatus): string {
   return "Queued";
 }
 
-function statusClassName(status: DocumentStatus): string {
-  if (status === "indexed-ready") {
-    return "rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success ring-1 ring-inset ring-success/30";
-  }
-  if (status === "failed") {
-    return "rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-medium text-destructive ring-1 ring-inset ring-destructive/30";
-  }
-  if (status === "ingesting") {
-    return "rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/30";
-  }
-  return "rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60";
+const docStatusVariant: Record<DocumentStatus, BadgeVariant> = {
+  "indexed-ready": "success",
+  ingesting: "primary",
+  failed: "destructive",
+  queued: "muted",
+};
+
+function parseServerErrorCode(json: unknown): { code: string; message: string } | null {
+  if (!isRecord(json)) return null;
+  const error = json.error;
+  if (!isRecord(error)) return null;
+
+  const message = typeof error.message === "string" && error.message.trim().length > 0 ? error.message.trim() : null;
+  const code = typeof error.code === "string" && error.code.trim().length > 0 ? error.code.trim() : null;
+
+  if (message) return { code: code ?? "SERVER_ERROR", message };
+  if (code) return { code, message: `Request failed (${code}).` };
+  return null;
 }
 
-function parseErrorMessage(json: unknown, fallback: string): string {
-  if (!isRecord(json)) return fallback;
+function parseDocErrorJson(json: unknown): { code: string; message: string } | null {
+  if (!isRecord(json)) return null;
   const error = json.error;
-  if (!isRecord(error)) return fallback;
-
-  const message = error.message;
-  if (typeof message === "string" && message.trim().length > 0) return message.trim();
-
-  const code = error.code;
-  if (typeof code === "string" && code.trim().length > 0) return `Request failed (${code.trim()}).`;
-
-  return fallback;
+  if (isRecord(error)) {
+    const message = typeof error.message === "string" && error.message.trim() ? error.message.trim() : null;
+    const code = typeof error.code === "string" && error.code.trim() ? error.code.trim() : null;
+    if (message || code) return { code: code ?? "DOC_ERROR", message: message ?? `Document error (${code}).` };
+  }
+  const message = typeof json.message === "string" && json.message.trim() ? json.message.trim() : null;
+  if (message) return { code: "DOC_ERROR", message };
+  return null;
 }
 
 async function parseJson<T>(res: Response): Promise<T | null> {
@@ -120,6 +134,15 @@ async function sleep(ms: number): Promise<void> {
   });
 }
 
+function DocumentIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  );
+}
+
 export function SetupDocumentsPanel(props: {
   folderId: string;
   folderState: string;
@@ -129,7 +152,7 @@ export function SetupDocumentsPanel(props: {
   const [documents, setDocuments] = useState<SetupDocumentRow[]>(props.initialDocuments);
   const [capabilities, setCapabilities] = useState<UploadCapabilities>(props.initialCapabilities);
   const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<StructuredError | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -169,7 +192,7 @@ export function SetupDocumentsPanel(props: {
 
     const file = fileRef.current?.files?.[0] ?? null;
     if (!file) {
-      setError("Choose a PDF to upload.");
+      setError({ code: "NO_FILE_SELECTED", message: "Choose a PDF to upload." });
       setNotice(null);
       return;
     }
@@ -177,13 +200,13 @@ export function SetupDocumentsPanel(props: {
     const fallbackMime = file.name.toLowerCase().endsWith(".pdf") ? "application/pdf" : "";
     const mime = (file.type || fallbackMime).trim();
     if (!capabilities.accepted_mime.includes(mime)) {
-      setError(`Unsupported file type. Accepted: ${capabilities.accepted_mime.join(", ")}.`);
+      setError({ code: "UNSUPPORTED_MIME", message: `Unsupported file type. Accepted: ${capabilities.accepted_mime.join(", ")}.` });
       setNotice(null);
       return;
     }
 
     if (file.size > capabilities.max_bytes) {
-      setError(`File is too large. Maximum size is ${formatBytes(capabilities.max_bytes)}.`);
+      setError({ code: "FILE_TOO_LARGE", message: `File is too large. Maximum size is ${formatBytes(capabilities.max_bytes)}.` });
       setNotice(null);
       return;
     }
@@ -204,7 +227,12 @@ export function SetupDocumentsPanel(props: {
       });
       const initJson = await parseJson<UploadInitResponse>(initRes);
       if (!initRes.ok || !initJson) {
-        setError(parseErrorMessage(initJson, "Failed to initialize upload."));
+        const parsed = parseServerErrorCode(initJson);
+        setError({
+          code: parsed?.code ?? "UPLOAD_INIT_FAILED",
+          message: parsed?.message ?? "Failed to initialize upload.",
+          retryable: true,
+        });
         setNotice(null);
         return;
       }
@@ -241,7 +269,12 @@ export function SetupDocumentsPanel(props: {
       });
       if (!uploadRes.ok) {
         const uploadJson = await parseJson<unknown>(uploadRes);
-        setError(parseErrorMessage(uploadJson, "Upload failed."));
+        const parsed = parseServerErrorCode(uploadJson);
+        setError({
+          code: parsed?.code ?? "UPLOAD_PUT_FAILED",
+          message: parsed?.message ?? "Upload failed.",
+          retryable: true,
+        });
         setNotice(null);
         return;
       }
@@ -253,7 +286,12 @@ export function SetupDocumentsPanel(props: {
       });
       const completeJson = await parseJson<UploadCompleteResponse>(completeRes);
       if (!completeRes.ok || !completeJson) {
-        setError(parseErrorMessage(completeJson, "Failed to complete upload."));
+        const parsed = parseServerErrorCode(completeJson);
+        setError({
+          code: parsed?.code ?? "UPLOAD_COMPLETE_FAILED",
+          message: parsed?.message ?? "Failed to complete upload.",
+          retryable: true,
+        });
         setNotice(null);
         return;
       }
@@ -277,11 +315,15 @@ export function SetupDocumentsPanel(props: {
       await pollUntilTerminal(initJson.document.id);
       if (fileRef.current) fileRef.current.value = "";
     } catch {
-      setError("Upload failed due to an unexpected error.");
+      setError({ code: "UNEXPECTED_ERROR", message: "Upload failed due to an unexpected error.", retryable: true });
       setNotice(null);
     } finally {
       setIsUploading(false);
     }
+  }
+
+  function handleRetry() {
+    setError(null);
   }
 
   return (
@@ -330,7 +372,15 @@ export function SetupDocumentsPanel(props: {
           </Button>
           {notice ? <span className="text-xs text-muted-foreground">{notice}</span> : null}
         </div>
-        {error ? <p className="text-xs text-destructive" role="alert">{error}</p> : null}
+        {error ? (
+          <ErrorBanner
+            code={error.code}
+            message={error.message}
+            retryable={error.retryable}
+            onRetry={error.retryable ? handleRetry : undefined}
+            retryLabel="Dismiss"
+          />
+        ) : null}
       </form>
 
       <div className="mt-3 text-xs text-muted-foreground">
@@ -349,51 +399,61 @@ export function SetupDocumentsPanel(props: {
 
       {documents.length === 0 ? (
         <div className="mt-4">
-          <EmptyState title="No documents yet" description="Upload a PDF to start indexing this matter." />
+          <EmptyState
+            icon={<DocumentIcon />}
+            title="No documents yet"
+            description="Upload a PDF to start indexing this matter."
+          />
         </div>
       ) : (
         <div className="mt-4 grid gap-2">
-          {documents.map((doc) => (
-            <article key={doc.id} className="rounded-ui-md border border-border bg-card p-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <MonoId variant="inverted">{doc.id}</MonoId>
-                  <div className="text-sm font-medium text-foreground">{doc.filename}</div>
-                  <span className={statusClassName(doc.status)}>{statusLabel(doc.status)}</span>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
-                    {doc.parse_status}/{doc.ocr_status}
-                  </span>
-                  {typeof doc.page_count === "number" ? (
-                    <span className="text-xs text-muted-foreground">pages: {doc.page_count}</span>
-                  ) : null}
-                  {typeof doc.extraction_quality === "number" ? (
-                    <span className="text-xs text-muted-foreground">
-                      quality: {Math.round(doc.extraction_quality * 100)}%
-                    </span>
-                  ) : null}
+          {documents.map((doc, i) => {
+            const delay = Math.min(i * 30, 300);
+            const docError = parseDocErrorJson(doc.error_json);
+            return (
+              <article
+                key={doc.id}
+                className="rounded-ui-md border border-border bg-card p-3 animate-fade-in"
+                style={{ animationDelay: `${delay}ms` }}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <MonoId variant="inverted">{doc.id}</MonoId>
+                    <div className="text-sm font-medium text-foreground">{doc.filename}</div>
+                    <Badge variant={docStatusVariant[doc.status]}>{statusLabel(doc.status)}</Badge>
+                    <Badge variant="muted">{doc.parse_status}/{doc.ocr_status}</Badge>
+                    {typeof doc.page_count === "number" ? (
+                      <span className="text-xs text-muted-foreground">pages: {doc.page_count}</span>
+                    ) : null}
+                    {typeof doc.extraction_quality === "number" ? (
+                      <span className="text-xs text-muted-foreground">
+                        quality: {Math.round(doc.extraction_quality * 100)}%
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {doc.open_pdf_url ? (
+                    <a
+                      className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
+                      href={doc.open_pdf_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open PDF
+                    </a>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">PDF not ready</span>
+                  )}
                 </div>
 
-                {doc.open_pdf_url ? (
-                  <a
-                    className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
-                    href={doc.open_pdf_url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open PDF
-                  </a>
-                ) : (
-                  <span className="text-xs text-muted-foreground">PDF not ready</span>
-                )}
-              </div>
-
-              {doc.error_json ? (
-                <pre className="mt-2 whitespace-pre-wrap text-xs text-destructive">
-                  {JSON.stringify(doc.error_json, null, 2)}
-                </pre>
-              ) : null}
-            </article>
-          ))}
+                {docError ? (
+                  <div className="mt-2">
+                    <ErrorBanner code={docError.code} message={docError.message} />
+                  </div>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

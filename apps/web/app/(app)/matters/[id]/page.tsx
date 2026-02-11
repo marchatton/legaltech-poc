@@ -20,11 +20,12 @@ import {
 } from "../../../../lib/reportTriage.server";
 import { Alert } from "../../../ui/Alert";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
-import { Card } from "../../../ui/Card";
+import { Card, CardHeader } from "../../../ui/Card";
 import { EmptyState } from "../../../ui/EmptyState";
 import { MonoId } from "../../../ui/MonoId";
-import { Page, PageHeader, SectionTitle } from "../../../ui/Page";
+import { Page, PageHeader, PageSection, SectionTitle } from "../../../ui/Page";
 import { ProgressBar } from "../../../ui/ProgressBar";
+import { Steps, type StepItem, type StepStatus } from "../../../ui/Steps";
 import { ArtefactsList } from "../ArtefactsList";
 import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
 
@@ -150,10 +151,33 @@ function renderUrl(doc: DocRow): string | null {
   }).toString()}`;
 }
 
-function checklistBadgeVariant(state: OperatorChecklistState): BadgeVariant {
-  if (state === "done") return "success";
-  if (state === "in_progress") return "warning";
-  return "muted";
+function matterStateBadgeVariant(state: string): BadgeVariant {
+  if (state === "ready" || state === "indexed") return "success";
+  if (state === "failed") return "destructive";
+  return "warning";
+}
+
+function checklistStepStatus(state: OperatorChecklistState): StepStatus {
+  if (state === "done") return "complete";
+  if (state === "in_progress") return "active";
+  return "pending";
+}
+
+function DocumentIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="6 3 20 12 6 21 6 3" />
+    </svg>
+  );
 }
 
 export default async function MatterPage(props: {
@@ -355,6 +379,11 @@ export default async function MatterPage(props: {
     process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
     Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
 
+  const stepItems: StepItem[] = operatorChecklistSteps.map((step) => ({
+    label: step.label,
+    status: checklistStepStatus(step.state),
+  }));
+
   return (
     <Page>
       <PageHeader
@@ -365,9 +394,7 @@ export default async function MatterPage(props: {
             <span className="text-muted-foreground/60">•</span>
             <span className="font-medium text-foreground">{folder.name}</span>
             <span className="text-muted-foreground/60">•</span>
-            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
-              {folder.state}
-            </span>
+            <Badge variant={matterStateBadgeVariant(folder.state)}>{folder.state}</Badge>
           </span>
         }
         right={
@@ -377,232 +404,255 @@ export default async function MatterPage(props: {
         }
       />
 
-      <Card className="mt-8 p-4">
-        <Alert variant={fixtureContextBanner.variant} title="Fixture context">
-          <div className="grid gap-2 text-sm">
-            <div>
-              <span className="font-semibold text-foreground">Active pack:</span>{" "}
-              <span className="font-mono text-xs text-foreground">{fixtureContextBanner.activePack}</span>
-            </div>
-            <div>
-              <span className="font-semibold text-foreground">Loaded at:</span>{" "}
-              <span className="font-mono text-xs text-foreground">
-                {fixtureContextBanner.loadedAt === "not detected"
-                  ? "not detected"
-                  : formatDemoLoadedAtLabel(fixtureContextBanner.loadedAt)}
-              </span>
-            </div>
-            <div>
-              <span className="font-semibold text-foreground">Load state:</span> {fixtureContextBanner.loadState}
-            </div>
-            <div>
-              <span className="font-semibold text-foreground">Next step:</span> {fixtureContextBanner.nextStep}
-            </div>
-          </div>
-        </Alert>
-      </Card>
-
-      <Card className="mt-8 p-4">
-        <SetupDocumentsPanel
-          folderId={folderId}
-          folderState={folder.state}
-          initialDocuments={setupDocuments}
-          initialCapabilities={buildDocumentUploadCapabilities()}
-        />
-      </Card>
-
-      <Card className="mt-8 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <SectionTitle>Operator checklist</SectionTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Ordered run steps derived from live Quick Start signals.
-            </p>
-          </div>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
-            {operatorElapsedLabel}
-          </span>
-        </div>
-
-        <ol className="mt-4 grid gap-2">
-          {operatorChecklistSteps.map((step, idx) => (
-            <li
-              key={step.id}
-              className="flex items-center justify-between gap-3 rounded-ui-md border border-border/70 bg-card px-3 py-2"
-            >
-              <div className="flex items-center gap-2 text-sm">
-                <span className="font-mono text-xs text-muted-foreground">{idx + 1}.</span>
-                <span className="text-foreground">{step.label}</span>
+      {/* Fixture context banner */}
+      <PageSection>
+        <Card className="p-5 animate-fade-in">
+          <Alert variant={fixtureContextBanner.variant} title="Fixture context">
+            <div className="grid gap-2 text-sm">
+              <div>
+                <span className="font-semibold text-foreground">Active pack:</span>{" "}
+                <span className="font-mono text-xs text-foreground">{fixtureContextBanner.activePack}</span>
               </div>
-              <Badge variant={checklistBadgeVariant(step.state)}>{step.state}</Badge>
-            </li>
-          ))}
-        </ol>
-      </Card>
+              <div>
+                <span className="font-semibold text-foreground">Loaded at:</span>{" "}
+                <span className="font-mono text-xs text-foreground">
+                  {fixtureContextBanner.loadedAt === "not detected"
+                    ? "not detected"
+                    : formatDemoLoadedAtLabel(fixtureContextBanner.loadedAt)}
+                </span>
+              </div>
+              <div>
+                <span className="font-semibold text-foreground">Load state:</span> {fixtureContextBanner.loadState}
+              </div>
+              <div>
+                <span className="font-semibold text-foreground">Next step:</span> {fixtureContextBanner.nextStep}
+              </div>
+            </div>
+          </Alert>
+        </Card>
+      </PageSection>
 
-      {chatEnabled ? (
-        <Card className="mt-8 p-4">
-          <SectionTitle>Chat</SectionTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Evidence-first chat over the indexed documents in this matter.
-          </p>
+      {/* Setup documents */}
+      <PageSection>
+        <Card className="p-5 animate-fade-in" style={{ animationDelay: "30ms" }}>
+          <SetupDocumentsPanel
+            folderId={folderId}
+            folderState={folder.state}
+            initialDocuments={setupDocuments}
+            initialCapabilities={buildDocumentUploadCapabilities()}
+          />
+        </Card>
+      </PageSection>
+
+      {/* Operator checklist */}
+      <PageSection>
+        <Card className="p-5 animate-fade-in" style={{ animationDelay: "60ms" }}>
+          <CardHeader>
+            <div>
+              <SectionTitle>Operator checklist</SectionTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Ordered run steps derived from live Quick Start signals.
+              </p>
+            </div>
+            <Badge variant="muted">{operatorElapsedLabel}</Badge>
+          </CardHeader>
+
           <div className="mt-4">
-            <ChatPanel folderId={folderId} />
+            <Steps items={stepItems} />
           </div>
         </Card>
+      </PageSection>
+
+      {chatEnabled ? (
+        <PageSection>
+          <Card className="p-5 animate-fade-in" style={{ animationDelay: "90ms" }}>
+            <SectionTitle>Chat</SectionTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Evidence-first chat over the indexed documents in this matter.
+            </p>
+            <div className="mt-4">
+              <ChatPanel folderId={folderId} />
+            </div>
+          </Card>
+        </PageSection>
       ) : null}
 
-      <Card className="mt-8 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <SectionTitle>Quick Start</SectionTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
-              fresh matter.
-            </p>
+      {/* Quick Start */}
+      <PageSection>
+        <Card className="p-5 animate-fade-in" style={{ animationDelay: "120ms" }}>
+          <CardHeader>
+            <div>
+              <SectionTitle>Quick Start</SectionTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
+                fresh matter.
+              </p>
+            </div>
+          </CardHeader>
+
+          <div className="mt-4">
+            <QuickStartPanel folderId={folderId} readiness={quickStartReadiness} />
           </div>
 
-          <QuickStartPanel folderId={folderId} readiness={quickStartReadiness} />
-        </div>
+          {latestRun ? (
+            <div className="mt-4 grid gap-1 text-xs text-muted-foreground">
+              <div>
+                latest run: <span className="font-mono">{latestRun.id}</span> ({latestRun.state})
+              </div>
+              <div>
+                progress: {latestRun.questions_done}/{latestRun.questions_total} questions
+              </div>
+              {latestRun.questions_total > 0 ? (
+                <ProgressBar value={Math.round((latestRun.questions_done / latestRun.questions_total) * 100)} className="mt-1" />
+              ) : null}
+              <div className="flex flex-wrap gap-3">
+                <a
+                  className="underline hover:text-foreground"
+                  href={`/runs/${encodeURIComponent(latestRun.id)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Run JSON
+                </a>
+                <a
+                  className="underline hover:text-foreground"
+                  href={`/folders/${encodeURIComponent(folderId)}/report?${new URLSearchParams({
+                    run_id: latestRun.id,
+                  }).toString()}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Report JSON
+                </a>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                created: {latestRun.created_at.toISOString()} • updated: {latestRun.updated_at.toISOString()}
+              </div>
+            </div>
+          ) : (
+            <EmptyState
+              icon={<PlayIcon />}
+              title="No runs yet"
+              description="Start a Quick Start run to analyse this matter."
+            />
+          )}
+        </Card>
+      </PageSection>
 
-        {latestRun ? (
-          <div className="mt-4 grid gap-1 text-xs text-muted-foreground">
+      {/* Report Triage */}
+      <PageSection>
+        <Card className="p-5 animate-fade-in" style={{ animationDelay: "150ms" }}>
+          <CardHeader>
             <div>
-              latest run: <span className="font-mono">{latestRun.id}</span> ({latestRun.state})
+              <SectionTitle>Report Triage</SectionTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Filter report rows by status and scan long outputs using a dense, sticky-header table.
+              </p>
             </div>
-            <div>
-              progress: {latestRun.questions_done}/{latestRun.questions_total} questions
-            </div>
-            {latestRun.questions_total > 0 ? (
-              <ProgressBar value={Math.round((latestRun.questions_done / latestRun.questions_total) * 100)} className="mt-1" />
+            {reportRun ? (
+              <div className="grid justify-items-end gap-1 text-xs text-muted-foreground">
+                <div>
+                  run: <span className="font-mono">{reportRun.id}</span>
+                </div>
+                <div>
+                  showing {visibleReportRows.length} of {reportRowsWithCounts.length}
+                </div>
+              </div>
             ) : null}
-            <div className="flex flex-wrap gap-3">
-              <a
-                className="underline hover:text-foreground"
-                href={`/runs/${encodeURIComponent(latestRun.id)}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Run JSON
-              </a>
-              <a
-                className="underline hover:text-foreground"
-                href={`/folders/${encodeURIComponent(folderId)}/report?${new URLSearchParams({
-                  run_id: latestRun.id,
-                }).toString()}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Report JSON
-              </a>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              created: {latestRun.created_at.toISOString()} • updated: {latestRun.updated_at.toISOString()}
-            </div>
-          </div>
-        ) : (
-          <EmptyState title="No runs yet" description="Start a Quick Start run to analyse this matter." />
-        )}
-      </Card>
+          </CardHeader>
 
-      <Card className="mt-8 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <SectionTitle>Report Triage</SectionTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Filter report rows by status and scan long outputs using a dense, sticky-header table.
-            </p>
-          </div>
           {reportRun ? (
-            <div className="grid justify-items-end gap-1 text-xs text-muted-foreground">
-              <div>
-                run: <span className="font-mono">{reportRun.id}</span>
-              </div>
-              <div>
-                showing {visibleReportRows.length} of {reportRowsWithCounts.length}
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        {reportRun ? (
-          <>
-            <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Report row status tabs">
-              {REPORT_TRIAGE_TABS.map((tab) => {
-                const isActive = triageFilters.rowTab === tab.id;
-                return (
-                  <Link
-                    key={tab.id}
-                    href={reportTabHref({
-                      folderId,
-                      runId: reportRun?.id ?? null,
-                      rowTab: tab.id,
-                    })}
-                    aria-current={isActive ? "page" : undefined}
-                    className={
-                      isActive
-                        ? "inline-flex items-center gap-2 rounded-full border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                        : "inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-                    }
-                  >
-                    <span>{tab.label}</span>
-                    <span
+            <>
+              <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Report row status tabs">
+                {REPORT_TRIAGE_TABS.map((tab) => {
+                  const isActive = triageFilters.rowTab === tab.id;
+                  return (
+                    <Link
+                      key={tab.id}
+                      href={reportTabHref({
+                        folderId,
+                        runId: reportRun?.id ?? null,
+                        rowTab: tab.id,
+                      })}
+                      aria-current={isActive ? "page" : undefined}
                       className={
                         isActive
-                          ? "rounded-full bg-primary-foreground/20 px-1.5 py-0.5 text-2xs font-semibold"
-                          : "rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground"
+                          ? "inline-flex items-center gap-2 rounded-full border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                          : "inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-micro ease-brand-standard"
                       }
                     >
-                      {reportRowCounts[tab.id]}
-                    </span>
-                  </Link>
-                );
-              })}
+                      <span>{tab.label}</span>
+                      <span
+                        className={
+                          isActive
+                            ? "rounded-full bg-primary-foreground/20 px-1.5 py-0.5 text-2xs font-semibold"
+                            : "rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground"
+                        }
+                      >
+                        {reportRowCounts[tab.id]}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {reportRowsWithCounts.length === 0 ? (
+                <div className="mt-4">
+                  <EmptyState
+                    icon={<DocumentIcon />}
+                    title="No report rows yet"
+                    description="Run Quick Start to generate report rows for triage."
+                  />
+                </div>
+              ) : (
+                <ReportTriagePanel
+                  folderId={folderId}
+                  rowTab={triageFilters.rowTab}
+                  rows={reportRowsForClient}
+                  modelVersion={reportRun.agent_bundle_version}
+                />
+              )}
+            </>
+          ) : (
+            <div className="mt-4">
+              <EmptyState
+                icon={<DocumentIcon />}
+                title="No runs to review"
+                description="Start Quick Start first, then triage report rows here."
+              />
+            </div>
+          )}
+        </Card>
+      </PageSection>
+
+      {/* Exports */}
+      <PageSection>
+        <Card className="p-5 animate-fade-in" style={{ animationDelay: "180ms" }}>
+          <CardHeader>
+            <div>
+              <SectionTitle>Exports</SectionTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Export a Word memo (.docx) and CSV artefacts for a selected completed run. Review links keep the same run
+                scope.
+              </p>
             </div>
 
-            {reportRowsWithCounts.length === 0 ? (
-              <div className="mt-4">
-                <EmptyState title="No report rows yet" description="Run Quick Start to generate report rows for triage." />
-              </div>
-            ) : (
-              <ReportTriagePanel
-                folderId={folderId}
-                rowTab={triageFilters.rowTab}
-                rows={reportRowsForClient}
-                modelVersion={reportRun.agent_bundle_version}
-              />
-            )}
-          </>
-        ) : (
-          <div className="mt-4">
-            <EmptyState title="No runs to review" description="Start Quick Start first, then triage report rows here." />
-          </div>
-        )}
-      </Card>
-
-      <Card className="mt-8 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <SectionTitle>Exports</SectionTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Export a Word memo (.docx) and CSV artefacts for a selected completed run. Review links keep the same run
-              scope.
-            </p>
-          </div>
-
-          <ExportsPanel
-            folderId={folderId}
-            runOptions={runOptions}
-            initialRunId={initialExportRunId}
-            unsafeOverrideEnabled={unsafeOverrideEnabled}
-          />
-        </div>
-      </Card>
+            <ExportsPanel
+              folderId={folderId}
+              runOptions={runOptions}
+              initialRunId={initialExportRunId}
+              unsafeOverrideEnabled={unsafeOverrideEnabled}
+            />
+          </CardHeader>
+        </Card>
+      </PageSection>
 
       {artefactsListEnabled ? (
-        <div className="mt-8">
-          <ArtefactsList folderId={folderId} searchParams={rawSearchParams} />
-        </div>
+        <PageSection>
+          <div className="animate-fade-in" style={{ animationDelay: "210ms" }}>
+            <ArtefactsList folderId={folderId} searchParams={rawSearchParams} />
+          </div>
+        </PageSection>
       ) : null}
     </Page>
   );

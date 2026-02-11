@@ -35,6 +35,6 @@ describe("US-002 matters list controls and actions", () => {
     expect(pageSource).toContain("Open");
     expect(createSource).toContain("New Matter");
     expect(createSource).toContain("Matter name is required.");
-    expect(createSource).toContain('role="alert"');
+    expect(createSource).toContain('variant="destructive"');
   });
 });

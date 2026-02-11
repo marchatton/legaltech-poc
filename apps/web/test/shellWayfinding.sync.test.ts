@@ -33,7 +33,7 @@ describe("US-001 shell wayfinding baseline", () => {
     const source = readUtf8(detailLayoutPath);
 
     expect(source).toContain("Matters");
-    expect(source).toContain('{">"}');
+    expect(source).toContain("BreadcrumbSeparator");
     expect(source).toContain("folderName");
     expect(source).toContain("Matter ID");
     expect(source).toContain("<MonoId>");

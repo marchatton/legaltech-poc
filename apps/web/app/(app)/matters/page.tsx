@@ -6,11 +6,15 @@ import { formatDemoLoadedAtLabel, parseDemoMatterMetadata } from "../../../lib/d
 import { listMatters, parseMatterListFilters, type MatterListFilters, type MatterSavedView } from "../../../lib/mattersList.server";
 
 import { Badge, type BadgeVariant } from "../../ui/Badge";
+import { buttonClassName } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { Button } from "../../ui/Button";
+import { EmptyState } from "../../ui/EmptyState";
 import { Input, Select } from "../../ui/Input";
 import { MonoId } from "../../ui/MonoId";
 import { Page, PageHeader, PageSection } from "../../ui/Page";
+import { StatusDot, type StatusDotStatus } from "../../ui/StatusDot";
+import { TableFrame, Table, TH, TD, TR } from "../../ui/Table";
 
 import { CreateMatterForm } from "./CreateMatterForm";
 
@@ -41,22 +45,40 @@ function buildQueryString(filters: MatterListFilters): string {
   return qs.length > 0 ? `?${qs}` : "";
 }
 
-function statusForState(state: string): { label: string; variant: BadgeVariant } {
+function statusForState(state: string): { label: string; variant: BadgeVariant; dot: StatusDotStatus } {
   if (state === "ready" || state === "indexed") {
-    return { label: "Active", variant: "success" };
+    return { label: "Active", variant: "success", dot: "success" };
   }
 
   if (state === "failed") {
-    return { label: "Needs Attention", variant: "destructive" };
+    return { label: "Needs Attention", variant: "destructive", dot: "error" };
   }
 
-  return { label: "Needs Attention", variant: "warning" };
+  return { label: "Needs Attention", variant: "warning", dot: "warning" };
 }
 
 function formatTimestamp(iso: string): string {
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) return iso;
   return parsed.toISOString().slice(0, 16).replace("T", " ");
+}
+
+function SearchIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  );
 }
 
 export default async function MattersPage(props: {
@@ -108,10 +130,7 @@ export default async function MattersPage(props: {
                 Apply
               </Button>
 
-              <Link
-                href="/matters"
-                className="inline-flex h-9 items-center rounded-ui-md border border-border px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
+              <Link href="/matters" className={buttonClassName({ variant: "secondary" })}>
                 Clear
               </Link>
             </form>
@@ -130,7 +149,7 @@ export default async function MattersPage(props: {
                     className={
                       isActive
                         ? "rounded-full border border-primary bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
-                        : "rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                        : "rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-micro ease-brand-standard"
                     }
                   >
                     {option.label}
@@ -144,60 +163,72 @@ export default async function MattersPage(props: {
 
       <PageSection>
         <div className={demoModeEnabled ? "grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]" : ""}>
-          <Card className="overflow-hidden">
-            {matters.length === 0 ? (
-              <div className="p-6 text-sm text-muted-foreground">
-                No matters matched the current filters.
-                <Link href="/matters" className="ml-2 font-medium underline hover:text-foreground">
-                  Reset filters
-                </Link>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left">
-                  <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
-                    <tr>
-                      <th className="px-4 py-3 font-medium">Matter</th>
-                      <th className="px-4 py-3 font-medium">Status</th>
-                      <th className="px-4 py-3 font-medium">State</th>
-                      <th className="px-4 py-3 font-medium">Created</th>
-                      <th className="px-4 py-3 text-right font-medium">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {matters.map((matter) => {
-                      const status = statusForState(matter.state);
-                      return (
-                        <tr key={matter.id} className="bg-card hover:bg-muted/30">
-                          <td className="px-4 py-3 align-top">
-                            <div className="text-sm font-medium text-foreground">{matter.name}</div>
-                            <div className="mt-1">
-                              <MonoId>{matter.id}</MonoId>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 align-top">
+          {matters.length === 0 ? (
+            <Card className="overflow-hidden">
+              <EmptyState
+                icon={<SearchIcon />}
+                title="No matters found"
+                description="No matters matched the current filters."
+                action={
+                  <Link href="/matters" className={buttonClassName({ variant: "secondary", size: "sm" })}>
+                    Reset filters
+                  </Link>
+                }
+              />
+            </Card>
+          ) : (
+            <TableFrame>
+              <Table>
+                <thead>
+                  <tr>
+                    <TH>Matter</TH>
+                    <TH>Status</TH>
+                    <TH>State</TH>
+                    <TH>Created</TH>
+                    <TH className="text-right">Action</TH>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matters.map((matter, i) => {
+                    const status = statusForState(matter.state);
+                    const delay = Math.min(i * 30, 300);
+                    return (
+                      <TR
+                        key={matter.id}
+                        className="animate-fade-in"
+                        style={{ animationDelay: `${delay}ms` }}
+                      >
+                        <TD className="align-top">
+                          <div className="text-sm font-medium text-foreground">{matter.name}</div>
+                          <div className="mt-1">
+                            <MonoId>{matter.id}</MonoId>
+                          </div>
+                        </TD>
+                        <TD className="align-top">
+                          <div className="flex items-center gap-2">
+                            <StatusDot status={status.dot} size="sm" />
                             <Badge variant={status.variant}>{status.label}</Badge>
-                          </td>
-                          <td className="px-4 py-3 align-top">
-                            <Badge variant="muted">{matter.state}</Badge>
-                          </td>
-                          <td className="px-4 py-3 align-top text-sm text-muted-foreground">{formatTimestamp(matter.created_at)}</td>
-                          <td className="px-4 py-3 align-top text-right">
-                            <Link
-                              href={`/matters/${encodeURIComponent(matter.id)}`}
-                              className="inline-flex items-center rounded-ui-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
-                            >
-                              Open
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
+                          </div>
+                        </TD>
+                        <TD className="align-top">
+                          <Badge variant="muted">{matter.state}</Badge>
+                        </TD>
+                        <TD className="align-top text-sm text-muted-foreground">{formatTimestamp(matter.created_at)}</TD>
+                        <TD className="align-top text-right">
+                          <Link
+                            href={`/matters/${encodeURIComponent(matter.id)}`}
+                            className={buttonClassName({ variant: "secondary", size: "sm" })}
+                          >
+                            Open
+                          </Link>
+                        </TD>
+                      </TR>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            </TableFrame>
+          )}
 
           {demoModeEnabled ? (
             <Card className="h-fit overflow-hidden">
@@ -207,7 +238,11 @@ export default async function MattersPage(props: {
               </div>
 
               {demoHistory.length === 0 ? (
-                <div className="px-4 py-6 text-sm text-muted-foreground">No demo history yet.</div>
+                <EmptyState
+                  icon={<ClockIcon />}
+                  title="No demo history"
+                  description="Run a demo pack to see recent matters here."
+                />
               ) : (
                 <ul className="divide-y divide-border">
                   {demoHistory.map((matter) => {
@@ -215,7 +250,10 @@ export default async function MattersPage(props: {
                     const packLabel = metadata?.packId ?? "pack not detected";
                     const loadedAtLabel = formatDemoLoadedAtLabel(metadata?.loadedAt ?? matter.created_at);
                     return (
-                      <li key={`demo-history-${matter.id}`} className="grid gap-2 px-4 py-3">
+                      <li
+                        key={`demo-history-${matter.id}`}
+                        className="grid gap-2 px-4 py-3 transition-colors duration-micro ease-brand-standard hover:bg-muted/30"
+                      >
                         <div className="text-sm font-medium text-foreground">{matter.name}</div>
                         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                           <span className="font-mono">{packLabel}</span>
@@ -224,7 +262,7 @@ export default async function MattersPage(props: {
                         <div className="flex justify-end">
                           <Link
                             href={`/matters/${encodeURIComponent(matter.id)}`}
-                            className="inline-flex items-center rounded-ui-md border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted"
+                            className={buttonClassName({ variant: "secondary", size: "sm" })}
                           >
                             Reopen
                           </Link>

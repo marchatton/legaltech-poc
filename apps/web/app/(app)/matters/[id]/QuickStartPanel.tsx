@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 
+import { Alert, type AlertVariant } from "../../../ui/Alert";
 import { Button } from "../../../ui/Button";
-import { InlineStatus } from "../../../ui/InlineStatus";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 
 export type QuickStartReadinessState = "ready" | "blocked" | "already-complete";
 
@@ -17,10 +18,16 @@ type Props = {
   readiness: QuickStartReadiness;
 };
 
+type StructuredError = {
+  code: string;
+  message: string;
+  retryable: boolean;
+};
+
 type QuickStartState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "error"; message: string }
+  | { kind: "error"; error: StructuredError }
   | { kind: "started"; runId: string; runState: string };
 
 function isRecord(val: unknown): val is Record<string, unknown> {
@@ -42,11 +49,11 @@ function readinessLabel(state: QuickStartReadinessState): string {
   return "Blocked";
 }
 
-function readinessTextClass(state: QuickStartReadinessState): string {
-  if (state === "ready") return "text-success";
-  if (state === "already-complete") return "text-warning";
-  return "text-muted-foreground";
-}
+const readinessAlertVariant: Record<QuickStartReadinessState, AlertVariant> = {
+  ready: "success",
+  "already-complete": "info",
+  blocked: "warning",
+};
 
 export function QuickStartPanel(props: Props) {
   const [state, setState] = useState<QuickStartState>({ kind: "idle" });
@@ -67,7 +74,7 @@ export function QuickStartPanel(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", message });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message, retryable: true } });
       return;
     }
 
@@ -75,11 +82,12 @@ export function QuickStartPanel(props: Props) {
 
     if (!res.ok) {
       const env = readSafeError(json);
+      const retryable = res.status >= 500 || res.status === 429;
       if (env) {
-        setState({ kind: "error", message: `${env.code}: ${env.message}` });
+        setState({ kind: "error", error: { code: env.code, message: env.message, retryable } });
         return;
       }
-      setState({ kind: "error", message: `Request failed (${res.status}).` });
+      setState({ kind: "error", error: { code: `HTTP_${res.status}`, message: `Request failed (${res.status}).`, retryable } });
       return;
     }
 
@@ -87,33 +95,42 @@ export function QuickStartPanel(props: Props) {
     const runId = run && typeof run.id === "string" ? run.id : null;
     const runState = run && typeof run.state === "string" ? run.state : "running";
     if (!runId) {
-      setState({ kind: "error", message: "Missing run.id in response." });
+      setState({ kind: "error", error: { code: "INVALID_RESPONSE", message: "Missing run.id in response.", retryable: false } });
       return;
     }
 
     setState({ kind: "started", runId, runState });
   }
 
+  function handleRetry() {
+    setState({ kind: "idle" });
+  }
+
   return (
-    <div className="grid justify-items-end gap-2">
+    <div className="grid gap-3">
+      <Alert variant={readinessAlertVariant[props.readiness.state]} title={readinessLabel(props.readiness.state)}>
+        {props.readiness.reason}
+      </Alert>
+
       <Button size="sm" onClick={start} disabled={props.readiness.state !== "ready"} loading={state.kind === "loading"}>
         Run Quick Start
       </Button>
 
-      <div className={`max-w-sm text-right text-xs ${readinessTextClass(props.readiness.state)}`}>
-        <span className="font-semibold">{readinessLabel(props.readiness.state)}:</span> {props.readiness.reason}
-      </div>
-
-      <InlineStatus kind={state.kind === "error" ? "error" : "idle"}>
-        {state.kind === "error" ? state.message : null}
-      </InlineStatus>
+      {state.kind === "error" ? (
+        <ErrorBanner
+          code={state.error.code}
+          message={state.error.message}
+          retryable={state.error.retryable}
+          onRetry={state.error.retryable ? handleRetry : undefined}
+        />
+      ) : null}
 
       {state.kind === "started" ? (
-        <div className="grid gap-1 text-right text-xs text-muted-foreground">
+        <div className="grid gap-1 text-xs text-muted-foreground">
           <div>
             run: <span className="font-mono">{state.runId}</span> ({state.runState})
           </div>
-          <div className="flex flex-wrap justify-end gap-3">
+          <div className="flex flex-wrap gap-3">
             <a
               className="underline hover:text-foreground"
               href={`/runs/${encodeURIComponent(state.runId)}`}

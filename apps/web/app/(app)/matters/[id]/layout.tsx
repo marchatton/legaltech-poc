@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 
+import { Breadcrumb, BreadcrumbItem, BreadcrumbSeparator } from "../../../ui/Breadcrumb";
 import { MonoId } from "../../../ui/MonoId";
 
 const ParamsSchema = z.object({
@@ -43,15 +44,19 @@ export default async function MatterDetailLayout(props: {
 
   return (
     <>
-      <section className="sticky top-0 z-20 border-b border-border/80 bg-background/95 backdrop-blur">
+      <section className="sticky top-0 z-20 border-b border-border/80 bg-background/95 backdrop-blur animate-fade-in">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-6 py-2 sm:px-8">
-          <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-            <Link href="/matters" className="font-medium underline hover:text-foreground">
-              Matters
-            </Link>
-            <span aria-hidden>{">"}</span>
-            <span className="truncate font-semibold text-foreground">{folderName}</span>
-          </div>
+          <Breadcrumb className="min-w-0 text-xs">
+            <BreadcrumbItem>
+              <Link href="/matters" className="font-medium text-muted-foreground hover:text-primary transition-colors duration-micro">
+                Matters
+              </Link>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem current className="truncate">
+              {folderName}
+            </BreadcrumbItem>
+          </Breadcrumb>
 
           <div className="ml-auto flex items-center gap-2">
             <span className="font-mono text-2xs font-semibold uppercase tracking-widest text-muted-foreground">

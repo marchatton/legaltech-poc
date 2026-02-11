@@ -9,6 +9,7 @@ export type AlertProps = HTMLAttributes<HTMLDivElement> & {
   title?: ReactNode;
   icon?: ReactNode;
   hideIcon?: boolean;
+  action?: ReactNode;
 };
 
 const variantClasses: Record<AlertVariant, string> = {
@@ -72,13 +73,14 @@ export function alertClassName(args?: { variant?: AlertVariant; className?: stri
   );
 }
 
-export function Alert({ className, variant = "info", title, icon, hideIcon, children, ...props }: AlertProps) {
+export function Alert({ className, variant = "info", title, icon, hideIcon, action, children, ...props }: AlertProps) {
   return (
     <div className={alertClassName({ variant, className })} role="alert" {...props}>
       {!hideIcon && (icon ?? <DefaultIcon variant={variant} />)}
       <div className="min-w-0">
         {title ? <div className="font-semibold text-foreground">{title}</div> : null}
         {children ? <div className={cn(title && "mt-1", "text-xs text-muted-foreground")}>{children}</div> : null}
+        {action ? <div className="mt-3 flex items-center gap-2">{action}</div> : null}
       </div>
     </div>
   );
