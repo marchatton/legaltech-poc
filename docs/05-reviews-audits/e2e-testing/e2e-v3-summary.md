@@ -1,57 +1,70 @@
-# E2E V3 PRD Pair Summary
+# E2E V3 Journey-Decomposed Summary
 
 Date: 2026-02-11
-Scope source:
-- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md`
-- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.svg`
-- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3-wiring.txt`
 
-## What this set contains
+Canonical decomposition:
+- `docs/05-reviews-audits/e2e-testing/prd-ralph-v3.md`
+- `docs/05-reviews-audits/e2e-testing/prd-ralph-v3.json`
 
-10 E2E slices, each as a pair:
-- `prd.md`
-- `prd.json`
+## Decomposition Shape
 
-All slices use:
-- Given/When/Then acceptance style
-- At least one Example criterion
-- At least one Negative criterion
-- Shared quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm test`
+4 core journeys, 14 total stories, one story per Ralph iteration.
 
-## Priority Order
-
-### P0 (run first)
-1. `0005_trust-viewer-loop` (F5: evidence trust + fail-closed citation path)
-2. `0006_run-scoped-export-loop` (F6: safe exports + failed-row return loop)
-3. `0010_cross-surface-error-contract` (F10: deterministic error/retry/support behavior)
-
-### P1
-1. `0002_matter-discovery-setup-lane` (F2)
-2. `0003_run-readiness-triage-core` (F3)
-3. `0004_drawer-first-review-decisions` (F4)
-4. `0008_l1-run-scoped-chat` (F8)
-5. `0009_demo-operator-loop` (F9)
-
-### P2
-1. `0001_shell-wayfinding-baseline` (F1)
-2. `0007_artefact-provenance-retrieval` (F7)
-
-## Slice Inventory
-
-| Slice | Priority | Folder | Journey Part |
+| Journey | Story IDs | Coverage | Source Slices |
 |---|---|---|---|
-| E2E-V3-0001 | P2 | `0001_shell-wayfinding-baseline` | F1 Shell wayfinding baseline |
-| E2E-V3-0002 | P1 | `0002_matter-discovery-setup-lane` | F2 Discovery + setup lane |
-| E2E-V3-0003 | P1 | `0003_run-readiness-triage-core` | F3 Run readiness + triage core |
-| E2E-V3-0004 | P1 | `0004_drawer-first-review-decisions` | F4 Drawer-first decisions |
-| E2E-V3-0005 | P0 | `0005_trust-viewer-loop` | F5 Trust viewer loop |
-| E2E-V3-0006 | P0 | `0006_run-scoped-export-loop` | F6 Run-scoped export loop |
-| E2E-V3-0007 | P2 | `0007_artefact-provenance-retrieval` | F7 Artefact provenance retrieval |
-| E2E-V3-0008 | P1 | `0008_l1-run-scoped-chat` | F8 L1 run-scoped chat |
-| E2E-V3-0009 | P1 | `0009_demo-operator-loop` | F9 Demo operator loop |
-| E2E-V3-0010 | P0 | `0010_cross-surface-error-contract` | F10 Cross-surface error contract |
+| J1: Entry + Setup | US-001..US-003 | F1, F2 | `0001`, `0002` |
+| J2: Run + Review Decisions | US-004..US-006 | F3, F4 | `0003`, `0004` |
+| J3: Trust + Export + Provenance | US-007..US-011 | F5, F6, F7 | `0005`, `0006`, `0007` |
+| J4: Chat + Demo + Resilience | US-012..US-014 | F8, F9, F10 | `0008`, `0009`, `0010` |
 
-## Notes
+## Ralph Run Pattern
 
-- Existing prior slices `0001`..`0003` were replaced as requested.
-- No overall PRD was created; this summary is a map/index only.
+```bash
+ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/prd-ralph-v3.json --no-commit
+```
+
+Run once per completed story (14 iterations for full pass).
+
+## Story Order
+
+1. US-001 Shell wayfinding baseline
+2. US-002 Matter discovery/filtering
+3. US-003 Matter creation/upload/readiness guidance
+4. US-004 Quick Start readiness gate
+5. US-005 Run triage tab contracts
+6. US-006 Drawer-first decisions and mutation feedback
+7. US-007 Valid citation trust viewer verification
+8. US-008 Invalid citation fail-closed behavior
+9. US-009 Safe run-scoped exports
+10. US-010 Blocked export recovery deep-link
+11. US-011 Artefact provenance retrieval and download safety
+12. US-012 L1 run-scoped chat contract
+13. US-013 Demo operator pack load/reload loop
+14. US-014 Cross-surface error/retry/support contract
+
+## File Reference Inventory (All Files In Folder)
+
+- `docs/05-reviews-audits/e2e-testing/0001_shell-wayfinding-baseline/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0001_shell-wayfinding-baseline/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0002_matter-discovery-setup-lane/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0002_matter-discovery-setup-lane/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0003_run-readiness-triage-core/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0003_run-readiness-triage-core/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0004_drawer-first-review-decisions/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0004_drawer-first-review-decisions/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0005_trust-viewer-loop/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0005_trust-viewer-loop/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0006_run-scoped-export-loop/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0006_run-scoped-export-loop/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0007_artefact-provenance-retrieval/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0007_artefact-provenance-retrieval/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0008_l1-run-scoped-chat/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0008_l1-run-scoped-chat/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0009_demo-operator-loop/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0009_demo-operator-loop/prd.json`
+- `docs/05-reviews-audits/e2e-testing/0010_cross-surface-error-contract/prd.md`
+- `docs/05-reviews-audits/e2e-testing/0010_cross-surface-error-contract/prd.json`
+- `docs/05-reviews-audits/e2e-testing/e2e-v3-summary.md`
+- `docs/05-reviews-audits/e2e-testing/prd-ralph-v3.md`
+- `docs/05-reviews-audits/e2e-testing/prd-ralph-v3.json`
+- `docs/05-reviews-audits/e2e-testing/ralph-loop-note.md`

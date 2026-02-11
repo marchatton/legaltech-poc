@@ -1,0 +1,416 @@
+{
+  "version": 1,
+  "project": "E2E V3 Ralph Journey Decomposition",
+  "overview": "Journey-first decomposition of E2E v3 parity into 14 granular Ralph stories across 4 core user journeys.",
+  "priority": "P0",
+  "goals": [
+    "Keep testing granular with more than 10 stories.",
+    "Group stories into 4 core journeys for clearer planning and reporting.",
+    "Maintain one-story-per-iteration compatibility with Ralph.",
+    "Preserve direct traceability to legacy 0001..0010 slices."
+  ],
+  "nonGoals": [
+    "Rewrite legacy 0001..0010 PRD source files.",
+    "Reduce decomposition below 10 stories.",
+    "Introduce product scope beyond F1..F10 parity."
+  ],
+  "successMetrics": [
+    "All 14 stories complete with acceptance and negative-path evidence.",
+    "Each story traces to at least one legacy slice source.",
+    "Cross-surface trust, export safety, and error contracts remain deterministic."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev and demo-prod",
+    "database": "Postgres",
+    "auth": "Dev/demo route gating"
+  },
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "journeys": [
+    {
+      "id": "J1",
+      "title": "Entry + Setup",
+      "coverage": [
+        "F1",
+        "F2"
+      ],
+      "storyIds": [
+        "US-001",
+        "US-002",
+        "US-003"
+      ],
+      "sourceSlices": [
+        "0001_shell-wayfinding-baseline",
+        "0002_matter-discovery-setup-lane"
+      ]
+    },
+    {
+      "id": "J2",
+      "title": "Run + Review Decisions",
+      "coverage": [
+        "F3",
+        "F4"
+      ],
+      "storyIds": [
+        "US-004",
+        "US-005",
+        "US-006"
+      ],
+      "sourceSlices": [
+        "0003_run-readiness-triage-core",
+        "0004_drawer-first-review-decisions"
+      ]
+    },
+    {
+      "id": "J3",
+      "title": "Trust + Export + Provenance",
+      "coverage": [
+        "F5",
+        "F6",
+        "F7"
+      ],
+      "storyIds": [
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010",
+        "US-011"
+      ],
+      "sourceSlices": [
+        "0005_trust-viewer-loop",
+        "0006_run-scoped-export-loop",
+        "0007_artefact-provenance-retrieval"
+      ]
+    },
+    {
+      "id": "J4",
+      "title": "Chat + Demo + Resilience",
+      "coverage": [
+        "F8",
+        "F9",
+        "F10"
+      ],
+      "storyIds": [
+        "US-012",
+        "US-013",
+        "US-014"
+      ],
+      "sourceSlices": [
+        "0008_l1-run-scoped-chat",
+        "0009_demo-operator-loop",
+        "0010_cross-surface-error-contract"
+      ]
+    }
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Shell Wayfinding Baseline",
+      "status": "open",
+      "dependsOn": [],
+      "description": "Validate shell posture and wayfinding determinism when entering matters flow.",
+      "acceptanceCriteria": [
+        "Given demo mode and at least one matter, opening /matters renders shell with Matters active.",
+        "When operator moves list -> detail -> list, navigation state remains deterministic.",
+        "Then environment badge, breadcrumb, and sticky identifiers are visible and non-empty.",
+        "Example: badge shows demo posture and breadcrumb includes Matters > Matter Name.",
+        "Negative: placeholder tabs do not route to broken or ambiguous screens."
+      ],
+      "notes": [
+        "Journey J1",
+        "Source slices: 0001"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Matter Discovery Filtering",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "Validate deterministic search and saved-view filtering in matter discovery.",
+      "acceptanceCriteria": [
+        "Given seeded matters, list supports search and saved-view filters.",
+        "When filters are applied in sequence, row set updates deterministically.",
+        "Then filtered state remains explicit and reversible.",
+        "Example: saved view plus query yields a stable row subset.",
+        "Negative: no filter combination renders ambiguous blank state without guidance."
+      ],
+      "notes": [
+        "Journey J1",
+        "Source slices: 0002"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Matter Create Upload and Readiness Guidance",
+      "status": "open",
+      "dependsOn": [
+        "US-002"
+      ],
+      "description": "Validate create/upload setup lane and explicit readiness reasons.",
+      "acceptanceCriteria": [
+        "Given valid file input, creating matter and uploading document transitions setup rows through ingest states.",
+        "When readiness is recomputed, reason is explicit as ready, blocked, or already complete.",
+        "Then next-action guidance is visible for blocked states.",
+        "Example: missing required docs yields blocked with concrete next-step copy.",
+        "Negative: create without required matter name fails visibly and creates no matter."
+      ],
+      "notes": [
+        "Journey J1",
+        "Source slices: 0002"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Quick Start Readiness Gate",
+      "status": "open",
+      "dependsOn": [
+        "US-003"
+      ],
+      "description": "Validate run start readiness gating in Quick Start flow.",
+      "acceptanceCriteria": [
+        "Given blocked matter, Quick Start is visibly blocked with reason.",
+        "When readiness transitions to runnable, Quick Start starts a run.",
+        "Then run state and progress are visible immediately.",
+        "Example: blocked-to-ready transition enables run creation without reload hacks.",
+        "Negative: blocked start returns explicit conflict error and never silently fails."
+      ],
+      "notes": [
+        "Journey J2",
+        "Source slices: 0003"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Run Triage Tab Scope Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-004"
+      ],
+      "description": "Validate tab filtering behavior while preserving run scope.",
+      "acceptanceCriteria": [
+        "Given a run with mixed statuses, triage tabs are visible.",
+        "When each tab is selected, rows filter by status only.",
+        "Then run scope remains unchanged while tab changes.",
+        "Example: Needs Review count matches visible rows.",
+        "Negative: tab switching never cross-loads rows from another run."
+      ],
+      "notes": [
+        "Journey J2",
+        "Source slices: 0003"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Drawer Decisions and Mutation Feedback",
+      "status": "open",
+      "dependsOn": [
+        "US-005"
+      ],
+      "description": "Validate drawer-first decisions, clipboard behavior, and deterministic mutation error handling.",
+      "acceptanceCriteria": [
+        "Given needs_review row, opening row launches drawer with payload and controls.",
+        "When mark reviewed or flag issue is triggered, row and drawer states update.",
+        "Then copy action emits explicit success/failure confirmation.",
+        "Example: marking reviewed updates row chip without full-page refresh.",
+        "Negative: mutation failure renders ErrorBanner and does not pretend success."
+      ],
+      "notes": [
+        "Journey J2",
+        "Source slices: 0004"
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Valid Citation Trust Viewer Verification",
+      "status": "open",
+      "dependsOn": [
+        "US-006"
+      ],
+      "description": "Validate valid citation viewer path with overlays and trust metadata.",
+      "acceptanceCriteria": [
+        "Given valid citation from report or chat, source chip opens viewer at expected document and page.",
+        "When viewer loads, highlight overlay and trust metadata render from payload.",
+        "Then reset-to-100 action restores explicit verification posture.",
+        "Example: valid citation shows polygons and no citation_failed panel.",
+        "Negative: missing metadata payload shows deterministic fallback state."
+      ],
+      "notes": [
+        "Journey J3",
+        "Source slices: 0005"
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Invalid Citation Fail Closed",
+      "status": "open",
+      "dependsOn": [
+        "US-007"
+      ],
+      "description": "Validate fail-closed behavior for unresolved or corrupted citations.",
+      "acceptanceCriteria": [
+        "Given corrupted citation, source-chip behavior respects anchor gating.",
+        "When invalid citation opens, viewer renders citation_failed reason code.",
+        "Then highlight overlay count is zero.",
+        "Example: unresolved anchor chip is disabled with explanation.",
+        "Negative: invalid citation never renders stale or approximate highlight overlays."
+      ],
+      "notes": [
+        "Journey J3",
+        "Source slices: 0005"
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Safe Run Scoped Exports",
+      "status": "open",
+      "dependsOn": [
+        "US-008"
+      ],
+      "description": "Validate safe export behavior for completed runs only.",
+      "acceptanceCriteria": [
+        "Given run selector context, only completed runs are selectable for export.",
+        "When safe run is selected, CSV and DOCX exports produce downloadable artefacts.",
+        "Then artefact metadata remains bound to selected run id.",
+        "Example: completed safe run exports both formats successfully.",
+        "Negative: export action is not enabled for incomplete runs."
+      ],
+      "notes": [
+        "Journey J3",
+        "Source slices: 0006"
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Blocked Export Recovery Deep Link",
+      "status": "open",
+      "dependsOn": [
+        "US-009"
+      ],
+      "description": "Validate blocked export panel and recovery route back to failed rows.",
+      "acceptanceCriteria": [
+        "Given run with verification failures, blocked export panel appears deterministically.",
+        "When operator clicks Review failed rows, report opens with matching run_id.",
+        "Then failed-row filter is pre-applied.",
+        "Example: blocked panel includes failed-row count and recovery CTA.",
+        "Negative: blocked run never silently produces export artefact."
+      ],
+      "notes": [
+        "Journey J3",
+        "Source slices: 0006"
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Artefact Provenance Retrieval and Download Safety",
+      "status": "open",
+      "dependsOn": [
+        "US-010"
+      ],
+      "description": "Validate provenance-rich artefact retrieval with deterministic filters and download error behavior.",
+      "acceptanceCriteria": [
+        "Given mixed artefacts, list renders provenance metadata.",
+        "When kind, type, or safety filters are applied, row set updates deterministically.",
+        "Then each row shows source_run_id and actionable download control.",
+        "Example: unsafe filter shows only UNSAFE-labelled rows with explanation copy.",
+        "Negative: expired signed URL renders deterministic error and never silently fails."
+      ],
+      "notes": [
+        "Journey J3",
+        "Source slices: 0007"
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "L1 Run Scoped Chat Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-011"
+      ],
+      "description": "Validate run-scoped chat selection, streaming, and source-chip clickability rules.",
+      "acceptanceCriteria": [
+        "Given completed runs, chat defaults to most recent completed run.",
+        "When question is submitted, UI shows streaming then final response.",
+        "Then source chips are clickable only for anchor-ready citations.",
+        "Example: selected versus effective run mismatch disclosure appears when metadata differs.",
+        "Negative: missing indexed context disables composer with guidance instead of sending request."
+      ],
+      "notes": [
+        "Journey J4",
+        "Source slices: 0008"
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Demo Operator Pack Load Reload Loop",
+      "status": "open",
+      "dependsOn": [
+        "US-012"
+      ],
+      "description": "Validate demo toolbar allowlist behavior, pack load/reload, and history continuity.",
+      "acceptanceCriteria": [
+        "Given demo mode, toolbar shows explicit DEMO MODE and allowlisted packs.",
+        "When pack loads, system creates or opens deterministic demo matter context.",
+        "Then checklist progression and elapsed timing are rendered or explicitly unavailable.",
+        "Example: load pack again creates a new demo matter without destructive reset of prior records.",
+        "Negative: non-allowlisted pack id fails validation and creates no matter."
+      ],
+      "notes": [
+        "Journey J4",
+        "Source slices: 0009"
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Cross Surface Error Retry and Support Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-013"
+      ],
+      "description": "Validate deterministic error shape, retry behavior, and support guidance across surfaces.",
+      "acceptanceCriteria": [
+        "Given representative failures across at least three surfaces, each renders deterministic ErrorBanner.",
+        "When failure is retryable and handler exists, Retry CTA appears and replays idempotently.",
+        "Then support CTA includes safe context fields code, trace_id, and route only.",
+        "Example: non-retryable validation error hides Retry CTA and still exposes support path.",
+        "Negative: missing support config shows fallback guidance with copyable identifiers."
+      ],
+      "notes": [
+        "Journey J4",
+        "Source slices: 0010"
+      ]
+    }
+  ],
+  "sources": [
+    "docs/05-reviews-audits/e2e-testing/0001_shell-wayfinding-baseline/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0001_shell-wayfinding-baseline/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0002_matter-discovery-setup-lane/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0002_matter-discovery-setup-lane/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0003_run-readiness-triage-core/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0003_run-readiness-triage-core/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0004_drawer-first-review-decisions/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0004_drawer-first-review-decisions/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0005_trust-viewer-loop/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0005_trust-viewer-loop/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0006_run-scoped-export-loop/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0006_run-scoped-export-loop/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0007_artefact-provenance-retrieval/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0007_artefact-provenance-retrieval/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0008_l1-run-scoped-chat/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0008_l1-run-scoped-chat/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0009_demo-operator-loop/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0009_demo-operator-loop/prd.json",
+    "docs/05-reviews-audits/e2e-testing/0010_cross-surface-error-contract/prd.md",
+    "docs/05-reviews-audits/e2e-testing/0010_cross-surface-error-contract/prd.json",
+    "docs/05-reviews-audits/e2e-testing/e2e-v3-summary.md",
+    "docs/05-reviews-audits/e2e-testing/prd-ralph-v3.md",
+    "docs/05-reviews-audits/e2e-testing/prd-ralph-v3.json",
+    "docs/05-reviews-audits/e2e-testing/ralph-loop-note.md"
+  ]
+}

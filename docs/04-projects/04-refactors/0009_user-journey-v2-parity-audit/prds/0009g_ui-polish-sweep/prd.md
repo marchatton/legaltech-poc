@@ -1,4 +1,4 @@
-# PRD: UI Polish Sweep (Design-System First) (0009g)
+# PRD (Overall): UI Polish Sweep (Design-System First) (0009g)
 
 Owner: marc
 Status: Draft
@@ -8,180 +8,156 @@ Slug: ui-polish-sweep
 ## Introduction / Overview
 
 ### Problem
-Core parity slices close major affordance gaps, but small UI inconsistencies still create friction: uneven loading/empty/error states, inconsistent action hierarchy, and uneven trust/microcopy clarity across surfaces.
+A single catch-all polish PRD still causes slow starts and coordination overhead, but splitting too far creates merge conflict churn.
 
 ### Goal
-Run one focused UI polish sweep that harmonizes high-frequency UI details while preserving parity scope and explicitly avoiding previously excluded wireframe items.
+Split `0009g` into exactly two execution slices that are as granular as possible while keeping merge conflict risk low.
 
 ### Slice
-Apply cross-surface polish to shell, report/viewer, exports/artefacts, chat, and demo surfaces by extending existing design-system primitives and patterns.
+Decompose `0009g` into two route-aligned child PRDs with explicit `blocked by` contracts.
 
 ### Primary Observable Effect
-The app feels visually and behaviorally cohesive: predictable states, clear primary actions, consistent trust/copy language, and stronger keyboard/touch accessibility.
+Teams can run polish in parallel with clear ownership boundaries and fewer overlapping edits.
 
 ### In Scope
-- UI-only polish pass across slices `0009a`..`0009f`
-- Inspiration sources:
-  - Magic-pattern affordances in `orbital-user-journeys-and-magic-patterns-prompts-v2.md` (U* contracts)
-  - Wireframe interaction patterns in `orbital-ui-wireframes`
-  - Brand/system primitives in `docs/02-guidelines/v5-final/*`
-- Implementation constraint: **use and extend our own design system** (tokens/components), not wireframe styling copy-over.
-- Repository update (2026-02-11): `apps/web/app/ui` has recently added shared UI components; this sweep should prioritize incorporating those where they fit.
+- Keep `0009g` as umbrella PRD with two child PRDs.
+- Preserve SP-0009-06 mandatory polish gate.
+- Encode story-level blockers so starts happen as soon as each route area is ready.
+
+### Child PRDs
+- `prds/0009g1_shell-setup-demo-polish/prd.md`
+- `prds/0009g2_detail-surfaces-and-guardrails/prd.md`
 
 ## Goals
 
-- Standardize loading/empty/blocked/success states across major matter surfaces.
-- Normalize CTA hierarchy and row/action affordances for speed + clarity.
-- Tighten interaction/a11y polish (keyboard focus, touch discoverability, hover guardrails).
-- Align copy and trust language with deterministic, source-backed UI behavior.
-- Enforce a mandatory 3-check polish gate across all touched surfaces.
+- Reduce merge conflicts by separating ownership by route/file clusters.
+- Keep polish execution parallel where blocker sets differ.
+- Preserve deterministic trust-copy and exclusion guardrails.
+- Keep each child PRD small enough for quick implementation loops.
 
 ## User Stories
 
-### US-001: Design-system-first polish primitives
-As a developer, I want reusable polish primitives built from our existing design system so improvements are consistent and maintainable.
+### US-001: Split 0009g into two conflict-aware child PRDs
+As an engineering lead, I want two bounded polish slices so we get parallel execution without over-fragmenting the work.
 
 #### Acceptance Criteria
-- AC-001: Polish uses `docs/02-guidelines/v5-final/tokens.css` and `docs/02-guidelines/v5-final/tailwind.preset.ts` as the visual baseline.
-  - Example: shared spacing/radius/typography/feedback primitives are applied via existing tokenized classes.
-  - Negative: no direct wireframe CSS transplant or parallel ad-hoc token set.
-- AC-002: Any new UI pattern is added as extension of existing component primitives (buttons/chips/banners/skeleton states).
-  - Example: a shared skeleton and empty-state block is reused in report/chat/artefacts.
-  - Negative: one-off per-page variants that diverge from system components are not acceptable.
+- AC-001: Two child PRD folders exist under `0009g_ui-polish-sweep/prds/`, each with `prd.md` + `prd.json`.
+  - Example: one slice owns `/matters` + setup/demo; the other owns `/matters/:id` detail surfaces.
+  - Negative: no third/fourth micro-slice that increases coordination burden.
+- AC-002: Child slices define non-overlapping ownership boundaries.
+  - Example: shell/setup/demo polish is isolated from report/viewer/exports/chat polish.
+  - Negative: no ambiguous shared ownership for the same route component files.
 
 #### Verification
-- Pack/fixture/script: component-level snapshots on core surfaces.
-- Automated checks: lint/typecheck/tests for shared component updates.
-- Manual checks: visual pass across shell/report/chat/export/demo routes.
+- Pack/fixture/script: child PRD files in `0009g_ui-polish-sweep/prds/`.
+- Automated checks: JSON parse for umbrella and child PRD JSON files.
+- Manual checks: ownership map review against route/component file areas.
 
-### US-002: Cross-surface state consistency sweep
-As an operator, I want consistent loading/empty/blocked/success states so I can understand system state instantly.
+### US-002: Encode blocker-safe starts for each child slice
+As a planning lead, I want explicit blocker stories so each child slice starts at the earliest safe point.
 
 #### Acceptance Criteria
-- AC-003: Loading states use a consistent skeleton/progress treatment across report, viewer, exports, artefacts, and chat.
-  - Example: all async fetch states render the same loading language and skeleton rhythm.
-  - Negative: spinner-only or silent loading states without context are not acceptable.
-- AC-004: Empty and blocked states include deterministic guidance and next actions.
-  - Example: no indexed docs in chat links to setup action; blocked export links to failed rows.
-  - Negative: blank/placeholder UI with no recommended next step is not acceptable.
+- AC-003: `0009g1` and `0009g2` include concrete blocker story IDs from `0009a`..`0009f`.
+  - Example: `0009g1` references `0009a/US-004`, `0009e/US-003`, `0009f/US-002`.
+  - Negative: no generic "after core work" dependency language.
+- AC-004: Cross-surface guardrail sign-off is sequenced after both child implementation scopes stabilize.
+  - Example: `0009g2` final guardrail story depends on `0009g1` completion.
+  - Negative: no final guardrail pass while route-level polish is still changing.
 
 #### Verification
-- Pack/fixture/script: fixture scenarios for empty, loading, blocked, and success states.
-- Automated checks: state-component rendering tests.
-- Manual checks: walkthrough of each major route state.
+- Pack/fixture/script: `sequencing-parallel-plan.md`.
+- Automated checks: N/A.
+- Manual checks: earliest-start trigger walkthrough.
 
-### US-003: Interaction hierarchy and accessibility polish
-As an operator, I want clear primary actions and accessible interactions so high-speed workflows remain reliable.
+### US-003: Preserve mandatory polish gate without scope drift
+As a product team, I want the split to keep the same quality bar and exclusions.
 
 #### Acceptance Criteria
-- AC-005: Primary vs secondary action hierarchy is consistent (one primary open/download action per context).
-  - Example: artefact row has one primary download CTA with clearly secondary alternatives.
-  - Negative: competing equal-weight CTAs causing ambiguous action choice are not acceptable.
-- AC-006: Hover-only affordances have keyboard/touch-visible equivalents and focus return behavior is preserved.
-  - Example: viewer close returns focus to invoking element and key actions are reachable without hover.
-  - Negative: required affordance discoverable only by hover is not acceptable.
+- AC-005: Both child PRDs include mandatory checks where relevant: state clarity, ErrorBanner consistency, interaction accessibility.
+  - Example: detail slice includes focus return and retry/blocked-state consistency.
+  - Negative: no child omits deterministic fallback guidance.
+- AC-006: Exclusions W-C3/W-C4/W-C5/W-C7/W-C11 remain explicit and auditable.
+  - Example: final guardrail matrix captures pass/fail per exclusion.
+  - Negative: no reintroduction of hardcoded trust claims, unsupported promises, or precision timer drift.
 
 #### Verification
-- Pack/fixture/script: keyboard/touch smoke checklist.
-- Automated checks: interaction tests for focus/aria states on updated controls.
-- Manual checks: keyboard-only walkthrough on report/viewer/chat flows.
-
-### US-004: Trust copy and exclusion guardrail sweep
-As a product team, we want trust language and metadata to stay honest so polish does not introduce misleading UX.
-
-#### Acceptance Criteria
-- AC-007: Trust/status text is source-backed and consistent with live payload fields.
-  - Example: verification/footer copy only renders when metadata exists, otherwise deterministic fallback copy appears.
-  - Negative: hardcoded trust claims, IDs, timestamps, or ingest stats are forbidden.
-- AC-008: Explicitly excluded wireframe items remain excluded in polish implementation.
-  - Example: no promise of unsupported upload MIME limits; no second-level demo timers.
-  - Negative: polish scope must not reintroduce cut items from W-C3/W-C4/W-C5/W-C7/W-C11.
-
-#### Verification
-- Pack/fixture/script: UI copy/trust assertions against live fixture payloads.
-- Automated checks: tests asserting fallback copy for missing metadata.
-- Manual checks: targeted review of excluded-item checklist.
+- Pack/fixture/script: child PRD acceptance criteria and guardrail checklist.
+- Automated checks: N/A.
+- Manual checks: exclusion audit review.
 
 ## Functional Requirements
 
-- FR-001: Enforce mandatory 3-check polish gate on every touched surface:
-  - State clarity (loading, empty, blocked, success with deterministic next-step guidance)
-  - ErrorBanner consistency (code + trace, retry gated by `retryable`, support gating)
-  - Interaction accessibility (no hover-only critical actions, correct focus return)
-- FR-002: Apply v5 token/preset primitives consistently to updated states/components.
-- FR-003: Map magic-pattern affordances (U* contracts) to concrete UI polish checks.
-- FR-004: Enforce wireframe exclusion guardrails during implementation review.
+- FR-001: Keep `0009g` as umbrella PRD and create two child PRDs under `0009g_ui-polish-sweep/prds/`.
+- FR-002: Each child PRD must declare explicit blocked-by dependencies with story-level unblockers.
+- FR-003: Child scopes must be route-aligned and conflict-aware.
+- FR-004: `sequencing-parallel-plan.md` must reflect two-slice `0009g` execution.
 
 ## Non-Goals (Out of Scope)
 
-- Rebuilding layout architecture or introducing new major features.
-- Reversing previously accepted scope cuts.
-- Copying wireframe visual styling wholesale.
-- Animation-heavy refinements that block parity delivery.
-
-## Design Considerations
-
-- Use `docs/02-guidelines/v5-final/design-system.html` for canonical visual language samples.
-- Use wireframes and magic patterns for interaction inspiration, not token/style duplication.
-- Keep semantic color intent from v5 final (orange high-signal, cyan user context, semantic success/warning/destructive).
+- Introducing new backend contracts beyond `0009a`..`0009f`.
+- Reopening deferred parity scope cuts.
+- Re-splitting into many micro-slices that increase merge overhead.
 
 ## Technical Considerations
 
-- Prefer shared component updates in app design-system surface over per-route overrides.
-- Evaluate `apps/web/app/ui` first (`Button`, `Card`, `Tabs`, `Table`, `EmptyState`, `Skeleton`, `Tooltip`, `UploadZone`) before introducing new polish primitives.
-- Keep changes additive and low-risk to existing slice logic/contracts.
-- Validate any new class patterns against existing Tailwind preset conventions.
+- Continue to use `apps/web/app/ui` shared components and v5 token/preset conventions.
+- Prefer route-local polish edits in child slices to reduce shared-file conflicts.
+- If shared component changes are required, keep them additive and low-churn.
 
 ## Failure States & UX
 
-- Missing metadata -> deterministic fallback trust copy.
-- Missing support/action target -> clear disabled/help state, not silent dead-end.
-- Interaction unavailable on touch/keyboard -> provide equivalent visible control.
+- Overlap in file ownership -> merge conflicts and review churn.
+- Unclear blockers -> teams start too early and rework.
+- Missing final exclusion audit -> accidental reintroduction of forbidden wireframe behaviors.
 
 ## Metrics / Logging
 
 - Success signals:
-  - Reduced UX inconsistency defects from parity QA pass.
-  - Reduced operator misclick/misnavigation in smoke tests.
+  - Child slices run in parallel with minimal conflict rebases.
+  - Fewer re-plans due to unclear dependencies.
 - Debug signals:
-  - UI state transition logs for loading/blocked/retry states.
-  - Accessibility regression checklist pass/fail counts.
+  - Number of conflict-related review comments.
 
 ## Rollback / Disable Plan
 
-- Feature flag: `ui_polish_sweep_v1`.
-- Safe fallback behavior: retain functionality from slices `0009a`..`0009f` without polish extensions.
+- Planning rollback: collapse child scopes back into umbrella-only execution if two-slice split still causes churn.
+- Runtime flags remain owned by child implementation slices.
 
 ## Risks & Dependencies
 
 - Risks:
-  - Over-polishing may create regressions in mature flows if done too early.
-  - Inconsistent adoption if shared primitives are bypassed.
+  - Even with two slices, shared component edits can still collide if boundaries are ignored.
+  - Final guardrail story may be delayed by late polish churn in either slice.
 - Dependencies:
-  - Depends on core slice surfaces being in place (`0009a`..`0009f`).
-  - Best scheduled as final consolidation wave.
+  - `0009g1` blocked by `0009a/US-004`, `0009e/US-003`, `0009f/US-002`.
+  - `0009g2` blocked by `0009b/US-003`, `0009c/US-003`, `0009d/US-004`, `0009f/US-004`.
+  - `0009g2` final guardrail sign-off story additionally depends on `0009g1` completion.
 
 ## Success Metrics
 
-- UI polish checklist passes across shell, report/viewer, exports/artefacts, chat, and demo surfaces.
-- No explicitly excluded wireframe items are reintroduced.
-- Design-system usage is increased (fewer one-off UI variants).
+- Two child PRDs exist and parse as JSON.
+- Blockers are explicit, story-level, and route-specific.
+- Sequencing notes define earliest-start triggers for `0009g1` and `0009g2`.
 
 ## Resolved Spike Decision
 
-- SP-0009-06 resolved (2026-02-11): mandatory polish gate is locked to three checks.
-  - State clarity
-  - ErrorBanner consistency
-  - Interaction accessibility
-- Guardrail audit remains mandatory for W-C3/W-C4/W-C5/W-C7/W-C11 exclusions.
+- SP-0009-06 remains resolved (2026-02-11): mandatory polish gate is unchanged.
+  - State clarity.
+  - ErrorBanner consistency.
+  - Interaction accessibility.
+- Exclusion guardrail audit remains mandatory in `0009g2` final sign-off story.
 
 ## Sources
 
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.md`
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.md`
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.md`
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.md`
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.md`
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md`
-- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md`
-- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes`
+- `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/sequencing-parallel-plan.md`
 - `docs/02-guidelines/v5-final/design-system.html`
 - `docs/02-guidelines/v5-final/tokens.css`
 - `docs/02-guidelines/v5-final/tailwind.preset.ts`
-- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`
 - `apps/web/app/ui`

@@ -104,6 +104,7 @@ export default {
       },
       keyframes: {
         "fade-in": { from: { opacity: "0", transform: "translateY(4px)" }, to: { opacity: "1", transform: "translateY(0)" } },
+        "fade-in-up": { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "translateY(0)" } },
         shimmer: { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
         spin: { to: { transform: "rotate(360deg)" } },
         pulse: { "0%,80%,100%": { transform: "scale(0.7)", opacity: "0.5" }, "40%": { transform: "scale(1)", opacity: "1" } },
@@ -112,6 +113,7 @@ export default {
       },
       animation: {
         "fade-in": "fade-in 200ms cubic-bezier(0.4,0,0.2,1)",
+        "fade-in-up": "fade-in-up 300ms cubic-bezier(0.4,0,0.2,1) both",
         shimmer: "shimmer 2s linear infinite",
         spin: "spin 0.8s linear infinite",
         pulse: "pulse 1.2s ease-in-out infinite",

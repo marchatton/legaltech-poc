@@ -1,165 +1,150 @@
 {
   "version": 1,
   "project": "UI Polish Sweep (Design-System First) (0009g)",
-  "overview": "Run a final cross-surface UI polish pass inspired by magic-pattern affordances and wireframes while implementing through Orbital's own design system and v5-final token/preset guidance.",
+  "overview": "Split 0009g into two conflict-aware child PRDs so polish can run in parallel without over-fragmenting scope.",
   "goals": [
-    "Standardize loading, empty, blocked, and success states across major surfaces.",
-    "Normalize action hierarchy and interaction discoverability.",
-    "Strengthen accessibility and focus behavior in high-frequency workflows.",
-    "Keep trust copy honest and source-backed while preserving explicit wireframe exclusions."
+    "Reduce merge conflicts by separating route/file ownership.",
+    "Keep polish execution parallel where blocker sets differ.",
+    "Preserve deterministic trust-copy and exclusion guardrails.",
+    "Keep each child scope small and executable."
   ],
   "nonGoals": [
-    "Introduce new major product capabilities or backend contracts.",
-    "Copy wireframe styling directly into production.",
-    "Reopen deferred/cut parity items already excluded in findings.",
-    "Block parity delivery on animation-heavy refinements."
+    "Introduce new backend contracts beyond 0009a..0009f.",
+    "Reopen deferred parity cut lines.",
+    "Split 0009g into many micro-slices that increase merge overhead."
   ],
   "successMetrics": [
-    "Cross-surface polish checklist passes on shell, report/viewer, exports/artefacts, chat, and demo.",
-    "No excluded wireframe items (W-C3/W-C4/W-C5/W-C7/W-C11) are reintroduced.",
-    "Updated UI uses shared design-system primitives instead of one-off route-level variants."
+    "Two child PRDs exist and all PRD JSON files parse.",
+    "Child slices use explicit story-level blockers.",
+    "Sequencing notes provide earliest-start triggers for both child slices."
   ],
   "openQuestions": [],
   "resolvedDecisions": [
     {
       "id": "SP-0009-06",
-      "decision": "Use a mandatory 3-check polish gate across all touched surfaces.",
+      "decision": "Keep mandatory 3-check polish gate unchanged while using a two-slice structure.",
       "details": [
-        "State clarity is required (loading/empty/blocked/success with deterministic guidance).",
-        "ErrorBanner consistency is required (code + trace visibility, retry/support gating).",
-        "Interaction accessibility is required (no hover-only critical actions, correct focus return).",
-        "Guardrail audit for W-C3/W-C4/W-C5/W-C7/W-C11 remains mandatory."
+        "State clarity remains mandatory.",
+        "ErrorBanner consistency remains mandatory.",
+        "Interaction accessibility remains mandatory.",
+        "W-C3/W-C4/W-C5/W-C7/W-C11 exclusions remain auditable in final sign-off."
       ]
     }
   ],
   "stack": {
     "framework": "Next.js 15 + React 19 + TypeScript",
     "hosting": "Current app hosting",
-    "database": "Postgres (no schema changes required)",
+    "database": "Postgres (unchanged)",
     "auth": "No auth changes"
   },
   "routes": [
     {
       "path": "/matters",
-      "name": "Matters Shell",
-      "purpose": "Shell/list polish and state consistency."
+      "name": "Shell / Setup / Demo",
+      "purpose": "Primary ownership area for 0009g1."
     },
     {
       "path": "/matters/:id",
-      "name": "Matter Surfaces",
-      "purpose": "Report/viewer/exports/chat/demo polish pass."
+      "name": "Detail Surfaces",
+      "purpose": "Primary ownership area for 0009g2 (report/viewer/exports/chat + final guardrails)."
     }
   ],
   "uiNotes": [
-    "Implement via existing design-system components and tokenized styles.",
-    "Use magic-pattern/wireframe sources for interaction inspiration only.",
-    "Preserve explicit exclusion decisions from findings wireframe cut list.",
-    "Repository update (2026-02-11): `apps/web/app/ui` has recently added shared UI components; prioritize incorporating those before creating new route-local primitives."
-  ],
-  "dataModel": [
-    {
-      "entity": "UI state primitives",
-      "fields": ["loading_state", "empty_state", "blocked_state", "success_state", "error_state"]
-    }
+    "Use shared components in apps/web/app/ui and v5-final token/preset conventions.",
+    "Prefer route-local polish edits to minimize shared-file conflicts.",
+    "Keep cross-surface guardrail sign-off in a single final story."
   ],
   "rules": [
-    "Use and extend Orbital design system; do not fork visual language from wireframes.",
-    "Align polish with v5-final tokens and tailwind preset conventions.",
-    "Mandatory polish gate includes: state clarity, ErrorBanner consistency, and interaction accessibility.",
-    "Do not hardcode IDs/dates/stats or unsupported capability claims.",
-    "Keep hover affordances optional; keyboard/touch-visible alternatives are required.",
-    "Do not introduce second-level timer precision in demo checklist contexts.",
-    "Prefer shared components in `apps/web/app/ui` (for example Button/Card/Tabs/Table/Skeleton/EmptyState/Tooltip/UploadZone) before adding new primitives."
+    "Each child PRD must define explicit blocked-by story IDs.",
+    "Keep route ownership boundaries clear to reduce merge collisions.",
+    "No hardcoded trust claims, IDs, timestamps, or unsupported capability promises.",
+    "Keep excluded wireframe items out of scope and auditable."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
-    "pnpm build"
+    "JSON parse checks for umbrella + child PRDs",
+    "Manual blocker and ownership review"
   ],
-  "inspirationSources": {
-    "magicPatterns": [
-      "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md"
-    ],
-    "wireframes": [
-      "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/MattersListPage.tsx",
-      "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/MatterDetailPage.tsx",
-      "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ReportTab.tsx",
-      "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ChatTab.tsx",
-      "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/ui/ErrorBanner.tsx"
-    ],
-    "guidelinesV5": [
-      "docs/02-guidelines/v5-final/design-system.html",
-      "docs/02-guidelines/v5-final/tokens.css",
-      "docs/02-guidelines/v5-final/tailwind.preset.ts"
-    ]
-  },
-  "explicitExclusions": [
-    "W-C3: no hardcoded labels/IDs/dates/fixture names",
-    "W-C4: no hardcoded ingest stats",
-    "W-C5: no unsupported dropzone capability promises",
-    "W-C7: no trust claims without source-backed fields",
-    "W-C11: no second-level precision elapsed timers",
-    "W-C10: micro-animation polish must not block parity delivery"
+  "blockedBy": [
+    {
+      "slice": "0009g1_shell-setup-demo-polish",
+      "dependencies": ["0009a/US-004", "0009e/US-003", "0009f/US-002"]
+    },
+    {
+      "slice": "0009g2_detail-surfaces-and-guardrails",
+      "dependencies": ["0009b/US-003", "0009c/US-003", "0009d/US-004", "0009f/US-004"]
+    }
+  ],
+  "childPrds": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prds/0009g1_shell-setup-demo-polish/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prds/0009g2_detail-surfaces-and-guardrails/prd.md"
+  ],
+  "parallelizationPlan": [
+    {
+      "wave": "G1",
+      "slices": [
+        "0009g1_shell-setup-demo-polish",
+        "0009g2_detail-surfaces-and-guardrails"
+      ],
+      "notes": "Run in parallel once each slice's blocker set is complete."
+    },
+    {
+      "wave": "G2",
+      "slices": [
+        "0009g2 final guardrail sign-off story"
+      ],
+      "notes": "Run final cross-surface exclusion/trust audit after 0009g1 implementation stories are complete."
+    }
   ],
   "stories": [
     {
       "id": "US-001",
-      "title": "Adopt shared design-system polish primitives",
-      "status": "open",
+      "title": "Split 0009g into two child PRDs",
+      "status": "done",
       "dependsOn": [],
-      "description": "As a developer, I want a shared polish primitive set so UI consistency improves without per-page drift.",
+      "description": "As an engineering lead, I want two bounded child slices so we can execute polish in parallel without high merge-conflict overhead.",
       "acceptanceCriteria": [
-        "Polish updates use v5-final token/preset conventions through existing design-system components.",
-        "Example: shared skeleton, empty-state, and status-banner patterns are reused across report/chat/artefacts surfaces.",
-        "Negative: no direct copy/paste of wireframe-only styles or parallel token definitions."
+        "Two child PRD folders with prd.md + prd.json exist under 0009g.",
+        "Example: one slice owns /matters + setup/demo and one slice owns /matters/:id detail surfaces.",
+        "Negative: no third/fourth child slice with overlapping ownership."
       ]
     },
     {
       "id": "US-002",
-      "title": "Normalize cross-surface state treatment",
+      "title": "Define explicit blockers and earliest starts",
       "status": "open",
       "dependsOn": ["US-001"],
-      "description": "As an operator, I want loading/empty/blocked/success states to behave consistently so I can recover quickly.",
+      "description": "As a planning lead, I want clear blockers for each child slice so teams can start at the earliest safe point.",
       "acceptanceCriteria": [
-        "All major matter surfaces use consistent state language and visual treatments for loading/empty/blocked/success.",
-        "Example: blocked export and no-indexed-docs chat states both include deterministic next-step guidance.",
-        "Negative: spinner-only or blank placeholder states without contextual guidance are not acceptable."
+        "Each child slice lists hard blockers with story IDs.",
+        "Example: 0009g2 references 0009b/US-003, 0009c/US-003, 0009d/US-004, 0009f/US-004.",
+        "Negative: no vague blocker language."
       ]
     },
     {
       "id": "US-003",
-      "title": "Polish action hierarchy and accessibility",
+      "title": "Preserve mandatory gate and exclusions",
       "status": "open",
-      "dependsOn": ["US-001"],
-      "description": "As an operator, I want clear CTA hierarchy and accessible interactions so workflows remain fast and reliable.",
+      "dependsOn": ["US-002"],
+      "description": "As a product team, we want split execution that keeps the same quality and exclusion guardrails.",
       "acceptanceCriteria": [
-        "Each context has one primary action with clear secondary alternatives and preserved focus management.",
-        "Example: viewer close returns focus to origin trigger and key actions are reachable without hover.",
-        "Negative: required interactions must not be discoverable only via hover."
-      ]
-    },
-    {
-      "id": "US-004",
-      "title": "Run trust-copy and exclusion guardrail sweep",
-      "status": "open",
-      "dependsOn": ["US-002", "US-003"],
-      "description": "As a product team, we want trust messaging to remain honest and explicitly honor wireframe exclusions.",
-      "acceptanceCriteria": [
-        "Trust/status copy is source-backed with deterministic fallback text when fields are missing.",
-        "Example: metadata footer renders verified values from payload or explicit fallback language.",
-        "Negative: no reintroduction of excluded items (hardcoded IDs/stats, unsupported capability claims, precision timers)."
+        "Both child slices include mandatory checks relevant to scope.",
+        "Example: final 0009g2 story runs exclusion matrix and trust-copy pass/fail checks after 0009g1 completes.",
+        "Negative: no reintroduced excluded behavior (W-C3/W-C4/W-C5/W-C7/W-C11)."
       ]
     }
   ],
   "sources": [
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
-    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md",
-    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/sequencing-parallel-plan.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md",
     "docs/02-guidelines/v5-final/design-system.html",
     "docs/02-guidelines/v5-final/tokens.css",
     "docs/02-guidelines/v5-final/tailwind.preset.ts",
-    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md",
     "apps/web/app/ui"
   ]
 }

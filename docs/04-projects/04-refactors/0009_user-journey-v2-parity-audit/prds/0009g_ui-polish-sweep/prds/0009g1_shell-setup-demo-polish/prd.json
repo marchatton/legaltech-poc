@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "project": "Shell + Setup + Demo Polish (0009g1)",
+  "overview": "Polish shell/setup/demo entry surfaces with consistent state clarity, action hierarchy, and deterministic error behavior while minimizing overlap with detail-surface edits.",
+  "goals": [
+    "Standardize loading/empty/blocked/success state treatment on entry surfaces.",
+    "Improve CTA hierarchy and interaction accessibility for shell/setup/demo flows.",
+    "Align deterministic error/support behavior with 0009f contracts.",
+    "Limit scope to route-aligned files to reduce merge conflicts."
+  ],
+  "nonGoals": [
+    "Detail-surface polish for report/viewer/exports/chat (owned by 0009g2).",
+    "New backend contract work.",
+    "Reopening deferred parity scope cuts."
+  ],
+  "successMetrics": [
+    "Shell/setup/demo state scenarios pass deterministic guidance checks.",
+    "Keyboard/touch accessibility checks pass for critical entry-surface actions.",
+    "Error/support behavior matches 0009f across touched surfaces."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 + React 19 + TypeScript",
+    "hosting": "Current app hosting",
+    "database": "Postgres (unchanged)",
+    "auth": "No auth changes"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters Shell",
+      "purpose": "Primary shell and setup polish scope."
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Matter Entry Panels",
+      "purpose": "Demo/setup entry modules only; no detail-surface tab polish."
+    }
+  ],
+  "uiNotes": [
+    "Use shared components from apps/web/app/ui.",
+    "Use v5-final token/preset conventions.",
+    "Keep state and action treatments deterministic and source-backed."
+  ],
+  "rules": [
+    "One clear primary action per entry context.",
+    "No hover-only required affordances.",
+    "Retry and support behavior must follow 0009f envelope rules.",
+    "No hardcoded trust claims or unsupported capability text."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "blockedBy": [
+    "0009a/US-004",
+    "0009e/US-003",
+    "0009f/US-002"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Shell/setup/demo state clarity sweep",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want deterministic state messaging so I know what to do next on entry surfaces.",
+      "acceptanceCriteria": [
+        "Loading/empty/blocked/success states on shell/setup/demo provide explicit guidance.",
+        "Example: blocked setup state includes one explicit recovery path.",
+        "Negative: no spinner-only or blank states without context."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Entry-surface hierarchy and accessibility polish",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want clear action hierarchy and keyboard/touch access in shell/setup/demo flows.",
+      "acceptanceCriteria": [
+        "Each context has one clear primary action with secondary alternatives.",
+        "Example: setup panel presents one primary next action and secondary help options.",
+        "Negative: no required action discoverable only by hover."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Error/support consistency on entry surfaces",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want error and escalation behavior to remain predictable on shell/setup/demo surfaces.",
+      "acceptanceCriteria": [
+        "ErrorBanner field mapping and retry/support gating match 0009f.",
+        "Example: retry appears only when retryable=true.",
+        "Negative: no dead-end disabled support action without fallback guidance."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/02-guidelines/v5-final/design-system.html",
+    "docs/02-guidelines/v5-final/tokens.css",
+    "docs/02-guidelines/v5-final/tailwind.preset.ts",
+    "apps/web/app/ui"
+  ]
+}

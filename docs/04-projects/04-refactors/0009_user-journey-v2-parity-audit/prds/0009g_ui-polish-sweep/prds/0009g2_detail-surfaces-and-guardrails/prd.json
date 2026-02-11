@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "project": "Detail Surfaces + Final Guardrails (0009g2)",
+  "overview": "Polish /matters/:id detail surfaces for deterministic state/trust/accessibility behavior and finish with final cross-surface exclusion guardrail sign-off.",
+  "goals": [
+    "Standardize state and trust-copy behavior across report/viewer/exports/chat.",
+    "Improve action hierarchy and interaction accessibility in detail workflows.",
+    "Align error/retry/support behavior with 0009f.",
+    "Complete one final exclusion and mandatory-check sign-off."
+  ],
+  "nonGoals": [
+    "Shell/setup/demo polish implementation (owned by 0009g1).",
+    "New backend contract work.",
+    "Parity scope expansion beyond existing cuts."
+  ],
+  "successMetrics": [
+    "Detail surfaces pass deterministic state/trust/action checks.",
+    "Final guardrail matrix passes with no W-C3/W-C4/W-C5/W-C7/W-C11 violations.",
+    "Final sign-off runs only after 0009g1 implementation stories complete."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js 15 + React 19 + TypeScript",
+    "hosting": "Current app hosting",
+    "database": "Postgres (unchanged)",
+    "auth": "No auth changes"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Detail Surfaces",
+      "purpose": "Primary ownership for report/viewer/exports/chat polish and final guardrail sign-off."
+    }
+  ],
+  "uiNotes": [
+    "Use shared ui primitives and v5 token/preset conventions.",
+    "Keep trust copy source-backed with deterministic fallback text.",
+    "Centralize final exclusion matrix in US-004."
+  ],
+  "rules": [
+    "One clear primary action per detail-surface context.",
+    "No hover-only critical interactions.",
+    "Error/retry/support behavior follows 0009f envelope rules.",
+    "No hardcoded trust claims or excluded wireframe behavior."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "blockedBy": [
+    "0009b/US-003",
+    "0009c/US-003",
+    "0009d/US-004",
+    "0009f/US-004"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Detail state and trust-copy consistency",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want deterministic state and trust-copy behavior on detail surfaces so decisions remain reliable.",
+      "acceptanceCriteria": [
+        "Report/viewer/exports/chat states include explicit deterministic guidance.",
+        "Example: blocked export state explains reason and next action.",
+        "Negative: no hardcoded trust values or generic placeholder states."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Detail interaction hierarchy and accessibility polish",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want clear primary actions and robust non-hover interaction behavior on detail surfaces.",
+      "acceptanceCriteria": [
+        "Each context has one clear primary action and visible secondary actions.",
+        "Example: viewer close returns focus to invoking element.",
+        "Negative: no critical action discoverable only by hover."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Detail error/retry/support consistency",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want deterministic error and recovery behavior across detail workflows.",
+      "acceptanceCriteria": [
+        "ErrorBanner, retry, and support behavior align with 0009f.",
+        "Example: non-retryable errors hide retry and show explicit guidance.",
+        "Negative: no silent disabled actions or bespoke per-surface error logic."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Final cross-surface guardrail sign-off",
+      "status": "open",
+      "dependsOn": ["US-001", "US-002", "US-003", "0009g1/US-001", "0009g1/US-002", "0009g1/US-003"],
+      "description": "As a product team, we want one final audit confirming mandatory checks and exclusion guardrails across both child slices.",
+      "acceptanceCriteria": [
+        "Guardrail matrix contains pass/fail for W-C3/W-C4/W-C5/W-C7/W-C11 with evidence links.",
+        "Example: audit confirms no hardcoded ingest stats and no unsupported upload claims.",
+        "Negative: no final sign-off with unchecked exclusion rows or open 0009g1 implementation stories."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/02-guidelines/v5-final/design-system.html",
+    "docs/02-guidelines/v5-final/tokens.css",
+    "docs/02-guidelines/v5-final/tailwind.preset.ts",
+    "apps/web/app/ui"
+  ]
+}
