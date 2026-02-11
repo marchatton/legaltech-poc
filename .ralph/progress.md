@@ -253,3 +253,41 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
   - Useful context
     - Browser evidence saved at `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us004-chat-retry-semantics.png`.
 ---
+## [2026-02-11 15:15:40 UTC] - US-002: Enable matters list search/filter/create/open
+Thread: 
+Run: 20260211-143026-12311 (iteration 2)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-2.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 9a0e9e0 feat(matters-list): add q/state/view list controls
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: browser smoke via dev-browser (`/matters` filter + create validation + open action) -> PASS
+- Files changed:
+  - apps/web/lib/mattersList.server.ts
+  - apps/web/app/(api)/folders/route.ts
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/(app)/matters/CreateMatterForm.tsx
+  - apps/web/test/mattersListFilters.test.ts
+  - apps/web/test/mattersList.sync.test.ts
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.json
+- What was implemented
+  - Replaced `/matters` with a true matters list surface that supports `q`, `state`, and saved `view` controls with URL-reflected query state.
+  - Added deterministic saved-view behavior (`Active`, `Needs Attention`, `Demo Packs`) and DB-backed filtering shared by `/matters` and `GET /folders`.
+  - Added `New Matter` inline creation UX with explicit empty-name validation feedback and row-level `Open` actions into `/matters/[id]`.
+  - Added regression tests for filter parsing/mapping and sync checks for list control/create/open UI contract.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Shared server filter utilities prevent drift between page rendering and API contracts.
+  - Gotchas encountered
+  - Empty-string query params from HTML forms (for optional selects) must normalize to `undefined` before strict enum parsing.
+  - Useful context
+  - First-load Next.js compile in dev can exceed default browser automation timeouts; use extended navigation timeout for smoke scripts.
+---
