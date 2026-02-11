@@ -445,3 +445,41 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
   - Useful context
   - Browser evidence screenshot: `.agents/skills/00-utilities/dev-browser/tmp/us002-export-panel.png`.
 ---
+## [2026-02-11 18:03:37 UTC] - US-003: Implement artefact filtering and provenance display
+Thread: 
+Run: 20260211-171748-22180 (iteration 3)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-3.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: dda5613 feat(artefacts): add filtering and provenance UI
+- Post-commit status: `clean`
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS (rerun after one transient hook-timeout FAIL)
+  - Command: pnpm build -> PASS
+  - Command: dev-browser smoke on `http://localhost:3100/matters/fld_ui_us003` (unsafe/type filters + source run persistence) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/ArtefactsList.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/artefactsFilters.test.ts
+  - apps/web/app/(app)/matters/artefactsFilters.ts
+  - apps/web/test/artefactsList.sync.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.json
+- What was implemented
+  - Added artefact filter controls for `kind`, `type`, and `safety` with server-side filtering and URL query persistence.
+  - Extended artefact rows to display `type`, `safety`, and `source_run_id` in a dedicated provenance column that remains visible under all filter combinations.
+  - Preserved non-artefact query params during filter apply/clear and fixed clear behavior to remain on the current matter route.
+  - Added unit coverage for filter parsing/application and sync checks for UI wiring + provenance rendering contract.
+  - Browser-verified filter behavior and provenance visibility with screenshots in `.agents/skills/00-utilities/dev-browser/tmp/`.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep filter parsing/filtering pure and testable in a standalone helper so UI components stay focused on rendering.
+  - Gotchas encountered
+  - Relative clear links like `.` can resolve unexpectedly in nested Next routes; use explicit query-only clear (`?`) to stay on the current page.
+  - Useful context
+  - `pnpm --filter @orbital-poc/web test` can intermittently trip Vitest hook timeout on integration setup; immediate rerun passed without code changes.
+---

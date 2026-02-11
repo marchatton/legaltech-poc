@@ -82,3 +82,4 @@
 [2026-02-11 17:46:00] US-003 code changes: added artefact filters (kind/type/safety), source_run_id column, and filter helper tests
 [2026-02-11 18:00:20] US-003 verification: lint/typecheck/test/build passed; browser smoke confirmed kind/type/safety filters and source_run_id visibility
 [2026-02-11 18:02:23] US-003 final verification rerun: lint/typecheck/test/build all PASS on final patch; browser smoke PASS with screenshots
+[2026-02-11 18:04:04] US-003 progress log updated with commit, verification, and browser evidence
