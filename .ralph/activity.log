@@ -1,10 +1,7 @@
 # Activity Log
 
 ## Run Summary
-- 2026-02-11 15:42:29 | run=20260211-143054-12725 | iter=4 | mode=build | story=US-004 | duration=894s | status=success
-- 2026-02-11 15:27:29 | run=20260211-143054-12725 | iter=3 | mode=build | story=US-003 | duration=1021s | status=success
-- 2026-02-11 15:10:21 | run=20260211-143054-12725 | iter=2 | mode=build | story=US-002 | duration=1507s | status=success
-- 2026-02-11 14:45:06 | run=20260211-143054-12725 | iter=1 | mode=build | story=US-001 | duration=851s | status=success
+- 2026-02-11 14:49:02 | run=20260211-143026-12311 | iter=1 | mode=build | story=US-001 | duration=1115s | status=success
 - 2026-02-10 23:44:35 | run=20260210-224307-10605 | iter=3 | mode=build | story=US-003 | duration=2860s | status=success
 - 2026-02-10 22:56:52 | run=20260210-224307-10605 | iter=2 | mode=build | story=US-002 | duration=746s | status=success
 - 2026-02-10 22:44:23 | run=20260210-224307-10605 | iter=1 | mode=build | story=US-001 | duration=76s | status=success
@@ -37,31 +34,15 @@
 [2026-02-10 23:39:28] US-003 verification: pnpm -r typecheck/lint/test/build + pnpm fixture:eval:all PASS
 [2026-02-10 23:41:24] US-003 progress log updated (.ralph/progress.md)
 [2026-02-10 23:44:35] ITERATION 3 end (duration=2860s)
-[2026-02-11 14:30:54] ITERATION 1 start (mode=build story=US-001)
-[2026-02-11 14:31:08] Start US-001 deterministic error envelope adoption audit
-[2026-02-11 14:37:55] Implemented US-001 error envelope contract updates in safe-error, export routes, chat route/protocol, and route tests
-[2026-02-11 14:42:32] Completed verification gates: web lint/typecheck/test, root build, and web dev server boot smoke
-[2026-02-11 14:44:22] Updated .ralph/progress.md for US-001 with commit and verification details
-[2026-02-11 14:45:05] ITERATION 1 end (duration=851s)
-[2026-02-11 14:45:13] ITERATION 2 start (mode=build story=US-002)
-[2026-02-11 14:45:38] Start US-002 iteration 2: auditing guardrails, errors, and PRD context before implementation
-[2026-02-11 14:53:40] US-002 major code changes complete: added shared ErrorBanner + safe-error parser and integrated across setup/report/export/artefacts/chat surfaces
-[2026-02-11 14:57:36] US-002 verification complete: lint, typecheck, test, and build passed
-[2026-02-11 15:09:32] US-002 progress log updated with commit, verification, and browser evidence details
-[2026-02-11 15:10:19] ITERATION 2 end (duration=1507s)
-[2026-02-11 15:10:28] ITERATION 3 start (mode=build story=US-003)
-[2026-02-11 15:11:17] US-003 iteration 3: starting work and reviewing required context files
-[2026-02-11 15:18:09] US-003: implemented ErrorBanner support escalation pattern and wired supportRoute across matters surfaces
-[2026-02-11 15:24:41] US-003: verification complete (lint/typecheck/test/build + browser checks for fallback and configured support action)
-[2026-02-11 15:26:51] US-003: appended progress entry with commit/verifications and browser evidence
-[2026-02-11 15:27:28] ITERATION 3 end (duration=1021s)
-[2026-02-11 15:27:35] ITERATION 4 start (mode=build story=US-004)
-[2026-02-11 15:28:05] Start US-004 iteration 4: auditing retry semantics across surfaces
-[2026-02-11 15:31:52] Applied US-004 retry semantics updates across ErrorBanner, matter surfaces, and retryable API envelopes
-[2026-02-11 15:39:12] Completed US-004 verification: lint, typecheck, test, build, and browser retry semantics check
-[2026-02-11 15:40:50] Updated US-004 progress entry after commit and verification
-[2026-02-11 15:42:28] ITERATION 4 end (duration=894s)
 [2026-02-11 14:30:27] ITERATION 1 start (mode=build story=US-001)
 [2026-02-11 14:30:47] Start US-001: auditing guardrails, errors, PRD, and shell navigation baseline
 [2026-02-11 14:34:33] Implemented US-001 shell layouts: matters nav placeholders + detail breadcrumb/sticky matter context; added shell wayfinding sync test
 [2026-02-11 14:46:33] Verification complete for US-001: lint/typecheck/test/build passed; browser checks passed for shell nav and matter detail breadcrumb
+[2026-02-11 14:48:09] US-001 progress log updated with commit and verification details
+[2026-02-11 14:49:01] ITERATION 1 end (duration=1115s)
+[2026-02-11 14:49:07] ITERATION 2 start (mode=build story=US-002)
+[2026-02-11 14:51:45] US-002 iteration 2 start: auditing matters list search/filter/create/open implementation
+[2026-02-11 14:57:07] US-002 major code changes complete: shared matters filters, /matters list UI, create form, /folders query filtering, and tests
+[2026-02-11 15:05:10] US-002 verification complete: lint/typecheck/test/build passed; browser checks passed for view+search query persistence, empty-name validation, and open action
+[2026-02-11 15:12:34] US-002 verification rerun complete after parser fix: lint/typecheck/test/build all pass; browser verified q/state/view persistence, deterministic list, empty-name validation, and open action
+[2026-02-11 15:15:05] US-002 final verification complete on latest code: lint/typecheck/test/build pass plus browser smoke checks pass

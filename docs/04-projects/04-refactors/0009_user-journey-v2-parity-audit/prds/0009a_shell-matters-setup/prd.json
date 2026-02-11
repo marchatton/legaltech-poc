@@ -93,7 +93,7 @@
     {
       "id": "US-001",
       "title": "Ship shell wayfinding baseline",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As an operator, I want stable shell navigation and breadcrumb context so I can move through matters confidently.",
       "acceptanceCriteria": [
@@ -102,13 +102,13 @@
         "Negative: placeholder destinations are not hidden or rendered as broken clickable links."
       ],
       "startedAt": "2026-02-11T14:30:26.722461+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T14:30:26.722495+00:00"
+      "completedAt": "2026-02-11T14:49:03.986351+00:00",
+      "updatedAt": "2026-02-11T14:49:03.986306+00:00"
     },
     {
       "id": "US-002",
       "title": "Enable matters list search/filter/create/open",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -117,7 +117,10 @@
         "List supports `q`, `state`, and `view` inputs and maps them to filtered matter results.",
         "Example: selecting `Needs Attention` and search term updates the list deterministically and preserves query state.",
         "Negative: creating a matter without a name is rejected with user-visible validation feedback."
-      ]
+      ],
+      "startedAt": "2026-02-11T14:49:07.016734+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T14:49:07.016752+00:00"
     },
     {
       "id": "US-003",
