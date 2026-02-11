@@ -125,7 +125,7 @@
     {
       "id": "US-004",
       "title": "Normalize retry semantics across surfaces",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-002"
       ],
@@ -136,8 +136,8 @@
         "Negative: non-retryable errors must not expose retry controls."
       ],
       "startedAt": "2026-02-11T15:27:34.761312+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T15:27:34.761325+00:00"
+      "completedAt": "2026-02-11T15:42:31.849592+00:00",
+      "updatedAt": "2026-02-11T15:42:31.849534+00:00"
     }
   ],
   "sources": [
