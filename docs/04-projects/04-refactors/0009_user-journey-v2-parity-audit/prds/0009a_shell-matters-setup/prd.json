@@ -57,11 +57,24 @@
   "dataModel": [
     {
       "entity": "Folder (Matter)",
-      "fields": ["id", "name", "state", "created_at", "updated_at"]
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "created_at",
+        "updated_at"
+      ]
     },
     {
       "entity": "Document readiness view",
-      "fields": ["id", "filename", "parse_status", "ocr_status", "page_count", "error_code"]
+      "fields": [
+        "id",
+        "filename",
+        "parse_status",
+        "ocr_status",
+        "page_count",
+        "error_code"
+      ]
     }
   ],
   "rules": [
@@ -80,20 +93,25 @@
     {
       "id": "US-001",
       "title": "Ship shell wayfinding baseline",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As an operator, I want stable shell navigation and breadcrumb context so I can move through matters confidently.",
       "acceptanceCriteria": [
         "Shell renders Matters as active destination and Runs/Alerts/Settings as clearly disabled placeholders.",
         "Example: matter detail shows breadcrumb `Matters > <Matter Name>` with sticky identifier context.",
         "Negative: placeholder destinations are not hidden or rendered as broken clickable links."
-      ]
+      ],
+      "startedAt": "2026-02-11T14:30:26.722461+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T14:30:26.722495+00:00"
     },
     {
       "id": "US-002",
       "title": "Enable matters list search/filter/create/open",
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "description": "As an operator, I want list controls for search, saved views, and create/open actions so list triage is fast.",
       "acceptanceCriteria": [
         "List supports `q`, `state`, and `view` inputs and maps them to filtered matter results.",
@@ -105,7 +123,9 @@
       "id": "US-003",
       "title": "Deliver setup documents and upload flow",
       "status": "open",
-      "dependsOn": ["US-002"],
+      "dependsOn": [
+        "US-002"
+      ],
       "description": "As an operator, I want setup/document readiness and upload transitions visible so I can prepare matters before running extraction.",
       "acceptanceCriteria": [
         "Setup view consumes document readiness payload with parse/ocr/status signals and updates after upload complete.",
@@ -117,7 +137,9 @@
       "id": "US-004",
       "title": "Show Quick Start readiness reasons",
       "status": "open",
-      "dependsOn": ["US-003"],
+      "dependsOn": [
+        "US-003"
+      ],
       "description": "As an operator, I want explicit run readiness reason copy so I understand ready/blocked/completed states.",
       "acceptanceCriteria": [
         "Quick Start states include ready, blocked, and already-complete copy with actionable reason text.",

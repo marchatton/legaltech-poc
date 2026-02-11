@@ -61,3 +61,7 @@
 [2026-02-11 15:39:12] Completed US-004 verification: lint, typecheck, test, build, and browser retry semantics check
 [2026-02-11 15:40:50] Updated US-004 progress entry after commit and verification
 [2026-02-11 15:42:28] ITERATION 4 end (duration=894s)
+[2026-02-11 14:30:27] ITERATION 1 start (mode=build story=US-001)
+[2026-02-11 14:30:47] Start US-001: auditing guardrails, errors, PRD, and shell navigation baseline
+[2026-02-11 14:34:33] Implemented US-001 shell layouts: matters nav placeholders + detail breadcrumb/sticky matter context; added shell wayfinding sync test
+[2026-02-11 14:46:33] Verification complete for US-001: lint/typecheck/test/build passed; browser checks passed for shell nav and matter detail breadcrumb
