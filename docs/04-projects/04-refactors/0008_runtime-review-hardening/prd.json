@@ -1,0 +1,281 @@
+{
+  "version": 1,
+  "project": "Runtime Review Hardening (WDK Runtime, Retrieval, and API Exposure)",
+  "overview": "Harden runtime behavior across WDK scheduling/draining, retrieval fallback logic, citations API exposure gating, pgvector readiness checks, and ingest failure UX so runtime outcomes are deterministic, observable, and safe by default in production posture.",
+  "date": "2026-02-11",
+  "owner": "marc",
+  "status": "draft",
+  "goals": [
+    "Eliminate partial Quick Start step scheduling outcomes for a run.",
+    "Prevent cross-run inline drainer claims in development ingest paths.",
+    "Keep citations route hidden outside dev and demo-prod.",
+    "Avoid unnecessary semantic embedding work when no vectors exist.",
+    "Remove false pgvector disabled outcomes caused by concurrent setup.",
+    "Make ingest failure reasons understandable to non-technical users."
+  ],
+  "nonGoals": [
+    "Re-architecting the run_steps table or worker model.",
+    "Changing question-set content or run product semantics.",
+    "Introducing new retrieval ranking algorithms or embedding model changes.",
+    "Changing ingest threshold limits or broad document processing policy.",
+    "Broad UI redesign beyond ingest error messaging."
+  ],
+  "successMetrics": [
+    "Quick Start runs converge to expected step counts and complete without partial scheduling regressions.",
+    "No STEP_TYPE_UNKNOWN failures for quick_start_title_survey.write_row_v0 caused by ingest inline draining.",
+    "Citations route remains inaccessible in prod posture even when FEATURE_CITATIONS_API=1.",
+    "Retrieval reports semanticDisabledReason=NO_VECTORS and returns lexical results when vector count is zero.",
+    "Ingest failures are shown with friendly user-facing messages while retaining operator-visible technical detail."
+  ],
+  "openQuestions": [
+    "Confirm final wording for user-facing ingest error copy with product/design owner.",
+    "Confirm whether embed-call avoidance is asserted via targeted unit mocking, integration coverage, or both."
+  ],
+  "stack": {
+    "framework": "Next.js 15 + TypeScript (apps/web)",
+    "hosting": "Existing Orbital deployment environment (dev, demo-prod, prod modes)",
+    "database": "Postgres with optional pgvector extension",
+    "auth": "No auth model changes in this slice; existing app auth/context remains unchanged"
+  },
+  "routes": [
+    {
+      "path": "/matters/[id]",
+      "name": "Matter Page",
+      "purpose": "Display document ingest failures with friendly messages and retain technical detail for operators."
+    },
+    {
+      "path": "/api/folders/[id]/runs",
+      "name": "Create Run API",
+      "purpose": "Create Quick Start runs and auto-kick inline processing in allowed runtime modes."
+    },
+    {
+      "path": "/api/citations/[id]",
+      "name": "Citations API",
+      "purpose": "Serve citation payloads while enforcing dev/demo-only exposure."
+    }
+  ],
+  "uiNotes": [
+    "Ingest failure UI must show a clear primary message and keep raw details secondary.",
+    "No broad UI layout changes are in scope.",
+    "Quick Start progress UX remains existing behavior; this slice improves reliability behind it."
+  ],
+  "dataModel": [
+    {
+      "entity": "runs",
+      "fields": [
+        "id",
+        "state",
+        "questions_total",
+        "questions_done",
+        "error_json",
+        "updated_at"
+      ]
+    },
+    {
+      "entity": "run_steps",
+      "fields": [
+        "id",
+        "run_id",
+        "step_key",
+        "step_type",
+        "state",
+        "attempt",
+        "available_at"
+      ]
+    },
+    {
+      "entity": "citations",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "snippet",
+        "snippet_hash",
+        "polygons_json"
+      ]
+    },
+    {
+      "entity": "documents",
+      "fields": [
+        "id",
+        "error_json",
+        "metadata_json",
+        "parse_status",
+        "ocr_status"
+      ]
+    },
+    {
+      "entity": "retrieval schema capability",
+      "fields": [
+        "pgvector extension availability",
+        "embedding column availability",
+        "vector count per folder/index version"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "No new import format in this refactor slice; existing request/response contracts are preserved.",
+    "example": {
+      "note": "No new external import payload introduced."
+    }
+  },
+  "rules": [
+    "Quick Start question-step scheduling must be atomic and idempotent.",
+    "Inline drainer claim behavior must scope by runId when runId is provided.",
+    "Inline Quick Start self-progress kick is allowed only in dev/demo-prod and must remain off in prod.",
+    "Citations API exposure must always be gated by assertDevOrDemoProdApi regardless of feature flag state.",
+    "Hybrid retrieval must skip semantic branch execution when vector count is zero and report NO_VECTORS.",
+    "Pgvector setup must be idempotent and race-safe by using IF NOT EXISTS and a catch-path existence re-check.",
+    "Ingest error codes must map to friendly primary UI copy with technical detail preserved secondarily."
+  ],
+  "qualityGates": [
+    "pnpm -C apps/web vitest run test/wdkStepQueue.int.test.ts",
+    "pnpm -C apps/web vitest run test/ingestCutoverFlag.test.ts",
+    "pnpm -C apps/web vitest run test/foldersRunsRoute.wdk.int.test.ts",
+    "pnpm -C apps/web vitest run lib/citations.routes.test.ts",
+    "pnpm -C apps/web vitest run test/hybridSearchGoldenQuestions.smoke.int.test.ts",
+    "pnpm verify"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Atomic Quick Start Scheduling and Reconciliation",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an engineer, I want Quick Start question steps to be scheduled atomically with reconciliation so that runs do not get stuck with partial step sets.",
+      "acceptanceCriteria": [
+        "Example: if one step insert fails during scheduling, the transaction rolls back and no partial question-step set is committed.",
+        "Example: for a run with questions_total = N, reconciliation backfills missing steps and converges to exactly N question steps.",
+        "Negative: duplicate scheduling attempts must not create duplicate rows for the same (run_id, step_key)."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Run-Scoped Inline Draining and Dev/Demo Quick Start Self-Progress",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As a developer running demo flows, I want inline draining scoped by run id and auto-kicked Quick Start processing so that development runs progress without cross-run interference.",
+      "acceptanceCriteria": [
+        "Example: ingest inline drain invoked with ingest runId only claims and handles steps for that run.",
+        "Example: in dev or demo-prod, creating a Quick Start run begins consuming steps without requiring a separate worker process.",
+        "Negative: in prod posture, inline kick remains disabled and does not process steps.",
+        "Negative: Quick Start steps are not failed as STEP_TYPE_UNKNOWN due to ingest handler mismatch."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Citations API Re-Locked to Internal/Dev-Only Surface",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a security-conscious operator, I want citations API exposure locked to dev and demo-prod regardless of feature toggles so that production posture stays closed by default.",
+      "acceptanceCriteria": [
+        "Example: in prod posture, citations route returns a not-found style envelope even when FEATURE_CITATIONS_API=1.",
+        "Example: in dev and demo-prod, DB-first citations behavior continues to work with fixture fallback behavior.",
+        "Negative: feature flags do not bypass environment gate checks."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Semantic Branch Short-Circuit for Zero-Vector Corpora",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an engineer, I want retrieval to skip semantic work when nVectors is zero so that empty-vector environments avoid unnecessary embedding cost and warning noise.",
+      "acceptanceCriteria": [
+        "Example: with lexical chunks present and zero vectors, retrieval returns lexical results and reports semanticDisabledReason as NO_VECTORS.",
+        "Example: when semantic is disabled, effective weighting behaves as lexical-only (lex=1, sem=0).",
+        "Negative: embedding call paths are not executed when nVectors equals zero."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Pgvector Setup Idempotency and Race-Safe Readiness",
+      "status": "open",
+      "dependsOn": [
+        "US-004"
+      ],
+      "description": "As an engineer, I want pgvector setup to tolerate concurrent initialization so that schema readiness does not report false disabled states.",
+      "acceptanceCriteria": [
+        "Example: concurrent schema setup calls do not produce false PGVECTOR_DISABLED outcomes when extension creation succeeds in one caller.",
+        "Example: extension setup uses CREATE EXTENSION IF NOT EXISTS vector.",
+        "Negative: environments without extension support still fail safe and preserve explicit disablement behavior."
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Friendly Ingest Failure Messaging in Matter UI",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a non-technical user, I want readable ingest failure explanations so that I can take corrective action without parsing raw JSON errors.",
+      "acceptanceCriteria": [
+        "Example: known ingest codes (INGEST_TOO_MANY_PAGES, INGEST_PAGE_TEXT_TOO_LARGE, INGEST_TOTAL_TEXT_TOO_LARGE) map to clear, actionable messages.",
+        "Example: UI shows a friendly primary message and retains technical details in secondary debug-visible text.",
+        "Negative: unknown codes fall back safely without blank states, crashes, or leaking internal-only details."
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    "FR-001: Quick Start scheduling inserts all question steps in one transaction or none.",
+    "FR-002: Reconciliation backfills missing Quick Start steps to match questions_total.",
+    "FR-003: kickInlineWdkWorker accepts optional runId.",
+    "FR-004: drainWdkStepsOnce scopes claims by runId when provided.",
+    "FR-005: startDocumentIngest passes returned runId to inline kick.",
+    "FR-006: folders runs route auto-kicks Quick Start processing only in dev/demo-prod.",
+    "FR-007: prod posture keeps inline kick disabled.",
+    "FR-008: citations route enforces assertDevOrDemoProdApi before feature-flag branches.",
+    "FR-009: hybridSearch short-circuits semantic branch when nVectors is zero.",
+    "FR-010: hybridSearch debug output includes semanticDisabledReason NO_VECTORS when applicable.",
+    "FR-011: lexical-only fallback weighting is explicit when semantic is disabled.",
+    "FR-012: retrieval schema uses CREATE EXTENSION IF NOT EXISTS vector.",
+    "FR-013: retrieval schema catch path re-checks extension existence before returning false disabled state.",
+    "FR-014: ingest error mapper covers known codes plus a safe fallback.",
+    "FR-015: matter page renders friendly ingest error copy as primary text.",
+    "FR-016: technical error details remain available for operator debugging.",
+    "FR-017: targeted regression tests are added or updated for each workstream.",
+    "FR-018: full repository verification passes via pnpm verify."
+  ],
+  "verificationPlan": [
+    "Run targeted workstream tests first, then execute pnpm verify.",
+    "Validate mixed-run queue isolation (ingest + quick-start) under inline draining.",
+    "Validate mode-gated citations behavior in dev, demo-prod, and prod postures.",
+    "Validate no-vector retrieval behavior with debug reason assertions.",
+    "Validate friendly ingest error copy plus technical-detail fallback rendering."
+  ],
+  "failureStatesAndUX": [
+    "Mid-scheduling insert failure rolls back transaction and avoids partial visible state.",
+    "Cross-run claim risk is prevented by run-scoped draining where runId is supplied.",
+    "Citations calls outside allowed modes return a not-found safe envelope.",
+    "No-vector retrieval falls back lexically with NO_VECTORS reason instead of hard failure.",
+    "Pgvector unsupported environments preserve safe disablement behavior.",
+    "Ingest limit failures show friendly actionable messages with secondary technical detail."
+  ],
+  "metricsLogging": [
+    "Structured reconciliation event for Quick Start backfills: wdk.quick_start.reconciled with run_id, expected_steps, existing_steps, inserted_steps, trace_id.",
+    "Inline drain logs include run_id and handler_count.",
+    "Quick Start reliability monitored via absence of persistent partial/stalled running runs.",
+    "Retrieval monitoring tracks NO_VECTORS incidence and reduced avoidable semantic embedding failures."
+  ],
+  "rollbackDisablePath": [
+    "Revert workstream-specific code paths independently: scheduling transaction/reconciliation, runId scoping, citations gate placement, NO_VECTORS short-circuit, pgvector DDL/catch behavior, ingest UI message mapping.",
+    "No schema migration rollback is required for this slice.",
+    "Production remains safe by default through existing runtime-mode gating behavior."
+  ],
+  "risks": [
+    "Scheduling transaction could increase latency for larger question sets.",
+    "Run-scoping behavior could be missed in edge caller paths that do not pass runId.",
+    "New semantic disabled reason values could impact strict downstream parsers.",
+    "Ingest code-to-message mapping could drift from backend error code definitions."
+  ],
+  "dependencies": [
+    "Deterministic integration test scaffolding for queue and route behavior.",
+    "Correct runtime-mode configuration across dev, demo-prod, and prod environments.",
+    "Existing WDK and retrieval modules remaining stable while hardening changes are applied."
+  ],
+  "sources": [
+    "docs/05-reviews-audits/implementation-plan-runtime-review-2026-02-11.md",
+    "docs/05-reviews-audits/implementation-plan-runtime-review-2026-02-11-codex.md",
+    "docs/05-reviews-audits/implementation-plan-runtime-review-2026-02-11-synthesized.md",
+    "docs/04-projects/04-refactors/0008_runtime-review-hardening/prd.md"
+  ]
+}
