@@ -114,3 +114,4 @@
 [2026-02-11 18:43:23] US-004: rebase conflicts resolved and US-003 baseline restored; auditing trust metadata surfaces
 [2026-02-11 18:48:35] US-004 major code changes: added trust metadata fields to citations payload + report/viewer metadata rendering with null-safe fallback copy
 [2026-02-11 18:59:19] US-004 verification complete: lint/typecheck/test/build pass and dev-browser confirms trust metadata fallback/footer rendering
+[2026-02-11 19:00:38] US-004 progress entry appended to .ralph/progress.md with commit, verification, and browser evidence

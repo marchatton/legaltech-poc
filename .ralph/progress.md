@@ -606,3 +606,45 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
   - Useful context
   - Matter `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` (run `run_us002_browser_seed`) was used for browser verification; one local dev citation (`cit_us003_demo_1`) was seeded for UI exercise.
 ---
+## [2026-02-11 19:00:52 UTC] - US-004: Expose trust metadata rail and footer
+Thread: 
+Run: 20260211-171747-21967 (iteration 4)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-4.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 00168a4 feat(report-triage): expose trust metadata rail and footer
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (US-004 trust metadata browser script) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - apps/web/app/(api)/citations/[id]/route.ts
+  - apps/web/app/(app)/evidence/[id]/page.tsx
+  - apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx
+  - apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+  - apps/web/app/(app)/matters/viewer/page.tsx
+  - apps/web/lib/citations.routes.test.ts
+  - apps/web/lib/fixtureSeed.server.ts
+  - apps/web/test/reportEvidenceViewer.sync.test.ts
+  - apps/web/test/reportRowDrawer.sync.test.ts
+  - .ralph/progress.md
+- What was implemented
+  - Extended `/citations/:id` payloads to include nullable `doc_version`, `verified_at`, and `loaded_state`, sourced from seeded citation payload fields or linked `report_rows.provenance_json` in DB mode.
+  - Rendered trust metadata rows in the report drawer metadata rail (`doc_version`, `verified_at`, `loaded_state`) with deterministic fallback copy (`Unavailable from payload`) when nullable fields are missing.
+  - Added a trust footer to `CitationViewerClient` showing the same three fields with the same fallback behavior and removed the previous hardcoded trust-style copy (`Verified at 100% zoom`).
+  - Threaded trust metadata through both viewer entry points (`/matters/viewer` and `/evidence/[id]`) so viewer surfaces consume source-backed response fields.
+  - Updated route and sync tests to lock the new trust metadata contract and guard against regression to hardcoded trust statements.
+  - Browser-verified trust rail + footer behavior on matter `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` (run `run_us002_browser_seed`) and captured evidence screenshot at `.agents/skills/00-utilities/dev-browser/tmp/us004-trust-matter.png`.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - `report_rows.provenance_json` is the safest thin-backend source for citation trust metadata without widening strict `payload_json` schemas.
+  - Gotchas encountered
+  - In this headless Sprite environment, `dev-browser` must be started with `./server.sh --headless` or Playwright fails due missing X server.
+  - Useful context
+  - Existing demo matter `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` already contains seeded row/citation data suitable for report drawer + evidence viewer parity checks.
+---
