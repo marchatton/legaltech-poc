@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "project": "Shell, Matters List, and Setup Flow Parity (0009a)",
+  "overview": "Deliver shell/navigation, matters list, and document setup parity affordances with thin backend contracts for filtering, creation, readiness, and upload completion.",
+  "goals": [
+    "Restore shell wayfinding and navigation parity signals.",
+    "Enable searchable, filterable, actionable matters list workflows.",
+    "Ship first-class setup/documents flow with deterministic readiness states.",
+    "Expose run readiness reasons without introducing checklist-gating backend state."
+  ],
+  "nonGoals": [
+    "Implement functional Runs/Alerts/Settings destinations.",
+    "Build pre-run checklist persistence/state machine.",
+    "Implement resumable/chunked upload orchestration."
+  ],
+  "successMetrics": [
+    "Operators can search/filter/create/open matters from a single surface.",
+    "Document upload flows to readiness with visible state transitions.",
+    "Quick Start readiness always includes explicit reason copy."
+  ],
+  "openQuestions": [
+    "Which readiness state set is sufficient for setup UX without exposing pipeline internals?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 app router + TypeScript",
+    "hosting": "Current web hosting",
+    "database": "Postgres",
+    "auth": "Existing auth posture"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters List",
+      "purpose": "Search/filter/create/open matters with demo history side surface."
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Matter Setup",
+      "purpose": "Document readiness and upload handoff before run/review actions."
+    }
+  ],
+  "uiNotes": [
+    "Keep disabled placeholder tabs visible for Runs/Alerts/Settings.",
+    "Do not hardcode ingest counts, IDs, or timestamps.",
+    "Keep simple UI affordances aggregated into shared list/setup stories."
+  ],
+  "dataModel": [
+    {
+      "entity": "Folder (Matter)",
+      "fields": ["id", "name", "state", "created_at", "updated_at"]
+    },
+    {
+      "entity": "Document readiness view",
+      "fields": ["id", "filename", "parse_status", "ocr_status", "page_count", "error_code"]
+    }
+  ],
+  "rules": [
+    "U12 pre-run checklist state machine remains out-of-scope for parity v1.",
+    "Runs/Alerts/Settings remain disabled placeholders in this slice.",
+    "Upload capability claims must match backend-supported MIME/size rules."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Ship shell wayfinding baseline",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want stable shell navigation and breadcrumb context so I can move through matters confidently.",
+      "acceptanceCriteria": [
+        "Shell renders Matters as active destination and Runs/Alerts/Settings as clearly disabled placeholders.",
+        "Example: matter detail shows breadcrumb `Matters > <Matter Name>` with sticky identifier context.",
+        "Negative: placeholder destinations are not hidden or rendered as broken clickable links."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Enable matters list search/filter/create/open",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want list controls for search, saved views, and create/open actions so list triage is fast.",
+      "acceptanceCriteria": [
+        "List supports `q`, `state`, and `view` inputs and maps them to filtered matter results.",
+        "Example: selecting `Needs Attention` and search term updates the list deterministically and preserves query state.",
+        "Negative: creating a matter without a name is rejected with user-visible validation feedback."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Deliver setup documents and upload flow",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want setup/document readiness and upload transitions visible so I can prepare matters before running extraction.",
+      "acceptanceCriteria": [
+        "Setup view consumes document readiness payload with parse/ocr/status signals and updates after upload complete.",
+        "Example: upload-init + complete transitions document state from queued to indexed-ready in the UI.",
+        "Negative: UI must not advertise unsupported upload MIME or size capabilities."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Show Quick Start readiness reasons",
+      "status": "open",
+      "dependsOn": ["US-003"],
+      "description": "As an operator, I want explicit run readiness reason copy so I understand ready/blocked/completed states.",
+      "acceptanceCriteria": [
+        "Quick Start states include ready, blocked, and already-complete copy with actionable reason text.",
+        "Example: missing indexed docs displays blocked state with remediation guidance.",
+        "Negative: this story does not introduce checklist-gating backend persistence or new state machine APIs."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/MattersListPage.tsx",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/NewMatterPage.tsx"
+  ]
+}

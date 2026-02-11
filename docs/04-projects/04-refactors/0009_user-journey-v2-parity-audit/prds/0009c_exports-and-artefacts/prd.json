@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "project": "Exports and Artefacts Run-Scoped Parity (0009c)",
+  "overview": "Make export and artefact workflows run-aware with deep-link continuity to failed rows, plus clear provenance, safety, and download feedback patterns.",
+  "goals": [
+    "Introduce shared run selector contracts for export/report surfaces.",
+    "Standardize blocked export panel and failed-row deep-link behavior.",
+    "Expose artefact filtering and provenance fields clearly.",
+    "Improve download and unsafe-tag explanation feedback."
+  ],
+  "nonGoals": [
+    "Server-side persistence of export/report saved filters.",
+    "Multi-run comparative export generation.",
+    "Advanced sort/ranking models beyond baseline filter behavior."
+  ],
+  "successMetrics": [
+    "Users can scope export actions to a selected run.",
+    "Blocked exports deep-link reliably to run-filtered failed rows.",
+    "Artefact provenance and safety context is visible at row level."
+  ],
+  "openQuestions": [
+    "Should parity v1 run selector show only completed runs or include in-progress runs with labels?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 + TypeScript",
+    "hosting": "Current web hosting",
+    "database": "Postgres",
+    "auth": "Existing auth posture"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id?tab=exports",
+      "name": "Exports",
+      "purpose": "Run-scoped export actions and blocked-state guidance."
+    },
+    {
+      "path": "/matters/:id?tab=artefacts",
+      "name": "Artefacts",
+      "purpose": "Filterable output list with provenance and safety context."
+    }
+  ],
+  "uiNotes": [
+    "Use one primary open/download affordance per row.",
+    "Keep blocked-state messaging explicit and actionable.",
+    "Avoid hiding provenance fields when filters are active."
+  ],
+  "dataModel": [
+    {
+      "entity": "Run selector option",
+      "fields": ["run_id", "status", "started_at", "updated_at"]
+    },
+    {
+      "entity": "Artefact",
+      "fields": ["id", "kind", "type", "unsafe", "source_run_id", "created_at"]
+    }
+  ],
+  "rules": [
+    "Report deep-link must carry run_id and failed-status filter state.",
+    "Unsafe artefacts require explanation UX, not just a badge.",
+    "Run selector changes must deterministically update scoped actions."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Ship run selector API contract for export/report",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want recent runs available in selectors so export/report actions target the intended run.",
+      "acceptanceCriteria": [
+        "`GET /api/folders/:id/runs` returns selector-ready runs with status/timestamp fields.",
+        "Example: selector defaults to most recent completed run and can switch to another completed run.",
+        "Negative: missing run_id in request must not silently reuse stale client-side run state."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Add run-scoped export panel and failed-row deep-link",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want export actions and failure review links bound to the same run so context is preserved.",
+      "acceptanceCriteria": [
+        "Export panel displays selected run and applies it to all export actions.",
+        "Example: blocked export shows `Review failed rows` link to `/matters/:id?tab=report&run_id=<id>&status=failed`.",
+        "Negative: deep-link navigation must not drop run scope or status filter."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Implement artefact filtering and provenance display",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want artefact rows filterable by kind/type/safety with visible provenance so I can find reliable outputs quickly.",
+      "acceptanceCriteria": [
+        "Artefacts support filter inputs for kind/type and unsafe state, and display source_run_id.",
+        "Example: filtering to `unsafe` shows only unsafe outputs with source run shown per row.",
+        "Negative: provenance fields must not disappear when filters are changed."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Add download feedback and unsafe explanation pattern",
+      "status": "open",
+      "dependsOn": ["US-003"],
+      "description": "As an operator, I want explicit download state and unsafe explanations so I can trust what I am downloading.",
+      "acceptanceCriteria": [
+        "Download actions provide loading/completion/freshness feedback states.",
+        "Example: clicking download shows pending state then completion with freshness hint.",
+        "Negative: unsafe badges without explanatory tooltip/panel are not acceptable."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ExportsTab.tsx",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ArtefactsTab.tsx"
+  ]
+}

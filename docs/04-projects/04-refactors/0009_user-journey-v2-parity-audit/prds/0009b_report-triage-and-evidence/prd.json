@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "project": "Report Triage and Evidence Workflow Parity (0009b)",
+  "overview": "Implement report triage tabs, row drawer decisions, split-view evidence workflow, trust metadata, and citation failure recovery patterns for high-speed operator review.",
+  "goals": [
+    "Enable row triage tabs with scalable report-table behavior.",
+    "Ship drawer-first review decisions with explicit metadata.",
+    "Stabilize split-view evidence verification controls and focus behavior.",
+    "Improve citation failure and trust-state clarity for operators."
+  ],
+  "nonGoals": [
+    "Persistent citation dispute lifecycle and reviewer assignment queues.",
+    "Fuzzy anchor recovery heuristics.",
+    "Backend layout persistence for split view."
+  ],
+  "successMetrics": [
+    "Operators can complete row review actions without leaving report context.",
+    "Citation verification interactions include explicit controls and states.",
+    "Citation failure states provide actionable checklist UX."
+  ],
+  "openQuestions": [
+    "What anchor coverage threshold should gate default source-jump behavior?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 + React 19 + TypeScript",
+    "hosting": "Current web hosting",
+    "database": "Postgres",
+    "auth": "Existing auth posture"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id?tab=report",
+      "name": "Report",
+      "purpose": "Primary row triage and drawer workflow."
+    },
+    {
+      "path": "/matters/:id/viewer",
+      "name": "Evidence Viewer",
+      "purpose": "Citation verification with split-view support."
+    }
+  ],
+  "uiNotes": [
+    "Keep keyboard and touch discoverability for drawer and viewer controls.",
+    "Avoid hardcoded trust claims and static provenance values.",
+    "Aggregate simple UI improvements into existing review surfaces."
+  ],
+  "dataModel": [
+    {
+      "entity": "Report row",
+      "fields": ["id", "run_id", "status", "review_state", "decision_note"]
+    },
+    {
+      "entity": "Citation trust metadata",
+      "fields": ["citation_id", "doc_version", "verified_at", "loaded_state", "anchor"]
+    }
+  ],
+  "rules": [
+    "U28 remains UI-only acknowledgement in parity v1.",
+    "Split-view lock state is client-side only in parity v1.",
+    "No silent citation failures; recovery steps must be visible."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Add report triage tabs and dense scanning behavior",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want row-status tabs and scalable table behavior so I can focus review efforts quickly.",
+      "acceptanceCriteria": [
+        "Report view supports `All`, `Needs Review`, `Reviewed`, and `Flagged` tab states with URL synchronization.",
+        "Example: selecting `Needs Review` filters rows and persists the filter in URL state on refresh.",
+        "Negative: tab/filter state must not reset unexpectedly during table interactions."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Use row drawer as primary review decision surface",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want a row drawer with metadata and actions so I can resolve rows without leaving context.",
+      "acceptanceCriteria": [
+        "Rows open into a drawer with structured payload, citation summary, and metadata fields.",
+        "Example: `Mark reviewed` updates row state immediately and confirms success.",
+        "Negative: mutation failures must not silently fail or disappear from UI feedback."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Ship split-view evidence controls and verification states",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want explicit viewer controls and split-view lock so citation verification is efficient and reliable.",
+      "acceptanceCriteria": [
+        "Split-view lock keeps row context and evidence viewer visible together with persistent local state.",
+        "Example: viewer shows loading skeleton, page controls, and reset-to-100%-to-verify CTA when zoom != 100%.",
+        "Negative: closing viewer must not trap keyboard focus or lose return-focus target."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Expose trust metadata rail and footer",
+      "status": "open",
+      "dependsOn": ["US-003"],
+      "description": "As an operator, I want source-backed trust metadata so I can understand evidence reliability at a glance.",
+      "acceptanceCriteria": [
+        "Viewer/report surfaces render `doc_version`, `verified_at`, and `loaded_state` from payload fields.",
+        "Example: nullable trust fields render fallback copy while preserving layout consistency.",
+        "Negative: hardcoded trust statements are not allowed when source fields are missing."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Improve citation failure recovery and feedback acknowledgement",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want guided failure recovery and UI acknowledgement for incorrect citations so I can continue safely.",
+      "acceptanceCriteria": [
+        "`citation_failed` states include deterministic reason code and actionable recovery checklist UX.",
+        "Example: `Flag citation wrong` confirms with acknowledgement copy without backend persistence.",
+        "Negative: slice must not require a new persistent citation-flag API in parity v1."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ReportTab.tsx",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/RowDrawer.tsx",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/EvidenceViewer.tsx"
+  ]
+}

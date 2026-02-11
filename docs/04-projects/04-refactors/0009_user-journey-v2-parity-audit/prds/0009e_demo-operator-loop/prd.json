@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "project": "Demo Operator Loop and Checklist Parity (0009e)",
+  "overview": "Improve demo-mode operator reliability with checklist progression, coarse elapsed telemetry, fixture context guidance, and repeat-load/reopen shortcuts.",
+  "goals": [
+    "Add checklist card with deterministic step states.",
+    "Expose coarse elapsed-time context for operator pacing.",
+    "Provide explicit repeat demo shortcuts and history reopen behavior."
+  ],
+  "nonGoals": [
+    "Second-level precision telemetry.",
+    "Backend-heavy demo orchestration redesign.",
+    "Non-demo workflow expansion."
+  ],
+  "successMetrics": [
+    "Operators can track checklist progress and elapsed time in demo mode.",
+    "Repeat demo load/reopen actions reduce setup friction.",
+    "Demo context banners provide clear next-step guidance."
+  ],
+  "openQuestions": [
+    "Are current run timestamps sufficient for coarse elapsed display in all demo scenarios?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 + TypeScript",
+    "hosting": "Current web hosting",
+    "database": "Postgres",
+    "auth": "Existing auth posture"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Demo Matters Surface",
+      "purpose": "Demo history and reopen workflows."
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Demo Matter Detail",
+      "purpose": "Checklist, context banner, and quick rerun behaviors."
+    }
+  ],
+  "uiNotes": [
+    "Checklist timing is coarse minute-level only.",
+    "Do not show fake history rows when no demo data exists.",
+    "Align quick-start copy with checklist state messaging."
+  ],
+  "dataModel": [
+    {
+      "entity": "Demo checklist state",
+      "fields": ["step_id", "state", "updated_at", "elapsed_minutes"]
+    },
+    {
+      "entity": "Demo history item",
+      "fields": ["matter_id", "pack_name", "loaded_at", "last_run_id"]
+    }
+  ],
+  "rules": [
+    "Elapsed time remains coarse (minute-level) in parity v1.",
+    "Checklist state must derive from real run/document events.",
+    "Repeat-load and reopen actions must remain deterministic and idempotent."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Add operator checklist with coarse elapsed",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a demo operator, I want checklist progress and elapsed context so I can execute demos consistently.",
+      "acceptanceCriteria": [
+        "Checklist renders ordered steps with todo/in_progress/done states from run signals.",
+        "Example: completing run phase updates checklist step and elapsed display to minute precision.",
+        "Negative: second-level timers and static placeholder progression are out-of-scope."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Add explicit fixture context banner guidance",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a demo operator, I want visible fixture context and next-step guidance so state is always clear.",
+      "acceptanceCriteria": [
+        "Demo banner shows active pack, load state, and next recommended step.",
+        "Example: blocked quick-start state indicates missing prerequisite with action hint.",
+        "Negative: low-salience hidden copy must not be the only source of demo context."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Add repeat-load and demo-history reopen shortcuts",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As a demo operator, I want quick rerun/reopen actions so repeated demos are fast and predictable.",
+      "acceptanceCriteria": [
+        "Toolbar includes `Load pack again` and history list includes reopen actions.",
+        "Example: reopening a history item restores matter context with pack/timestamp metadata.",
+        "Negative: history surface must not fabricate sample entries when no records exist."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/OperatorChecklist.tsx",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoHistory.tsx",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoToolbar.tsx"
+  ]
+}

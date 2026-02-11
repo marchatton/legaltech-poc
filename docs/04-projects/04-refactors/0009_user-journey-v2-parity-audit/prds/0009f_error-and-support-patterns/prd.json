@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "project": "Cross-Surface Error and Support Pattern Parity (0009f)",
+  "overview": "Standardize deterministic error handling and recovery UX with a reusable ErrorBanner, shared safe-error envelope fields, retry semantics, and support escalation patterns.",
+  "goals": [
+    "Adopt deterministic safe-error envelope fields across major routes.",
+    "Integrate one reusable ErrorBanner pattern across key surfaces.",
+    "Provide consistent retry and support escalation interactions.",
+    "Preserve safe client disclosure boundaries."
+  ],
+  "nonGoals": [
+    "Building a full external ticketing integration platform.",
+    "Exposing internal stack traces/provider payloads to users.",
+    "Replacing backend logging/telemetry infrastructure wholesale."
+  ],
+  "successMetrics": [
+    "All targeted surfaces show deterministic code + trace ID on failures.",
+    "Retry actions appear only on retryable errors.",
+    "Support escalation action is available or gracefully degrades with fallback guidance."
+  ],
+  "openQuestions": [
+    "Which support escalation target should be used in parity v1?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 + TypeScript",
+    "hosting": "Current web hosting",
+    "database": "Postgres",
+    "auth": "Existing auth posture"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id",
+      "name": "Matter workflows",
+      "purpose": "Report/export/chat/setup error presentation surfaces."
+    }
+  ],
+  "uiNotes": [
+    "Use one visual and interaction pattern for deterministic error states.",
+    "Hide retry action for non-retryable deterministic errors.",
+    "Support action must include safe identifiers only."
+  ],
+  "dataModel": [
+    {
+      "entity": "Safe error envelope",
+      "fields": ["code", "trace_id", "retryable", "message", "support_hint"]
+    }
+  ],
+  "rules": [
+    "No internal error payload leakage to client surfaces.",
+    "Retry visibility is controlled by `retryable` only.",
+    "Escalation action must degrade gracefully when target is unavailable."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Standardize deterministic error envelope adoption",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want consistent error payloads so I can understand and report issues reliably.",
+      "acceptanceCriteria": [
+        "Targeted API surfaces return envelope with code, trace_id, retryable, and safe message fields.",
+        "Example: export failure and chat failure both include deterministic code and trace_id.",
+        "Negative: raw stack traces/provider payloads are never returned in client-visible responses."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Integrate reusable ErrorBanner across surfaces",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want one error panel pattern across workflows so recovery is familiar and fast.",
+      "acceptanceCriteria": [
+        "A reusable ErrorBanner component is integrated into setup, report actions, exports/artefacts, and chat.",
+        "Example: report mutation and upload failures share the same banner layout and deterministic code display.",
+        "Negative: bespoke one-off banners with inconsistent field mapping are not allowed."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Add support escalation action pattern",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want a support action for non-self-service failures so escalation is immediate.",
+      "acceptanceCriteria": [
+        "ErrorBanner includes optional support action carrying safe context fields (code, trace_id, route).",
+        "Example: clicking support opens configured channel with prefilled deterministic identifiers.",
+        "Negative: when support target is unset, action must not silently no-op and must show fallback instructions."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Normalize retry semantics across surfaces",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want retry behavior to be predictable so I can recover from transient failures confidently.",
+      "acceptanceCriteria": [
+        "Retry CTA renders only for retryable errors and invokes idempotent retry flow per surface.",
+        "Example: transient chat error shows retry while validation error hides retry and provides corrective guidance.",
+        "Negative: non-retryable errors must not expose retry controls."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/ui/ErrorBanner.tsx",
+    "packages/core/src/safe-error.ts"
+  ]
+}

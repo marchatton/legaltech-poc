@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "project": "Chat Run Scoping and Source Navigation Parity (0009d)",
+  "overview": "Implement parity v1 chat run scoping (L1), source-to-evidence navigation, mismatch warnings, and onboarding/disabled states without expanding to L2/L3 complexity.",
+  "goals": [
+    "Ship active run chip and recent completed run picker in chat.",
+    "Extend chat API to return selected/effective run metadata and mismatch signal.",
+    "Enable source chips to jump to evidence when anchors are available.",
+    "Provide guided empty/no-context chat states."
+  ],
+  "nonGoals": [
+    "L2 strict isolation and L3 multi-run compare behavior.",
+    "Fuzzy source-anchor recovery algorithms.",
+    "Large backend retrieval orchestration changes outside optional run_id scope."
+  ],
+  "successMetrics": [
+    "Operators can explicitly choose run context for chat.",
+    "Mismatch between selected and effective run is always visible.",
+    "Source jump success/fallback behavior is deterministic and user-visible."
+  ],
+  "openQuestions": [
+    "What fallback should be used when selected run is stale or unavailable?",
+    "What anchor availability threshold justifies enabled source-jump UX by default?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 + TypeScript",
+    "hosting": "Current web hosting",
+    "database": "Postgres",
+    "auth": "Existing auth posture"
+  },
+  "routes": [
+    {
+      "path": "/matters/:id?tab=chat",
+      "name": "Matter Chat",
+      "purpose": "Run-scoped conversation and source review."
+    },
+    {
+      "path": "/matters/:id/viewer",
+      "name": "Evidence Viewer",
+      "purpose": "Jump target for chat source chips when anchor exists."
+    }
+  ],
+  "uiNotes": [
+    "Keep L1 behavior explicit in labels and warnings.",
+    "Disabled source chips require friendly explanation copy.",
+    "Suggested prompts are insert-only, never auto-send."
+  ],
+  "dataModel": [
+    {
+      "entity": "Chat run scope metadata",
+      "fields": ["selected_run_id", "effective_run_id", "scope_mismatch"]
+    },
+    {
+      "entity": "Chat source reference",
+      "fields": ["citation_id", "document_id", "page", "anchor_state"]
+    }
+  ],
+  "rules": [
+    "Scope lock is L1 only for parity v1.",
+    "Source jump is enabled only when anchor mapping is present.",
+    "No-context states must disable input with recovery guidance."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Add active run chip and picker to chat",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want run selection controls in chat so I can choose context intentionally.",
+      "acceptanceCriteria": [
+        "Chat renders active run chip and a selector seeded from recent completed runs.",
+        "Example: selecting run R123 updates chip and outbound request payload to include run_id=R123.",
+        "Negative: unknown/incompatible runs are not presented as normal selectable options."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Extend chat API with run scope metadata",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want selected/effective run metadata in chat responses so scope behavior is transparent.",
+      "acceptanceCriteria": [
+        "`POST /api/folders/:id/chat` accepts optional run_id and emits selected/effective/mismatch metadata.",
+        "Example: stale selected run produces mismatch=true and disclosed effective_run_id fallback.",
+        "Negative: invalid run_id must not be ignored without explicit mismatch signal."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Enable source-chip jump to evidence with fallback",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want source chips to open evidence directly when possible and fail gracefully when not.",
+      "acceptanceCriteria": [
+        "Source chips with anchors navigate to evidence viewer target.",
+        "Example: clicking a source opens the corresponding document/page highlight.",
+        "Negative: source chips without anchors are disabled with explanatory copy and do not navigate."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Add selected-message sources rail and mismatch warning",
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "description": "As an operator, I want message-specific source rail and mismatch warning UI so provenance and scope are easy to inspect.",
+      "acceptanceCriteria": [
+        "Selecting a response message updates a side rail with sources for that message only.",
+        "Example: mismatch warning shows selected and effective run IDs inline in chat.",
+        "Negative: rail content must not remain stale after changing selected message."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Ship empty and no-context chat onboarding",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As an operator, I want onboarding prompts and disabled-input guidance when context is missing.",
+      "acceptanceCriteria": [
+        "Empty state includes suggested prompts that inject into composer without auto-send.",
+        "Example: no indexed docs disables composer and points user to setup action.",
+        "Negative: input cannot be silently disabled with no guidance text."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ChatTab.tsx"
+  ]
+}
