@@ -20,6 +20,19 @@ services:
       timeout: 5s
       retries: 20
 
+  volume-perms:
+    image: busybox:1.36
+    container_name: orbital-demo-prod-volume-perms
+    command:
+      [
+        "sh",
+        "-c",
+        "mkdir -p /app/tmp/object-store /app/tmp/fixture-seed && chown -R 1000:1000 /app/tmp/object-store /app/tmp/fixture-seed",
+      ]
+    volumes:
+      - orbital-demo-prod-object-store:/app/tmp/object-store
+      - orbital-demo-prod-fixture-seed:/app/tmp/fixture-seed
+
   web:
     build:
       context: .
@@ -28,6 +41,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      volume-perms:
+        condition: service_completed_successfully
     environment:
       NODE_ENV: production
       ORBITAL_MODE: demo-prod
@@ -57,6 +72,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      volume-perms:
+        condition: service_completed_successfully
     environment:
       NODE_ENV: production
       ORBITAL_MODE: demo-prod
