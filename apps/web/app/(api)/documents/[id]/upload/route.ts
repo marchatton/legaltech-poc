@@ -4,13 +4,12 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
+import { DOCUMENT_UPLOAD_MAX_BYTES } from "../../../../../lib/documentSetup";
 import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { putObjectWriteOnce, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
-
-const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
 const ParamsSchema = z.object({
   id: z.string().min(1),
@@ -140,12 +139,12 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  if (expectedBytes > MAX_UPLOAD_BYTES) {
+  if (expectedBytes > DOCUMENT_UPLOAD_MAX_BYTES) {
     return Response.json(
       safeErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Upload too large.",
-        details: { bytes: expectedBytes, max_bytes: MAX_UPLOAD_BYTES },
+        details: { bytes: expectedBytes, max_bytes: DOCUMENT_UPLOAD_MAX_BYTES },
         traceId,
       }),
       { status: 413, headers },
@@ -178,7 +177,7 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  if (bytes.byteLength > MAX_UPLOAD_BYTES) {
+  if (bytes.byteLength > DOCUMENT_UPLOAD_MAX_BYTES) {
     return Response.json(
       safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Upload too large.", traceId }),
       { status: 413, headers },

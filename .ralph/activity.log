@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-11 15:16:47 | run=20260211-143026-12311 | iter=2 | mode=build | story=US-002 | duration=1659s | status=success
 - 2026-02-11 14:49:02 | run=20260211-143026-12311 | iter=1 | mode=build | story=US-001 | duration=1115s | status=success
 - 2026-02-10 23:44:35 | run=20260210-224307-10605 | iter=3 | mode=build | story=US-003 | duration=2860s | status=success
 - 2026-02-10 22:56:52 | run=20260210-224307-10605 | iter=2 | mode=build | story=US-002 | duration=746s | status=success
@@ -47,3 +48,8 @@
 [2026-02-11 15:12:34] US-002 verification rerun complete after parser fix: lint/typecheck/test/build all pass; browser verified q/state/view persistence, deterministic list, empty-name validation, and open action
 [2026-02-11 15:15:05] US-002 final verification complete on latest code: lint/typecheck/test/build pass plus browser smoke checks pass
 [2026-02-11 15:16:02] US-002 progress entry appended to .ralph/progress.md with commit and verification details
+[2026-02-11 15:16:45] ITERATION 2 end (duration=1659s)
+[2026-02-11 15:16:53] ITERATION 3 start (mode=build story=US-003)
+[2026-02-11 15:17:36] US-003 iteration 3 start: loaded guardrails/errors/prd and beginning code audit
+[2026-02-11 15:24:46] US-003 major code change: added setup upload panel, readiness contract utilities, API envelope updates, and story tests
+[2026-02-11 15:34:16] US-003 verification complete: lint/typecheck/test/build passed and browser smoke (upload success + unsupported mime sad path) passed

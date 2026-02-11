@@ -108,7 +108,7 @@
     {
       "id": "US-002",
       "title": "Enable matters list search/filter/create/open",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -119,13 +119,13 @@
         "Negative: creating a matter without a name is rejected with user-visible validation feedback."
       ],
       "startedAt": "2026-02-11T14:49:07.016734+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T14:49:07.016752+00:00"
+      "completedAt": "2026-02-11T15:16:50.123200+00:00",
+      "updatedAt": "2026-02-11T15:16:50.123141+00:00"
     },
     {
       "id": "US-003",
       "title": "Deliver setup documents and upload flow",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002"
       ],
@@ -134,7 +134,10 @@
         "Setup view consumes document readiness payload with parse/ocr/status signals and updates after upload complete.",
         "Example: upload-init + complete transitions document state from queued to indexed-ready in the UI.",
         "Negative: UI must not advertise unsupported upload MIME or size capabilities."
-      ]
+      ],
+      "startedAt": "2026-02-11T15:16:52.388786+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T15:16:52.388800+00:00"
     },
     {
       "id": "US-004",

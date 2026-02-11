@@ -4,6 +4,11 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
+import {
+  deriveDocumentReadinessStatus,
+  type DocumentOcrStatus,
+  type DocumentParseStatus,
+} from "../../../../../lib/documentSetup";
 import { enqueueDocumentIngest } from "../../../../../lib/ingest/ingestQueue.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
@@ -66,8 +71,8 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       id: string;
       storage_key: string | null;
       upload_completed_at: Date | null;
-      parse_status: "queued" | "parsing" | "parsed" | "failed";
-      ocr_status: "queued" | "running" | "done" | "failed";
+      parse_status: DocumentParseStatus;
+      ocr_status: DocumentOcrStatus;
     }>
   >`
     SELECT id, storage_key, upload_completed_at, parse_status, ocr_status
@@ -112,6 +117,11 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         id: doc.id,
         parse_status: doc.parse_status,
         ocr_status: doc.ocr_status,
+        status: deriveDocumentReadinessStatus({
+          uploadCompletedAt: doc.upload_completed_at,
+          parseStatus: doc.parse_status,
+          ocrStatus: doc.ocr_status,
+        }),
       },
     },
     { status: 200, headers },

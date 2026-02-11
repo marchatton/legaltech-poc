@@ -4,20 +4,24 @@ import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
-import { parseSafeErrorLike } from "../../../../lib/safeErrorDisplay";
+import {
+  buildDocumentUploadCapabilities,
+  deriveDocumentReadinessStatus,
+  type DocumentOcrStatus,
+  type DocumentParseStatus,
+} from "../../../../lib/documentSetup";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
-import { Badge } from "../../../ui/Badge";
 import { Card } from "../../../ui/Card";
-import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { EmptyState } from "../../../ui/EmptyState";
 import { MonoId } from "../../../ui/MonoId";
-import { Page, PageHeader, SectionLabel, SectionTitle } from "../../../ui/Page";
+import { Page, PageHeader, SectionTitle } from "../../../ui/Page";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { ArtefactsList } from "../ArtefactsList";
 import { ExportCsvButton } from "../ExportCsvButton";
 
 import { ExportMemoButton } from "./ExportMemoButton";
+import { SetupDocumentsPanel } from "./SetupDocumentsPanel";
 import { QuickStartPanel } from "./QuickStartPanel";
 import { ChatPanel } from "./ChatPanel";
 
@@ -42,12 +46,13 @@ type DocRow = {
   filename: string;
   storage_key: string | null;
   upload_completed_at: Date | null;
-  parse_status: string;
-  ocr_status: string;
+  parse_status: DocumentParseStatus;
+  ocr_status: DocumentOcrStatus;
   page_count: number | null;
   extraction_quality: number | null;
   error_json: unknown | null;
   created_at: Date;
+  folder_id: string;
 };
 
 type RunSummaryRow = {
@@ -69,21 +74,6 @@ function renderUrl(doc: DocRow): string | null {
     expires: String(signed.expires_at_ms),
     sig: signed.signature,
   }).toString()}`;
-}
-
-function documentErrorPayload(errorJson: unknown): { code: string; message: string; traceId?: string } {
-  const parsed = parseSafeErrorLike(errorJson);
-  if (parsed) {
-    return {
-      code: parsed.code,
-      message: parsed.message,
-      traceId: parsed.traceId,
-    };
-  }
-  return {
-    code: "DOCUMENT_ERROR",
-    message: "Document processing failed.",
-  };
 }
 
 export default async function MatterPage(props: { params: Promise<Record<string, string | string[] | undefined>> }) {
@@ -118,10 +108,10 @@ export default async function MatterPage(props: { params: Promise<Record<string,
   }
 
   const docs = await sql<DocRow[]>`
-    SELECT id, filename, storage_key, upload_completed_at, parse_status, ocr_status, page_count, extraction_quality, error_json, created_at
+    SELECT id, folder_id, filename, storage_key, upload_completed_at, parse_status, ocr_status, page_count, extraction_quality, error_json, created_at
     FROM documents
     WHERE folder_id = ${folderId}
-    ORDER BY created_at ASC
+    ORDER BY created_at DESC
   `;
 
   const runs = await sql<RunSummaryRow[]>`
@@ -152,6 +142,25 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
     Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
 
+  const setupDocuments = docs.map((doc) => ({
+    id: doc.id,
+    folder_id: doc.folder_id,
+    filename: doc.filename,
+    upload_completed_at: doc.upload_completed_at ? doc.upload_completed_at.toISOString() : null,
+    parse_status: doc.parse_status,
+    ocr_status: doc.ocr_status,
+    status: deriveDocumentReadinessStatus({
+      uploadCompletedAt: doc.upload_completed_at,
+      parseStatus: doc.parse_status,
+      ocrStatus: doc.ocr_status,
+    }),
+    extraction_quality: doc.extraction_quality,
+    page_count: doc.page_count,
+    error_json: doc.error_json,
+    created_at: doc.created_at.toISOString(),
+    open_pdf_url: renderUrl(doc),
+  }));
+
   return (
     <Page>
       <PageHeader
@@ -162,9 +171,9 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             <span className="text-muted-foreground/60">•</span>
             <span className="font-medium text-foreground">{folder.name}</span>
             <span className="text-muted-foreground/60">•</span>
-            <Badge variant={runnable ? "info" : "muted"} size="sm">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
               {folder.state}
-            </Badge>
+            </span>
           </span>
         }
         right={
@@ -175,69 +184,17 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       />
 
       <Card className="mt-8 p-4">
-        <SectionLabel>Documents</SectionLabel>
-        <SectionTitle className="mt-1">Seeded documents</SectionTitle>
-        <p className="mt-1 text-xs text-muted-foreground">
-          This matter was created by the demo pack loader. Documents ingest in the background.
-        </p>
-
-        {docs.length === 0 ? (
-          <EmptyState title="No documents" description="Documents will appear here once the demo pack finishes ingesting." />
-        ) : (
-          <div className="mt-4 grid gap-2">
-            {docs.map((d) => {
-              const url = renderUrl(d);
-              const ingest = `${d.parse_status}/${d.ocr_status}`;
-              return (
-                <div key={d.id} className="rounded-ui-md border border-border bg-muted p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <MonoId variant="inverted">{d.id}</MonoId>
-                      <div className="text-sm font-medium text-foreground">{d.filename}</div>
-                      <Badge variant="muted" size="sm">{ingest}</Badge>
-                      {typeof d.extraction_quality === "number" ? (
-                        <div className="text-xs text-muted-foreground">
-                          quality: {Math.round(d.extraction_quality * 100)}%
-                        </div>
-                      ) : null}
-                      {typeof d.page_count === "number" ? (
-                        <div className="text-xs text-muted-foreground">pages: {d.page_count}</div>
-                      ) : null}
-                    </div>
-
-                    {url ? (
-                      <a
-                        className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open PDF
-                      </a>
-                    ) : (
-                      <div className="text-xs text-muted-foreground">PDF not ready</div>
-                    )}
-                  </div>
-
-                  {d.error_json ? (
-                    <ErrorBanner
-                      {...documentErrorPayload(d.error_json)}
-                      title="Document processing failed"
-                      supportRoute={`/matters/${folderId}`}
-                      className="mt-2"
-                    />
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <SetupDocumentsPanel
+          folderId={folderId}
+          folderState={folder.state}
+          initialDocuments={setupDocuments}
+          initialCapabilities={buildDocumentUploadCapabilities()}
+        />
       </Card>
 
       {chatEnabled ? (
         <Card className="mt-8 p-4">
-          <SectionLabel>Chat</SectionLabel>
-          <SectionTitle className="mt-1">Chat</SectionTitle>
+          <SectionTitle>Chat</SectionTitle>
           <p className="mt-1 text-xs text-muted-foreground">
             Evidence-first chat over the indexed documents in this matter.
           </p>
@@ -250,8 +207,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <SectionLabel>Analysis</SectionLabel>
-            <SectionTitle className="mt-1">Quick Start</SectionTitle>
+            <SectionTitle>Quick Start</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
               fresh matter.
@@ -304,8 +260,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       <Card className="mt-8 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <SectionLabel>Exports</SectionLabel>
-            <SectionTitle className="mt-1">Exports</SectionTitle>
+            <SectionTitle>Exports</SectionTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               Export a Word memo (.docx) and CSV artefacts for the latest completed run. Exports are disabled until a run
               completes.
@@ -335,7 +290,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
 
       {artefactsListEnabled ? (
         <div className="mt-8">
-          <ArtefactsList folderId={folderId} supportRoute={`/matters/${folderId}`} />
+          <ArtefactsList folderId={folderId} />
         </div>
       ) : null}
     </Page>
