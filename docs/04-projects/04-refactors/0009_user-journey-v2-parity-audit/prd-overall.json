@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "project": "0009 User Journey V2 Parity Audit",
+  "overview": "Decompose the parity audit findings into seven thin, executable PRD slices that maximize parallel implementation while preserving explicit v1 cut lines and identifying spike-first risks.",
+  "goals": [
+    "Create seven slice PRDs with clear scope boundaries and dependency edges.",
+    "Keep each slice between 3 and 10 stories with measurable acceptance criteria.",
+    "Preserve findings cut-line decisions and avoid accidental backend-heavy scope creep.",
+    "Document spike topics needed before multi-team implementation starts."
+  ],
+  "nonGoals": [
+    "Implement production code in this planning step.",
+    "Expand parity v1 scope to chat L2/L3 or backend-heavy orchestration.",
+    "Rework design system styling from wireframes beyond affordance parity."
+  ],
+  "successMetrics": [
+    "All overall and slice PRD markdown/json artifacts exist for seven slices.",
+    "All PRD JSON files parse and contain required keys.",
+    "Every slice has 3-10 stories and explicit quality gates."
+  ],
+  "openQuestions": [
+    "How should stale or unavailable run_id be handled in run-scoped chat L1?",
+    "What fallback is acceptable when citation anchors are missing?",
+    "Which support escalation target is appropriate for deterministic error banners?"
+  ],
+  "stack": {
+    "framework": "Next.js 15 + React 19 + TypeScript",
+    "hosting": "Current app hosting (unchanged by planning scope)",
+    "database": "Postgres",
+    "auth": "Existing app auth posture (no auth expansion in this scope)"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters List",
+      "purpose": "Primary navigation and matter management shell parity."
+    },
+    {
+      "path": "/matters/:id",
+      "name": "Matter Detail",
+      "purpose": "Report, viewer, exports, artefacts, and chat parity surfaces."
+    }
+  ],
+  "uiNotes": [
+    "Aggregate simple UI-only changes into fewer stories per slice.",
+    "Keep disabled placeholders for Runs/Alerts/Settings visible per cut-line decision.",
+    "Do not ship hardcoded fixture timestamps, IDs, or trust claims."
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": ["id", "name", "state", "created_at", "updated_at"]
+    },
+    {
+      "entity": "Run",
+      "fields": ["id", "folder_id", "status", "started_at", "updated_at"]
+    },
+    {
+      "entity": "Report Row",
+      "fields": ["id", "run_id", "status", "review_state", "citation_state"]
+    }
+  ],
+  "rules": [
+    "Preserve v1 scope cuts: U12 de-scoped gating workflow, U28 UI-only acknowledgement, U37 L1-only.",
+    "Use additive API contracts for shared surfaces before behavioral tightening.",
+    "No silent failures; user-facing states must explain blocked actions and recovery path."
+  ],
+  "qualityGates": [
+    "pnpm --filter @orbital-poc/web lint",
+    "pnpm --filter @orbital-poc/web typecheck",
+    "pnpm --filter @orbital-poc/web test",
+    "pnpm build"
+  ],
+  "childPrds": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prd.md"
+  ],
+  "parallelizationPlan": [
+    {
+      "wave": 1,
+      "slices": [
+        "0009a_shell-matters-setup",
+        "0009f_error-and-support-patterns"
+      ],
+      "notes": "Start immediately; minimal cross-slice dependency risk."
+    },
+    {
+      "wave": 2,
+      "slices": [
+        "0009b_report-triage-and-evidence",
+        "0009c_exports-and-artefacts",
+        "0009e_demo-operator-loop"
+      ],
+      "notes": "Start once shell/setup contracts are stable."
+    },
+    {
+      "wave": 3,
+      "slices": [
+        "0009d_chat-run-scoping"
+      ],
+      "notes": "Start after run selector and evidence-viewer integration points are in place."
+    },
+    {
+      "wave": 4,
+      "slices": [
+        "0009g_ui-polish-sweep"
+      ],
+      "notes": "Run as final consolidation polish pass after core surfaces are stable."
+    }
+  ],
+  "spikeCandidates": [
+    {
+      "id": "SP-0009-01",
+      "topic": "Run-scoped chat binding",
+      "decisionNeeded": "Define selected vs effective run behavior and fallback when run_id is unavailable.",
+      "impacts": ["0009c", "0009d"]
+    },
+    {
+      "id": "SP-0009-02",
+      "topic": "Citation anchor coverage",
+      "decisionNeeded": "Measure anchor availability and choose fallback UX for non-jumpable sources.",
+      "impacts": ["0009b", "0009d"]
+    },
+    {
+      "id": "SP-0009-03",
+      "topic": "Document readiness model",
+      "decisionNeeded": "Lock setup/document states needed for UI without leaking pipeline complexity.",
+      "impacts": ["0009a"]
+    },
+    {
+      "id": "SP-0009-04",
+      "topic": "Support escalation ownership",
+      "decisionNeeded": "Choose endpoint/pattern for escalation action in ErrorBanner.",
+      "impacts": ["0009f"]
+    },
+    {
+      "id": "SP-0009-05",
+      "topic": "Checklist elapsed telemetry",
+      "decisionNeeded": "Confirm coarse elapsed-minute derivation from existing run timestamps.",
+      "impacts": ["0009e"]
+    }
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Create seven executable PRD slices",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an engineering lead, I want parity work broken into seven bounded PRDs so implementation can run in parallel with limited collision risk.",
+      "acceptanceCriteria": [
+        "Six slice folders under prds/ exist, each with prd.md and prd.json.",
+        "Example: report and chat slices can proceed in parallel while sharing additive run contracts.",
+        "Negative: no slice exceeds 10 stories or mixes unrelated shell/report/chat/demo concerns."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Encode findings cut lines into slice scope",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a planner, I want v1 cut-line decisions preserved so teams do not accidentally expand scope during implementation.",
+      "acceptanceCriteria": [
+        "All relevant slices explicitly preserve U12 de-scope, U28 UI-only acknowledgement, and U37 L1-only decisions.",
+        "Example: chat slice states L2/L3 out-of-scope and limits behavior to L1 picker + mismatch metadata.",
+        "Negative: no slice introduces deferred backend-heavy compare/orchestration features."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Identify spike-first unknowns",
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "description": "As a lead, I want high-risk unknowns documented so research can happen before parallel implementation loops diverge.",
+      "acceptanceCriteria": [
+        "At least four spike candidates are documented with explicit decision points and impacted slices.",
+        "Example: run-scoped chat binding is tracked with affected slices and required contract decision.",
+        "Negative: spike list must not contain generic placeholders without a decision question."
+      ]
+    }
+  ],
+  "sources": [
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md",
+    "docs/02-guidelines/v5-final/design-system.html",
+    "docs/02-guidelines/v5-final/tokens.css",
+    "docs/02-guidelines/v5-final/tailwind.preset.ts"
+  ]
+}
