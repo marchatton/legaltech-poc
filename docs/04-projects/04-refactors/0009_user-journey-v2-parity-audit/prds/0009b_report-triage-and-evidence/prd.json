@@ -18,8 +18,17 @@
     "Citation verification interactions include explicit controls and states.",
     "Citation failure states provide actionable checklist UX."
   ],
-  "openQuestions": [
-    "What anchor coverage threshold should gate default source-jump behavior?"
+  "openQuestions": [],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-02",
+      "decision": "Use strict anchor-only source jumps in parity v1 and gate default emphasis by measured coverage.",
+      "details": [
+        "Source chips/jumps are enabled only when `anchor_state` is ready and a resolvable citation anchor exists.",
+        "Default clickable emphasis is allowed when measured anchor coverage is >= 80%.",
+        "Fuzzy recovery and page-only fallback remain out-of-scope for this slice."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 + React 19 + TypeScript",
@@ -57,6 +66,8 @@
   "rules": [
     "U28 remains UI-only acknowledgement in parity v1.",
     "Split-view lock state is client-side only in parity v1.",
+    "Source jumps are strict anchor-only (`anchor_state=ready` required) in parity v1.",
+    "Default source-jump emphasis is gated by measured anchor coverage >= 80%.",
     "No silent citation failures; recovery steps must be visible."
   ],
   "qualityGates": [
@@ -131,6 +142,7 @@
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ReportTab.tsx",
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/RowDrawer.tsx",
-    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/EvidenceViewer.tsx"
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/EvidenceViewer.tsx",
+    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md"
   ]
 }

@@ -114,6 +114,10 @@ As an operator, I want retry behavior to be predictable so I can recover without
 
 - Reuse `packages/core/src/safe-error.ts` conventions.
 - Keep envelope additive and backward-safe where existing handlers return compatible shapes.
+- Support escalation target is configured via `ORBITAL_SUPPORT_MAILTO`.
+- Mailto template is deterministic and safe-only:
+  - Subject: `[Orbital] {{code}} (trace {{trace_id}})`
+  - Body: route, action, timestamp, code, trace_id, and user-entered notes only.
 - Ensure support action payload contains only safe identifiers.
 
 ## Failure States & UX
@@ -149,12 +153,16 @@ As an operator, I want retry behavior to be predictable so I can recover without
 - Users see deterministic codes and trace IDs on all major failure paths.
 - Retry/support actions are consistent and actionable across surfaces.
 
-## Open Questions
+## Resolved Spike Decision
 
-- SP-0009-04: choose support escalation ownership/target for parity v1.
+- SP-0009-04 resolved (2026-02-11): support escalation is config-driven `mailto` in parity v1.
+  - `ORBITAL_SUPPORT_MAILTO` defines escalation target.
+  - If unset, banner shows fallback guidance + copyable `code` and `trace_id`.
+  - No ticketing endpoint/integration is introduced in this slice.
 
 ## Sources
 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/ui/ErrorBanner.tsx`
 - `packages/core/src/safe-error.ts`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`

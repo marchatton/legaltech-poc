@@ -18,8 +18,17 @@
     "Blocked exports deep-link reliably to run-filtered failed rows.",
     "Artefact provenance and safety context is visible at row level."
   ],
-  "openQuestions": [
-    "Should parity v1 run selector show only completed runs or include in-progress runs with labels?"
+  "openQuestions": [],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-01",
+      "decision": "Parity v1 run selector is limited to completed runs only.",
+      "details": [
+        "Selector options exclude non-completed runs in this slice.",
+        "Selector defaults to the most recent completed run.",
+        "Stale/invalid selected-run handling is surfaced by chat mismatch metadata in `0009d`."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 + TypeScript",
@@ -47,7 +56,7 @@
   "dataModel": [
     {
       "entity": "Run selector option",
-      "fields": ["run_id", "status", "started_at", "updated_at"]
+      "fields": ["run_id", "status", "created_at", "updated_at"]
     },
     {
       "entity": "Artefact",
@@ -56,6 +65,7 @@
   ],
   "rules": [
     "Report deep-link must carry run_id and failed-status filter state.",
+    "Run selector is completed-only in parity v1.",
     "Unsafe artefacts require explanation UX, not just a badge.",
     "Run selector changes must deterministically update scoped actions."
   ],
@@ -73,9 +83,9 @@
       "dependsOn": [],
       "description": "As an operator, I want recent runs available in selectors so export/report actions target the intended run.",
       "acceptanceCriteria": [
-        "`GET /api/folders/:id/runs` returns selector-ready runs with status/timestamp fields.",
+        "`GET /api/folders/:id/runs` returns selector-ready runs with `created_at`/`updated_at` and status fields.",
         "Example: selector defaults to most recent completed run and can switch to another completed run.",
-        "Negative: missing run_id in request must not silently reuse stale client-side run state."
+        "Negative: non-completed runs are not included in parity v1 selector options."
       ]
     },
     {
@@ -118,6 +128,7 @@
   "sources": [
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ExportsTab.tsx",
-    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ArtefactsTab.tsx"
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ArtefactsTab.tsx",
+    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md"
   ]
 }

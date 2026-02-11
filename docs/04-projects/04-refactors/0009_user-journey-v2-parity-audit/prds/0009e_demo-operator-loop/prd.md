@@ -40,7 +40,7 @@ As a demo operator, I want checklist progress and elapsed time so I can track wh
   - Example: run start moves step from `todo` to `in_progress` and completion updates to `done`.
   - Negative: checklist state must not rely on hardcoded static progression.
 - AC-002: Elapsed time is displayed at coarse minute-level precision.
-  - Example: elapsed shows `7m` from run start timestamp.
+  - Example: elapsed shows `7m` from `runs.created_at` (or `started_at` when available).
   - Negative: second-level precision timers are out of scope in parity v1.
 
 #### Verification
@@ -94,14 +94,15 @@ As a demo operator, I want explicit repeat actions so I can rerun demos quickly 
 
 ## Technical Considerations
 
-- Reuse run metadata endpoint for elapsed calculation when possible.
+- Extend/reuse run metadata contracts to include `created_at` and `updated_at` (plus `started_at` when available).
+- Elapsed baseline is locked to `created_at` in parity v1 unless reliable `started_at` is present.
 - Keep checklist states derivable from existing run/document signals in parity v1.
 - Ensure demo shortcuts remain deterministic and idempotent.
 
 ## Failure States & UX
 
 - Pack reload failure -> deterministic banner error with retry.
-- Missing run metadata -> checklist card degrades with explicit unavailable state.
+- Missing run timestamps -> checklist card shows `Elapsed unavailable` and keeps step states visible.
 - Reopen target missing -> user-visible fallback to matters list with explanation.
 
 ## Metrics / Logging
@@ -132,9 +133,12 @@ As a demo operator, I want explicit repeat actions so I can rerun demos quickly 
 - Operators can complete demo loops with visible progress and coarse elapsed context.
 - Repeat demo actions reduce manual setup effort and navigation churn.
 
-## Open Questions
+## Resolved Spike Decision
 
-- SP-0009-05: confirm whether existing run timestamps are sufficient for checklist elapsed computations.
+- SP-0009-05 resolved (2026-02-11): checklist elapsed uses run timestamps and minute-level rendering.
+  - Baseline: `created_at` (or `started_at` when present and reliable).
+  - Precision: minute-level only.
+  - Missing timestamp fallback: render `Elapsed unavailable` (no guessed stopwatch).
 
 ## Sources
 
@@ -142,3 +146,4 @@ As a demo operator, I want explicit repeat actions so I can rerun demos quickly 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/OperatorChecklist.tsx`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoHistory.tsx`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoToolbar.tsx`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`

@@ -7,11 +7,17 @@ Source spec:
 
 Primary implementation surface reviewed:
 - `apps/web/app`
+- `apps/web/app/ui` (recently expanded shared UI component set; evaluate for parity reuse first)
 - `apps/web/lib`
 - `apps/web/app/(api)`
 
 Wireframe reference reviewed (affordances/IA/workflows only):
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes`
+
+## Repository Note (2026-02-11)
+
+- `apps/web/app/ui` now includes a recently expanded shared component surface (`Button`, `Card`, `Tabs`, `Table`, `EmptyState`, `Skeleton`, `Tooltip`, `UploadZone`, etc.).
+- For parity delivery in this dossier, evaluate `apps/web/app/ui` reuse before introducing new route-local UI components.
 
 ## Executive summary
 
@@ -164,6 +170,27 @@ Focus: add concrete API affordances for all `UI + thin backend` and `UI + modera
 - `N11`: keep optional `run_id` + explicit mismatch metadata only; `L2`/`L3` out-of-scope.
 - `N12`: keep strict anchor-only jumps; defer fuzzy recovery.
 - `N16`: keep coarse elapsed timing; defer precision telemetry pipeline.
+
+## Spike Resolution Addendum (2026-02-11)
+
+### Canonical anchor coverage metric (shared by `0009b` + `0009d`)
+
+- Report anchor coverage:
+  - numerator: citation references from non-`missing_input` rows that resolve to viewer-loadable anchors
+  - denominator: all citation references from non-`missing_input` rows in the sampled run set
+- Chat anchor coverage:
+  - numerator: chat sources where `anchor_state=ready` and citation target resolves
+  - denominator: all chat sources returned in the sampled run set
+- Default clickable emphasis rule:
+  - enable default clickable emphasis for source chips when measured coverage is `>=80%`
+  - below `80%`, keep strict anchor-only behavior but prefer disabled-state prominence over click-first affordance
+
+### Locked spike decisions that shape implementation order
+
+- SP-0009-01: soft fallback run scoping with explicit mismatch disclosure.
+- SP-0009-02: strict anchor-only source jumps in parity v1.
+- SP-0009-05: minute-level elapsed timing from run timestamps.
+- SP-0009-06: mandatory 3-check polish gate + wireframe exclusion guardrail audit.
 
 ## Wireframe delta review (`orbital-ui-wireframes`)
 

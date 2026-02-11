@@ -30,6 +30,7 @@ Operators can move from row list -> row drawer -> evidence viewer -> review deci
 - Ship dedicated row drawer with decision actions and metadata.
 - Make split-view evidence workflow explicit (controls, loading, focus/close behavior).
 - Improve trust/failure messaging for citation review and feedback.
+- Lock strict anchor-only jump behavior and shared anchor-coverage measurement rubric.
 
 ## User Stories
 
@@ -130,12 +131,14 @@ As an operator, I want clear recovery actions when citation quality fails so I c
 ## Technical Considerations
 
 - Shared APIs: `GET /api/folders/:id/report`, `PATCH /api/report-rows/:id`, citation/render routes.
+- Viewer deep links for report/chat sources are keyed by `citation_id`; page-only fallback is deferred.
+- Anchor coverage metric is shared with chat: report/chat source jumps stay strict anchor-only in parity v1.
 - Viewer state should remain client-managed in parity v1 (no backend layout persistence required).
 - Trust metadata fields should be nullable and additive.
 
 ## Failure States & UX
 
-- Missing anchor -> disabled jump affordance with friendly reason.
+- Missing anchor (`anchor_state != ready`) -> disabled jump affordance with friendly reason.
 - Mutation failure -> deterministic ErrorBanner path.
 - Citation failed -> guided recovery checklist and clear escalation path.
 
@@ -168,9 +171,12 @@ As an operator, I want clear recovery actions when citation quality fails so I c
 - Evidence viewer supports explicit verification controls and stable split-view behavior.
 - Citation failure handling is actionable and user-visible.
 
-## Open Questions
+## Resolved Spike Decision
 
-- SP-0009-02: anchor coverage threshold for reliable jump-to-evidence defaults.
+- SP-0009-02 resolved (2026-02-11): source-jump is strict anchor-only in parity v1.
+  - Jump affordance is clickable only when anchor is resolvable.
+  - Default clickable emphasis is allowed when measured anchor coverage is `>=80%`.
+  - Fuzzy/page-only recovery remains out-of-scope in this slice.
 
 ## Sources
 
@@ -178,3 +184,4 @@ As an operator, I want clear recovery actions when citation quality fails so I c
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ReportTab.tsx`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/RowDrawer.tsx`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/EvidenceViewer.tsx`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`

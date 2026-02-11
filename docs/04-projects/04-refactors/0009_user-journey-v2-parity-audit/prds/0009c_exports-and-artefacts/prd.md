@@ -37,9 +37,9 @@ Operators can select the run they are exporting from, jump directly to failed ro
 As an operator, I want recent completed runs listed consistently so I can scope exports and report views to the right run.
 
 #### Acceptance Criteria
-- AC-001: `GET /api/folders/:id/runs` returns recent run list for selector use (including status and timestamps).
-  - Example: selector shows newest completed runs and defaults to latest completed run.
-  - Negative: selector does not include runs in unknown/incompatible states without clear label.
+- AC-001: `GET /api/folders/:id/runs` returns selector-ready run list with `created_at`/`updated_at` and status.
+  - Example: selector shows newest completed runs only and defaults to latest completed run.
+  - Negative: selector does not include non-completed runs in parity v1.
 - AC-002: `GET /api/folders/:id/report` supports `run_id` + `status` filters with response echo.
   - Example: calling with `run_id=R123&status=failed` returns only failed rows for that run.
   - Negative: omitted `run_id` must not silently bind to stale run selection from prior navigation state.
@@ -113,7 +113,8 @@ As an operator, I want clear download state and unsafe context so I can trust ex
 ## Technical Considerations
 
 - Shared contracts with chat slice: run list/read model should remain additive and reusable.
-- Ensure run selector supports completed-run prioritization for deterministic operator flow.
+- Selector contract is locked to completed runs only in parity v1 for deterministic operator flow.
+- Runs list contract includes timestamps used by demo checklist slice (`0009e`).
 - Keep blocked/export safety behavior aligned with existing fail-closed posture.
 
 ## Failure States & UX
@@ -151,12 +152,15 @@ As an operator, I want clear download state and unsafe context so I can trust ex
 - Artefact filtering/provenance/safety explanations are visible and testable.
 - Export blocked-state loop reliably returns operators to failed rows.
 
-## Open Questions
+## Resolved Spike Decision
 
-- Should run selector include non-completed runs in a collapsed advanced state or only completed runs in parity v1?
+- SP-0009-01/selector policy resolved (2026-02-11): parity v1 selector shows completed runs only.
+  - Non-completed runs are excluded from selector options in this slice.
+  - Downstream stale selection handling is disclosed through chat mismatch semantics in `0009d`.
 
 ## Sources
 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ExportsTab.tsx`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ArtefactsTab.tsx`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`

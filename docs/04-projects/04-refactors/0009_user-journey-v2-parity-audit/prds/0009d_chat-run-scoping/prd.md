@@ -26,8 +26,8 @@ Users can choose a recent completed run for chat context, see selected/effective
 
 ## Goals
 
-- Lock scope to `L1` run scoping (selected run + mismatch metadata).
-- Provide clickable sources with deterministic disabled behavior when anchors are absent.
+- Lock scope to `L1` run scoping (selected/effective fallback + mismatch reason metadata).
+- Provide strict anchor-only source jumps with deterministic disabled behavior when anchors are absent.
 - Add selected-message source rail to improve source discoverability.
 - Prevent dead-end chat input states when no indexed docs/context exists.
 
@@ -53,9 +53,9 @@ As an operator, I want a run chip and picker in chat so I can control which run 
 As an operator, I want response metadata about selected/effective run so I can trust scope behavior.
 
 #### Acceptance Criteria
-- AC-003: `POST /api/folders/:id/chat` accepts optional `run_id` and returns stream metadata (`selected_run_id`, `effective_run_id`, `scope_mismatch`).
-  - Example: stale `run_id` falls back to effective run with mismatch flag surfaced.
-  - Negative: request must not silently ignore invalid run without explicit mismatch metadata.
+- AC-003: `POST /api/folders/:id/chat` accepts optional `run_id` and returns scope metadata (`selected_run_id`, `effective_run_id`, `scope_mismatch`, `scope_reason`, optional `effective_index_version`).
+  - Example: stale `run_id` falls back to latest completed run with mismatch flag + deterministic reason code.
+  - Negative: request must not silently ignore invalid run without explicit mismatch metadata and reason.
 - AC-004: L1 scope boundary is enforced.
   - Example: no multi-run compare semantics are exposed.
   - Negative: L2 strict isolation and L3 compare/merge are out-of-scope.
@@ -65,14 +65,14 @@ As an operator, I want response metadata about selected/effective run so I can t
 - Automated checks: API contract tests for metadata fields.
 - Manual checks: verify mismatch behavior in UI.
 
-### US-003: Source chips jump to evidence with deterministic fallback
+### US-003: Source chips jump to evidence with strict anchor gating
 As an operator, I want source chips to open evidence directly when possible so I can verify claims quickly.
 
 #### Acceptance Criteria
-- AC-005: Source chips are clickable when citation anchor mapping exists and open evidence viewer at target location.
-  - Example: clicking source opens viewer on document/page anchor.
-  - Negative: chips without anchors must not attempt broken navigation.
-- AC-006: Non-jumpable sources show friendly disabled hover/copy.
+- AC-005: Source chips are clickable only when `anchor_state=ready` and open evidence viewer at citation target.
+  - Example: clicking source opens viewer using `citation_id` deep link.
+  - Negative: chips without ready anchors must not attempt navigation.
+- AC-006: Non-jumpable sources show friendly disabled hover/copy and are tracked by reason code.
   - Example: tooltip says source cannot be jumped because anchor is unavailable.
   - Negative: disabled source state must not appear as interactive link.
 
@@ -129,13 +129,15 @@ As an operator, I want guided prompts and disabled-input copy when context is un
 
 ## Technical Considerations
 
-- Prefer additive chat stream metadata fields to avoid breaking current stream consumers.
+- Emit dedicated early `scope` stream metadata event (recommended) to keep trace-only `meta` stable.
 - Reuse run selector endpoint/shape from exports slice where possible.
-- Keep source-jump behavior gated by explicit anchor availability.
+- Keep source-jump behavior strict anchor-only (`anchor_state=ready`) in parity v1.
+- Shared coverage rubric: default clickable emphasis is allowed only when measured anchor coverage is `>=80%`.
 
 ## Failure States & UX
 
-- Invalid or stale `run_id` -> mismatch warning + effective run disclosure.
+- Invalid/stale `run_id` -> mismatch warning + effective run disclosure with deterministic `scope_reason`.
+- No completed runs -> fallback to `effective_run_id=null` + disclosed `effective_index_version` context.
 - Missing source anchor -> disabled chip + explanatory message.
 - No indexed docs -> disabled composer + setup guidance.
 
@@ -168,12 +170,17 @@ As an operator, I want guided prompts and disabled-input copy when context is un
 - Source chips reliably open evidence when possible and fail gracefully otherwise.
 - No-context chat states provide actionable recovery guidance.
 
-## Open Questions
+## Resolved Spike Decisions
 
-- SP-0009-01: fallback policy when selected run is stale/incomplete.
-- SP-0009-02: minimum anchor coverage threshold for enabling jump affordance by default.
+- SP-0009-01 resolved (2026-02-11): chat uses soft fallback with mandatory mismatch disclosure (`selected_run_id`, `effective_run_id`, `scope_mismatch`, `scope_reason`).
+- SP-0009-02 resolved (2026-02-11): source jump is strict anchor-only in parity v1; default clickable emphasis is gated by measured anchor coverage `>=80%`.
+
+## Open Questions (Implementation Ambiguities)
+
+- Should chat sources be persisted as citations (`chat_message` + citation rows) or emitted as ephemeral anchors in parity v1?
 
 ## Sources
 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ChatTab.tsx`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`

@@ -19,8 +19,27 @@
     "Source jump success/fallback behavior is deterministic and user-visible."
   ],
   "openQuestions": [
-    "What fallback should be used when selected run is stale or unavailable?",
-    "What anchor availability threshold justifies enabled source-jump UX by default?"
+    "Should chat sources be persisted as citation rows (`chat_message` + citations) or emitted as ephemeral anchors in parity v1?"
+  ],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-01",
+      "decision": "Use soft fallback with mandatory mismatch disclosure for run-scoped chat L1.",
+      "details": [
+        "Chat scope metadata includes `selected_run_id`, `effective_run_id`, `scope_mismatch`, and `scope_reason`.",
+        "When no completed runs exist, `effective_run_id` is null and `effective_index_version` is disclosed.",
+        "Fallback never occurs silently; mismatch UI is required."
+      ]
+    },
+    {
+      "id": "SP-0009-02",
+      "decision": "Use strict anchor-only source jumps in parity v1.",
+      "details": [
+        "Source jumps are enabled only when `anchor_state=ready`.",
+        "Default clickable emphasis is gated by measured anchor coverage >= 80%.",
+        "Fuzzy/page-only fallback remains out-of-scope."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 + TypeScript",
@@ -48,7 +67,7 @@
   "dataModel": [
     {
       "entity": "Chat run scope metadata",
-      "fields": ["selected_run_id", "effective_run_id", "scope_mismatch"]
+      "fields": ["selected_run_id", "effective_run_id", "scope_mismatch", "scope_reason", "effective_index_version"]
     },
     {
       "entity": "Chat source reference",
@@ -57,7 +76,9 @@
   ],
   "rules": [
     "Scope lock is L1 only for parity v1.",
-    "Source jump is enabled only when anchor mapping is present.",
+    "Run-scope fallback must always disclose mismatch via explicit metadata and reason code.",
+    "Source jumps are strict anchor-only (`anchor_state=ready`).",
+    "Default source-jump emphasis is gated by measured anchor coverage >= 80%.",
     "No-context states must disable input with recovery guidance."
   ],
   "qualityGates": [
@@ -86,9 +107,9 @@
       "dependsOn": ["US-001"],
       "description": "As an operator, I want selected/effective run metadata in chat responses so scope behavior is transparent.",
       "acceptanceCriteria": [
-        "`POST /api/folders/:id/chat` accepts optional run_id and emits selected/effective/mismatch metadata.",
-        "Example: stale selected run produces mismatch=true and disclosed effective_run_id fallback.",
-        "Negative: invalid run_id must not be ignored without explicit mismatch signal."
+        "`POST /api/folders/:id/chat` accepts optional run_id and emits selected/effective/mismatch metadata with `scope_reason`.",
+        "Example: stale selected run produces mismatch=true, deterministic `scope_reason`, and disclosed effective_run_id fallback.",
+        "Negative: invalid run_id must not be ignored without explicit mismatch signal and reason."
       ]
     },
     {
@@ -98,9 +119,9 @@
       "dependsOn": ["US-002"],
       "description": "As an operator, I want source chips to open evidence directly when possible and fail gracefully when not.",
       "acceptanceCriteria": [
-        "Source chips with anchors navigate to evidence viewer target.",
-        "Example: clicking a source opens the corresponding document/page highlight.",
-        "Negative: source chips without anchors are disabled with explanatory copy and do not navigate."
+        "Source chips with `anchor_state=ready` navigate to evidence viewer target.",
+        "Example: clicking a source opens the corresponding citation target in viewer.",
+        "Negative: source chips without ready anchors are disabled with explanatory copy and do not navigate."
       ]
     },
     {
@@ -130,6 +151,7 @@
   ],
   "sources": [
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
-    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ChatTab.tsx"
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ChatTab.tsx",
+    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md"
   ]
 }

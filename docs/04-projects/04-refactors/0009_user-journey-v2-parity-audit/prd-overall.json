@@ -19,8 +19,8 @@
     "Every slice has 3-10 stories and explicit quality gates."
   ],
   "openQuestions": [
-    "How should stale or unavailable run_id be handled in run-scoped chat L1?",
-    "What fallback is acceptable when citation anchors are missing?"
+    "Should chat source references be persisted as citation rows or emitted as ephemeral anchors in parity v1?",
+    "Should scope metadata be emitted as a dedicated `scope` stream event or folded into existing `meta` events?"
   ],
   "stack": {
     "framework": "Next.js 15 + React 19 + TypeScript",
@@ -43,7 +43,8 @@
   "uiNotes": [
     "Aggregate simple UI-only changes into fewer stories per slice.",
     "Keep disabled placeholders for Runs/Alerts/Settings visible per cut-line decision.",
-    "Do not ship hardcoded fixture timestamps, IDs, or trust claims."
+    "Do not ship hardcoded fixture timestamps, IDs, or trust claims.",
+    "Repository update (2026-02-11): `apps/web/app/ui` has recently added shared UI components; evaluate reuse there before creating new route-local components."
   ],
   "dataModel": [
     {
@@ -52,7 +53,7 @@
     },
     {
       "entity": "Run",
-      "fields": ["id", "folder_id", "status", "started_at", "updated_at"]
+      "fields": ["id", "folder_id", "status", "created_at", "updated_at"]
     },
     {
       "entity": "Report Row",
@@ -62,7 +63,8 @@
   "rules": [
     "Preserve v1 scope cuts: U12 de-scoped gating workflow, U28 UI-only acknowledgement, U37 L1-only.",
     "Use additive API contracts for shared surfaces before behavioral tightening.",
-    "No silent failures; user-facing states must explain blocked actions and recovery path."
+    "No silent failures; user-facing states must explain blocked actions and recovery path.",
+    "Prefer existing shared components from `apps/web/app/ui` (for example Button/Card/Tabs/Table/Skeleton/EmptyState) before introducing new primitives."
   ],
   "qualityGates": [
     "pnpm --filter @orbital-poc/web lint",
@@ -81,6 +83,14 @@
   ],
   "parallelizationPlan": [
     {
+      "wave": 0,
+      "slices": [
+        "0009c_exports-and-artefacts",
+        "0009d_chat-run-scoping"
+      ],
+      "notes": "Land foundation contracts first: N7 runs list + N11 chat scope metadata."
+    },
+    {
       "wave": 1,
       "slices": [
         "0009a_shell-matters-setup",
@@ -95,14 +105,14 @@
         "0009c_exports-and-artefacts",
         "0009e_demo-operator-loop"
       ],
-      "notes": "Start once shell/setup contracts are stable."
+      "notes": "Start once foundation contracts are stable."
     },
     {
       "wave": 3,
       "slices": [
         "0009d_chat-run-scoping"
       ],
-      "notes": "Start after run selector and evidence-viewer integration points are in place."
+      "notes": "Start source-jump implementation after citation strategy and anchor contract are locked."
     },
     {
       "wave": 4,
@@ -115,15 +125,19 @@
   "spikeCandidates": [
     {
       "id": "SP-0009-01",
-      "topic": "Run-scoped chat binding",
-      "decisionNeeded": "Define selected vs effective run behavior and fallback when run_id is unavailable.",
-      "impacts": ["0009c", "0009d"]
+      "topic": "Run-scoped chat fallback contract",
+      "decisionNeeded": "Define selected vs effective run behavior and mismatch disclosure when run_id is unavailable.",
+      "impacts": ["0009c", "0009d"],
+      "status": "resolved",
+      "resolution": "Soft fallback is locked with `selected_run_id`, `effective_run_id`, `scope_mismatch`, and `scope_reason` disclosure."
     },
     {
       "id": "SP-0009-02",
-      "topic": "Citation anchor coverage",
-      "decisionNeeded": "Measure anchor availability and choose fallback UX for non-jumpable sources.",
-      "impacts": ["0009b", "0009d"]
+      "topic": "Citation anchor coverage and source-jump policy",
+      "decisionNeeded": "Define when chips are clickable and set a coverage threshold for default emphasis.",
+      "impacts": ["0009b", "0009d"],
+      "status": "resolved",
+      "resolution": "Strict anchor-only jumps are locked; default clickable emphasis is gated by measured coverage >= 80%."
     },
     {
       "id": "SP-0009-03",
@@ -144,8 +158,18 @@
     {
       "id": "SP-0009-05",
       "topic": "Checklist elapsed telemetry",
-      "decisionNeeded": "Confirm coarse elapsed-minute derivation from existing run timestamps.",
-      "impacts": ["0009e"]
+      "decisionNeeded": "Confirm coarse elapsed-minute derivation from run timestamps.",
+      "impacts": ["0009e"],
+      "status": "resolved",
+      "resolution": "Run timestamps (`created_at`, `updated_at`, optional `started_at`) drive minute-level elapsed display with explicit unavailable fallback."
+    },
+    {
+      "id": "SP-0009-06",
+      "topic": "Mandatory polish gate",
+      "decisionNeeded": "Lock required polish checks and exclusion guardrails before final sweep.",
+      "impacts": ["0009g"],
+      "status": "resolved",
+      "resolution": "Mandatory 3-check gate is locked: state clarity, ErrorBanner consistency, and interaction accessibility plus guardrail audit."
     }
   ],
   "stories": [
@@ -156,7 +180,7 @@
       "dependsOn": [],
       "description": "As an engineering lead, I want parity work broken into seven bounded PRDs so implementation can run in parallel with limited collision risk.",
       "acceptanceCriteria": [
-        "Six slice folders under prds/ exist, each with prd.md and prd.json.",
+        "Seven slice folders under prds/ exist, each with prd.md and prd.json.",
         "Example: report and chat slices can proceed in parallel while sharing additive run contracts.",
         "Negative: no slice exceeds 10 stories or mixes unrelated shell/report/chat/demo concerns."
       ]
@@ -189,8 +213,10 @@
   "sources": [
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md",
+    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md",
     "docs/02-guidelines/v5-final/design-system.html",
     "docs/02-guidelines/v5-final/tokens.css",
-    "docs/02-guidelines/v5-final/tailwind.preset.ts"
+    "docs/02-guidelines/v5-final/tailwind.preset.ts",
+    "apps/web/app/ui"
   ]
 }

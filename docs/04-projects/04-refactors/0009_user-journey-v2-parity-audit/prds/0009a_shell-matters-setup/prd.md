@@ -167,12 +167,16 @@ As an operator, I want explicit run-state reason copy so I know why Quick Start 
 - Matter list supports search/filter/create/open with no hardcoded demo placeholders.
 - Operators can upload and reach actionable readiness state without ambiguity.
 
-## Open Questions
+## Resolved Spike Decision
 
-- SP-0009-03: exact readiness state taxonomy needed from documents endpoint for setup UX.
+- SP-0009-03 resolved (2026-02-11): setup readiness is locked to canonical states only.
+  - Folder states: `empty`, `ingesting`, `indexed`, `ready`, `failed`
+  - Document progression: parse/ocr `queued` -> `parsing/running` -> `parsed/done` -> `failed`
+  - No pipeline-internal phase copy is exposed in parity v1.
 
 ## Sources
 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/MattersListPage.tsx`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/NewMatterPage.tsx`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`

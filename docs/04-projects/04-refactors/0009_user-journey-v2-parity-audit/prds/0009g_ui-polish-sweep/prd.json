@@ -19,8 +19,18 @@
     "No excluded wireframe items (W-C3/W-C4/W-C5/W-C7/W-C11) are reintroduced.",
     "Updated UI uses shared design-system primitives instead of one-off route-level variants."
   ],
-  "openQuestions": [
-    "Which small polish checks should become mandatory in future parity PR templates?"
+  "openQuestions": [],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-06",
+      "decision": "Use a mandatory 3-check polish gate across all touched surfaces.",
+      "details": [
+        "State clarity is required (loading/empty/blocked/success with deterministic guidance).",
+        "ErrorBanner consistency is required (code + trace visibility, retry/support gating).",
+        "Interaction accessibility is required (no hover-only critical actions, correct focus return).",
+        "Guardrail audit for W-C3/W-C4/W-C5/W-C7/W-C11 remains mandatory."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 + React 19 + TypeScript",
@@ -43,7 +53,8 @@
   "uiNotes": [
     "Implement via existing design-system components and tokenized styles.",
     "Use magic-pattern/wireframe sources for interaction inspiration only.",
-    "Preserve explicit exclusion decisions from findings wireframe cut list."
+    "Preserve explicit exclusion decisions from findings wireframe cut list.",
+    "Repository update (2026-02-11): `apps/web/app/ui` has recently added shared UI components; prioritize incorporating those before creating new route-local primitives."
   ],
   "dataModel": [
     {
@@ -54,9 +65,11 @@
   "rules": [
     "Use and extend Orbital design system; do not fork visual language from wireframes.",
     "Align polish with v5-final tokens and tailwind preset conventions.",
+    "Mandatory polish gate includes: state clarity, ErrorBanner consistency, and interaction accessibility.",
     "Do not hardcode IDs/dates/stats or unsupported capability claims.",
     "Keep hover affordances optional; keyboard/touch-visible alternatives are required.",
-    "Do not introduce second-level timer precision in demo checklist contexts."
+    "Do not introduce second-level timer precision in demo checklist contexts.",
+    "Prefer shared components in `apps/web/app/ui` (for example Button/Card/Tabs/Table/Skeleton/EmptyState/Tooltip/UploadZone) before adding new primitives."
   ],
   "qualityGates": [
     "pnpm --filter @orbital-poc/web lint",
@@ -145,6 +158,8 @@
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes",
     "docs/02-guidelines/v5-final/design-system.html",
     "docs/02-guidelines/v5-final/tokens.css",
-    "docs/02-guidelines/v5-final/tailwind.preset.ts"
+    "docs/02-guidelines/v5-final/tailwind.preset.ts",
+    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md",
+    "apps/web/app/ui"
   ]
 }

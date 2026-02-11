@@ -26,6 +26,7 @@ The app feels visually and behaviorally cohesive: predictable states, clear prim
   - Wireframe interaction patterns in `orbital-ui-wireframes`
   - Brand/system primitives in `docs/02-guidelines/v5-final/*`
 - Implementation constraint: **use and extend our own design system** (tokens/components), not wireframe styling copy-over.
+- Repository update (2026-02-11): `apps/web/app/ui` has recently added shared UI components; this sweep should prioritize incorporating those where they fit.
 
 ## Goals
 
@@ -33,6 +34,7 @@ The app feels visually and behaviorally cohesive: predictable states, clear prim
 - Normalize CTA hierarchy and row/action affordances for speed + clarity.
 - Tighten interaction/a11y polish (keyboard focus, touch discoverability, hover guardrails).
 - Align copy and trust language with deterministic, source-backed UI behavior.
+- Enforce a mandatory 3-check polish gate across all touched surfaces.
 
 ## User Stories
 
@@ -102,7 +104,10 @@ As a product team, we want trust language and metadata to stay honest so polish 
 
 ## Functional Requirements
 
-- FR-001: Create and apply a shared polish checklist for all matter surfaces.
+- FR-001: Enforce mandatory 3-check polish gate on every touched surface:
+  - State clarity (loading, empty, blocked, success with deterministic next-step guidance)
+  - ErrorBanner consistency (code + trace, retry gated by `retryable`, support gating)
+  - Interaction accessibility (no hover-only critical actions, correct focus return)
 - FR-002: Apply v5 token/preset primitives consistently to updated states/components.
 - FR-003: Map magic-pattern affordances (U* contracts) to concrete UI polish checks.
 - FR-004: Enforce wireframe exclusion guardrails during implementation review.
@@ -123,6 +128,7 @@ As a product team, we want trust language and metadata to stay honest so polish 
 ## Technical Considerations
 
 - Prefer shared component updates in app design-system surface over per-route overrides.
+- Evaluate `apps/web/app/ui` first (`Button`, `Card`, `Tabs`, `Table`, `EmptyState`, `Skeleton`, `Tooltip`, `UploadZone`) before introducing new polish primitives.
 - Keep changes additive and low-risk to existing slice logic/contracts.
 - Validate any new class patterns against existing Tailwind preset conventions.
 
@@ -161,9 +167,13 @@ As a product team, we want trust language and metadata to stay honest so polish 
 - No explicitly excluded wireframe items are reintroduced.
 - Design-system usage is increased (fewer one-off UI variants).
 
-## Open Questions
+## Resolved Spike Decision
 
-- Which two to three highest-impact polish checks should be mandatory in every future parity slice PR?
+- SP-0009-06 resolved (2026-02-11): mandatory polish gate is locked to three checks.
+  - State clarity
+  - ErrorBanner consistency
+  - Interaction accessibility
+- Guardrail audit remains mandatory for W-C3/W-C4/W-C5/W-C7/W-C11 exclusions.
 
 ## Sources
 
@@ -173,3 +183,5 @@ As a product team, we want trust language and metadata to stay honest so polish 
 - `docs/02-guidelines/v5-final/design-system.html`
 - `docs/02-guidelines/v5-final/tokens.css`
 - `docs/02-guidelines/v5-final/tailwind.preset.ts`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`
+- `apps/web/app/ui`

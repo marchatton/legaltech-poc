@@ -17,8 +17,17 @@
     "Repeat demo load/reopen actions reduce setup friction.",
     "Demo context banners provide clear next-step guidance."
   ],
-  "openQuestions": [
-    "Are current run timestamps sufficient for coarse elapsed display in all demo scenarios?"
+  "openQuestions": [],
+  "resolvedDecisions": [
+    {
+      "id": "SP-0009-05",
+      "decision": "Use run timestamps for coarse elapsed timing in parity v1.",
+      "details": [
+        "Elapsed baseline is `created_at` unless reliable `started_at` is available.",
+        "Elapsed display is minute-level only.",
+        "When timestamps are missing, UI renders `Elapsed unavailable` rather than a client stopwatch."
+      ]
+    }
   ],
   "stack": {
     "framework": "Next.js 15 + TypeScript",
@@ -51,10 +60,15 @@
     {
       "entity": "Demo history item",
       "fields": ["matter_id", "pack_name", "loaded_at", "last_run_id"]
+    },
+    {
+      "entity": "Run timestamp contract",
+      "fields": ["run_id", "created_at", "updated_at", "started_at"]
     }
   ],
   "rules": [
     "Elapsed time remains coarse (minute-level) in parity v1.",
+    "Elapsed baseline is `created_at` unless reliable `started_at` exists.",
     "Checklist state must derive from real run/document events.",
     "Repeat-load and reopen actions must remain deterministic and idempotent."
   ],
@@ -73,7 +87,7 @@
       "description": "As a demo operator, I want checklist progress and elapsed context so I can execute demos consistently.",
       "acceptanceCriteria": [
         "Checklist renders ordered steps with todo/in_progress/done states from run signals.",
-        "Example: completing run phase updates checklist step and elapsed display to minute precision.",
+        "Example: completing run phase updates checklist step and elapsed display derived from run timestamps.",
         "Negative: second-level timers and static placeholder progression are out-of-scope."
       ]
     },
@@ -106,6 +120,7 @@
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md",
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/OperatorChecklist.tsx",
     "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoHistory.tsx",
-    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoToolbar.tsx"
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoToolbar.tsx",
+    "docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md"
   ]
 }

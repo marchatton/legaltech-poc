@@ -23,7 +23,7 @@ A new `prds/` tree exists with one `prd.md` + `prd.json` per slice, each constra
 - Decompose the parity plan into execution slices by UI-only, thin backend, and moderate backend boundaries.
 - Keep simple UI changes aggregated into fewer stories for faster delivery.
 - Split heavier backend work into smaller contract-first stories.
-- Identify spike areas that need investigation before build starts.
+- Carry oracle spike decisions into slice-level contracts before implementation starts.
 
 ## Goals
 
@@ -34,10 +34,11 @@ A new `prds/` tree exists with one `prd.md` + `prd.json` per slice, each constra
 
 ## Parallelization Plan
 
-1. Wave 1 (start immediately): `0009a_shell-matters-setup`, `0009f_error-and-support-patterns`
-2. Wave 2 (after `0009a` contracts are stable): `0009b_report-triage-and-evidence`, `0009c_exports-and-artefacts`, `0009e_demo-operator-loop`
-3. Wave 3 (after run-scope + viewer integration points are ready): `0009d_chat-run-scoping`
-4. Wave 4 (final consolidation): `0009g_ui-polish-sweep`
+1. Foundation (must-land first): `N7` (`GET /api/folders/:id/runs`) and chat scope metadata contract (`N11`) shared by `0009c` + `0009d`.
+2. Wave 1 (start immediately): `0009a_shell-matters-setup`, `0009f_error-and-support-patterns`
+3. Wave 2 (after foundation contracts are stable): `0009b_report-triage-and-evidence`, `0009c_exports-and-artefacts`, `0009e_demo-operator-loop`
+4. Wave 3 (after citation strategy + anchor contract lock): `0009d_chat-run-scoping`
+5. Wave 4 (final consolidation): `0009g_ui-polish-sweep`
 
 ## User Stories
 
@@ -80,12 +81,12 @@ As a planner, I want scope cuts captured inside the slice PRDs so that teams do 
 As a lead, I want spike candidates called out early so that risky contract assumptions are validated before multiple parallel PR loops start.
 
 #### Acceptance Criteria
-- AC-006: At least four concrete spike topics are documented with why/decision needed.
-  - Example: run-scoped chat retrieval binding and citation anchor coverage are explicit spikes.
-  - Negative: no vague "investigate later" placeholders without decision targets.
+- AC-006: All six spike decisions (`SP-0009-01`..`SP-0009-06`) are recorded with locked recommendations and implementation-grade tests.
+  - Example: run fallback semantics, anchor-only jumps, and elapsed timing baseline are explicitly documented as decisions.
+  - Negative: no vague "investigate later" placeholders without concrete contract impact.
 
 #### Verification
-- Pack/fixture/script: spike list in this file + `openQuestions` in each slice PRD.
+- Pack/fixture/script: spike register in `spike-investigation.md` + decision sections in each slice PRD.
 - Automated checks: N/A.
 - Manual checks: confirm each spike maps to at least one slice dependency.
 
@@ -105,8 +106,10 @@ As a lead, I want spike candidates called out early so that risky contract assum
 
 ## Technical Considerations
 
-- Shared contracts likely touched by multiple slices: runs list/read model, report filters, chat run metadata, safe error envelope.
-- Parallelization works best when shared contracts are landed first or behind additive changes.
+- Shared contracts touched by multiple slices: runs list/read model (`N7`), chat scope metadata (`N11`), source anchor schema (`N12`), safe error envelope (`N14`), and run timestamps (`N16`).
+- Parallelization works only if the foundation contracts land first and remain additive.
+- Anchor coverage gating is a shared metric (chat/report) and must be defined once in `findings.md`.
+- Repository update (2026-02-11): `apps/web/app/ui` has recently added shared UI components; each UI slice should evaluate reuse there before adding new route-local primitives.
 - Use existing Next.js + TypeScript + Postgres contracts; avoid speculative new infrastructure.
 
 ## Failure States & UX
@@ -131,11 +134,13 @@ As a lead, I want spike candidates called out early so that risky contract assum
 ## Risks & Dependencies
 
 - Risks:
-  - Contract drift between chat/export/report run scoping if implemented independently.
-  - Evidence jump reliability if anchor mapping coverage is lower than expected.
+  - Contract drift between chat/export/report run scoping if `N7` and `N11` land inconsistently.
+  - Source-jump trust regressions if anchor-state rules diverge from strict anchor-only behavior.
   - Cross-surface error handling divergence if envelope fields are not standardized first.
 - Dependencies:
-  - Shared API surfaces in `apps/web/app/(api)` must remain additive and backward-safe during rollout.
+  - `N7` must land before run selectors in exports/chat are considered stable.
+  - `N11` fallback metadata contract must land before mismatch UX copy is finalized.
+  - `N16` timestamps must be available before checklist elapsed UX in `0009e` can be considered done.
 
 ## Success Metrics
 
@@ -143,22 +148,27 @@ As a lead, I want spike candidates called out early so that risky contract assum
 - Every slice has 3-10 stories and explicit verification.
 - All findings cut-line decisions are represented in slice scopes.
 
-## Open Questions (Spike Candidates)
+## Resolved Implementation Decisions (2026-02-11)
 
-- SP-0009-01: What is the precise run/index binding behavior for `POST /api/folders/:id/chat` when `run_id` is stale or missing?
-- SP-0009-02: What percentage of chat/report citations currently include resolvable document/page anchors for reliable jump-to-evidence?
-- SP-0009-05: Are run timestamps sufficient for coarse checklist elapsed minutes, or is additional telemetry needed?
+- Chat sources are persisted as citation rows (chat message + citation records), not emitted as ephemeral-only anchors.
+- Stream scope metadata is emitted as a dedicated early `scope` event (not folded into `meta`).
 
 ## Resolved Spike Decisions
 
+- SP-0009-01 resolved: chat uses soft fallback with explicit mismatch disclosure (`selected_run_id`, `effective_run_id`, `scope_mismatch`, `scope_reason`) and persisted citation-backed sources.
+- SP-0009-02 resolved: source jumps are strict anchor-only in parity v1; clickable emphasis is gated by measured anchor coverage (`>=80%`).
 - SP-0009-03 resolved: setup readiness is locked to canonical folder/document states in parity v1 (`0009a`).
 - SP-0009-04 resolved: support escalation is config-driven `mailto` with safe context + fallback instructions in parity v1 (`0009f`).
+- SP-0009-05 resolved: checklist elapsed timing uses run timestamps with minute-level rendering and explicit unavailable fallback.
+- SP-0009-06 resolved: mandatory polish gate is locked to three checks plus exclusion guardrail audit (`0009g`).
 
 ## Sources
 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md`
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes`
+- `docs/04-projects/04-refactors/0007_empty-text-sentinel-chunks/oracle-spike-response.md`
 - `docs/02-guidelines/v5-final/design-system.html`
 - `docs/02-guidelines/v5-final/tokens.css`
 - `docs/02-guidelines/v5-final/tailwind.preset.ts`
+- `apps/web/app/ui`
