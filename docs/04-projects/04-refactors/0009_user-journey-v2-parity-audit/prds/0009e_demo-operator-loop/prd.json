@@ -129,7 +129,7 @@
     {
       "id": "US-003",
       "title": "Add repeat-load and demo-history reopen shortcuts",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-002"
       ],
@@ -140,8 +140,8 @@
         "Negative: history surface must not fabricate sample entries when no records exist."
       ],
       "startedAt": "2026-02-11T17:44:19.873955+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T17:44:19.873988+00:00"
+      "completedAt": "2026-02-11T18:05:41.142109+00:00",
+      "updatedAt": "2026-02-11T18:05:41.142073+00:00"
     }
   ],
   "sources": [
