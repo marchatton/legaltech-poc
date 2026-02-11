@@ -61,6 +61,38 @@ type PdfJsModule = {
 };
 
 const TRUST_METADATA_FALLBACK = "Unavailable from payload";
+const REASON_CODE_PATTERN = /^[A-Z0-9_]{3,64}$/;
+
+function deterministicReasonCode(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  if (REASON_CODE_PATTERN.test(trimmed)) return trimmed;
+  return fallback;
+}
+
+function recoveryChecklistForReason(reasonCode: string): string[] {
+  if (reasonCode === "SNIPPET_HASH_MISMATCH") {
+    return [
+      "Confirm the snippet text still matches the cited source passage.",
+      "Return to the report row and keep it in needs-review until citation text is corrected.",
+      "Use Flag citation wrong below to acknowledge incorrect evidence.",
+    ];
+  }
+
+  if (reasonCode === "DOC_MISMATCH" || reasonCode === "WRONG_PAGE") {
+    return [
+      "Confirm document_id and page are targeting the expected source.",
+      "Re-open evidence from the report row citation chip to reload the anchor target.",
+      "Keep the row in flagged status until the citation target resolves.",
+    ];
+  }
+
+  return [
+    "Review citation_failed rows in report triage before continuing.",
+    "Reset viewer zoom to 100% and retry loading evidence.",
+    "If this citation is incorrect, use Flag citation wrong for acknowledgement.",
+  ];
+}
 
 function coerceViewBox(view: unknown): ViewBox {
   if (Array.isArray(view) && view.length >= 4) {
@@ -105,6 +137,7 @@ export function CitationViewerClient(props: Props) {
   const [activePage, setActivePage] = useState(props.pageNumber);
   const [pageInputValue, setPageInputValue] = useState(String(props.pageNumber));
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [flagCitationState, setFlagCitationState] = useState<"idle" | "confirm" | "acknowledged">("idle");
 
   const [pdfjs, setPdfjs] = useState<PdfJsModule | null>(null);
   const [pdf, setPdf] = useState<PdfDocLike | null>(null);
@@ -137,11 +170,20 @@ export function CitationViewerClient(props: Props) {
   const trustDocVersion = trustValue(nonEmptyString(props.docVersion));
   const trustVerifiedAt = trustValue(formatTrustTimestamp(props.verifiedAt));
   const trustLoadedState = trustValue(nonEmptyString(props.loadedState));
+  const failureReasonCode = hud.errorCode;
+  const failureChecklist = useMemo(
+    () => (failureReasonCode ? recoveryChecklistForReason(failureReasonCode) : []),
+    [failureReasonCode],
+  );
 
   useEffect(() => {
     setActivePage(props.pageNumber);
     setPageInputValue(String(props.pageNumber));
   }, [props.pageNumber]);
+
+  useEffect(() => {
+    setFlagCitationState("idle");
+  }, [props.citationId]);
 
   useEffect(() => {
     if (!pdfPageCount) return;
@@ -200,7 +242,7 @@ export function CitationViewerClient(props: Props) {
     run().catch((err) => {
       if (cancelled) return;
       const message = err instanceof Error ? err.message : String(err);
-      setHud((h) => ({ ...h, errorCode: message }));
+      setHud((h) => ({ ...h, errorCode: deterministicReasonCode(message, "PDF_LOAD_FAILED") }));
       setIsPageLoading(false);
     });
 
@@ -313,7 +355,7 @@ export function CitationViewerClient(props: Props) {
     run().catch((err) => {
       setOverlay([]);
       const message = err instanceof Error ? err.message : String(err);
-      setHud((h) => ({ ...h, errorCode: message, overlayBbox: null }));
+      setHud((h) => ({ ...h, errorCode: deterministicReasonCode(message, "PDF_RENDER_FAILED"), overlayBbox: null }));
       setIsPageLoading(false);
     });
 
@@ -463,6 +505,14 @@ export function CitationViewerClient(props: Props) {
             <div className="rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
               <div className="font-semibold">citation_failed</div>
               <div className="mt-1 text-xs">reason_code: {hud.errorCode}</div>
+              <div className="mt-3 border-t border-destructive/20 pt-3">
+                <div className="text-2xs font-semibold uppercase tracking-wide">Recovery checklist</div>
+                <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs">
+                  {failureChecklist.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </div>
             </div>
           ) : null}
         </div>
@@ -540,6 +590,40 @@ export function CitationViewerClient(props: Props) {
             <span className="text-muted-foreground">loaded_state</span>
             <span className="font-mono text-foreground">{trustLoadedState}</span>
           </div>
+        </div>
+
+        <div className="mt-4 rounded-ui-md border border-border bg-background p-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Citation feedback</div>
+          {flagCitationState === "acknowledged" ? (
+            <div className="mt-2 text-xs font-medium text-success">
+              Thanks, we&apos;ll investigate.
+              <span className="block text-2xs font-normal text-muted-foreground">
+                This acknowledgement is local to this session only.
+              </span>
+            </div>
+          ) : null}
+
+          {flagCitationState === "confirm" ? (
+            <div className="mt-2 space-y-2">
+              <div className="text-xs text-foreground">Confirm this citation is incorrect?</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" variant="destructive" size="sm" onClick={() => setFlagCitationState("acknowledged")}>
+                  Yes, flag citation wrong
+                </Button>
+                <Button type="button" variant="secondary" size="sm" onClick={() => setFlagCitationState("idle")}>
+                  Cancel
+                </Button>
+              </div>
+              <div className="text-2xs text-muted-foreground">No backend request is sent in parity v1.</div>
+            </div>
+          ) : (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" size="sm" onClick={() => setFlagCitationState("confirm")}>
+                Flag citation wrong
+              </Button>
+              <span className="text-2xs text-muted-foreground">UI acknowledgement only in parity v1.</span>
+            </div>
+          )}
         </div>
       </section>
     </div>

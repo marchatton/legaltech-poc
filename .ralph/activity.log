@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-11 19:01:19 | run=20260211-171747-21967 | iter=4 | mode=build | story=US-004 | duration=1447s | status=success
 - 2026-02-11 18:22:31 | run=20260211-171748-22180 | iter=4 | mode=build | story=US-004 | duration=1059s | status=success
 - 2026-02-11 18:04:47 | run=20260211-171748-22180 | iter=3 | mode=build | story=US-003 | duration=1441s | status=success
 - 2026-02-11 17:40:41 | run=20260211-171748-22180 | iter=2 | mode=build | story=US-002 | duration=855s | status=success
@@ -115,3 +116,8 @@
 [2026-02-11 18:48:35] US-004 major code changes: added trust metadata fields to citations payload + report/viewer metadata rendering with null-safe fallback copy
 [2026-02-11 18:59:19] US-004 verification complete: lint/typecheck/test/build pass and dev-browser confirms trust metadata fallback/footer rendering
 [2026-02-11 19:00:38] US-004 progress entry appended to .ralph/progress.md with commit, verification, and browser evidence
+[2026-02-11 19:01:17] ITERATION 4 end (duration=1447s)
+[2026-02-11 19:01:23] ITERATION 5 start (mode=build story=US-005)
+[2026-02-11 19:01:51] Start US-005 iteration 5: auditing citation failure recovery and acknowledgement UX
+[2026-02-11 19:04:15] Implemented US-005 UI updates: deterministic citation failure code handling, recovery checklist, and local-only flag acknowledgement flow with sync test coverage
+[2026-02-11 19:11:09] Verification complete for US-005: lint/typecheck/test/build passed, browser smoke verified recovery checklist and local-only citation flag acknowledgement

@@ -42,3 +42,27 @@ describe("US-003 split-view evidence controls and verification states", () => {
     expect(source).not.toContain("Verified at 100% zoom");
   });
 });
+
+describe("US-005 citation failure recovery and acknowledgement", () => {
+  it("renders deterministic failure and guided recovery checklist copy", () => {
+    const root = repoRootFromWebPackage();
+    const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
+    const source = readUtf8(viewerPath);
+
+    expect(source).toContain("deterministicReasonCode");
+    expect(source).toContain("Recovery checklist");
+    expect(source).toContain("reason_code:");
+    expect(source).toContain("Review citation_failed rows in report triage before continuing.");
+  });
+
+  it("provides a UI-only Flag citation wrong acknowledgement flow", () => {
+    const root = repoRootFromWebPackage();
+    const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
+    const source = readUtf8(viewerPath);
+
+    expect(source).toContain("Flag citation wrong");
+    expect(source).toContain("Thanks, we&apos;ll investigate.");
+    expect(source).toContain("No backend request is sent in parity v1.");
+    expect(source).toContain("setFlagCitationState");
+  });
+});
