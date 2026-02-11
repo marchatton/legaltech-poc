@@ -522,3 +522,46 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
   - Useful context
   - Browser evidence screenshot: `.agents/skills/00-utilities/dev-browser/tmp/us004-artefacts-feedback.png`.
 ---
+## [2026-02-11 18:02:00 UTC] - US-002: Use row drawer as primary review decision surface
+Thread: 
+Run: 20260211-171747-21967 (iteration 2)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-2.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 167df3d feat(report-triage): add row drawer review workflow
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> FAIL
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/wdkStepQueue.int.test.ts -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (drawer success/failure browser checks) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx
+  - apps/web/app/(api)/report-rows/[id]/route.ts
+  - apps/web/lib/reportRows.routes.test.ts
+  - apps/web/test/reportRowDrawer.sync.test.ts
+  - apps/web/test/reportTriage.sync.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.json
+- What was implemented
+  - Added a drawer-first `ReportTriagePanel` on matter detail so rows open in-context with structured payload, citation summary, and metadata (`schema field`, `data type`, `model/version`).
+  - Added optimistic `Mark reviewed` row action in the drawer with immediate table-state update and success confirmation copy.
+  - Added explicit error-path UI feedback using `ErrorBanner` so mutation failures (for example `INVALID_STATE`) are visible and actionable instead of silent.
+  - Added a new `PATCH /report-rows/:id` mutation route with request validation and deterministic safe-error responses for invalid state and missing row cases.
+  - Added regression coverage for the mutation route and drawer wiring, and updated triage sync coverage after moving the dense table into the new panel component.
+  - Browser-verified both happy and negative paths with screenshots:
+    - .agents/skills/00-utilities/dev-browser/tmp/us002-drawer-success.png
+    - .agents/skills/00-utilities/dev-browser/tmp/us002-drawer-failure.png
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep row-action UI optimistic but pair it with strict server-state validation and explicit fallback/error restoration.
+  - Gotchas encountered
+  - Full `pnpm --filter @orbital-poc/web test` is currently flaky under integration load in this environment (hook/test timeouts + intermittent DB connection pressure); single-suite reruns pass.
+  - Useful context
+  - Folder `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` has mixed report statuses and was used for browser evidence.
+---

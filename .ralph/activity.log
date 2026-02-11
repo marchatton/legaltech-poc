@@ -103,3 +103,4 @@
 [2026-02-11 17:39:36] US-002 iteration 2 start: reviewed guardrails/errors/PRD and auditing report triage + row action flow.
 [2026-02-11 17:45:45] US-002 major code changes: added ReportTriagePanel drawer UI with optimistic mark-reviewed flow and new PATCH /report-rows/:id API route; wired matter page to pass payload + citation metadata.
 [2026-02-11 17:59:31] US-002 verification: lint/typecheck/build passed; browser scenario passed for drawer success + failure feedback; full web test gate flaky with integration DB timeouts under full-suite load.
+[2026-02-11 18:00:43] US-002 progress log appended with commit, verification results, browser evidence, and integration test flake notes.
