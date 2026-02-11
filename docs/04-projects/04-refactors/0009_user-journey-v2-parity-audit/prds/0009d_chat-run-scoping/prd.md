@@ -129,7 +129,7 @@ As an operator, I want guided prompts and disabled-input copy when context is un
 
 ## Technical Considerations
 
-- Emit dedicated early `scope` stream metadata event (recommended) to keep trace-only `meta` stable.
+- Emit dedicated early `scope` stream metadata event to keep trace-only `meta` stable.
 - Reuse run selector endpoint/shape from exports slice where possible.
 - Keep source-jump behavior strict anchor-only (`anchor_state=ready`) in parity v1.
 - Shared coverage rubric: default clickable emphasis is allowed only when measured anchor coverage is `>=80%`.
@@ -175,9 +175,10 @@ As an operator, I want guided prompts and disabled-input copy when context is un
 - SP-0009-01 resolved (2026-02-11): chat uses soft fallback with mandatory mismatch disclosure (`selected_run_id`, `effective_run_id`, `scope_mismatch`, `scope_reason`).
 - SP-0009-02 resolved (2026-02-11): source jump is strict anchor-only in parity v1; default clickable emphasis is gated by measured anchor coverage `>=80%`.
 
-## Open Questions (Implementation Ambiguities)
+## Resolved Implementation Decisions (2026-02-11)
 
-- Should chat sources be persisted as citations (`chat_message` + citation rows) or emitted as ephemeral anchors in parity v1?
+- Chat sources are persisted as citations (`chat_message` + citation rows), not ephemeral-only anchors.
+- Scope metadata is emitted as a dedicated early `scope` stream event, not folded into `meta`.
 
 ## Sources
 

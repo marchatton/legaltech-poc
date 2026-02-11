@@ -46,13 +46,14 @@ Track spike decisions that were resolved in the oracle dossier and keep implemen
 4. Then land source-jump wiring in `0009d` using strict anchor-only behavior from SP-0009-02.
 5. Final wave: `0009g` mandatory polish gate + guardrail audit from SP-0009-06.
 
-## Remaining Ambiguities (Implementation, Not Spike)
+## Resolved Implementation Decisions (2026-02-11)
 
-- Chat source persistence model: persist chat citations (`chat_message` + citation rows) vs ephemeral anchor payloads.
-- Stream shape choice: extend existing `meta` event vs emit dedicated early `scope` event (recommended: dedicated `scope` event).
+- Chat source persistence model: persist chat citations (`chat_message` + citation rows).
+- Stream shape choice: emit dedicated early `scope` event (not folded into `meta`).
 
 ## Exit Criteria Per Decision
 
 - The locked decision is reflected in both `prd.md` and `prd.json` for affected slices.
 - Contract-level tests and negative cases are captured in acceptance criteria.
 - `findings.md` keeps one canonical metric definition for anchor coverage.
+- No blocking spike or implementation ambiguity remains before implementation starts.

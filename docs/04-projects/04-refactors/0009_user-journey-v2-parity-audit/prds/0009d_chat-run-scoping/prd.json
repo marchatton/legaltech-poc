@@ -18,8 +18,10 @@
     "Mismatch between selected and effective run is always visible.",
     "Source jump success/fallback behavior is deterministic and user-visible."
   ],
-  "openQuestions": [
-    "Should chat sources be persisted as citation rows (`chat_message` + citations) or emitted as ephemeral anchors in parity v1?"
+  "openQuestions": [],
+  "resolvedImplementationDecisions": [
+    "Chat sources are persisted as citation rows (`chat_message` + citations), not ephemeral-only anchors.",
+    "Scope metadata is emitted as a dedicated early `scope` stream event rather than folded into `meta`."
   ],
   "resolvedDecisions": [
     {
@@ -28,6 +30,8 @@
       "details": [
         "Chat scope metadata includes `selected_run_id`, `effective_run_id`, `scope_mismatch`, and `scope_reason`.",
         "When no completed runs exist, `effective_run_id` is null and `effective_index_version` is disclosed.",
+        "Sources are persisted as citation-backed chat records rather than ephemeral-only anchors.",
+        "Scope metadata is emitted as a dedicated early `scope` stream event.",
         "Fallback never occurs silently; mismatch UI is required."
       ]
     },
