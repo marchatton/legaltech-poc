@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-11 15:27:29 | run=20260211-143054-12725 | iter=3 | mode=build | story=US-003 | duration=1021s | status=success
 - 2026-02-11 15:10:21 | run=20260211-143054-12725 | iter=2 | mode=build | story=US-002 | duration=1507s | status=success
 - 2026-02-11 14:45:06 | run=20260211-143054-12725 | iter=1 | mode=build | story=US-001 | duration=851s | status=success
 - 2026-02-10 23:44:35 | run=20260210-224307-10605 | iter=3 | mode=build | story=US-003 | duration=2860s | status=success
@@ -52,3 +53,8 @@
 [2026-02-11 15:18:09] US-003: implemented ErrorBanner support escalation pattern and wired supportRoute across matters surfaces
 [2026-02-11 15:24:41] US-003: verification complete (lint/typecheck/test/build + browser checks for fallback and configured support action)
 [2026-02-11 15:26:51] US-003: appended progress entry with commit/verifications and browser evidence
+[2026-02-11 15:27:28] ITERATION 3 end (duration=1021s)
+[2026-02-11 15:27:35] ITERATION 4 start (mode=build story=US-004)
+[2026-02-11 15:28:05] Start US-004 iteration 4: auditing retry semantics across surfaces
+[2026-02-11 15:31:52] Applied US-004 retry semantics updates across ErrorBanner, matter surfaces, and retryable API envelopes
+[2026-02-11 15:39:12] Completed US-004 verification: lint, typecheck, test, build, and browser retry semantics check

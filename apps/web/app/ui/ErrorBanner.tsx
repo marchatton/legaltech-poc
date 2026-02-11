@@ -108,7 +108,7 @@ export function ErrorBanner({
   className,
   children,
 }: ErrorBannerProps) {
-  const showRetry = Boolean(onRetry) && retryable !== false;
+  const showRetry = Boolean(onRetry) && retryable === true;
   const routeContext = toNonEmptyString(supportRoute) ?? undefined;
   const resolvedSupportTarget = resolveSupportMailtoTarget(supportTarget ?? DEFAULT_SUPPORT_MAILTO_TARGET);
   const showSupportCta = showSupportAction && Boolean(resolvedSupportTarget);

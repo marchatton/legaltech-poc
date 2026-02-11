@@ -41,7 +41,7 @@ export function QuickStartPanel(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message, retryable: true } });
       return;
     }
 
@@ -58,6 +58,7 @@ export function QuickStartPanel(props: Props) {
         error: {
           code: `HTTP_${res.status}`,
           message: `Request failed (${res.status}).`,
+          retryable: res.status >= 500,
         },
       });
       return;
@@ -67,7 +68,10 @@ export function QuickStartPanel(props: Props) {
     const runId = run && typeof run.id === "string" ? run.id : null;
     const runState = run && typeof run.state === "string" ? run.state : "running";
     if (!runId) {
-      setState({ kind: "error", error: { code: "BAD_RESPONSE", message: "Missing run.id in response." } });
+      setState({
+        kind: "error",
+        error: { code: "BAD_RESPONSE", message: "Quick Start response was missing run.id.", retryable: false },
+      });
       return;
     }
 

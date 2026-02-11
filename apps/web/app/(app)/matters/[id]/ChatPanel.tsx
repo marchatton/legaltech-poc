@@ -108,9 +108,12 @@ export function ChatPanel(props: { folderId: string }) {
 
         if (!res.ok) {
           let code = `HTTP_${res.status}`;
-          let message = "Chat request failed. Please retry.";
+          let message =
+            res.status >= 500 || res.status === 429
+              ? "Chat request failed. Please retry."
+              : "Chat request was rejected. Check your question and try again.";
           let traceId: string | undefined;
-          let retryable = true;
+          let retryable = res.status >= 500 || res.status === 429;
           try {
             const json: unknown = await res.json();
             const env = parseSafeErrorEnvelope(json);
@@ -239,9 +242,15 @@ export function ChatPanel(props: { folderId: string }) {
                     traceId={m.error?.traceId}
                     supportRoute={`/matters/${props.folderId}`}
                     retryable={m.error?.retryable}
-                    onRetry={m.error?.retryable === false || busy ? undefined : onRetryLast}
+                    onRetry={m.error?.retryable === true && !busy ? onRetryLast : undefined}
                   >
-                    <div className="text-2xs text-muted-foreground">If this keeps failing, refresh the page.</div>
+                    <div className="text-2xs text-muted-foreground">
+                      {m.error?.code === "VALIDATION_ERROR"
+                        ? "Check the question format and submit again."
+                        : m.error?.retryable === true
+                          ? "Retry sends the same question again."
+                          : "If this keeps failing, refresh the page."}
+                    </div>
                   </ErrorBanner>
                 ) : null}
 

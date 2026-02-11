@@ -89,6 +89,7 @@ export function ExportMemoButton(props: Props) {
           error: {
             code: "VALIDATION_ERROR",
             message: "Admin token required for unsafe export.",
+            retryable: false,
           },
         });
         return;
@@ -115,7 +116,7 @@ export function ExportMemoButton(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message, retryable: true } });
       return;
     }
 
@@ -140,6 +141,7 @@ export function ExportMemoButton(props: Props) {
         error: {
           code: `HTTP_${res.status}`,
           message: `Request failed (${res.status}).`,
+          retryable: res.status >= 500,
         },
       });
       return;

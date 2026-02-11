@@ -57,6 +57,21 @@ function assertAdminAllowed(req: Request):
 
 type SeedSnapshot = NonNullable<ReturnType<typeof loadSeedSnapshot>>;
 
+function traceErrorEnvelope(opts: {
+  code: string;
+  message: string;
+  details?: unknown;
+  traceId: string;
+}): ReturnType<typeof safeErrorEnvelope> {
+  return safeErrorEnvelope({
+    code: opts.code,
+    message: opts.message,
+    details: opts.details,
+    traceId: opts.traceId,
+    retryable: opts.code === "INTERNAL",
+  });
+}
+
 function findRunInSeedSnapshots(args: {
   runId: string;
   packId?: string;
@@ -137,14 +152,14 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   if (process.env.FEATURE_TRACE_EXPORT !== "1") {
     return Response.json(
-      safeErrorEnvelope({ code: "NOT_FOUND", message: "Trace export not enabled.", traceId }),
+      traceErrorEnvelope({ code: "NOT_FOUND", message: "Trace export not enabled.", traceId }),
       { status: 404, headers },
     );
   }
 
   const admin = assertAdminAllowed(req);
   if (!admin.ok) {
-    return Response.json(safeErrorEnvelope({ code: admin.code, message: admin.message, traceId }), {
+    return Response.json(traceErrorEnvelope({ code: admin.code, message: admin.message, traceId }), {
       status: admin.code === "UNAUTHORISED" ? 403 : 500,
       headers,
     });
@@ -154,7 +169,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   const parsedParams = ParamsSchema.safeParse(rawParams);
   if (!parsedParams.success) {
     return Response.json(
-      safeErrorEnvelope({
+      traceErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
@@ -168,7 +183,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   const parsedQuery = QuerySchema.safeParse(Object.fromEntries(url.searchParams));
   if (!parsedQuery.success) {
     return Response.json(
-      safeErrorEnvelope({
+      traceErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Invalid query params.",
         details: parsedQuery.error.flatten(),
@@ -186,7 +201,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     const status =
       found.code === "NOT_FOUND" ? 404 : found.code === "CONFLICT" ? 409 : found.code === "INTERNAL" ? 500 : 500;
     return Response.json(
-      safeErrorEnvelope({
+      traceErrorEnvelope({
         code: found.code,
         message: found.message,
         details: found.details,

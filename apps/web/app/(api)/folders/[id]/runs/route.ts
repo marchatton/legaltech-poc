@@ -48,6 +48,21 @@ type RunRow = {
   question_set_version: string;
 };
 
+function runsErrorEnvelope(opts: {
+  code: string;
+  message: string;
+  details?: unknown;
+  traceId: string;
+}): ReturnType<typeof safeErrorEnvelope> {
+  return safeErrorEnvelope({
+    code: opts.code,
+    message: opts.message,
+    details: opts.details,
+    traceId: opts.traceId,
+    retryable: opts.code === "INTERNAL",
+  });
+}
+
 function runResponse(row: RunRow) {
   return {
     run: {
@@ -86,7 +101,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   const parsedParams = ParamsSchema.safeParse(rawParams);
   if (!parsedParams.success) {
     return Response.json(
-      safeErrorEnvelope({
+      runsErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Invalid route params.",
         details: parsedParams.error.flatten(),
@@ -100,7 +115,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   try {
     body = await req.json();
   } catch {
-    return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
+    return Response.json(runsErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid JSON body.", traceId }), {
       status: 400,
       headers,
     });
@@ -109,7 +124,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   const parsedBody = BodySchema.safeParse(body);
   if (!parsedBody.success) {
     return Response.json(
-      safeErrorEnvelope({
+      runsErrorEnvelope({
         code: "VALIDATION_ERROR",
         message: "Body did not match schema.",
         details: parsedBody.error.flatten(),
@@ -125,7 +140,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     const parsedKey = IdempotencyKeySchema.safeParse(rawKey);
     if (!parsedKey.success) {
       return Response.json(
-        safeErrorEnvelope({
+        runsErrorEnvelope({
           code: "VALIDATION_ERROR",
           message: "Invalid Idempotency-Key header.",
           details: parsedKey.error.flatten(),
@@ -148,7 +163,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     LIMIT 1
   `;
   if (!folders[0]) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+    return Response.json(runsErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
       status: 404,
       headers,
     });
@@ -165,7 +180,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   `;
   const folder = refreshed[0];
   if (!folder) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+    return Response.json(runsErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
       status: 404,
       headers,
     });
@@ -176,7 +191,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       folder.state === "failed"
         ? "Folder ingest failed. Retry ingest or re-index."
         : "Folder is not runnable yet.";
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message, traceId }), { status: 409, headers });
+    return Response.json(runsErrorEnvelope({ code: "CONFLICT", message, traceId }), { status: 409, headers });
   }
 
   const { version: questionSetVersion, questionSet } = await loadQuestionSetV1();
@@ -234,7 +249,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       message: err instanceof Error ? err.message : String(err),
     });
 
-    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to start run.", traceId }), {
+    return Response.json(runsErrorEnvelope({ code: "INTERNAL", message: "Failed to start run.", traceId }), {
       status: 500,
       headers,
     });

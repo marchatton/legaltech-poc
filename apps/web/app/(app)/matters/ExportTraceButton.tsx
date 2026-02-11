@@ -31,7 +31,14 @@ export function ExportTraceButton(props: Props) {
   async function run() {
     const runId = runIdInput.trim();
     if (!runId) {
-      setState({ kind: "error", error: { code: "VALIDATION_ERROR", message: "Missing run_id." } });
+      setState({
+        kind: "error",
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Enter a run_id before exporting the trace.",
+          retryable: false,
+        },
+      });
       return;
     }
 
@@ -44,7 +51,7 @@ export function ExportTraceButton(props: Props) {
       res = await fetch(url, { method: "GET" });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message, retryable: true } });
       return;
     }
 
@@ -57,6 +64,7 @@ export function ExportTraceButton(props: Props) {
           env ?? {
             code: `HTTP_${res.status}`,
             message: `Request failed (${res.status}).`,
+            retryable: res.status >= 500,
           },
       });
       return;

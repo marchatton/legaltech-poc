@@ -34,7 +34,14 @@ export function ExportCsvButton(props: Props) {
 
   async function run() {
     if (!props.runId) {
-      setState({ kind: "error", error: { code: "VALIDATION_ERROR", message: "Missing run_id." } });
+      setState({
+        kind: "error",
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Select a completed run before exporting.",
+          retryable: false,
+        },
+      });
       return;
     }
 
@@ -54,7 +61,7 @@ export function ExportCsvButton(props: Props) {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setState({ kind: "error", error: { code: "NETWORK_ERROR", message } });
+      setState({ kind: "error", error: { code: "NETWORK_ERROR", message, retryable: true } });
       return;
     }
 
@@ -64,6 +71,7 @@ export function ExportCsvButton(props: Props) {
       const error = env ?? {
         code: `HTTP_${res.status}`,
         message: `Request failed (${res.status}).`,
+        retryable: res.status >= 500,
       };
       setState({ kind: error.code === "EXPORT_BLOCKED" ? "blocked" : "error", error });
       return;
@@ -77,7 +85,8 @@ export function ExportCsvButton(props: Props) {
         kind: "error",
         error: {
           code: "BAD_RESPONSE",
-          message: "Missing artefact.download_url.",
+          message: "Export response was missing a download URL.",
+          retryable: false,
         },
       });
       return;

@@ -24,6 +24,22 @@ describe("ErrorBanner", () => {
     expect(html).not.toContain("Retry");
   });
 
+  it("hides retry CTA when retryable is missing", () => {
+    const html = renderToStaticMarkup(
+      <ErrorBanner code="HTTP_500" message="Request failed." onRetry={() => undefined} />,
+    );
+
+    expect(html).not.toContain("Retry");
+  });
+
+  it("shows retry CTA when retryable is true", () => {
+    const html = renderToStaticMarkup(
+      <ErrorBanner code="MODEL_STREAM_FAILED" message="Chat failed." onRetry={() => undefined} retryable />,
+    );
+
+    expect(html).toContain("Retry");
+  });
+
   it("builds configured support mailto with deterministic identifiers", () => {
     const target = resolveSupportMailtoTarget("support@orbital.test");
     expect(target).toBe("mailto:support@orbital.test");

@@ -108,7 +108,7 @@
     {
       "id": "US-003",
       "title": "Add support escalation action pattern",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-002"
       ],
@@ -119,13 +119,13 @@
         "Negative: when support target is unset, action must not silently no-op and must show fallback instructions."
       ],
       "startedAt": "2026-02-11T15:10:27.405080+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T15:10:27.405117+00:00"
+      "completedAt": "2026-02-11T15:27:32.458491+00:00",
+      "updatedAt": "2026-02-11T15:27:32.458441+00:00"
     },
     {
       "id": "US-004",
       "title": "Normalize retry semantics across surfaces",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002"
       ],
@@ -134,7 +134,10 @@
         "Retry CTA renders only for retryable errors and invokes idempotent retry flow per surface.",
         "Example: transient chat error shows retry while validation error hides retry and provides corrective guidance.",
         "Negative: non-retryable errors must not expose retry controls."
-      ]
+      ],
+      "startedAt": "2026-02-11T15:27:34.761312+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T15:27:34.761325+00:00"
     }
   ],
   "sources": [
