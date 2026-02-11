@@ -118,7 +118,7 @@ Focus: treat `UI + moderate backend` items as primary scope-cut candidates by de
 
 - `U12`: confirmed de-scope for parity v1 (no pre-run checklist build).
 - `U28`: confirmed UI-only acknowledgement pattern for v1 (no backend persistence).
-- `U37`: requested deeper scoping; see detailed level options below.
+- `U37`: scope locked to `L1` for parity v1; `L2` and `L3` are out-of-scope for this iteration.
 - `U40`: confirmed disabled-source friendly hover message when jump is unavailable.
 - `U42`: confirmed.
 - `U48`: confirmed.
@@ -129,11 +129,11 @@ Focus: treat `UI + moderate backend` items as primary scope-cut candidates by de
 | Level | What users get | API/contract impact | Scope |
 |---|---|---|---|
 | L0 (status quo) | No run picker; chat uses folder latest index implicitly. | None. | Existing |
-| L1 (recommended v1) | Run chip + simple picker for recent completed runs + mismatch warning badge/copy. | Extend `POST /api/folders/:id/chat` with optional `run_id`; include selected/effective run metadata in stream events. | UI + moderate backend |
+| L1 (selected for parity v1) | Run chip + simple picker for recent completed runs + mismatch warning badge/copy. | Extend `POST /api/folders/:id/chat` with optional `run_id`; include selected/effective run metadata in stream events. | UI + moderate backend |
 | L2 | Strong run isolation with explicit retrieval against selected run index and deterministic source tagging per response. | L1 + stricter run/index binding rules and validation errors when run/index is unavailable. | UI + moderate backend |
 | L3 | Multi-run compare/merge experience (diffing answers/sources across runs). | New compare endpoints/state model and more complex retrieval/orchestration semantics. | Backend-heavy (defer) |
 
-Recommended cut line: ship `L1`, design `L2` guardrails in API shape, explicitly defer `L3`.
+Selected cut line: ship `L1` only. `L2` and `L3` are explicitly out-of-scope for parity v1.
 
 ## API affordances (breadboard `N*`, light + moderate only)
 
@@ -151,7 +151,7 @@ Focus: add concrete API affordances for all `UI + thin backend` and `UI + modera
 | N8 | U29, U32, W-A8 | `GET /api/folders/:id/report` | Report read affordance with `run_id` + status filter/deep-link echo. | call/read | Returns rows for scoped run and failed-row review jumps. | UI + moderate backend | Add `run_id` + `status` only; defer persisted saved filters. |
 | N9 | W-A4 | `PATCH /api/report-rows/:id` (new) | Row decision mutation affordance (`mark_reviewed`, `flag_issue`, optional note). | call/write | Updates row decision state for drawer workflow. | UI + thin backend | Start with single-state transition + note; defer assignment/work queues. |
 | N10 | U28 | No new API in v1 | Citation feedback stays UI-only (`Thanks, we’ll investigate`) without persistence. | render | No backend side effects in parity v1. | UI-only | Defer `/api/citations/:id/flags` and downstream triage workflow. |
-| N11 | U37, U42 | `POST /api/folders/:id/chat` | Run-scoped chat affordance (optional `run_id`) + stream metadata (`selected_run_id`, `effective_run_id`, mismatch flag). | call/read | Retrieval constrained to selected/effective run with explicit mismatch visibility. | UI + moderate backend | Start with recent completed run picker + mismatch metadata; defer cross-run reconciliation and compare mode. |
+| N11 | U37, U42 | `POST /api/folders/:id/chat` | Run-scoped chat affordance (optional `run_id`) + stream metadata (`selected_run_id`, `effective_run_id`, mismatch flag). | call/read | Retrieval constrained to selected/effective run with explicit mismatch visibility. | UI + moderate backend | Parity v1 scope lock: recent completed run picker + mismatch metadata only; `L2` strict isolation and `L3` compare are out-of-scope. |
 | N12 | U40, W-A10 | `POST /api/folders/:id/chat` + `GET /api/citations/:id` + `GET /api/documents/:id/render` | Click-to-evidence source affordance (source carries citation/document/page anchor). | call/read | Enables chip click from chat response into evidence viewer. | UI + moderate backend | Enable only when anchor exists; show friendly hover copy when disabled; defer fuzzy anchor recovery heuristics. |
 | N13 | U33, U34, U35 | `GET /api/folders/:id/artefacts` | Artefact list filter/provenance affordance (`type`, `kind`, `source_run_id`) + freshness hinting. | call/read | Powers artefact filtering and provenance visibility in list UI. | UI + thin backend | Add filter params + response echo; defer advanced sort modes. |
 | N14 | U50, U51, U52, W-A12 | Shared error envelope + support action (new endpoint if needed) | Cross-surface deterministic error affordance (`code`, `trace_id`, retryability, support escalation target). | read/call | Standardized `ErrorBanner` behavior and optional support escalation action. | UI + thin backend | Standardize error payload first; defer external ticketing integrations. |
@@ -161,7 +161,7 @@ Focus: add concrete API affordances for all `UI + thin backend` and `UI + modera
 ### Moderate API cut line (recommended defer-first)
 
 - `N10`: de-scoped in v1 (UI-only acknowledgement).
-- `N11`: keep optional `run_id` + explicit mismatch metadata; defer cross-run reconciliation.
+- `N11`: keep optional `run_id` + explicit mismatch metadata only; `L2`/`L3` out-of-scope.
 - `N12`: keep strict anchor-only jumps; defer fuzzy recovery.
 - `N16`: keep coarse elapsed timing; defer precision telemetry pipeline.
 
