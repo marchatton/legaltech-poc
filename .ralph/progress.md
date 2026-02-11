@@ -372,119 +372,37 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
   - Useful context
   - Reusing derived document readiness data for both rendering and counters avoids duplicate status computations.
 ---
-## [2026-02-11 17:29:53 UTC] - US-001: Add operator checklist with coarse elapsed
-Thread: 73920
-Run: 20260211-171754-22506 (iteration 1)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-1.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-1.md
+## [2026-02-11 17:25:18 UTC] - US-001: Ship run selector API contract for export/report
+Thread: 
+Run: 20260211-171748-22180 (iteration 1)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-1.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
-- Commit: e6a0435 feat(matters): add operator checklist elapsed
+- Commit: 1806392 feat(api): add completed run selector list
 - Post-commit status: clean
 - Verification:
+  - Command: pnpm --filter @orbital-poc/web test -- foldersRunsList.routes.test.ts -> PASS
   - Command: pnpm --filter @orbital-poc/web lint -> PASS
   - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
   - Command: pnpm --filter @orbital-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: dev-browser smoke (`/matters/fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` and `/matters/fld_e2ffd731-43a9-4d27-8761-2cedf2a2bfed`) -> PASS
 - Files changed:
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/middleware.ts
+  - apps/web/lib/foldersRunsList.routes.test.ts
   - .ralph/activity.log
-  - apps/web/app/(app)/matters/[id]/page.tsx
-  - apps/web/app/(app)/matters/[id]/operatorChecklist.ts
-  - apps/web/test/operatorChecklist.test.ts
-  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.json
 - What was implemented
-  - Added an Operator checklist card on matter detail with ordered `todo`/`in_progress`/`done` step badges derived from live Quick Start run state.
-  - Added minute-level elapsed rendering from run timestamps (`created_at` baseline, optional `started_at`, terminal freeze on `updated_at`) with `Elapsed unavailable` fallback.
-  - Added unit tests to lock checklist state transitions and elapsed formatting behavior.
-  - Browser-validated both completed-run and no-run states with screenshots:
-    - .agents/skills/00-utilities/dev-browser/tmp/us-001-checklist-completed.png
-    - .agents/skills/00-utilities/dev-browser/tmp/us-001-checklist-no-run.png
+  - Added `GET /folders/:id/runs` with validated params and safe error envelopes, returning selector-ready completed runs as `{ run_id, status, created_at, updated_at }`.
+  - Limited run selector results to newest completed runs (parity v1) and sorted newest-first so clients can default to the first option deterministically.
+  - Updated demo-prod middleware allowlist to permit `GET /folders/:id/runs` alongside existing run start POST behavior.
+  - Added route contract tests covering selector payload shape, completed-only query enforcement, and folder-not-found behavior.
 - **Learnings for future iterations:**
   - Patterns discovered
-  - Extracting checklist/elapsed rules into a pure helper makes run-state UX deterministic and easy to unit test.
+  - Reusing the existing runs route file for both POST (start) and GET (selector) keeps run contract logic centralized and reduces drift.
   - Gotchas encountered
-  - Dev-browser must run `--headless` in this VM because there is no X server for headed Chromium.
+  - In this repo, `pnpm --filter @orbital-poc/web test -- <pattern>` still executes the full Vitest suite, so budget runtime accordingly.
   - Useful context
-  - A seeded demo matter with a completed Quick Start run exists in local DB (`fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63`) and is useful for operator-loop UI smoke checks.
----
-## [2026-02-11 17:43:30 UTC] - US-002: Add explicit fixture context banner guidance
-Thread: 
-Run: 20260211-171754-22506 (iteration 2)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-2.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-2.md
-- Guardrails reviewed: yes
-- No-commit run: false
-- Commit: 63121ae feat(matters): add fixture context banner guidance
-- Post-commit status: `clean`
-- Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
-  - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-f/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (load pack + verify fixture context banner fields) -> PASS
-- Files changed:
-  - .ralph/activity.log
-  - .ralph/errors.log
-  - apps/web/app/(app)/matters/[id]/fixtureContextBanner.ts
-  - apps/web/app/(app)/matters/[id]/page.tsx
-  - apps/web/test/fixtureContextBanner.sync.test.ts
-  - apps/web/test/fixtureContextBanner.test.ts
-  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
-- What was implemented
-  - Added a fixture context banner model that derives active pack, load state (`ready`/`blocked`/`already complete`), and next-step guidance directly from current matter/readiness signals.
-  - Added a visible, high-salience "Fixture context" banner card on the matter detail page with explicit `Active pack`, `Load state`, and `Next step` fields.
-  - Aligned banner guidance with existing Quick Start readiness messaging so blocked states surface prerequisite/action hints consistently.
-  - Added unit tests for banner state mapping and sync tests enforcing explicit banner copy presence.
-  - Browser-verified the flow on a demo-loaded matter (`pack_02_missing_rea`) with screenshot:
-    - .agents/skills/00-utilities/dev-browser/tmp/us-002-fixture-context-banner.png
-- **Learnings for future iterations:**
-  - Patterns discovered
-  - Keep operator-facing guidance contracts in pure derivation helpers so UI copy stays deterministic and testable.
-  - Gotchas encountered
-  - Browser verification of `/matters/[id]` needs `ALLOW_DEV_OBJECT_STORE_SECRET=1` in local dev to avoid `OBJECT_STORE_SIGNING_SECRET_MISSING` runtime errors.
-  - Useful context
-  - `pack_02_missing_rea` is a useful fixture for blocked-readiness UI checks because it reliably exercises action-hint messaging.
----
-## [2026-02-11 18:04:26 UTC] - US-003: Add repeat-load and demo-history reopen shortcuts
-Thread: 
-Run: 20260211-171754-22506 (iteration 3)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-3.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260211-171754-22506-iter-3.md
-- Guardrails reviewed: yes
-- No-commit run: false
-- Commit: a7b5b85 feat(demo): add load-again and history reopen
-- Post-commit status: clean
-- Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
-  - Command: pnpm build -> PASS
-  - Command: DEMO_MODE=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev --port 3005 + dev-browser smoke (`/matters` shortcuts + reopen to `/matters/:id`) -> PASS
-- Files changed:
-  - .ralph/activity.log
-  - .ralph/errors.log
-  - apps/web/app/DemoToolbar.tsx
-  - apps/web/app/(app)/matters/page.tsx
-  - apps/web/app/(app)/matters/[id]/fixtureContextBanner.ts
-  - apps/web/app/(app)/matters/[id]/page.tsx
-  - apps/web/lib/demoMatterMetadata.ts
-  - apps/web/test/demoHistoryShortcuts.sync.test.ts
-  - apps/web/test/demoMatterMetadata.test.ts
-  - apps/web/test/fixtureContextBanner.sync.test.ts
-  - apps/web/test/fixtureContextBanner.test.ts
-  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
-  - .ralph/progress.md
-- What was implemented
-  - Added explicit `Load pack again` shortcut in the demo toolbar, wired to the existing deterministic pack-load handler.
-  - Added a demo-only `Recent Demo Matters` side panel on `/matters` sourced from real `demo_packs` query results, with pack/timestamp metadata and `Reopen` actions.
-  - Added shared demo matter metadata parsing/formatting utilities and surfaced `Loaded at` metadata in the matter detail fixture context banner so reopened history context is explicit.
-  - Added focused sync/unit tests to lock shortcut presence, metadata parsing, and negative behavior (no hardcoded sample history entries / explicit empty history state).
-- **Learnings for future iterations:**
-  - Patterns discovered
-  - Parsing demo matter metadata once in a shared helper prevents pack/timestamp drift across matters list and fixture context surfaces.
-  - Gotchas encountered
-  - Browser smoke for `/matters/:id` in this environment requires `ALLOW_DEV_OBJECT_STORE_SECRET=1`; otherwise detail route can fail with `OBJECT_STORE_SIGNING_SECRET_MISSING`.
-  - Useful context
-  - Browser evidence saved at `.agents/skills/00-utilities/dev-browser/tmp/us003-matters-history.png` and `.agents/skills/00-utilities/dev-browser/tmp/us003-reopened-matter.png`.
+  - Demo-prod middleware must be updated whenever a new API method is added to an existing path, or contracts pass tests but fail in guarded runtime mode.
 ---

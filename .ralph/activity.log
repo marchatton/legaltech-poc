@@ -1,9 +1,6 @@
 # Activity Log
 
 ## Run Summary
-- 2026-02-11 18:05:38 | run=20260211-171754-22506 | iter=3 | mode=build | story=US-003 | duration=1279s | status=success
-- 2026-02-11 17:44:14 | run=20260211-171754-22506 | iter=2 | mode=build | story=US-002 | duration=800s | status=success
-- 2026-02-11 17:30:47 | run=20260211-171754-22506 | iter=1 | mode=build | story=US-001 | duration=773s | status=success
 - 2026-02-11 15:51:15 | run=20260211-143026-12311 | iter=4 | mode=build | story=US-004 | duration=888s | status=success
 - 2026-02-11 15:36:23 | run=20260211-143026-12311 | iter=3 | mode=build | story=US-003 | duration=1170s | status=success
 - 2026-02-11 15:16:47 | run=20260211-143026-12311 | iter=2 | mode=build | story=US-002 | duration=1659s | status=success
@@ -70,22 +67,4 @@
 [2026-02-11 17:18:05] Start US-001 implementation: run selector API contract audit
 [2026-02-11 17:21:14] Implemented US-001 route changes: added GET /folders/:id/runs selector contract, middleware allowance, and route tests
 [2026-02-11 17:24:00] Verification complete for US-001: lint/typecheck/test/build all passing
-[2026-02-11 17:17:55] ITERATION 1 start (mode=build story=US-001)
-[2026-02-11 17:18:22] US-001 iteration start: reviewed guardrails/errors/prd and beginning code audit
-[2026-02-11 17:21:27] US-001 major code changes: added operator checklist derivation + elapsed helper and wired checklist card into matter detail UI with tests
-[2026-02-11 17:24:00] US-001 verification complete: lint, typecheck, test, and full build all passing
-[2026-02-11 17:28:19] US-001 browser verification complete: operator checklist confirmed on completed-run and no-run matter pages with screenshots
-[2026-02-11 17:30:08] US-001 progress entry appended with commit and verification details
-[2026-02-11 17:30:47] ITERATION 1 end (duration=773s)
-[2026-02-11 17:30:52] ITERATION 2 start (mode=build story=US-002)
-[2026-02-11 17:31:12] Start US-002: audit fixture context banner guidance implementation
-[2026-02-11 17:34:24] Implemented US-002 fixture context banner mapping and matter page banner UI; added mapping/sync tests
-[2026-02-11 17:42:34] Completed verification for US-002: lint/typecheck/test/build PASS; browser validation PASS with fixture context banner screenshot
-[2026-02-11 17:43:47] Appended US-002 progress entry with commit, verification, and browser evidence
-[2026-02-11 17:44:12] ITERATION 2 end (duration=800s)
-[2026-02-11 17:44:20] ITERATION 3 start (mode=build story=US-003)
-[2026-02-11 17:44:37] Start US-003 iteration 3: auditing guardrails/errors/prd and existing implementation
-[2026-02-11 17:50:10] Implemented US-003 code: added Load pack again shortcut, demo history reopen panel, and pack/timestamp metadata parsing.
-[2026-02-11 18:03:44] US-003 verification complete: lint/typecheck/test/build PASS and browser smoke PASS for load-pack-again, demo history reopen, and fixture context metadata.
-[2026-02-11 18:04:46] Appended US-003 progress entry with commit, verification results, and browser evidence paths.
-[2026-02-11 18:05:38] ITERATION 3 end (duration=1279s)
+[2026-02-11 17:25:38] Updated .ralph/progress.md with US-001 run summary and verification details
