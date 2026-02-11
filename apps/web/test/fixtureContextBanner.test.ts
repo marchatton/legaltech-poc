@@ -14,6 +14,7 @@ describe("fixture context banner mapping", () => {
 
     expect(banner).toEqual({
       activePack: "pack_01_clean",
+      loadedAt: "2026-02-11T170000Z",
       loadState: "ready",
       nextStep: "1 indexed-ready document available. Run Quick Start now.",
       variant: "success",
@@ -44,6 +45,7 @@ describe("fixture context banner mapping", () => {
     });
 
     expect(banner.activePack).toBe("not detected");
+    expect(banner.loadedAt).toBe("not detected");
     expect(banner.loadState).toBe("already complete");
     expect(banner.variant).toBe("info");
   });

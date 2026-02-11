@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
+import { formatDemoLoadedAtLabel } from "../../../../lib/demoMatterMetadata";
 import {
   buildDocumentUploadCapabilities,
   deriveDocumentReadinessStatus,
@@ -241,6 +242,14 @@ export default async function MatterPage(props: { params: Promise<Record<string,
             <div>
               <span className="font-semibold text-foreground">Active pack:</span>{" "}
               <span className="font-mono text-xs text-foreground">{fixtureContextBanner.activePack}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">Loaded at:</span>{" "}
+              <span className="font-mono text-xs text-foreground">
+                {fixtureContextBanner.loadedAt === "not detected"
+                  ? "not detected"
+                  : formatDemoLoadedAtLabel(fixtureContextBanner.loadedAt)}
+              </span>
             </div>
             <div>
               <span className="font-semibold text-foreground">Load state:</span> {fixtureContextBanner.loadState}

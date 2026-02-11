@@ -96,6 +96,14 @@ export function DemoToolbar() {
         >
           Load demo pack
         </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={loadPack}
+          loading={state.kind === "loading"}
+        >
+          Load pack again
+        </Button>
 
         {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
 

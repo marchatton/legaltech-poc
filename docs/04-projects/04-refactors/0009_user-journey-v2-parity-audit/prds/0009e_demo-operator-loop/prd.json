@@ -112,7 +112,7 @@
     {
       "id": "US-002",
       "title": "Add explicit fixture context banner guidance",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -123,13 +123,13 @@
         "Negative: low-salience hidden copy must not be the only source of demo context."
       ],
       "startedAt": "2026-02-11T17:30:52.503080+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T17:30:52.503100+00:00"
+      "completedAt": "2026-02-11T17:44:17.476054+00:00",
+      "updatedAt": "2026-02-11T17:44:17.476018+00:00"
     },
     {
       "id": "US-003",
       "title": "Add repeat-load and demo-history reopen shortcuts",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002"
       ],
@@ -138,7 +138,10 @@
         "Toolbar includes `Load pack again` and history list includes reopen actions.",
         "Example: reopening a history item restores matter context with pack/timestamp metadata.",
         "Negative: history surface must not fabricate sample entries when no records exist."
-      ]
+      ],
+      "startedAt": "2026-02-11T17:44:19.873955+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T17:44:19.873988+00:00"
     }
   ],
   "sources": [

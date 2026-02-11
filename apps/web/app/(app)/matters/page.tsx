@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../lib/devOnly";
+import { isDemoModeEnabled } from "../../../lib/demoMode.server";
+import { formatDemoLoadedAtLabel, parseDemoMatterMetadata } from "../../../lib/demoMatterMetadata";
 import { listMatters, parseMatterListFilters, type MatterListFilters, type MatterSavedView } from "../../../lib/mattersList.server";
 
 import { Badge, type BadgeVariant } from "../../ui/Badge";
@@ -65,6 +67,10 @@ export default async function MattersPage(props: {
   const rawSearchParams = (await props.searchParams) ?? {};
   const filters = parseMatterListFilters(rawSearchParams);
   const matters = await listMatters(filters);
+  const demoModeEnabled = isDemoModeEnabled();
+  const demoHistory = demoModeEnabled
+    ? (await listMatters({ q: "", state: null, view: "demo_packs" })).slice(0, 8)
+    : [];
 
   return (
     <Page width="lg">
@@ -137,60 +143,100 @@ export default async function MattersPage(props: {
       </PageSection>
 
       <PageSection>
-        <Card className="overflow-hidden">
-          {matters.length === 0 ? (
-            <div className="p-6 text-sm text-muted-foreground">
-              No matters matched the current filters.
-              <Link href="/matters" className="ml-2 font-medium underline hover:text-foreground">
-                Reset filters
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left">
-                <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Matter</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">State</th>
-                    <th className="px-4 py-3 font-medium">Created</th>
-                    <th className="px-4 py-3 text-right font-medium">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {matters.map((matter) => {
-                    const status = statusForState(matter.state);
+        <div className={demoModeEnabled ? "grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]" : ""}>
+          <Card className="overflow-hidden">
+            {matters.length === 0 ? (
+              <div className="p-6 text-sm text-muted-foreground">
+                No matters matched the current filters.
+                <Link href="/matters" className="ml-2 font-medium underline hover:text-foreground">
+                  Reset filters
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] text-left">
+                  <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Matter</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">State</th>
+                      <th className="px-4 py-3 font-medium">Created</th>
+                      <th className="px-4 py-3 text-right font-medium">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {matters.map((matter) => {
+                      const status = statusForState(matter.state);
+                      return (
+                        <tr key={matter.id} className="bg-card hover:bg-muted/30">
+                          <td className="px-4 py-3 align-top">
+                            <div className="text-sm font-medium text-foreground">{matter.name}</div>
+                            <div className="mt-1">
+                              <MonoId>{matter.id}</MonoId>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 align-top">
+                            <Badge variant={status.variant}>{status.label}</Badge>
+                          </td>
+                          <td className="px-4 py-3 align-top">
+                            <Badge variant="muted">{matter.state}</Badge>
+                          </td>
+                          <td className="px-4 py-3 align-top text-sm text-muted-foreground">{formatTimestamp(matter.created_at)}</td>
+                          <td className="px-4 py-3 align-top text-right">
+                            <Link
+                              href={`/matters/${encodeURIComponent(matter.id)}`}
+                              className="inline-flex items-center rounded-ui-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+                            >
+                              Open
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          {demoModeEnabled ? (
+            <Card className="h-fit overflow-hidden">
+              <div className="border-b border-border bg-muted/40 px-4 py-3">
+                <h2 className="text-sm font-semibold text-foreground">Recent Demo Matters</h2>
+                <p className="mt-1 text-xs text-muted-foreground">Reopen the latest demo contexts without reloading fixtures.</p>
+              </div>
+
+              {demoHistory.length === 0 ? (
+                <div className="px-4 py-6 text-sm text-muted-foreground">No demo history yet.</div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {demoHistory.map((matter) => {
+                    const metadata = parseDemoMatterMetadata(matter.name);
+                    const packLabel = metadata?.packId ?? "pack not detected";
+                    const loadedAtLabel = formatDemoLoadedAtLabel(metadata?.loadedAt ?? matter.created_at);
                     return (
-                      <tr key={matter.id} className="bg-card hover:bg-muted/30">
-                        <td className="px-4 py-3 align-top">
-                          <div className="text-sm font-medium text-foreground">{matter.name}</div>
-                          <div className="mt-1">
-                            <MonoId>{matter.id}</MonoId>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 align-top">
-                          <Badge variant={status.variant}>{status.label}</Badge>
-                        </td>
-                        <td className="px-4 py-3 align-top">
-                          <Badge variant="muted">{matter.state}</Badge>
-                        </td>
-                        <td className="px-4 py-3 align-top text-sm text-muted-foreground">{formatTimestamp(matter.created_at)}</td>
-                        <td className="px-4 py-3 align-top text-right">
+                      <li key={`demo-history-${matter.id}`} className="grid gap-2 px-4 py-3">
+                        <div className="text-sm font-medium text-foreground">{matter.name}</div>
+                        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                          <span className="font-mono">{packLabel}</span>
+                          <span className="font-mono">{loadedAtLabel}</span>
+                        </div>
+                        <div className="flex justify-end">
                           <Link
                             href={`/matters/${encodeURIComponent(matter.id)}`}
-                            className="inline-flex items-center rounded-ui-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+                            className="inline-flex items-center rounded-ui-md border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted"
                           >
-                            Open
+                            Reopen
                           </Link>
-                        </td>
-                      </tr>
+                        </div>
+                      </li>
                     );
                   })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+                </ul>
+              )}
+            </Card>
+          ) : null}
+        </div>
       </PageSection>
     </Page>
   );

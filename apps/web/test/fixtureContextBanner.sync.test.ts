@@ -22,11 +22,13 @@ describe("US-002 fixture context banner presence", () => {
 
     expect(pageSource).toContain('title="Fixture context"');
     expect(pageSource).toContain("Active pack:");
+    expect(pageSource).toContain("Loaded at:");
     expect(pageSource).toContain("Load state:");
     expect(pageSource).toContain("Next step:");
     expect(pageSource).toContain("deriveFixtureContextBanner");
 
     expect(bannerSource).toContain("loadStateFromReadiness");
+    expect(bannerSource).toContain("loadedAt");
     expect(bannerSource).toContain("nextStep");
   });
 });

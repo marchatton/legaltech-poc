@@ -1,3 +1,5 @@
+import { parseDemoMatterMetadata } from "../../../../lib/demoMatterMetadata";
+
 export type FixtureReadiness = {
   state: "ready" | "blocked" | "already-complete";
   reason: string;
@@ -5,17 +7,11 @@ export type FixtureReadiness = {
 
 export type FixtureContextBanner = {
   activePack: string;
+  loadedAt: string;
   loadState: string;
   nextStep: string;
   variant: "success" | "warning" | "info";
 };
-
-const DEMO_PACK_FROM_NAME_RE = /^DEMO:\s+(pack_[a-z0-9_]+)\b/i;
-
-function activePackFromMatterName(name: string): string | null {
-  const match = DEMO_PACK_FROM_NAME_RE.exec(name);
-  return match?.[1] ?? null;
-}
 
 function loadStateFromReadiness(state: FixtureReadiness["state"]): string {
   if (state === "ready") return "ready";
@@ -33,8 +29,11 @@ export function deriveFixtureContextBanner(args: {
   matterName: string;
   readiness: FixtureReadiness;
 }): FixtureContextBanner {
+  const metadata = parseDemoMatterMetadata(args.matterName);
+
   return {
-    activePack: activePackFromMatterName(args.matterName) ?? "not detected",
+    activePack: metadata?.packId ?? "not detected",
+    loadedAt: metadata?.loadedAt ?? "not detected",
     loadState: loadStateFromReadiness(args.readiness.state),
     nextStep: args.readiness.reason,
     variant: bannerVariant(args.readiness.state),
