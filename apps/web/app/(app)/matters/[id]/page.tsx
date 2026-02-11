@@ -12,6 +12,7 @@ import {
 } from "../../../../lib/documentSetup";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
+import { Alert } from "../../../ui/Alert";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Card } from "../../../ui/Card";
 import { EmptyState } from "../../../ui/EmptyState";
@@ -30,6 +31,7 @@ import {
   formatOperatorElapsedLabel,
   type OperatorChecklistState,
 } from "./operatorChecklist";
+import { deriveFixtureContextBanner } from "./fixtureContextBanner";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -201,6 +203,10 @@ export default async function MatterPage(props: { params: Promise<Record<string,
       reason: `${indexedReadyCount} indexed-ready document${indexedReadyCount === 1 ? "" : "s"} available. Run Quick Start now.`,
     };
   }
+  const fixtureContextBanner = deriveFixtureContextBanner({
+    matterName: folder.name,
+    readiness: quickStartReadiness,
+  });
 
   const unsafeOverrideEnabled =
     process.env.DEMO_MODE === "1" &&
@@ -228,6 +234,23 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           </Link>
         }
       />
+
+      <Card className="mt-8 p-4">
+        <Alert variant={fixtureContextBanner.variant} title="Fixture context">
+          <div className="grid gap-2 text-sm">
+            <div>
+              <span className="font-semibold text-foreground">Active pack:</span>{" "}
+              <span className="font-mono text-xs text-foreground">{fixtureContextBanner.activePack}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">Load state:</span> {fixtureContextBanner.loadState}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">Next step:</span> {fixtureContextBanner.nextStep}
+            </div>
+          </div>
+        </Alert>
+      </Card>
 
       <Card className="mt-8 p-4">
         <SetupDocumentsPanel

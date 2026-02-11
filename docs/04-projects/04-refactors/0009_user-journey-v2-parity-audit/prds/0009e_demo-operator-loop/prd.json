@@ -97,7 +97,7 @@
     {
       "id": "US-001",
       "title": "Add operator checklist with coarse elapsed",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "description": "As a demo operator, I want checklist progress and elapsed context so I can execute demos consistently.",
       "acceptanceCriteria": [
@@ -106,13 +106,13 @@
         "Negative: second-level timers and static placeholder progression are out-of-scope."
       ],
       "startedAt": "2026-02-11T17:17:54.593022+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-11T17:17:54.593037+00:00"
+      "completedAt": "2026-02-11T17:30:50.221447+00:00",
+      "updatedAt": "2026-02-11T17:30:50.221403+00:00"
     },
     {
       "id": "US-002",
       "title": "Add explicit fixture context banner guidance",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -121,7 +121,10 @@
         "Demo banner shows active pack, load state, and next recommended step.",
         "Example: blocked quick-start state indicates missing prerequisite with action hint.",
         "Negative: low-salience hidden copy must not be the only source of demo context."
-      ]
+      ],
+      "startedAt": "2026-02-11T17:30:52.503080+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-11T17:30:52.503100+00:00"
     },
     {
       "id": "US-003",
