@@ -648,3 +648,39 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
   - Useful context
   - Existing demo matter `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` already contains seeded row/citation data suitable for report drawer + evidence viewer parity checks.
 ---
+## [2026-02-11 19:11:49 UTC] - US-005: Improve citation failure recovery and feedback acknowledgement
+Thread: 
+Run: 20260211-171747-21967 (iteration 5)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-5.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-5.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 40dbfd4 feat(viewer): add citation failure recovery UX
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test -- reportEvidenceViewer.sync.test.ts -> PASS
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (viewer smoke: WRONG_PAGE + flag acknowledgement flow) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+  - apps/web/test/reportEvidenceViewer.sync.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.json
+- What was implemented
+  - Added deterministic reason-code fallback handling in the citation viewer (`PDF_LOAD_FAILED` / `PDF_RENDER_FAILED`) so non-code runtime messages do not leak into `citation_failed` reason display.
+  - Added actionable recovery checklist UX inside the `citation_failed` panel, including reason-specific steps for `SNIPPET_HASH_MISMATCH`, `DOC_MISMATCH`, and `WRONG_PAGE`.
+  - Added a UI-only `Flag citation wrong` flow with confirm + acknowledgement copy (`Thanks, we'll investigate.`), explicitly without backend persistence.
+  - Added US-005 sync tests asserting deterministic failure/recovery and acknowledgement-copy presence.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Viewer parity checks are currently enforced with source-sync tests that assert critical UX strings/markers; extending these keeps scope tight.
+  - Gotchas encountered
+    - `react/no-unescaped-entities` requires escaping apostrophes in JSX copy (used `we&apos;ll`).
+    - Viewer page requires fixture snapshot availability (`pnpm fixture:seed <pack>`) even when citation APIs are otherwise reachable.
+  - Useful context
+    - Reliable manual/browser failure scenario: `/matters/viewer?pack=pack_01_clean&citation=cit_us003_demo_1&page=2` yields deterministic `WRONG_PAGE` and exercises the recovery checklist + flag acknowledgement flow.
+---
