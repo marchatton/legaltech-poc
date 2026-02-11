@@ -63,3 +63,8 @@
 [2026-02-11 15:46:48] US-004 verification complete: quality gates pass and dev-browser validated blocked/ready/already-complete states
 [2026-02-11 15:50:34] US-004 progress log updated with commit hash, verification matrix, and browser evidence
 [2026-02-11 15:51:15] ITERATION 4 end (duration=888s)
+[2026-02-11 17:17:55] ITERATION 1 start (mode=build story=US-001)
+[2026-02-11 17:18:22] US-001 iteration start: reviewed guardrails/errors/prd and beginning code audit
+[2026-02-11 17:21:27] US-001 major code changes: added operator checklist derivation + elapsed helper and wired checklist card into matter detail UI with tests
+[2026-02-11 17:24:00] US-001 verification complete: lint, typecheck, test, and full build all passing
+[2026-02-11 17:28:19] US-001 browser verification complete: operator checklist confirmed on completed-run and no-run matter pages with screenshots

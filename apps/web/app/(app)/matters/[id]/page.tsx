@@ -12,6 +12,7 @@ import {
 } from "../../../../lib/documentSetup";
 import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 
+import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Card } from "../../../ui/Card";
 import { EmptyState } from "../../../ui/EmptyState";
 import { MonoId } from "../../../ui/MonoId";
@@ -24,6 +25,11 @@ import { ExportMemoButton } from "./ExportMemoButton";
 import { SetupDocumentsPanel } from "./SetupDocumentsPanel";
 import { QuickStartPanel, type QuickStartReadiness } from "./QuickStartPanel";
 import { ChatPanel } from "./ChatPanel";
+import {
+  deriveOperatorChecklistSteps,
+  formatOperatorElapsedLabel,
+  type OperatorChecklistState,
+} from "./operatorChecklist";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -62,6 +68,7 @@ type RunSummaryRow = {
   questions_done: number;
   created_at: Date;
   updated_at: Date;
+  started_at: Date | null;
 };
 
 function renderUrl(doc: DocRow): string | null {
@@ -74,6 +81,12 @@ function renderUrl(doc: DocRow): string | null {
     expires: String(signed.expires_at_ms),
     sig: signed.signature,
   }).toString()}`;
+}
+
+function checklistBadgeVariant(state: OperatorChecklistState): BadgeVariant {
+  if (state === "done") return "success";
+  if (state === "in_progress") return "warning";
+  return "muted";
 }
 
 export default async function MatterPage(props: { params: Promise<Record<string, string | string[] | undefined>> }) {
@@ -115,7 +128,7 @@ export default async function MatterPage(props: { params: Promise<Record<string,
   `;
 
   const runs = await sql<RunSummaryRow[]>`
-    SELECT id, state, questions_total, questions_done, created_at, updated_at
+    SELECT id, state, questions_total, questions_done, created_at, updated_at, NULL::timestamptz AS started_at
     FROM runs
     WHERE folder_id = ${folderId}
       AND type = 'quick_start_title_survey'
@@ -123,6 +136,16 @@ export default async function MatterPage(props: { params: Promise<Record<string,
     LIMIT 1
   `;
   const latestRun = runs[0] ?? null;
+  const checklistSignal = latestRun
+    ? {
+        state: latestRun.state,
+        createdAt: latestRun.created_at,
+        updatedAt: latestRun.updated_at,
+        startedAt: latestRun.started_at,
+      }
+    : null;
+  const operatorChecklistSteps = deriveOperatorChecklistSteps(checklistSignal);
+  const operatorElapsedLabel = formatOperatorElapsedLabel(checklistSignal);
 
   const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
   const completedRunId = latestRun?.state === "completed" ? latestRun.id : null;
@@ -213,6 +236,35 @@ export default async function MatterPage(props: { params: Promise<Record<string,
           initialDocuments={setupDocuments}
           initialCapabilities={buildDocumentUploadCapabilities()}
         />
+      </Card>
+
+      <Card className="mt-8 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <SectionTitle>Operator checklist</SectionTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ordered run steps derived from live Quick Start signals.
+            </p>
+          </div>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border/60">
+            {operatorElapsedLabel}
+          </span>
+        </div>
+
+        <ol className="mt-4 grid gap-2">
+          {operatorChecklistSteps.map((step, idx) => (
+            <li
+              key={step.id}
+              className="flex items-center justify-between gap-3 rounded-ui-md border border-border/70 bg-card px-3 py-2"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <span className="font-mono text-xs text-muted-foreground">{idx + 1}.</span>
+                <span className="text-foreground">{step.label}</span>
+              </div>
+              <Badge variant={checklistBadgeVariant(step.state)}>{step.state}</Badge>
+            </li>
+          ))}
+        </ol>
       </Card>
 
       {chatEnabled ? (
