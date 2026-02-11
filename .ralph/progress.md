@@ -211,3 +211,45 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
   - Useful context
     - Checkpoint `v12` was created after verification to preserve the passing state.
 ---
+## [2026-02-11 15:40 UTC] - US-004: Normalize retry semantics across surfaces
+Thread: 8404
+Run: 20260211-143054-12725 (iteration 4)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-4.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 8b93609 fix(retry): normalize retry visibility rules
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: CHAT_ENABLED=1 FEATURE_ARTEFACTS_LIST=1 FEATURE_TRACE_EXPORT=1 pnpm --filter @orbital-poc/web dev --hostname 0.0.0.0 --port 3000 + dev-browser scripted smoke (tmp/us004-chat-retry-semantics.png) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/app/(api)/runs/[id]/trace/route.ts
+  - apps/web/app/(app)/matters/ExportCsvButton.tsx
+  - apps/web/app/(app)/matters/ExportTraceButton.tsx
+  - apps/web/app/(app)/matters/[id]/ChatPanel.tsx
+  - apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx
+  - apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx
+  - apps/web/app/ui/Button.tsx
+  - apps/web/app/ui/ErrorBanner.test.tsx
+  - apps/web/app/ui/ErrorBanner.tsx
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.json
+- What was implemented
+  - Tightened retry CTA rendering to `retryable === true` only, added explicit retryability mapping for transient/non-transient states in chat/export/quick-start surfaces, and aligned runs/trace safe-error envelopes to emit deterministic retryability so retry UI is predictable and idempotent per surface flow.
+  - Added retry semantics coverage in `ErrorBanner` tests and browser-verified the acceptance example: transient chat failure shows Retry, validation failure hides Retry and shows corrective guidance.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Centralizing retry gating in `ErrorBanner` prevents accidental retry CTA leakage when error payloads omit retryability.
+    - Mapping fallback HTTP errors by status class (`>=500` / `429`) gives stable retry defaults for transient failures even when envelopes are unavailable.
+  - Gotchas encountered
+    - Rendering retry-enabled `ErrorBanner` in Vitest exercises `Button` JSX path; `Button.tsx` needs React in scope in this test runtime.
+    - First navigation to `/matters/[id]` in dev can exceed default Playwright navigation timeout due compilation; use longer timeout for smoke scripts.
+  - Useful context
+    - Browser evidence saved at `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us004-chat-retry-semantics.png`.
+---
