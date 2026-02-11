@@ -63,7 +63,7 @@
     {
       "id": "US-001",
       "title": "Shell/setup/demo state clarity sweep",
-      "status": "open",
+      "status": "done",
       "dependsOn": [],
       "description": "As an operator, I want deterministic state messaging so I know what to do next on entry surfaces.",
       "acceptanceCriteria": [
@@ -75,7 +75,7 @@
     {
       "id": "US-002",
       "title": "Entry-surface hierarchy and accessibility polish",
-      "status": "open",
+      "status": "done",
       "dependsOn": ["US-001"],
       "description": "As an operator, I want clear action hierarchy and keyboard/touch access in shell/setup/demo flows.",
       "acceptanceCriteria": [
@@ -87,7 +87,7 @@
     {
       "id": "US-003",
       "title": "Error/support consistency on entry surfaces",
-      "status": "open",
+      "status": "done",
       "dependsOn": ["US-001"],
       "description": "As an operator, I want error and escalation behavior to remain predictable on shell/setup/demo surfaces.",
       "acceptanceCriteria": [
