@@ -13,7 +13,9 @@ import {
 import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
 import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 
-import { Select } from "../../../ui/Input";
+import { Button } from "../../../ui/Button";
+import { Input, Select } from "../../../ui/Input";
+import { Skeleton, SkeletonLine } from "../../../ui/Skeleton";
 
 type Props = {
   packId: string | null;
@@ -77,6 +79,9 @@ function coerceViewBox(view: unknown): ViewBox {
 export function CitationViewerClient(props: Props) {
   const [zoomPercent, setZoomPercent] = useState(100);
   const [userRotation, setUserRotation] = useState(0);
+  const [activePage, setActivePage] = useState(props.pageNumber);
+  const [pageInputValue, setPageInputValue] = useState(String(props.pageNumber));
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   const [pdfjs, setPdfjs] = useState<PdfJsModule | null>(null);
   const [pdf, setPdf] = useState<PdfDocLike | null>(null);
@@ -102,21 +107,47 @@ export function CitationViewerClient(props: Props) {
   });
 
   const polygonError = validateNormPolygons(props.polygons);
-  const highlightActive = props.errorCode === null && polygonError === null;
-  const effectiveZoomPercent = highlightActive ? 100 : zoomPercent;
+  const verificationZoom = zoomPercent === 100;
+  const showVerificationReset = zoomPercent !== 100;
+  const canGoPrevPage = activePage > 1;
+  const canGoNextPage = pdfPageCount ? activePage < pdfPageCount : true;
 
-  // Cut: highlight overlays are verified at 100% only. Snap to 100% and
-  // disable zoom while highlight is active to avoid accidental drift.
   useEffect(() => {
-    if (!highlightActive) return;
-    if (zoomPercent !== 100) setZoomPercent(100);
-  }, [highlightActive, zoomPercent]);
+    setActivePage(props.pageNumber);
+    setPageInputValue(String(props.pageNumber));
+  }, [props.pageNumber]);
+
+  useEffect(() => {
+    if (!pdfPageCount) return;
+    setActivePage((prev) => Math.min(Math.max(prev, 1), pdfPageCount));
+  }, [pdfPageCount]);
+
+  useEffect(() => {
+    setPageInputValue(String(activePage));
+  }, [activePage]);
+
+  function goToPage(nextPage: number): void {
+    const maxPage = pdfPageCount ?? Number.POSITIVE_INFINITY;
+    const normalized = Math.min(Math.max(nextPage, 1), maxPage);
+    setActivePage(normalized);
+    setPageInputValue(String(normalized));
+  }
+
+  function commitPageInput(): void {
+    const parsed = Number.parseInt(pageInputValue, 10);
+    if (!Number.isFinite(parsed)) {
+      setPageInputValue(String(activePage));
+      return;
+    }
+    goToPage(parsed);
+  }
 
   // Load pdf.js + PDF
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
+      setIsPageLoading(true);
       setPdf(null);
       setPdfPageCount(null);
       setOverlay([]);
@@ -144,6 +175,7 @@ export function CitationViewerClient(props: Props) {
       if (cancelled) return;
       const message = err instanceof Error ? err.message : String(err);
       setHud((h) => ({ ...h, errorCode: message }));
+      setIsPageLoading(false);
     });
 
     return () => {
@@ -156,6 +188,7 @@ export function CitationViewerClient(props: Props) {
     let cancelled = false;
 
     async function run() {
+      setIsPageLoading(true);
       const canvas = document.getElementById("citation-canvas") as HTMLCanvasElement | null;
       if (!canvas || !pdf || !pdfjs) return;
 
@@ -165,11 +198,11 @@ export function CitationViewerClient(props: Props) {
         // ignore
       }
 
-      const page = await pdf.getPage(props.pageNumber);
+      const page = await pdf.getPage(activePage);
       const pageRotate = Number(page.rotate ?? 0);
       const totalRotation = (pageRotate + userRotation) % 360;
 
-      const scale = effectiveZoomPercent / 100;
+      const scale = zoomPercent / 100;
       const viewport = page.getViewport({ scale, rotation: totalRotation });
       const viewBox = coerceViewBox(page.view);
 
@@ -197,6 +230,7 @@ export function CitationViewerClient(props: Props) {
           overlayBbox: null,
           errorCode: props.errorCode,
         }));
+        setIsPageLoading(false);
         return;
       }
 
@@ -211,6 +245,21 @@ export function CitationViewerClient(props: Props) {
           overlayBbox: null,
           errorCode: polyErr,
         }));
+        setIsPageLoading(false);
+        return;
+      }
+
+      if (!verificationZoom) {
+        setOverlay([]);
+        setHud((h) => ({
+          ...h,
+          pageRotate,
+          totalRotation,
+          viewport: { width: viewport.width, height: viewport.height },
+          overlayBbox: null,
+          errorCode: null,
+        }));
+        setIsPageLoading(false);
         return;
       }
 
@@ -231,6 +280,7 @@ export function CitationViewerClient(props: Props) {
           overlayBbox,
           errorCode: null,
         }));
+        setIsPageLoading(false);
       }
     }
 
@@ -238,20 +288,22 @@ export function CitationViewerClient(props: Props) {
       setOverlay([]);
       const message = err instanceof Error ? err.message : String(err);
       setHud((h) => ({ ...h, errorCode: message, overlayBbox: null }));
+      setIsPageLoading(false);
     });
 
     return () => {
       cancelled = true;
     };
   }, [
-    effectiveZoomPercent,
+    activePage,
     pdf,
     pdfjs,
     polygonError,
     props.errorCode,
-    props.pageNumber,
     props.polygons,
+    verificationZoom,
     userRotation,
+    zoomPercent,
   ]);
 
   const overlayPath = useMemo(() => {
@@ -266,7 +318,7 @@ export function CitationViewerClient(props: Props) {
           <div className="grid gap-1 text-sm text-muted-foreground">
             <div>
               <span className="font-medium text-foreground">document_id:</span> {props.documentId}{" "}
-              <span className="ml-2 font-medium text-foreground">page:</span> {props.pageNumber}{" "}
+              <span className="ml-2 font-medium text-foreground">page:</span> {activePage}{" "}
               {pdfPageCount ? <span className="text-muted-foreground">(of {pdfPageCount})</span> : null}
             </div>
             <div>
@@ -284,22 +336,55 @@ export function CitationViewerClient(props: Props) {
           </div>
 
           <div className="flex flex-wrap items-end gap-3">
+            <div className="grid gap-1 text-sm">
+              <span className="text-muted-foreground">Page</span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => goToPage(activePage - 1)}
+                  disabled={!canGoPrevPage || isPageLoading}
+                >
+                  Prev
+                </Button>
+                <Input
+                  uiSize="sm"
+                  inputMode="numeric"
+                  className="w-16 text-center font-mono"
+                  value={pageInputValue}
+                  onChange={(e) => setPageInputValue(e.currentTarget.value)}
+                  onBlur={commitPageInput}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      commitPageInput();
+                    }
+                  }}
+                  aria-label="Page number"
+                />
+                <span className="min-w-[2.5rem] text-center text-xs text-muted-foreground">
+                  / {pdfPageCount ?? "?"}
+                </span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => goToPage(activePage + 1)}
+                  disabled={!canGoNextPage || isPageLoading}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+
             <label className="grid gap-1 text-sm">
               <span className="text-muted-foreground">Zoom</span>
-              <Select
-                value={effectiveZoomPercent}
-                disabled={highlightActive}
-                onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
-              >
+              <Select value={zoomPercent} onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}>
                 {[75, 100, 125, 150].map((z) => (
                   <option key={z} value={z}>
                     {z}%
                   </option>
                 ))}
               </Select>
-              {highlightActive ? (
-                <span className="text-xs text-muted-foreground">Locked to 100% while highlighting</span>
-              ) : null}
             </label>
 
             <label className="grid gap-1 text-sm">
@@ -316,6 +401,19 @@ export function CitationViewerClient(props: Props) {
               </Select>
             </label>
           </div>
+        </div>
+
+        <div className="mt-3 rounded-ui-md border border-border bg-muted/40 px-3 py-2">
+          {showVerificationReset ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">Verification is paused at {zoomPercent}% zoom.</span>
+              <Button variant="secondary" size="sm" onClick={() => setZoomPercent(100)}>
+                Reset to 100% to verify
+              </Button>
+            </div>
+          ) : (
+            <div className="text-xs text-success">Verified at 100% zoom</div>
+          )}
         </div>
 
         <div className="mt-4 grid gap-2">
@@ -344,11 +442,23 @@ export function CitationViewerClient(props: Props) {
         </div>
       </section>
 
-      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm" aria-busy={isPageLoading}>
         <div className="text-sm text-muted-foreground">PDF + highlight overlay</div>
         <div className="relative mt-3 inline-block overflow-auto rounded-ui-md border border-border bg-muted p-2">
           <div className="relative">
             <canvas id="citation-canvas" className="block" />
+
+            {isPageLoading ? (
+              <div className="absolute inset-0 z-20 rounded-ui-sm border border-border/70 bg-background/95 p-5">
+                <div className="mb-3 text-xs font-medium text-muted-foreground">Loading PDF page...</div>
+                <Skeleton className="h-32 w-full" />
+                <div className="mt-4">
+                  <SkeletonLine width="92%" />
+                  <SkeletonLine width="76%" />
+                  <SkeletonLine width="84%" />
+                </div>
+              </div>
+            ) : null}
 
             {hud.errorCode ? (
               <div className="absolute inset-0 grid place-items-center bg-background/80 p-6 text-center">
