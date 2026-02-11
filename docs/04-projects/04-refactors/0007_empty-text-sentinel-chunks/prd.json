@@ -73,7 +73,7 @@
     {
       "id": "US-003",
       "title": "Add regression tests for empty-text documents and indexed progression",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-002"
       ],
@@ -85,13 +85,13 @@
         "Negative: Tests fail if more than 1 chunk is written for the empty-text document+index_version."
       ],
       "startedAt": "2026-02-10T23:34:53.091535+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T23:34:53.091549+00:00"
+      "completedAt": "2026-02-10T23:49:00.550039+00:00",
+      "updatedAt": "2026-02-10T23:49:00.550007+00:00"
     },
     {
       "id": "US-004",
       "title": "UI shows a \u201cNo text extracted\u201d badge/message for empty-text documents",
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-002"
       ],
@@ -101,7 +101,10 @@
         "Negative: Documents with `extraction_total_chars > 0` show no badge/message.",
         "Negative: Documents without `extraction_total_chars` (older data) show no badge/message (avoid false positives).",
         "Negative: The badge/message does not change folder state progression; it is informational only."
-      ]
+      ],
+      "startedAt": "2026-02-10T23:49:02.831039+00:00",
+      "completedAt": "2026-02-10T23:51:56.377429+00:00",
+      "updatedAt": "2026-02-10T23:51:56.377412+00:00"
     }
   ],
   "risks": [
