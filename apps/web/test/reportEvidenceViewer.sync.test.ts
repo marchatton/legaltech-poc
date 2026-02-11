@@ -34,5 +34,11 @@ describe("US-003 split-view evidence controls and verification states", () => {
     expect(source).toContain("Prev");
     expect(source).toContain("Next");
     expect(source).toContain("goToPage");
+    expect(source).toContain("Trust footer");
+    expect(source).toContain("doc_version");
+    expect(source).toContain("verified_at");
+    expect(source).toContain("loaded_state");
+    expect(source).toContain("Unavailable from payload");
+    expect(source).not.toContain("Verified at 100% zoom");
   });
 });

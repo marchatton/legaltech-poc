@@ -26,6 +26,9 @@ export const SeedCitationSchema = z.object({
     .min(1),
   snippet: z.string(),
   snippet_hash: z.string().min(1),
+  doc_version: z.string().trim().min(1).nullable().optional(),
+  verified_at: z.string().trim().min(1).nullable().optional(),
+  loaded_state: z.string().trim().min(1).nullable().optional(),
 });
 
 export type SeedCitation = z.infer<typeof SeedCitationSchema>;

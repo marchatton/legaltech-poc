@@ -29,11 +29,51 @@ const QuerySchema = z.object({
     .optional(),
 });
 
+type TrustMetadataFields = {
+  doc_version: string | null;
+  verified_at: string | null;
+  loaded_state: string | null;
+};
+
+function nonEmptyNullableString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function trustMetadataFromProvenance(provenance: unknown): TrustMetadataFields {
+  if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) {
+    return {
+      doc_version: null,
+      verified_at: null,
+      loaded_state: null,
+    };
+  }
+  const rec = provenance as Record<string, unknown>;
+  return {
+    doc_version: nonEmptyNullableString(rec.doc_version),
+    verified_at: nonEmptyNullableString(rec.verified_at),
+    loaded_state: nonEmptyNullableString(rec.loaded_state),
+  };
+}
+
 function findCitationInSeedSnapshots(args: {
   citationId: string;
   packId?: string;
 }):
-  | { ok: true; citation: { document_id: string; page_number: number; polygons: unknown; snippet: string; snippet_hash: string } }
+  | {
+      ok: true;
+      citation: {
+        document_id: string;
+        page_number: number;
+        polygons: unknown;
+        snippet: string;
+        snippet_hash: string;
+        doc_version: string | null;
+        verified_at: string | null;
+        loaded_state: string | null;
+      };
+    }
   | { ok: false; code: "NOT_FOUND" | "CONFLICT" | "INTERNAL"; message: string; details?: unknown } {
   const packIds = args.packId ? [args.packId] : listSeededPackIds();
   const hits: Array<{
@@ -44,6 +84,9 @@ function findCitationInSeedSnapshots(args: {
       polygons: unknown;
       snippet: string;
       snippet_hash: string;
+      doc_version: string | null;
+      verified_at: string | null;
+      loaded_state: string | null;
     };
   }> = [];
 
@@ -72,6 +115,9 @@ function findCitationInSeedSnapshots(args: {
         polygons: cit.polygons,
         snippet: cit.snippet,
         snippet_hash: cit.snippet_hash,
+        doc_version: nonEmptyNullableString(cit.doc_version),
+        verified_at: nonEmptyNullableString(cit.verified_at),
+        loaded_state: nonEmptyNullableString(cit.loaded_state),
       },
     });
   }
@@ -114,6 +160,9 @@ function seedCitationResponse(args: { citationId: string; packId?: string; trace
         polygons: found.citation.polygons,
         snippet: found.citation.snippet,
         snippet_hash: found.citation.snippet_hash,
+        doc_version: found.citation.doc_version,
+        verified_at: found.citation.verified_at,
+        loaded_state: found.citation.loaded_state,
       },
     },
     { status: 200, headers: args.headers },
@@ -169,11 +218,14 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         snippet: string;
         snippet_hash: string;
         polygons_json: unknown;
+        provenance_json: unknown;
       }>
     >`
-      SELECT id, document_id, page_number, snippet, snippet_hash, polygons_json
-      FROM citations
-      WHERE id = ${citationId}
+      SELECT c.id, c.document_id, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
+      FROM citations c
+      LEFT JOIN report_rows r
+        ON r.id = c.report_row_id
+      WHERE c.id = ${citationId}
       LIMIT 1
     `;
     const cit = citations[0];
@@ -191,6 +243,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         headers,
       });
     }
+    const trust = trustMetadataFromProvenance(cit.provenance_json);
 
     return Response.json(
       {
@@ -201,6 +254,9 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
           polygons: cit.polygons_json,
           snippet: cit.snippet,
           snippet_hash: cit.snippet_hash,
+          doc_version: trust.doc_version,
+          verified_at: trust.verified_at,
+          loaded_state: trust.loaded_state,
         },
       },
       { status: 200, headers },

@@ -28,6 +28,9 @@ type Props = {
   snippetHash: string;
   computedSnippetHash: string;
   errorCode: string | null;
+  docVersion: string | null;
+  verifiedAt: string | null;
+  loadedState: string | null;
 };
 
 type PdfRenderTask = {
@@ -57,6 +60,8 @@ type PdfJsModule = {
   getDocument: (opts: { url: string }) => { promise: Promise<PdfDocLike> };
 };
 
+const TRUST_METADATA_FALLBACK = "Unavailable from payload";
+
 function coerceViewBox(view: unknown): ViewBox {
   if (Array.isArray(view) && view.length >= 4) {
     const [xMin, yMin, xMax, yMax] = view;
@@ -74,6 +79,24 @@ function coerceViewBox(view: unknown): ViewBox {
     }
   }
   throw new Error("INVALID_VIEWBOX");
+}
+
+function nonEmptyString(value: string | null): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function formatTrustTimestamp(raw: string | null): string | null {
+  const normalized = nonEmptyString(raw);
+  if (!normalized) return null;
+  const parsed = new Date(normalized);
+  if (!Number.isFinite(parsed.getTime())) return normalized;
+  return parsed.toISOString().slice(0, 16).replace("T", " ");
+}
+
+function trustValue(value: string | null): string {
+  return value ?? TRUST_METADATA_FALLBACK;
 }
 
 export function CitationViewerClient(props: Props) {
@@ -111,6 +134,9 @@ export function CitationViewerClient(props: Props) {
   const showVerificationReset = zoomPercent !== 100;
   const canGoPrevPage = activePage > 1;
   const canGoNextPage = pdfPageCount ? activePage < pdfPageCount : true;
+  const trustDocVersion = trustValue(nonEmptyString(props.docVersion));
+  const trustVerifiedAt = trustValue(formatTrustTimestamp(props.verifiedAt));
+  const trustLoadedState = trustValue(nonEmptyString(props.loadedState));
 
   useEffect(() => {
     setActivePage(props.pageNumber);
@@ -412,7 +438,7 @@ export function CitationViewerClient(props: Props) {
               </Button>
             </div>
           ) : (
-            <div className="text-xs text-success">Verified at 100% zoom</div>
+            <div className="text-xs text-success">Overlay active at 100% zoom</div>
           )}
         </div>
 
@@ -497,6 +523,24 @@ export function CitationViewerClient(props: Props) {
             </span>
           </div>
         ) : null}
+      </section>
+
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="text-sm text-muted-foreground">Trust footer</div>
+        <div className="mt-3 grid gap-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground">doc_version</span>
+            <span className="font-mono text-foreground">{trustDocVersion}</span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground">verified_at</span>
+            <span className="font-mono text-foreground">{trustVerifiedAt}</span>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-muted-foreground">loaded_state</span>
+            <span className="font-mono text-foreground">{trustLoadedState}</span>
+          </div>
+        </div>
       </section>
     </div>
   );

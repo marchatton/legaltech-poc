@@ -21,6 +21,10 @@ describe("US-002 row drawer decision surface", () => {
     expect(source).toContain("Citation summary");
     expect(source).toContain("Metadata");
     expect(source).toContain("model/version");
+    expect(source).toContain("doc_version");
+    expect(source).toContain("verified_at");
+    expect(source).toContain("loaded_state");
+    expect(source).toContain("Unavailable from payload");
   });
 
   it("wires mark reviewed action with explicit success and error feedback", () => {

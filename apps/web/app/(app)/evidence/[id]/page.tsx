@@ -40,6 +40,9 @@ const CitationResponseSchema = z.object({
       .min(1),
     snippet: z.string(),
     snippet_hash: z.string().min(1),
+    doc_version: z.string().trim().min(1).nullable().optional(),
+    verified_at: z.string().trim().min(1).nullable().optional(),
+    loaded_state: z.string().trim().min(1).nullable().optional(),
   }),
 });
 
@@ -287,9 +290,11 @@ export default async function EvidenceViewerPage(props: {
           snippetHash={cit.snippet_hash}
           computedSnippetHash={computed}
           errorCode={errorCode}
+          docVersion={cit.doc_version ?? null}
+          verifiedAt={cit.verified_at ?? null}
+          loadedState={cit.loaded_state ?? null}
         />
       </div>
     </Page>
   );
 }
-

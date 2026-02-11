@@ -111,3 +111,6 @@
 [2026-02-11 18:09:05] Implemented US-003 UI changes: split-view lock + focus-return behavior in ReportTriagePanel and viewer loading/page/reset controls in CitationViewerClient; added sync coverage
 [2026-02-11 18:32:07] Verification complete for US-003: lint/typecheck/test/build all pass; browser validation confirmed split-view lock persistence, loading skeleton, page controls, reset CTA, and focus return on close
 [2026-02-11 18:36:05] US-003 progress log updated with commit, verification matrix, browser evidence, and CSP implementation note
+[2026-02-11 18:43:23] US-004: rebase conflicts resolved and US-003 baseline restored; auditing trust metadata surfaces
+[2026-02-11 18:48:35] US-004 major code changes: added trust metadata fields to citations payload + report/viewer metadata rendering with null-safe fallback copy
+[2026-02-11 18:59:19] US-004 verification complete: lint/typecheck/test/build pass and dev-browser confirms trust metadata fallback/footer rendering

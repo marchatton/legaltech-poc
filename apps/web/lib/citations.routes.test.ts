@@ -51,6 +51,11 @@ describe("GET /citations/:id (db-first)", () => {
       snippet: "Example snippet.",
       snippet_hash: "sha256:test",
       polygons_json: [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25], [0.1, 0.25]]],
+      provenance_json: {
+        doc_version: "v1.2.3",
+        verified_at: "2026-02-11T18:10:00.000Z",
+        loaded_state: "loaded",
+      },
     };
 
     queueSqlResults([[row]]);
@@ -75,6 +80,9 @@ describe("GET /citations/:id (db-first)", () => {
         polygons: row.polygons_json,
         snippet: row.snippet,
         snippet_hash: row.snippet_hash,
+        doc_version: "v1.2.3",
+        verified_at: "2026-02-11T18:10:00.000Z",
+        loaded_state: "loaded",
       },
     });
   });
@@ -101,6 +109,9 @@ describe("GET /citations/:id (db-first)", () => {
             polygons: [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25]]],
             snippet: "Fixture snippet.",
             snippet_hash: "sha256:fixture",
+            doc_version: "seed-v2",
+            verified_at: "2026-02-11T18:22:00.000Z",
+            loaded_state: "seeded",
           },
         },
       };
@@ -126,6 +137,9 @@ describe("GET /citations/:id (db-first)", () => {
         polygons: [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25]]],
         snippet: "Fixture snippet.",
         snippet_hash: "sha256:fixture",
+        doc_version: "seed-v2",
+        verified_at: "2026-02-11T18:22:00.000Z",
+        loaded_state: "seeded",
       },
     });
   });

@@ -52,6 +52,9 @@ type ViewerEvidenceData = {
   computedSnippetHash: string;
   errorCode: string | null;
   pdfUrl: string;
+  docVersion: string | null;
+  verifiedAt: string | null;
+  loadedState: string | null;
 };
 
 type ViewerPanelState =
@@ -59,6 +62,14 @@ type ViewerPanelState =
   | { kind: "loading" }
   | { kind: "error"; code: string; message: string }
   | { kind: "ready"; data: ViewerEvidenceData };
+
+type TrustMetadata = {
+  docVersion: string | null;
+  verifiedAt: string | null;
+  loadedState: string | null;
+};
+
+const TRUST_METADATA_FALLBACK = "Unavailable from payload";
 
 function isRecord(input: unknown): input is Record<string, unknown> {
   return !!input && typeof input === "object" && !Array.isArray(input);
@@ -76,6 +87,42 @@ function reasonCodeFromProvenance(provenance: unknown): string | null {
   if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return null;
   const reasonCode = (provenance as { reason_code?: unknown }).reason_code;
   return typeof reasonCode === "string" && reasonCode.trim().length > 0 ? reasonCode : null;
+}
+
+function nonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function trustMetadataFromRecord(record: Record<string, unknown> | null): TrustMetadata {
+  if (!record) {
+    return {
+      docVersion: null,
+      verifiedAt: null,
+      loadedState: null,
+    };
+  }
+  return {
+    docVersion: nonEmptyString(record.doc_version),
+    verifiedAt: nonEmptyString(record.verified_at),
+    loadedState: nonEmptyString(record.loaded_state),
+  };
+}
+
+function trustMetadataFromProvenance(provenance: unknown): TrustMetadata {
+  return isRecord(provenance) ? trustMetadataFromRecord(provenance) : trustMetadataFromRecord(null);
+}
+
+function formatTrustTimestamp(raw: string | null): string | null {
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  if (!Number.isFinite(parsed.getTime())) return raw;
+  return parsed.toISOString().slice(0, 16).replace("T", " ");
+}
+
+function trustValue(value: string | null): string {
+  return value ?? TRUST_METADATA_FALLBACK;
 }
 
 function formatTimestamp(raw: string): string {
@@ -142,6 +189,9 @@ function parseCitationResponse(json: unknown): {
   polygons: NormPolygons;
   snippet: string;
   snippetHash: string;
+  docVersion: string | null;
+  verifiedAt: string | null;
+  loadedState: string | null;
 } | null {
   if (!isRecord(json) || !isRecord(json.citation)) return null;
   const citation = json.citation;
@@ -160,6 +210,9 @@ function parseCitationResponse(json: unknown): {
     polygons,
     snippet,
     snippetHash,
+    docVersion: nonEmptyString(citation.doc_version),
+    verifiedAt: nonEmptyString(citation.verified_at),
+    loadedState: nonEmptyString(citation.loaded_state),
   };
 }
 
@@ -202,6 +255,10 @@ export function ReportTriagePanel(props: Props) {
   const selectedRow = useMemo(
     () => rows.find((row) => row.id === selectedRowId) ?? null,
     [rows, selectedRowId],
+  );
+  const selectedRowTrustMetadata = useMemo(
+    () => trustMetadataFromProvenance(selectedRow?.provenance_json),
+    [selectedRow],
   );
 
   useEffect(() => {
@@ -333,6 +390,9 @@ export function ReportTriagePanel(props: Props) {
             computedSnippetHash: citation.snippetHash,
             errorCode: null,
             pdfUrl: render.pdfUrl,
+            docVersion: citation.docVersion,
+            verifiedAt: citation.verifiedAt,
+            loadedState: citation.loadedState,
           },
         });
       }
@@ -394,6 +454,9 @@ export function ReportTriagePanel(props: Props) {
             snippetHash={viewerState.data.snippetHash}
             computedSnippetHash={viewerState.data.computedSnippetHash}
             errorCode={viewerState.data.errorCode}
+            docVersion={viewerState.data.docVersion}
+            verifiedAt={viewerState.data.verifiedAt}
+            loadedState={viewerState.data.loadedState}
           />
         </div>
       );
@@ -755,6 +818,20 @@ export function ReportTriagePanel(props: Props) {
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-muted-foreground">model/version</span>
                       <span className="font-mono text-foreground">{props.modelVersion ?? "unknown"}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted-foreground">doc_version</span>
+                      <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.docVersion)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted-foreground">verified_at</span>
+                      <span className="font-mono text-foreground">
+                        {trustValue(formatTrustTimestamp(selectedRowTrustMetadata.verifiedAt))}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted-foreground">loaded_state</span>
+                      <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.loadedState)}</span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-muted-foreground">updated</span>
