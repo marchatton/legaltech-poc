@@ -113,3 +113,50 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
   - NDJSON terminal error events should carry their own trace metadata; relying only on a prior meta event is brittle for consumers.
   - Error-detail payloads in catch paths should avoid raw thrown strings to reduce accidental internal leakage.
 ---
+## [2026-02-11 15:09:07 +0000] - US-002: Integrate reusable ErrorBanner across surfaces
+Thread: 
+Run: 20260211-143054-12725 (iteration 2)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-2.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 4d568ab feat(error-banner): unify cross-surface error banners
+- Post-commit status: `clean`
+- Verification:
+  - Command: `pnpm --filter @orbital-poc/web lint` -> PASS
+  - Command: `pnpm --filter @orbital-poc/web typecheck` -> PASS
+  - Command: `pnpm --filter @orbital-poc/web test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `CHAT_ENABLED=1 FEATURE_ARTEFACTS_LIST=1 pnpm --filter @orbital-poc/web dev --hostname 0.0.0.0 --port 3000` + dev-browser smoke script -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/ArtefactsList.tsx
+  - apps/web/app/(app)/matters/ExportCsvButton.tsx
+  - apps/web/app/(app)/matters/ExportTraceButton.tsx
+  - apps/web/app/(app)/matters/[id]/ChatPanel.tsx
+  - apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx
+  - apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/ui/ErrorBanner.tsx
+  - apps/web/app/ui/ErrorBanner.test.tsx
+  - apps/web/lib/safeErrorDisplay.ts
+  - apps/web/lib/safeErrorDisplay.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.json
+- What was implemented
+  - Added a reusable `ErrorBanner` component with deterministic `code` + optional `trace_id` display and optional retry CTA.
+  - Added shared safe-error parsing (`parseSafeErrorEnvelope`, `parseSafeErrorLike`) and tests to standardize envelope field mapping.
+  - Replaced bespoke error UIs with `ErrorBanner` across setup (`QuickStartPanel`, document error state), report actions (`/matters` review errors), exports/artefacts (`ExportCsvButton`, `ExportMemoButton`, `ExportTraceButton`, `ArtefactsList`), and chat (`ChatPanel`).
+  - Removed raw document `error_json` rendering in matter setup and replaced it with safe deterministic banner output.
+  - Browser-smoke verified cross-surface UI behavior with deterministic code rendering; screenshots saved under `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us002-*.png`.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - A shared parser for safe error envelopes prevents repeated per-component `isRecord` logic and keeps field mapping deterministic.
+    - A single banner primitive with optional actions is enough to unify setup/report/export/chat error treatment without route-specific UI forks.
+  - Gotchas encountered
+    - Vitest in this repo runs in node mode and requires explicit React import for JSX in some test/render paths.
+    - `ChatPanel` visibility depends on `CHAT_ENABLED=1`; browser validation should start dev server with explicit feature env vars.
+  - Useful context
+    - Browser smoke automation used request interception to force deterministic failure envelopes and validate banner consistency quickly.
+---
