@@ -28,6 +28,8 @@ const IdempotencyKeySchema = z
   .max(200)
   .regex(/^[A-Za-z0-9._:-]+$/, "Invalid Idempotency-Key");
 
+const RUN_SELECTOR_LIMIT = 25;
+
 function agentBundleVersion(): string {
   const configured =
     process.env.ORBITAL_AGENT_BUNDLE_VERSION?.trim() ??
@@ -46,6 +48,13 @@ type RunRow = {
   index_version: string;
   agent_bundle_version: string;
   question_set_version: string;
+};
+
+type RunSelectorRow = {
+  id: string;
+  state: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 function runsErrorEnvelope(opts: {
@@ -85,6 +94,63 @@ async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey:
     LIMIT 1
   `;
   return runs[0] ?? null;
+}
+
+export async function GET(_req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
+  const { traceId, headers } = createTraceContext();
+  const devGate = assertDevOrDemoProdApi(traceId, headers);
+  if (devGate) return devGate;
+
+  await ensureSchema();
+
+  const rawParams = await ctx.params;
+  const parsedParams = ParamsSchema.safeParse(rawParams);
+  if (!parsedParams.success) {
+    return Response.json(
+      runsErrorEnvelope({
+        code: "VALIDATION_ERROR",
+        message: "Invalid route params.",
+        details: parsedParams.error.flatten(),
+        traceId,
+      }),
+      { status: 400, headers },
+    );
+  }
+
+  const folderId = parsedParams.data.id;
+  const folders = await sql<{ id: string }[]>`
+    SELECT id
+    FROM folders
+    WHERE id = ${folderId}
+    LIMIT 1
+  `;
+  if (!folders[0]) {
+    return Response.json(runsErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+      status: 404,
+      headers,
+    });
+  }
+
+  const runs = await sql<RunSelectorRow[]>`
+    SELECT id, state, created_at, updated_at
+    FROM runs
+    WHERE folder_id = ${folderId}
+      AND state = 'completed'
+    ORDER BY created_at DESC, updated_at DESC, id DESC
+    LIMIT ${RUN_SELECTOR_LIMIT}
+  `;
+
+  return Response.json(
+    {
+      runs: runs.map((run) => ({
+        run_id: run.id,
+        status: run.state,
+        created_at: run.created_at.toISOString(),
+        updated_at: run.updated_at.toISOString(),
+      })),
+    },
+    { status: 200, headers },
+  );
 }
 
 export async function POST(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {

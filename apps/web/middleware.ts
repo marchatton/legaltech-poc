@@ -35,7 +35,7 @@ function isAllowedInDemoProd(req: NextRequest): boolean {
   if (p.startsWith("/evidence/")) return m === "GET";
 
   // Quick Start + report surfaces.
-  if (/^\/folders\/[^/]+\/runs$/.test(p)) return m === "POST";
+  if (/^\/folders\/[^/]+\/runs$/.test(p)) return m === "POST" || m === "GET";
   if (/^\/folders\/[^/]+\/report$/.test(p)) return m === "GET";
   if (/^\/folders\/[^/]+\/chat$/.test(p)) return m === "POST";
   if (/^\/runs\/[^/]+$/.test(p)) return m === "GET";
