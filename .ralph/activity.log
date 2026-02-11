@@ -4,6 +4,7 @@
 - 2026-02-10 23:44:35 | run=20260210-224307-10605 | iter=3 | mode=build | story=US-003 | duration=2860s | status=success
 - 2026-02-10 22:56:52 | run=20260210-224307-10605 | iter=2 | mode=build | story=US-002 | duration=746s | status=success
 - 2026-02-10 22:44:23 | run=20260210-224307-10605 | iter=1 | mode=build | story=US-001 | duration=76s | status=success
+- 2026-02-10 22:52:03 | run=20260210-222948-4259 | iter=1 | mode=build | story=US-003 | duration=1335s | status=success
 
 ## Events
 
@@ -18,6 +19,7 @@
 [2026-02-10 22:44:39] Start US-002 work (Locked sources evidence viewer)
 [2026-02-10 22:47:11] US-003: verification complete (typecheck/test/lint/build)
 [2026-02-10 22:49:20] US-003: progress log updated
+[2026-02-10 22:52:03] ITERATION 1 end (duration=1335s)
 [2026-02-10 22:55:29] Implement /evidence/:id viewer + render Sources chips
 [2026-02-10 22:56:03] Run quality gate: pnpm -r typecheck
 [2026-02-10 22:56:23] Install dependencies (pnpm install)
