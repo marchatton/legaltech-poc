@@ -222,7 +222,7 @@
     {
       "id": "US-003",
       "title": "Evidence-first behavior and safe failures",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001",
         "US-002"
@@ -234,8 +234,8 @@
         "Negative: When chat is disabled via feature flag, /folders/:id/chat returns 404/disabled response and the UI hides the chat panel."
       ],
       "startedAt": "2026-02-10T22:56:55.561683+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-10T22:56:55.561699+00:00"
+      "completedAt": "2026-02-10T23:44:38.825246+00:00",
+      "updatedAt": "2026-02-10T23:44:38.825202+00:00"
     }
   ]
 }
