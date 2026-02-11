@@ -74,3 +74,4 @@
 [2026-02-11 17:26:42] Start US-002 run-scoped export panel + failed-row deep-link (iter 2)
 [2026-02-11 17:32:49] Implemented US-002 run-scope utilities, export panel selector, and review-failed-rows deep-links
 [2026-02-11 17:38:24] Verification complete for US-002 (lint/typecheck/test/build + browser deep-link smoke)
+[2026-02-11 17:40:12] Updated .ralph/progress.md with US-002 implementation + verification details

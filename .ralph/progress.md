@@ -406,3 +406,42 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
   - Useful context
   - Demo-prod middleware must be updated whenever a new API method is added to an existing path, or contracts pass tests but fail in guarded runtime mode.
 ---
+## [2026-02-11 17:39:51 UTC] - US-002: Add run-scoped export panel and failed-row deep-link
+Thread: 
+Run: 20260211-171748-22180 (iteration 2)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-2.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 344df08 feat(exports): add run-scoped export panel
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web lint -> PASS
+  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
+  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: dev-browser smoke (selector + blocked export deep-link) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/ExportCsvButton.tsx
+  - apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx
+  - apps/web/app/(app)/matters/[id]/ExportsPanel.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/runScope.ts
+  - apps/web/app/(app)/matters/runScope.test.ts
+  - docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.json
+- What was implemented
+  - Added a run-scoped export panel with a completed-run selector and explicit selected-run display.
+  - Bound memo and all CSV export actions to the selected run, including URL sync of `run_id` in the matter page query.
+  - Updated blocked export UX to show `Review failed rows` deep-links targeting `/matters/:id?tab=report&run_id=<id>&status=failed`.
+  - Added run-scope helper utilities + tests to lock deep-link query generation and run selection fallback behavior.
+  - Browser-verified that switching run selection updates blocked deep-link URLs and preserves run/status query params after navigation.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep run scope derivation centralized in shared helpers so export/chat/report surfaces can reuse identical URL and fallback logic.
+  - Gotchas encountered
+  - The local `dev-browser` server must run in headless mode in Sprite environments without X11 (`./server.sh --headless`).
+  - Useful context
+  - Browser evidence screenshot: `.agents/skills/00-utilities/dev-browser/tmp/us002-export-panel.png`.
+---
