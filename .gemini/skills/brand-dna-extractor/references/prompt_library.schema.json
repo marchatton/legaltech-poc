@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/prompt_library.schema.json",
+  "title": "Prompt Library Schema",
+  "type": "object",
+  "required": ["run_metadata", "per_site_prompt_packs", "composite_prompt_pack", "provenance_map"],
+  "properties": {
+    "run_metadata": {
+      "type": "object",
+      "required": ["run_id", "timestamp_utc", "config"],
+      "properties": {
+        "run_id": { "type": "string" },
+        "timestamp_utc": { "type": "string" },
+        "config": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "per_site_prompt_packs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/prompt_pack" }
+    },
+    "composite_prompt_pack": { "$ref": "#/$defs/prompt_pack" },
+    "provenance_map": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "prompt_pack": {
+      "type": "object",
+      "required": [
+        "id",
+        "scope",
+        "brand_style_prompt",
+        "visual_direction_prompt",
+        "ui_direction_prompt",
+        "copywriting_prompt",
+        "negative_prompt",
+        "token_set"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "scope": { "type": "string", "enum": ["per_site", "composite"] },
+        "site_id": { "type": ["string", "null"] },
+
+        "brand_style_prompt": { "type": "string" },
+        "visual_direction_prompt": { "type": "string" },
+        "ui_direction_prompt": { "type": "string" },
+        "copywriting_prompt": { "type": "string" },
+        "negative_prompt": { "type": "string" },
+
+        "token_set": {
+          "type": "object",
+          "required": ["colour", "type", "layout", "imagery", "voice"],
+          "properties": {
+            "colour": { "type": "array", "items": { "type": "string" } },
+            "type": { "type": "array", "items": { "type": "string" } },
+            "layout": { "type": "array", "items": { "type": "string" } },
+            "imagery": { "type": "array", "items": { "type": "string" } },
+            "voice": { "type": "array", "items": { "type": "string" } },
+            "motion": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/brand_dna_run.schema.json",
+  "title": "Brand DNA Run Schema",
+  "type": "object",
+  "required": ["run_metadata", "sites"],
+  "properties": {
+    "run_metadata": {
+      "type": "object",
+      "required": ["run_id", "timestamp_utc", "config"],
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "timestamp_utc": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "sites": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/site"
+      }
+    }
+  },
+  "$defs": {
+    "site": {
+      "type": "object",
+      "required": ["site_id", "base_url", "weight", "pages", "signals"],
+      "properties": {
+        "site_id": {
+          "type": "string"
+        },
+        "base_url": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "low_confidence": {
+          "type": "boolean"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/page"
+          }
+        },
+        "signals": {
+          "type": "object",
+          "properties": {
+            "colour": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "typography": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "design_tokens": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "components": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "imagery": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "iconography": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "motion": {
+              "$ref": "#/$defs/signal_block"
+            },
+            "voice": {
+              "$ref": "#/$defs/signal_block"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "page": {
+      "type": "object",
+      "required": ["page_id", "url"],
+      "properties": {
+        "page_id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "page_type": {
+          "type": "string"
+        },
+        "artefacts": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "signal_block": {
+      "type": "object",
+      "required": ["items", "confidence", "needs_human_review", "evidence_map"],
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "evidence_map": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/evidence"
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "excerpt",
+            "selector",
+            "css_variable",
+            "computed_style",
+            "computed_style_diff",
+            "screenshot",
+            "branding_profile"
+          ]
+        },
+        "page_url": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "excerpt": {
+          "type": "string"
+        },
+        "css_asset_url": {
+          "type": "string"
+        },
+        "var_name": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": ["base", "hover", "focus", "active"]
+        },
+        "viewport": {
+          "type": "string"
+        },
+        "media_mode": {
+          "type": "string",
+          "enum": ["light", "dark"]
+        },
+        "path_or_url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
