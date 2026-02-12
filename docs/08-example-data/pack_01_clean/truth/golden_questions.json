@@ -77,5 +77,31 @@
         "anchor": "SURVEY_ENC_01"
       }
     ]
+  },
+  {
+    "question_id": "TS-07",
+    "question": "Does the survey flag any mismatch with the record description?",
+    "expected_answer_contains": [
+      "No record-description mismatch"
+    ],
+    "expected_citations": [
+      {
+        "doc": "ALTA_Survey.pdf",
+        "anchor": "SURVEY_NOTE_01"
+      }
+    ]
+  },
+  {
+    "question_id": "TS-08",
+    "question": "Is any referenced exception document missing from the pack?",
+    "expected_answer_contains": [
+      "No."
+    ],
+    "expected_citations": [
+      {
+        "doc": "REA.pdf",
+        "anchor": "REC_INFO"
+      }
+    ]
   }
 ]
