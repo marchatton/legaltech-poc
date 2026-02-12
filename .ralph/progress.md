@@ -1060,3 +1060,43 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-
   - Useful context
   - `dev-browser` must be launched with `--headless` in this Sprite environment because no X server is present.
 ---
+## [2026-02-12 15:50:09 UTC] - US-011: Artefact Provenance Retrieval and Download Safety
+Thread: 
+Run: 20260212-150551-1275 (iteration 3)
+Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-3.log
+Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: d2afe25 fix(artefacts): surface explicit download failures
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test -- "app/(app)/matters/ArtefactDownloadButton.test.ts" "app/(app)/matters/artefactsFilters.test.ts" "lib/artefacts.routes.test.ts" "test/artefactDownloadFeedback.sync.test.ts" "test/artefactsList.sync.test.ts" -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3201 -> PASS
+  - Command: cd /home/sprite/orbital-f/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (artefacts filters + expired link UI smoke) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/ArtefactDownloadButton.tsx
+  - apps/web/app/(app)/matters/ArtefactDownloadButton.test.ts
+  - apps/web/lib/artefacts.routes.test.ts
+  - apps/web/test/artefactDownloadFeedback.sync.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0003_exports-provenance-loop/prd.json
+- What was implemented
+  - Updated artefact row download controls to fetch signed URLs before triggering file save, so server-side failures now surface as explicit inline error states instead of silent/noisy browser failures.
+  - Added deterministic expired-link error mapping (`UNAUTHORISED` + expired message -> stale-link guidance) and preserved loading/success feedback semantics.
+  - Added helper tests for stale freshness parsing and download-failure message mapping.
+  - Added route regression coverage confirming expired signed download URLs return explicit `UNAUTHORISED`/`Download URL expired.` responses and short-circuit before schema work.
+  - Added sync coverage asserting the download button now performs explicit request/error handling.
+  - Browser-smoke validated provenance/filter behavior on `/matters/fld_ui_us003?tab=artefacts`: source-run-aware rows render, unsafe filters reduce deterministically, unsafe explanation labels remain visible, and expired-link errors are explicit.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - For signed download UX, fetching first and downloading from blob gives deterministic row-level error handling while still preserving explicit loading states.
+  - Gotchas encountered
+  - `dev-browser` can fail from stale CDP processes; kill stale `9222/9223` listeners and restart when `connectOverCDP` times out.
+  - Useful context
+  - In this environment, local artefacts checks required `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1` and used `-p 3201` because `3101` was already in use.
+---

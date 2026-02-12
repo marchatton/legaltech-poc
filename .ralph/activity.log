@@ -161,6 +161,7 @@
 [2026-02-12 15:40:00] US-011 code updates: improved artefact download error handling and added expired signed URL regression tests.
 [2026-02-12 15:43:19] Implemented US-003 changes: explicit readiness guidance visibility in Quick Start header, setup upload refresh-to-readiness behavior, and create-matter validation route test coverage
 [2026-02-12 15:48:57] US-011 verification complete: lint/typecheck/test/build passed; browser smoke validated artefact filters and expired-link error state.
+[2026-02-12 15:50:29] US-011 progress log entry appended with implementation, verification, and browser smoke evidence.
 [2026-02-12 15:59:56] Verification complete for US-003: lint/typecheck/test/build pass and dev-browser validated create validation, upload readiness transitions, and ready/blocked/already-complete guidance visibility
 [2026-02-12 16:02:16] Appended US-003 progress entry with commit, verification, browser evidence, and iteration learnings
 [2026-02-12 16:03:23] ITERATION 3 end (duration=1483s)
