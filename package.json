@@ -7,6 +7,8 @@
     "start": "pnpm --filter @orbital-poc/web start",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
+    "test:push": "pnpm -r --if-present test:push",
+    "test:int": "pnpm -r --if-present test:int",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "verify": "bash scripts/verify.sh",

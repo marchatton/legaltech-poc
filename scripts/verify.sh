@@ -5,7 +5,7 @@ set -euo pipefail
 node --experimental-strip-types scripts/fixtures/verify_pack_names.ts
 
 pnpm -s lint
-pnpm -s test
+pnpm -s test:push
 pnpm -s build
 
 echo "Verify OK."

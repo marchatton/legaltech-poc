@@ -55,5 +55,9 @@ run_script() {
   return 0
 }
 
-run_script test
+if has_script test:push; then
+  run_script test:push
+else
+  run_script test
+fi
 run_script knip

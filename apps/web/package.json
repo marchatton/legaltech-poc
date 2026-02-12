@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:push": "vitest run --exclude \"test/**/*.int.test.ts\"",
+    "test:int": "vitest run test/*.int.test.ts test/*.e2e.int.test.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
