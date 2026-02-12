@@ -148,6 +148,7 @@
 [2026-02-12 15:28:23] Implemented US-002 filtering determinism tests and expanded matters list URL/empty-state sync assertions
 [2026-02-12 15:31:54] US-010 verification complete: lint/typecheck/test/build passed; browser smoke validated blocked vs completed export control states
 [2026-02-12 15:33:19] US-010 progress log entry appended with commit, verification, browser smoke evidence, and learnings
+[2026-02-12 15:34:04] US-010 progress entry tidy: normalized commit field format
 [2026-02-12 15:36:02] Verification complete for US-002: targeted filter tests, global lint/typecheck/test, build, and dev-browser smoke on /matters filters
 [2026-02-12 15:37:57] Appended US-002 progress entry with commit/test/build/browser verification details and iteration learnings
 [2026-02-12 15:38:34] ITERATION 2 end (duration=929s)

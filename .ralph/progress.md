@@ -1021,7 +1021,7 @@ Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275
 Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
-- Commit: 7cb4383 fix(exports): gate controls by selected run state (or `none` + reason)
+- Commit: 7cb4383 fix(exports): gate controls by selected run state
 - Post-commit status: clean
 - Verification:
   - Command: pnpm --filter @orbital-poc/web test -- "app/(app)/matters/runScope.test.ts" "lib/exportCsv.routes.test.ts" "lib/exportDocx.routes.test.ts" "test/exportBlockingState.sync.test.ts" -> PASS
