@@ -338,39 +338,42 @@ export function SetupDocumentsPanel(props: {
     <section>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <SectionTitle>Setup documents</SectionTitle>
+          <SectionTitle>Documents</SectionTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            Upload source documents and continue once at least one is indexed-ready.
+            Upload source PDFs, then run Quick Start once at least one is indexed-ready.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            id={`upload-${props.folderId}`}
-            ref={fileRef}
-            type="file"
-            accept={capabilities.accepted_mime.join(",")}
-            className="sr-only"
-            onChange={onFileSelected}
-            disabled={isUploading}
-          />
-          <Button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            loading={isUploading}
-            loadingLabel="Uploading"
-          >
-            Upload documents
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => void refreshReadiness()}
-            disabled={isUploading}
-          >
-            Refresh readiness
-          </Button>
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="flex items-center gap-2">
+            <input
+              id={`upload-${props.folderId}`}
+              ref={fileRef}
+              type="file"
+              accept={capabilities.accepted_mime.join(",")}
+              className="sr-only"
+              onChange={onFileSelected}
+              disabled={isUploading}
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => fileRef.current?.click()}
+              loading={isUploading}
+              loadingLabel="Uploading"
+            >
+              Upload documents
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => void refreshReadiness()}
+              disabled={isUploading}
+            >
+              Refresh readiness
+            </Button>
+          </div>
           <span className="text-2xs text-muted-foreground">
             PDF only · max {formatBytes(capabilities.max_bytes)}
           </span>

@@ -29,8 +29,7 @@ describe("US-004 quick start readiness reasons", () => {
     expect(pageSource).toContain('state: "ready"');
     expect(pageSource).toContain('state: "blocked"');
     expect(pageSource).toContain('state: "already-complete"');
-    expect(pageSource).toContain("No indexed documents yet.");
-    expect(pageSource).toContain("Upload a source PDF and click Refresh readiness");
-    expect(pageSource).toContain("Latest Quick Start already completed.");
+    expect(pageSource).toContain("Upload a PDF and refresh readiness before running Quick Start.");
+    expect(pageSource).toContain("Quick Start completed. Review outputs below.");
   });
 });

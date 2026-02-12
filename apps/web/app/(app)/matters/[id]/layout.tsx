@@ -9,7 +9,6 @@ import { isDemoModeEnabled } from "../../../../lib/demoMode.server";
 import { orbitalMode } from "../../../../lib/runtimeMode";
 
 import { Badge } from "../../../ui/Badge";
-import { MonoId } from "../../../ui/MonoId";
 import { WorkspaceContextBar, WorkspaceContextBarBody } from "../../../ui/WorkspaceShell";
 
 import { resolveShellEnvironment } from "../shellEnvironment";
@@ -21,10 +20,6 @@ const ParamsSchema = z.object({
 type FolderShellContextRow = {
   id: string;
   name: string;
-};
-
-type RunShellContextRow = {
-  id: string;
 };
 
 async function loadFolderShellContext(folderId: string): Promise<FolderShellContextRow | null> {
@@ -50,18 +45,6 @@ export default async function MatterDetailLayout(props: {
   const folderId = parsed.success ? parsed.data.id : "unknown";
   const folder = parsed.success ? await loadFolderShellContext(parsed.data.id) : null;
   const folderName = folder?.name ?? "Unknown matter";
-  const latestRuns =
-    parsed.success && folder
-      ? await sql<RunShellContextRow[]>`
-          SELECT id
-          FROM runs
-          WHERE folder_id = ${folderId}
-            AND type = 'quick_start_title_survey'
-          ORDER BY created_at DESC
-          LIMIT 1
-        `
-      : [];
-  const latestRunId = latestRuns[0]?.id ?? null;
   const shellEnvironment = resolveShellEnvironment(orbitalMode(), isDemoModeEnabled());
 
   return (
@@ -84,16 +67,10 @@ export default async function MatterDetailLayout(props: {
               <polyline points="9 18 15 12 9 6" />
             </svg>
             <span className="truncate font-medium text-foreground">{folderName}</span>
-            <MonoId className="ml-2 shrink-0">{folderId}</MonoId>
           </div>
 
           {/* Context badges (right) */}
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            {latestRunId ? (
-              <Badge variant="info" size="sm" className="font-mono">
-                {latestRunId}
-              </Badge>
-            ) : null}
             <Badge variant={shellEnvironment.badgeVariant} size="sm">
               {shellEnvironment.label}
             </Badge>

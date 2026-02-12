@@ -26,7 +26,7 @@ function formatTimestamp(iso: string): string {
 
 function runOptionLabel(run: RunSelectorOption, index: number): string {
   const latest = index === 0 ? " (latest)" : "";
-  return `${run.run_id}${latest} - ${run.status} - ${formatTimestamp(run.created_at)}`;
+  return `${formatTimestamp(run.created_at)}${latest} — ${run.status}`;
 }
 
 export function ExportsPanel(props: Props) {
@@ -74,7 +74,7 @@ export function ExportsPanel(props: Props) {
             onChange={(event) => onRunChange(event.currentTarget.value)}
             disabled={props.runOptions.length === 0}
             aria-label="Source run"
-            className="w-full font-mono"
+            className="w-full"
             uiSize="sm"
           >
             {props.runOptions.length === 0 ? (
@@ -89,19 +89,11 @@ export function ExportsPanel(props: Props) {
           </Select>
 
           {selectedRun ? (
-            <div className="grid gap-2">
-              <p className="text-2xs text-muted-foreground">
-                Selected run: <span className="font-mono">{selectedRun.run_id}</span> | status{" "}
-                <span className="font-mono">{selectedRun.status}</span> | updated{" "}
-                <span className="font-mono">{formatTimestamp(selectedRun.updated_at)}</span>
-              </p>
-              {selectedRun.status !== "completed" ? (
-                <Alert variant="info" className="text-left">
-                  Exports stay disabled until the selected run reaches{" "}
-                  <span className="font-mono">completed</span>.
-                </Alert>
-              ) : null}
-            </div>
+            selectedRun.status !== "completed" ? (
+              <Alert variant="info" className="text-left">
+                Exports are available once the selected run completes.
+              </Alert>
+            ) : null
           ) : (
             <Alert variant="info" className="text-left">
               Exports are available once this matter has at least one run.
@@ -110,19 +102,35 @@ export function ExportsPanel(props: Props) {
         </div>
       </div>
 
-      <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Download reports
-        </p>
-        <div className="grid gap-2">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-primary" aria-hidden="true">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span className="text-sm font-medium text-foreground">Full Report</span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">Complete Word memo with findings and citations.</p>
           <ExportMemoButton
             folderId={props.folderId}
             runId={selectedRun?.run_id ?? null}
             runState={selectedRun?.status ?? null}
             unsafeOverrideEnabled={props.unsafeOverrideEnabled}
           />
+        </div>
 
-          <div className="flex flex-wrap items-start gap-2">
+        <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-primary" aria-hidden="true">
+              <path d="M12 3v12" />
+              <path d="m7 10 5 5 5-5" />
+              <path d="M5 21h14" />
+            </svg>
+            <span className="text-sm font-medium text-foreground">CSV Exports</span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">Structured data for analysis and tracking.</p>
+          <div className="grid gap-2">
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}

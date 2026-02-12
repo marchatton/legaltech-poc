@@ -176,16 +176,8 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
             </button>
           );
 
-          if (collapsed) {
-            return (
-              <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right">
-                {disabledNode}
-              </Tooltip>
-            );
-          }
-
           return (
-            <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right">
+            <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right" className="block">
               {disabledNode}
             </Tooltip>
           );

@@ -36,7 +36,6 @@ import {
   formatOperatorElapsedLabel,
   summarizeOperatorChecklist,
 } from "./operatorChecklist";
-import { deriveFixtureContextBanner, fixtureStatusLabel } from "./fixtureContextBanner";
 import { ReportTriagePanel } from "./ReportTriagePanel";
 
 export const runtime = "nodejs";
@@ -238,32 +237,6 @@ function tabIcon(tabId: MatterDetailTab) {
   return null;
 }
 
-function fixtureStatusClass(variant: BadgeVariant): string {
-  if (variant === "success") {
-    return "rounded-pill border border-success/30 bg-success/10 px-2 py-0.5 font-medium text-success";
-  }
-  if (variant === "info") {
-    return "rounded-pill border border-primary/20 bg-primary/10 px-2 py-0.5 font-medium text-primary";
-  }
-  return "rounded-pill border border-warning/30 bg-warning/10 px-2 py-0.5 font-medium text-warning";
-}
-
-function checklistStepChipClass(state: "todo" | "in_progress" | "done"): string {
-  if (state === "done") {
-    return "rounded-pill border border-success/30 bg-success/10 px-2.5 py-1.5 text-xs";
-  }
-  if (state === "in_progress") {
-    return "rounded-pill border border-warning/30 bg-warning/10 px-2.5 py-1.5 text-xs";
-  }
-  return "rounded-pill border border-border bg-card px-2.5 py-1.5 text-xs";
-}
-
-function checklistStepStateLabel(state: "todo" | "in_progress" | "done"): string {
-  if (state === "done") return "Done";
-  if (state === "in_progress") return "In progress";
-  return "Next";
-}
-
 export default async function MatterPage(props: {
   params: Promise<Record<string, string | string[] | undefined>>;
   searchParams?: Promise<SearchParamRecord>;
@@ -420,39 +393,33 @@ export default async function MatterPage(props: {
   const chatContextReady = runnable && indexedReadyCount > 0;
   const chatContextGuidance =
     indexedReadyCount === 0
-      ? "No indexed documents yet. Upload a source PDF and refresh readiness until at least one document is indexed-ready."
-      : `Matter state is ${folder.state}. Wait until the matter reaches indexed/ready before using chat.`;
+      ? "Upload a PDF and refresh readiness to enable chat."
+      : "Waiting for matter to reach ready state.";
   let quickStartReadiness: QuickStartReadiness;
   if (latestRun?.state === "completed") {
     quickStartReadiness = {
       state: "already-complete",
-      reason:
-        "Latest Quick Start already completed. Review the outputs below, or load the pack again to create a fresh matter.",
+      reason: "Quick Start completed. Review outputs below.",
     };
   } else if (latestRun) {
     quickStartReadiness = {
       state: "blocked",
-      reason: `Quick Start already ${latestRun.state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`,
+      reason: `Quick Start is ${latestRun.state}. Wait for it to finish.`,
     };
   } else if (!runnable) {
     quickStartReadiness = {
       state: "blocked",
       reason:
         indexedReadyCount === 0
-          ? `No indexed documents yet. Upload a source PDF and click Refresh readiness until at least one document reaches indexed-ready (current matter state: ${folder.state}).`
-          : `Matter state is ${folder.state}. Wait until the matter reaches indexed/ready, then run Quick Start.`,
+          ? "Upload a PDF and refresh readiness before running Quick Start."
+          : "Waiting for matter to reach ready state.",
     };
   } else {
     quickStartReadiness = {
       state: "ready",
-      reason: `${indexedReadyCount} indexed-ready document${indexedReadyCount === 1 ? "" : "s"} available. Run Quick Start now.`,
+      reason: `${indexedReadyCount} document${indexedReadyCount === 1 ? "" : "s"} ready. Run Quick Start now.`,
     };
   }
-  const fixtureContextBanner = deriveFixtureContextBanner({
-    matterName: folder.name,
-    readiness: quickStartReadiness,
-  });
-
   const unsafeOverrideEnabled =
     process.env.DEMO_MODE === "1" &&
     process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
@@ -517,43 +484,44 @@ export default async function MatterPage(props: {
       <div className="px-6 py-6 lg:px-8">
         {activeTab === "report" ? (
           <section className="space-y-4">
-            <div className="rounded-ui-lg border border-border/70 bg-muted/20 p-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="rounded-ui-lg border border-border/70 bg-muted/20 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Quick Start context</span>
-                  <span className={fixtureStatusClass(fixtureContextBanner.variant)}>
-                    {fixtureStatusLabel(fixtureContextBanner.variant)}
-                  </span>
-                  <span className="text-2xs font-mono text-muted-foreground">{fixtureContextBanner.activePack}</span>
-                </div>
-                <div className="flex items-center gap-3">
+                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
                   <span className="text-2xs text-muted-foreground">{operatorChecklistSummary} · {operatorElapsedLabel}</span>
-                  <Link href="/matters" className={buttonClassName({ variant: "ghost", size: "sm" })}>
-                    Load Pack Again
-                  </Link>
                 </div>
+                <Link href="/matters" className={buttonClassName({ variant: "ghost", size: "sm" })}>
+                  Load Pack Again
+                </Link>
               </div>
 
-              <div className="mt-2 flex flex-wrap gap-2">
-                <span className="rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs text-muted-foreground">
-                  loaded_at: <span className="font-mono text-foreground">{fixtureContextBanner.loadedAt}</span>
-                </span>
-                <span className="rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs text-muted-foreground">
-                  load_state: <span className="font-mono text-foreground">{fixtureContextBanner.loadState}</span>
-                </span>
-                <span className="rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs text-muted-foreground">
-                  next_step: <span className="text-foreground">{fixtureContextBanner.nextStep}</span>
-                </span>
-              </div>
-
-              <div className="mt-2 flex flex-wrap gap-2">
-                {operatorChecklistSteps.map((step) => (
-                  <span key={step.id} className={checklistStepChipClass(step.state)}>
-                    <span className="mr-1 font-semibold text-muted-foreground">{checklistStepStateLabel(step.state)}:</span>
-                    <span className={step.state === "done" ? "text-muted-foreground line-through" : "text-foreground"}>{step.label}</span>
-                  </span>
-                ))}
-              </div>
+              <ol className="relative ml-3 border-l-2 border-border space-y-4">
+                {operatorChecklistSteps.map((step, i) => {
+                  const isLast = i === operatorChecklistSteps.length - 1;
+                  return (
+                    <li key={step.id} className="relative pl-6">
+                      <span className={`absolute -left-[9px] top-0.5 flex size-4 items-center justify-center rounded-full ${
+                        step.state === "done"
+                          ? "bg-success text-white"
+                          : step.state === "in_progress"
+                            ? "bg-warning text-white"
+                            : "border-2 border-border bg-card"
+                      }`}>
+                        {step.state === "done" ? (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="size-2.5" aria-hidden="true">
+                            <path d="m5 13 4 4L19 7" />
+                          </svg>
+                        ) : step.state === "in_progress" ? (
+                          <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                        ) : null}
+                      </span>
+                      <div className={`text-sm ${step.state === "done" ? "text-muted-foreground" : step.state === "in_progress" ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                        {step.label}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
 
             {reportRun ? (
@@ -591,7 +559,7 @@ export default async function MatterPage(props: {
                   })}
 
                   <span className="ml-auto text-xs text-muted-foreground">
-                    run <span className="font-mono">{reportRun.id}</span> | showing {visibleReportRows.length}/{reportRowsWithCounts.length}
+                    Showing {visibleReportRows.length}/{reportRowsWithCounts.length}
                   </span>
                 </div>
 
@@ -632,10 +600,7 @@ export default async function MatterPage(props: {
         ) : null}
 
         {activeTab === "chat" ? (
-          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-            <p className="mb-3 text-xs text-muted-foreground">
-              Ask evidence-grounded questions about this matter.
-            </p>
+          <section>
             <ChatPanel folderId={folderId} contextReady={chatContextReady} contextGuidance={chatContextGuidance} />
           </section>
         ) : null}

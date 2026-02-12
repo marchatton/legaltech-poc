@@ -11,7 +11,7 @@ import { EmptyState } from "../../../ui/EmptyState";
 import { Input } from "../../../ui/Input";
 import { Spinner } from "../../../ui/Spinner";
 
-import { MISSING_EVIDENCE_TEXT, parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
+import { parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
 
 type MessageStatus = "sending" | "streaming" | "complete" | "citation_failed";
 type ComposerState = "idle" | "sending" | "streaming" | "final" | "failed";
@@ -290,15 +290,18 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
   return (
     <div className="flex flex-col bg-card border border-border rounded-ui-lg shadow-ui-sm overflow-hidden">
       {/* Header bar */}
-      <div className="px-4 py-2 border-b border-border bg-cyan-50/40 flex items-center gap-2">
-        <div className="w-6 h-6 rounded-md bg-cyan-100 flex items-center justify-center text-cyan-600 text-xs font-bold" aria-hidden="true">⬡</div>
-        <span className="text-sm font-medium text-foreground">Matter Assistant</span>
-        <div className="ml-auto flex items-center gap-3">
-          <span className="text-2xs text-muted-foreground" aria-live="polite">
-            Status: {composerStateLabel(composerState)}
-          </span>
-          <span className="text-2xs text-muted-foreground">Evidence-first — unanswerable queries return &ldquo;{MISSING_EVIDENCE_TEXT}&rdquo;</span>
+      <div className="px-4 py-2.5 border-b border-border bg-muted/30 flex items-center gap-2">
+        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
         </div>
+        <span className="text-sm font-medium text-foreground">Matter Assistant</span>
+        {composerState !== "idle" ? (
+          <span className="ml-auto text-2xs text-muted-foreground" aria-live="polite">
+            {composerStateLabel(composerState)}
+          </span>
+        ) : null}
       </div>
 
       {/* Messages area */}
@@ -306,9 +309,9 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
         {messages.length === 0 ? (
           <EmptyState
             title="Ask about this matter"
-            description="Get answers grounded in the indexed documents. All responses include source citations."
+            description="Answers are grounded in indexed documents with sources."
             action={
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg mx-auto">
+              <div className="flex flex-col gap-2 max-w-sm mx-auto">
                 {SUGGESTED_PROMPTS.map((prompt) => (
                   <Chip
                     key={prompt}
@@ -346,11 +349,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
                   </div>
                 </div>
 
-                {!isUser && (m.status === "sending" || m.status === "streaming" || m.status === "complete") ? (
-                  <div className="max-w-[80%] text-2xs text-muted-foreground">
-                    {m.status === "sending" ? "State: sending question" : m.status === "streaming" ? "State: streaming response" : "State: final response"}
-                  </div>
-                ) : null}
 
                 {!isUser && m.status === "citation_failed" ? (
                   <ErrorBanner
@@ -411,7 +409,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
                       })}
                     </div>
                     <div className="mt-2 text-2xs text-muted-foreground">
-                      Clickable chips require anchor-ready citations.
+                      Clickable chips require anchor-ready sources.
                     </div>
                   </section>
                 ) : null}

@@ -47,7 +47,7 @@ describe("US-001 shell wayfinding baseline", () => {
     expect(source).toContain("folderName");
     expect(source).toContain("resolveShellEnvironment");
     expect(source).toContain("WorkspaceContextBar");
-    expect(source).toContain('<MonoId className="ml-2 shrink-0">{folderId}</MonoId>');
+    expect(source).toContain('truncate font-medium text-foreground');
     expect(source).toContain("{shellEnvironment.label}");
     expect(shellEnvironmentSource).toContain('label: "demo-dev"');
     expect(shellEnvironmentSource).toContain('label: "demo-prod"');

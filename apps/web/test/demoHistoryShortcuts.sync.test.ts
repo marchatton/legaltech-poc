@@ -24,10 +24,7 @@ describe("US-003 repeat-load and demo-history shortcuts", () => {
     expect(toolbarSource).toContain("Operator Controls");
     expect(toolbarSource).toContain("Allowlisted packs");
     expect(toolbarSource).toMatch(/Load (?:Demo Pack|pack again)/i);
-    expect(mattersPageSource).toContain("Recent Demo Matters");
-    expect(mattersPageSource).toContain("Reopen");
-    expect(mattersPageSource).toContain('view: "demo_packs"');
-    expect(mattersPageSource).toContain("No demo history");
+    expect(mattersPageSource).toContain('value: "demo_packs"');
   });
 
   it("does not hardcode wireframe sample history rows", () => {

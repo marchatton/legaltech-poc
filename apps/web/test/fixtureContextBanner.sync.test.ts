@@ -11,26 +11,22 @@ function readUtf8(filePath: string): string {
   return fs.readFileSync(filePath, "utf8");
 }
 
-describe("US-002 fixture context banner presence", () => {
-  it("renders explicit fixture context fields in matter UI", () => {
+describe("US-002 progress stepper and checklist presence", () => {
+  it("renders operator progress stepper in matter UI", () => {
     const root = repoRootFromWebPackage();
     const pagePath = path.join(root, "apps/web/app/(app)/matters/[id]/page.tsx");
-    const bannerPath = path.join(root, "apps/web/app/(app)/matters/[id]/fixtureContextBanner.ts");
+    const checklistPath = path.join(root, "apps/web/app/(app)/matters/[id]/operatorChecklist.ts");
 
     const pageSource = readUtf8(pagePath);
-    const bannerSource = readUtf8(bannerPath);
+    const checklistSource = readUtf8(checklistPath);
 
-    expect(pageSource).toContain("Quick Start context");
-    expect(pageSource).toContain("fixtureStatusLabel");
-    expect(pageSource).toContain("activePack");
-    expect(pageSource).toContain("loaded_at");
-    expect(pageSource).toContain("load_state");
-    expect(pageSource).toContain("next_step");
+    expect(pageSource).toContain("Progress");
+    expect(pageSource).toContain("operatorChecklistSteps");
+    expect(pageSource).toContain("operatorChecklistSummary");
     expect(pageSource).toContain("Load Pack Again");
-    expect(pageSource).toContain("deriveFixtureContextBanner");
 
-    expect(bannerSource).toContain("loadStateFromReadiness");
-    expect(bannerSource).toContain("loadedAt");
-    expect(bannerSource).toContain("nextStep");
+    expect(checklistSource).toContain("deriveOperatorChecklistSteps");
+    expect(checklistSource).toContain("summarizeOperatorChecklist");
+    expect(checklistSource).toContain("formatOperatorElapsedLabel");
   });
 });

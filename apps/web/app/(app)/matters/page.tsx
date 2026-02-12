@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../lib/devOnly";
 import { isDemoModeEnabled } from "../../../lib/demoMode.server";
-import { formatDemoLoadedAtLabel, parseDemoMatterMetadata } from "../../../lib/demoMatterMetadata";
 import {
   listMatters,
   parseMatterListFilters,
@@ -15,7 +14,6 @@ import { Badge, type BadgeVariant } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
-import { MonoId } from "../../ui/MonoId";
 import { Page, PageHeader } from "../../ui/Page";
 import { SearchInput } from "../../ui/SearchInput";
 import { StatusDot, type StatusDotStatus } from "../../ui/StatusDot";
@@ -32,7 +30,8 @@ export const dynamic = "force-dynamic";
 
 type SearchParamRecord = Record<string, string | string[] | undefined>;
 
-const SAVED_VIEW_OPTIONS: { label: string; value: MatterSavedView }[] = [
+const SAVED_VIEW_OPTIONS: { label: string; value: MatterSavedView | null }[] = [
+  { label: "All", value: null },
   { label: "Active", value: "active" },
   { label: "Needs Attention", value: "needs_attention" },
   { label: "Demo Packs", value: "demo_packs" },
@@ -97,15 +96,6 @@ function SearchEmptyIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 6v6l4 2" />
-    </svg>
-  );
-}
-
 /* ── Page ── */
 
 export default async function MattersPage(props: {
@@ -117,9 +107,6 @@ export default async function MattersPage(props: {
   const filters = parseMatterListFilters(rawSearchParams);
   const matters = await listMatters(filters);
   const demoModeEnabled = isDemoModeEnabled();
-  const demoHistory = demoModeEnabled
-    ? (await listMatters({ q: "", state: null, view: "demo_packs" })).slice(0, 8)
-    : [];
   const shellEnvironment = resolveShellEnvironment(orbitalMode(), demoModeEnabled);
 
   const requestedPage = parsePageNumber(rawSearchParams.page);
@@ -148,10 +135,10 @@ export default async function MattersPage(props: {
 
       <Page width="xl" className="pt-0">
         <section className="sticky top-[var(--app-topbar-height,3rem)] z-20 -mx-6 border-b border-border bg-background/95 px-6 pb-4 pt-6 backdrop-blur sm:-mx-8 sm:px-8">
-          <PageHeader title="Matters" subtitle="Manage your legal review projects." right={<CreateMatterForm />} />
+          <PageHeader title="Matters" right={<CreateMatterForm />} />
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <form method="get" className="w-full max-w-2xl">
+            <form method="get" className="w-full max-w-sm sm:max-w-md">
               <SearchInput
                 name="q"
                 defaultValue={filters.q}
@@ -166,12 +153,13 @@ export default async function MattersPage(props: {
 
             <div className="flex flex-wrap gap-2">
               {SAVED_VIEW_OPTIONS.map((option) => {
-                const isActive = filters.view === option.value;
+                const isAll = option.value === null;
+                const isActive = isAll ? !filters.view : filters.view === option.value;
                 const nextView = isActive ? null : option.value;
                 const href = `/matters${buildQueryString({ ...filters, view: nextView }, 1)}`;
                 return (
                   <Link
-                    key={option.value}
+                    key={option.value ?? "all"}
                     href={href}
                     aria-pressed={isActive}
                     className={
@@ -188,8 +176,8 @@ export default async function MattersPage(props: {
           </div>
         </section>
 
-        <div className={demoModeEnabled ? "mt-6 flex gap-6" : "mt-6"}>
-        <div className="min-w-0 flex-1">
+        <div className="mt-6">
+        <div className="min-w-0">
           {matters.length === 0 ? (
             <Card className="overflow-hidden">
               <EmptyState
@@ -217,6 +205,7 @@ export default async function MattersPage(props: {
                       <TH className="sticky top-0 z-10">Name</TH>
                       <TH className="sticky top-0 z-10">Status</TH>
                       <TH className="sticky top-0 z-10">Created</TH>
+                      <TH className="sticky top-0 z-10 w-10" />
                     </tr>
                   </thead>
                   <tbody>
@@ -230,17 +219,7 @@ export default async function MattersPage(props: {
                         <TR key={matter.id} className="group animate-fade-in" style={{ animationDelay: `${delay}ms` }}>
                           <TD className="p-0 align-top">
                             <Link href={detailHref} className="block px-3 py-2.5">
-                              <div className="flex items-start justify-between gap-3">
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">{matter.name}</div>
-                                  <div className="mt-0.5">
-                                    <MonoId>{matter.id}</MonoId>
-                                  </div>
-                                </div>
-                                <span className="pt-1 text-muted-foreground opacity-0 transition-opacity duration-micro group-hover:opacity-100">
-                                  <ArrowRightIcon />
-                                </span>
-                              </div>
+                              <div className="text-sm font-medium text-foreground">{matter.name}</div>
                             </Link>
                           </TD>
                           <TD className="p-0 align-top">
@@ -253,8 +232,14 @@ export default async function MattersPage(props: {
                           </TD>
                           <TD className="p-0 align-top">
                             <Link href={detailHref} className="block px-3 py-2.5">
-                              <div className="text-sm text-foreground tabular-nums">{createdAt.date}</div>
-                              <div className="text-xs text-muted-foreground tabular-nums">{createdAt.time}</div>
+                              <span className="text-sm text-foreground tabular-nums">{createdAt.date}</span>
+                            </Link>
+                          </TD>
+                          <TD className="w-10 p-0 align-middle">
+                            <Link href={detailHref} className="flex items-center justify-center px-2 py-2.5">
+                              <span className="text-muted-foreground opacity-0 transition-opacity duration-micro group-hover:opacity-100">
+                                <ArrowRightIcon />
+                              </span>
                             </Link>
                           </TD>
                         </TR>
@@ -301,53 +286,6 @@ export default async function MattersPage(props: {
           )}
         </div>
 
-        {demoModeEnabled ? (
-          <div className="w-72 shrink-0">
-            <Card className="overflow-hidden">
-              <div className="border-b border-border bg-muted/40 px-4 py-3">
-                <h2 className="text-sm font-semibold text-foreground">Recent Demo Matters</h2>
-                <p className="mt-1 text-xs text-muted-foreground">Reopen the latest demo contexts.</p>
-              </div>
-
-              {demoHistory.length === 0 ? (
-                <EmptyState
-                  variant="compact"
-                  icon={<ClockIcon />}
-                  title="No demo history"
-                  description="Run a demo pack to see recent matters here."
-                />
-              ) : (
-                <ul className="divide-y divide-border">
-                  {demoHistory.map((matter) => {
-                    const metadata = parseDemoMatterMetadata(matter.name);
-                    const packLabel = metadata?.packId ?? "pack not detected";
-                    const loadedAtLabel = formatDemoLoadedAtLabel(metadata?.loadedAt ?? matter.created_at);
-                    return (
-                      <li
-                        key={`demo-${matter.id}`}
-                        className="px-4 py-3 transition-colors duration-micro ease-brand-standard hover:bg-muted/30"
-                      >
-                        <div className="text-sm font-medium text-foreground">{matter.name}</div>
-                        <div className="mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                          <span className="font-mono">{packLabel}</span>
-                          <span className="font-mono tabular-nums">{loadedAtLabel}</span>
-                        </div>
-                        <div className="mt-2 flex justify-end">
-                          <Link
-                            href={`/matters/${encodeURIComponent(matter.id)}`}
-                            className={buttonClassName({ variant: "secondary", size: "sm" })}
-                          >
-                            Reopen
-                          </Link>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Card>
-          </div>
-        ) : null}
       </div>
       </Page>
     </>
