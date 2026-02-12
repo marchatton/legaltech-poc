@@ -133,8 +133,12 @@
 [2026-02-11 19:12:07] Updated US-005 progress entry with commit hash, verification matrix, browser smoke evidence, and iteration learnings
 [2026-02-11 19:12:51] ITERATION 5 end (duration=688s)
 [2026-02-12 15:05:41] ITERATION 1 start (mode=build story=US-001)
+[2026-02-12 15:05:52] ITERATION 1 start (mode=build story=US-009)
 [2026-02-12 15:06:14] Start US-001 Shell Wayfinding Baseline: reviewing guardrails/errors/PRD and auditing existing shell routing
+[2026-02-12 15:06:18] Start US-009 implementation: reviewed guardrails and beginning code audit
+[2026-02-12 15:09:54] Implemented US-009 test coverage: added completed/incomplete CSV export assertions and run_id binding assertions for DOCX export artefacts
 [2026-02-12 15:11:15] Implemented US-001 shell wayfinding updates: shared environment resolver, matters list context bar, detail layout environment consistency, and sync/unit tests
+[2026-02-12 15:13:45] Completed verification for US-009: pnpm lint, pnpm typecheck, pnpm test, pnpm build, and dev server startup smoke
 [2026-02-12 15:20:53] Verification complete for US-001: targeted tests + lint/typecheck/test/build + browser flow /matters -> /matters/:id -> /matters with screenshots
 [2026-02-12 15:22:20] Updated US-001 progress entry with commit, verification matrix, browser evidence, and iteration learnings
 [2026-02-12 15:22:57] ITERATION 1 end (duration=1037s)

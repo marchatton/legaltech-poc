@@ -57,6 +57,13 @@ function errorRetryable(json: unknown): boolean | null {
   return typeof env.retryable === "boolean" ? env.retryable : null;
 }
 
+function artefactFrom(json: unknown): Record<string, unknown> | null {
+  if (!isRecord(json)) return null;
+  const artefact = json.artefact;
+  if (!isRecord(artefact)) return null;
+  return artefact;
+}
+
 describe("export csv", () => {
   beforeEach(() => {
     process.env.OBJECT_STORE_SIGNING_SECRET = "test-secret";
@@ -81,6 +88,81 @@ describe("export csv", () => {
     expect(res.status).toBe(415);
     const json: unknown = await res.json().catch(() => null);
     expect(errorCode(json)).toBe("UNSUPPORTED_MEDIA_TYPE");
+  });
+
+  it("writes a downloadable csv artefact for a completed run", async () => {
+    const { POST } = await import("../app/(api)/export/csv/route");
+
+    const folderId = "fld_test_csv_completed";
+    const runId = "run_test_csv_completed";
+
+    queueSqlResults([
+      [{ id: runId, state: "completed" }],
+      [],
+      [
+        {
+          id: "row_ts03",
+          question_id: "TS-03",
+          answer: "requirements payload",
+          status: "needs_review",
+          notes: null,
+          provenance_json: {},
+          payload_schema_version: "list_payload_v0",
+          payload_json: {
+            kind: "requirements_tracker",
+            items: [
+              {
+                kind: "requirements_tracker_item",
+                item_id: "bi:1",
+                citation_ids: [],
+                bi_item: 1,
+                requirement: "R1",
+                owner: "Seller",
+                item_status: "open",
+              },
+            ],
+          },
+        },
+      ],
+      [],
+      [],
+    ]);
+
+    const res = await POST(
+      new Request("http://localhost:3000/export/csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder_id: folderId,
+          run_id: runId,
+          kind: "requirements_tracker",
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    const json: unknown = await res.json().catch(() => null);
+    const artefact = artefactFrom(json);
+    expect(artefact).not.toBeNull();
+    expect(artefact?.type).toBe("csv");
+    expect(artefact?.kind).toBe("requirements_tracker");
+    expect(artefact?.filename).toBe("requirements_tracker.csv");
+    expect(artefact?.source_run_id).toBe(runId);
+    expect(typeof artefact?.download_url).toBe("string");
+    expect(String(artefact?.download_url)).toMatch(/^\/artefacts\/art_[0-9a-f-]+\/download\?/i);
+    expect(typeof artefact?.storage_key).toBe("string");
+
+    if (!artefact || typeof artefact.storage_key !== "string") {
+      throw new Error("Missing artefact.storage_key in response.");
+    }
+
+    const p = objectStorePath(artefact.storage_key);
+    try {
+      const bytes = fs.readFileSync(p);
+      expect(bytes.length).toBeGreaterThan(10);
+    } finally {
+      fs.rmSync(p, { force: true });
+    }
   });
 
   it("returns EXPORT_BLOCKED when source row is citation_failed and unsafe_override=false", async () => {
@@ -119,6 +201,32 @@ describe("export csv", () => {
     expect(errorCode(json)).toBe("EXPORT_BLOCKED");
     expect(errorTraceId(json)).toMatch(/^trc_/);
     expect(errorRetryable(json)).toBe(false);
+  });
+
+  it("returns CONFLICT and no artefact when run is incomplete", async () => {
+    const { POST } = await import("../app/(api)/export/csv/route");
+
+    const folderId = "fld_test_csv_incomplete";
+    const runId = "run_test_csv_incomplete";
+
+    queueSqlResults([[{ id: runId, state: "running" }]]);
+
+    const res = await POST(
+      new Request("http://localhost:3000/export/csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder_id: folderId,
+          run_id: runId,
+          kind: "requirements_tracker",
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("CONFLICT");
+    expect(artefactFrom(json)).toBeNull();
   });
 
   it("allows unsafe_override=true in dev when properly authorized", async () => {

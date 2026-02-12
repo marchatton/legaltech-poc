@@ -427,6 +427,9 @@ describe("export docx (memo)", () => {
     expect(artefact?.type).toBe("docx");
     expect(artefact?.kind).toBe("memo");
     expect(artefact?.filename).toBe("memo.docx");
+    expect(artefact?.source_run_id).toBe(runId);
+    expect(typeof artefact?.download_url).toBe("string");
+    expect(String(artefact?.download_url)).toMatch(/^\/artefacts\/art_[0-9a-f-]+\/download\?/i);
     expect(typeof artefact?.storage_key).toBe("string");
 
     if (!artefact || typeof artefact.storage_key !== "string") {
