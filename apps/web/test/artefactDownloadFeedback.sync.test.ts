@@ -29,6 +29,8 @@ describe("US-004 download feedback and unsafe explanation parity", () => {
     expect(downloadButtonSource).toContain("Download started.");
     expect(downloadButtonSource).toContain("Signed link fresh for about");
     expect(downloadButtonSource).toContain("Download link is stale. Refresh this page for a fresh link.");
+    expect(downloadButtonSource).toContain("await fetch(props.href, { method: \"GET\" });");
+    expect(downloadButtonSource).toContain("resolveDownloadFailureMessage");
 
     expect(unsafeBadgeSource).toContain("<Tooltip");
     expect(unsafeBadgeSource).toContain("Generated with safety overrides. Verify citations before sharing.");

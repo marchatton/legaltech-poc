@@ -87,7 +87,7 @@
     {
       "id": "US-010",
       "title": "Export Blocking State Contract",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-009"
       ],
@@ -100,13 +100,13 @@
         "Negative: blocked or incomplete runs never produce files or stale signed links."
       ],
       "startedAt": "2026-02-12T15:16:40.726785+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-12T15:16:40.726812+00:00"
+      "completedAt": "2026-02-12T15:34:44.927082+00:00",
+      "updatedAt": "2026-02-12T15:34:44.927043+00:00"
     },
     {
       "id": "US-011",
       "title": "Artefact Provenance Retrieval and Download Safety",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-010"
       ],
@@ -117,7 +117,10 @@
         "Then each row exposes actionable download controls with explicit loading or error states.",
         "Example: unsafe filter shows only UNSAFE-labelled rows with explanation context.",
         "Negative: expired signed URLs surface explicit errors and never fail silently."
-      ]
+      ],
+      "startedAt": "2026-02-12T15:34:48.108134+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-12T15:34:48.108168+00:00"
     }
   ],
   "dataModel": [

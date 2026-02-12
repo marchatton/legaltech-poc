@@ -4,6 +4,7 @@
 - 2026-02-12 16:31:41 | run=20260212-150540-748 | iter=4 | mode=build | story=US-004 | duration=1689s | status=success
 - 2026-02-12 16:03:23 | run=20260212-150540-748 | iter=3 | mode=build | story=US-003 | duration=1483s | status=success
 - 2026-02-12 15:38:34 | run=20260212-150540-748 | iter=2 | mode=build | story=US-002 | duration=929s | status=success
+- 2026-02-12 15:34:44 | run=20260212-150551-1275 | iter=2 | mode=build | story=US-010 | duration=1082s | status=success
 - 2026-02-12 15:22:58 | run=20260212-150540-748 | iter=1 | mode=build | story=US-001 | duration=1037s | status=success
 - 2026-02-12 16:42:21 | run=20260212-150545-1013 | iter=4 | mode=build | story=US-008 | duration=1615s | status=success
 - 2026-02-12 16:15:20 | run=20260212-150545-1013 | iter=3 | mode=build | story=US-007 | duration=1927s | status=success
@@ -149,12 +150,17 @@
 [2026-02-12 15:31:54] US-010 verification complete: lint/typecheck/test/build passed; browser smoke validated blocked vs completed export control states
 [2026-02-12 15:33:19] US-010 progress log entry appended with commit, verification, browser smoke evidence, and learnings
 [2026-02-12 15:34:04] US-010 progress entry tidy: normalized commit field format
+[2026-02-12 15:34:42] ITERATION 2 end (duration=1082s)
+[2026-02-12 15:34:48] ITERATION 3 start (mode=build story=US-011)
+[2026-02-12 15:35:33] Start US-011 work: auditing artefact provenance retrieval and download safety implementation.
 [2026-02-12 15:36:02] Verification complete for US-002: targeted filter tests, global lint/typecheck/test, build, and dev-browser smoke on /matters filters
 [2026-02-12 15:37:57] Appended US-002 progress entry with commit/test/build/browser verification details and iteration learnings
 [2026-02-12 15:38:34] ITERATION 2 end (duration=929s)
 [2026-02-12 15:38:41] ITERATION 3 start (mode=build story=US-003)
 [2026-02-12 15:38:56] Start US-003 implementation (iteration 3): reviewing guardrails, errors, and PRD context
+[2026-02-12 15:40:00] US-011 code updates: improved artefact download error handling and added expired signed URL regression tests.
 [2026-02-12 15:43:19] Implemented US-003 changes: explicit readiness guidance visibility in Quick Start header, setup upload refresh-to-readiness behavior, and create-matter validation route test coverage
+[2026-02-12 15:48:57] US-011 verification complete: lint/typecheck/test/build passed; browser smoke validated artefact filters and expired-link error state.
 [2026-02-12 15:59:56] Verification complete for US-003: lint/typecheck/test/build pass and dev-browser validated create validation, upload readiness transitions, and ready/blocked/already-complete guidance visibility
 [2026-02-12 16:02:16] Appended US-003 progress entry with commit, verification, browser evidence, and iteration learnings
 [2026-02-12 16:03:23] ITERATION 3 end (duration=1483s)

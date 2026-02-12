@@ -169,6 +169,28 @@ describe("artefacts list + download", () => {
     expect(json.next_cursor).toBeNull();
   });
 
+  it("returns an explicit error when a signed download url has expired", async () => {
+    const { GET: downloadGet } = await import("../app/(api)/artefacts/[id]/download/route");
+
+    const artefactId = "art_55555555-5555-5555-5555-555555555555";
+    const expiresAtMs = Date.now() - 1_000;
+    const req = new Request(
+      `http://localhost:3000/artefacts/${artefactId}/download?expires=${expiresAtMs}&sig=test-expired`,
+    );
+
+    const res = await downloadGet(req, {
+      params: Promise.resolve({ id: artefactId }),
+    });
+
+    expect(res.status).toBe(403);
+    const json = (await res.json()) as {
+      error?: { code?: string; message?: string };
+    };
+    expect(json.error?.code).toBe("UNAUTHORISED");
+    expect(json.error?.message).toBe("Download URL expired.");
+    expect(ensureSchemaMock).not.toHaveBeenCalled();
+  });
+
   it("serves artefact bytes for a valid signed download_url", async () => {
     const { GET: listGet } = await import("../app/(api)/folders/[id]/artefacts/route");
     const { GET: downloadGet } = await import("../app/(api)/artefacts/[id]/download/route");

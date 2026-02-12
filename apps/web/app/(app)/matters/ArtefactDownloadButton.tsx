@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { parseSafeErrorEnvelope } from "../../../lib/safeErrorDisplay";
+
 import { Button } from "../../ui/Button";
 import { InlineStatus, type InlineStatusKind } from "../../ui/InlineStatus";
 
@@ -20,7 +22,7 @@ type FreshnessState =
   | { kind: "fresh"; hint: string }
   | { kind: "stale"; hint: string };
 
-function parseFreshnessState(href: string): FreshnessState {
+export function parseFreshnessState(href: string): FreshnessState {
   const base = typeof window === "undefined" ? "http://localhost" : window.location.origin;
 
   try {
@@ -43,6 +45,20 @@ function parseFreshnessState(href: string): FreshnessState {
   } catch {
     return { kind: "fresh", hint: "Freshness unknown. Refresh this page if download fails." };
   }
+}
+
+export function resolveDownloadFailureMessage(args: { status: number; payload: unknown }): string {
+  const safeError = parseSafeErrorEnvelope(args.payload);
+  if (safeError) {
+    if (safeError.code === "UNAUTHORISED" && /expired/i.test(safeError.message)) {
+      return "Download link is stale. Refresh this page for a fresh link.";
+    }
+    return safeError.message;
+  }
+
+  if (args.status === 403) return "Download request was rejected. Refresh this page for a fresh link.";
+  if (args.status === 404) return "Artefact was not found. Re-run export if needed.";
+  return `Download failed (${args.status}).`;
 }
 
 export function ArtefactDownloadButton(props: Props) {
@@ -73,10 +89,31 @@ export function ArtefactDownloadButton(props: Props) {
       return;
     }
 
+    let res: Response;
+    try {
+      res = await fetch(props.href, { method: "GET" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setState({ kind: "error", message: `Download request failed: ${message}` });
+      resetSoon();
+      return;
+    }
+
+    if (!res.ok) {
+      const payload: unknown = await res.json().catch(() => null);
+      setState({ kind: "error", message: resolveDownloadFailureMessage({ status: res.status, payload }) });
+      resetSoon();
+      return;
+    }
+
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
-    a.href = props.href;
+    a.href = objectUrl;
     a.download = props.filename;
     a.click();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
 
     setState({ kind: "success", message: `Download started. ${freshness.hint}` });
     resetSoon();
