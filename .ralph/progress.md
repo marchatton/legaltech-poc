@@ -722,3 +722,38 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Useful context
   - First `/matters` load in dev can exceed 30s due initial compile; browser scripts should set higher navigation timeouts.
 ---
+## [2026-02-12 15:37:32 +0000] - US-002: Matter Discovery Filtering
+Thread: 
+Run: 20260212-150540-748 (iteration 2)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-2.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: cd814aa test(matters): add deterministic filter coverage
+- Post-commit status: `dirty` (.ralph/progress.md pending progress append commit)
+- Verification:
+  - Command: `pnpm --filter @orbital-poc/web exec vitest run test/mattersListDeterminism.int.test.ts test/mattersListFilters.test.ts test/mattersList.sync.test.ts` -> PASS
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `pnpm --filter @orbital-poc/web dev -p 3101` + `cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF` (saved-view/query/reset smoke on `/matters`) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json
+  - apps/web/test/mattersList.sync.test.ts
+  - apps/web/test/mattersListDeterminism.int.test.ts
+  - .ralph/progress.md
+- What was implemented
+  - Added a DB-backed US-002 determinism integration test (`mattersListDeterminism.int.test.ts`) that seeds matters and verifies sequential filter narrowing (`q` -> saved view -> saved view + query), stable row ordering across refresh, deterministic saved-view subsets, and empty conflict behavior.
+  - Expanded matters list sync assertions to cover explicit URL control wiring (`view` saved-view links), and empty-match guidance/reset affordance strings.
+  - Browser-verified `/matters` URL control flow: saved-view toggle sets `view`, search preserves query + saved view, and reset returns to the base URL.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Seeding a tight, unique fixture set inside an integration test gives deterministic evidence for filter-sequencing behavior without touching production logic.
+  - Gotchas encountered
+  - Cleanup helpers for seeded rows must avoid `LIKE` with underscores; exact ID deletion prevents accidental over-deletes.
+  - Useful context
+  - In this repo, `pnpm --filter @orbital-poc/web test -- ...` may still execute the full suite; `pnpm --filter @orbital-poc/web exec vitest run <files...>` is the reliable scoped path.
+---
