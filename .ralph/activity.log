@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-12 15:22:58 | run=20260212-150540-748 | iter=1 | mode=build | story=US-001 | duration=1037s | status=success
 - 2026-02-11 19:12:51 | run=20260211-171747-21967 | iter=5 | mode=build | story=US-005 | duration=688s | status=success
 - 2026-02-11 19:01:19 | run=20260211-171747-21967 | iter=4 | mode=build | story=US-004 | duration=1447s | status=success
 - 2026-02-11 18:22:31 | run=20260211-171748-22180 | iter=4 | mode=build | story=US-004 | duration=1059s | status=success
@@ -129,3 +130,8 @@
 [2026-02-12 15:11:15] Implemented US-001 shell wayfinding updates: shared environment resolver, matters list context bar, detail layout environment consistency, and sync/unit tests
 [2026-02-12 15:20:53] Verification complete for US-001: targeted tests + lint/typecheck/test/build + browser flow /matters -> /matters/:id -> /matters with screenshots
 [2026-02-12 15:22:20] Updated US-001 progress entry with commit, verification matrix, browser evidence, and iteration learnings
+[2026-02-12 15:22:57] ITERATION 1 end (duration=1037s)
+[2026-02-12 15:23:05] ITERATION 2 start (mode=build story=US-002)
+[2026-02-12 15:23:32] Start US-002 iteration 2: auditing guardrails, errors, and PRD before code changes
+[2026-02-12 15:28:23] Implemented US-002 filtering determinism tests and expanded matters list URL/empty-state sync assertions
+[2026-02-12 15:36:02] Verification complete for US-002: targeted filter tests, global lint/typecheck/test, build, and dev-browser smoke on /matters filters
