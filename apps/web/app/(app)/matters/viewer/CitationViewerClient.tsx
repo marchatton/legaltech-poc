@@ -648,13 +648,20 @@ export function CitationViewerClient(props: Props) {
 
         {/* Footer */}
         <div className="border-t border-border bg-card px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-success mr-1.5" />
-              {trustLoadedState !== TRUST_METADATA_FALLBACK ? trustLoadedState : "Loaded"}
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-success" />
+              <span className="font-medium">loaded_state:</span>
+              <span className="font-mono">{trustLoadedState}</span>
             </span>
-            <span className="font-mono">{trustDocVersion}</span>
-            <span>{trustVerifiedAt !== TRUST_METADATA_FALLBACK ? trustVerifiedAt : null}</span>
+            <span className="flex items-center gap-1.5">
+              <span className="font-medium">doc_version:</span>
+              <span className="font-mono">{trustDocVersion}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="font-medium">verified_at:</span>
+              <span className="font-mono">{trustVerifiedAt}</span>
+            </span>
           </div>
 
           <div className="flex items-center gap-2">

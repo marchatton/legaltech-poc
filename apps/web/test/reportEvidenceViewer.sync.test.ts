@@ -66,3 +66,33 @@ describe("US-005 citation failure recovery and acknowledgement", () => {
     expect(source).toContain("setFlagCitationState");
   });
 });
+
+describe("US-007 valid citation trust viewer verification", () => {
+  it("loads citation viewer from source chips using citation document + page payload", () => {
+    const root = repoRootFromWebPackage();
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
+    const source = readUtf8(panelPath);
+
+    expect(source).toContain("setViewerCitationId(citationId)");
+    expect(source).toContain("fetch(`/citations/${encodeURIComponent(citationId)}`");
+    expect(source).toContain("/documents/${encodeURIComponent(citation.documentId)}/render?");
+    expect(source).toContain("page: String(citation.pageNumber)");
+    expect(source).toContain("documentId: citation.documentId");
+    expect(source).toContain("pageNumber: citation.pageNumber");
+  });
+
+  it("renders overlays and trust metadata from payload with deterministic fallback", () => {
+    const root = repoRootFromWebPackage();
+    const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
+    const source = readUtf8(viewerPath);
+
+    expect(source).toContain("mapNormPolygonsToViewportCss");
+    expect(source).toContain("overlayPath.map");
+    expect(source).toContain("hud.errorCode ? (");
+    expect(source).toContain("TRUST_METADATA_FALLBACK");
+    expect(source).toContain("loaded_state:");
+    expect(source).toContain("doc_version:");
+    expect(source).toContain("verified_at:");
+    expect(source).not.toContain('trustLoadedState !== TRUST_METADATA_FALLBACK ? trustLoadedState : "Loaded"');
+  });
+});
