@@ -2,7 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
-const ReportTriageTabSchema = z.enum(["all", "needs_review", "citation_failed", "missing_input"]);
+const ReportTriageTabSchema = z.enum(["all", "needs_review", "reviewed", "flagged"]);
+const FLAGGED_ROW_STATUSES = new Set(["citation_failed", "missing_input", "flagged"]);
 
 export type ReportTriageTab = z.infer<typeof ReportTriageTabSchema>;
 
@@ -19,15 +20,23 @@ function firstString(value: unknown): string | undefined {
 export function parseReportTriageFilters(raw: Record<string, unknown>): ReportTriageFilters {
   const rowTabRaw = firstString(raw.row_tab);
   const statusRaw = firstString(raw.status);
+
+  const normalizedRowTab =
+    rowTabRaw === "citation_failed" || rowTabRaw === "missing_input"
+      ? "flagged"
+      : rowTabRaw;
   const legacyMapped =
-    statusRaw === "failed" || statusRaw === "flagged"
-      ? "citation_failed"
+    statusRaw === "failed" ||
+    statusRaw === "flagged" ||
+    statusRaw === "citation_failed" ||
+    statusRaw === "missing_input"
+      ? "flagged"
       : statusRaw === "needs_review"
         ? "needs_review"
-        : statusRaw === "missing_input"
-          ? "missing_input"
+        : statusRaw === "reviewed"
+          ? "reviewed"
           : undefined;
-  const candidate = rowTabRaw && rowTabRaw.length > 0 ? rowTabRaw : legacyMapped;
+  const candidate = normalizedRowTab && normalizedRowTab.length > 0 ? normalizedRowTab : legacyMapped;
   const parsed = ReportTriageTabSchema.safeParse(candidate);
   return {
     rowTab: parsed.success ? parsed.data : "all",
@@ -36,6 +45,7 @@ export function parseReportTriageFilters(raw: Record<string, unknown>): ReportTr
 
 export function rowMatchesReportTriageTab(args: { status: string; rowTab: ReportTriageTab }): boolean {
   if (args.rowTab === "all") return true;
+  if (args.rowTab === "flagged") return FLAGGED_ROW_STATUSES.has(args.status);
   return args.status === args.rowTab;
 }
 
@@ -52,14 +62,14 @@ export function countReportRowsByTab(rows: Array<{ status: string }>): ReportTri
   const counts: ReportTriageTabCounts = {
     all: rows.length,
     needs_review: 0,
-    citation_failed: 0,
-    missing_input: 0,
+    reviewed: 0,
+    flagged: 0,
   };
 
   for (const row of rows) {
     if (row.status === "needs_review") counts.needs_review += 1;
-    if (row.status === "citation_failed") counts.citation_failed += 1;
-    if (row.status === "missing_input") counts.missing_input += 1;
+    if (row.status === "reviewed") counts.reviewed += 1;
+    if (FLAGGED_ROW_STATUSES.has(row.status)) counts.flagged += 1;
   }
 
   return counts;

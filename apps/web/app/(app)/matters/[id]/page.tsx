@@ -113,8 +113,8 @@ const RunIdSchema = z.string().trim().min(1).max(200);
 const REPORT_TRIAGE_TABS: Array<{ id: ReportTriageTab; label: string }> = [
   { id: "all", label: "All" },
   { id: "needs_review", label: "Needs Review" },
-  { id: "citation_failed", label: "Citation Failed" },
-  { id: "missing_input", label: "Missing Input" },
+  { id: "reviewed", label: "Reviewed" },
+  { id: "flagged", label: "Flagged" },
 ];
 
 type MatterDetailTab = "report" | "documents" | "chat" | "artefacts" | "exports";

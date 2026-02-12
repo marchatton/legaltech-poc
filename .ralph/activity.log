@@ -152,3 +152,7 @@
 [2026-02-12 16:29:03] Completed verification: lint/typecheck/test/build plus browser validation and checkpoint v22
 [2026-02-12 16:30:46] Updated US-004 progress entry in .ralph/progress.md
 [2026-02-12 16:31:41] ITERATION 4 end (duration=1689s)
+[2026-02-12 15:05:45] ITERATION 1 start (mode=build story=US-005)
+[2026-02-12 15:06:10] Start US-005 run 20260212-150545-1013 iter 1
+[2026-02-12 15:11:47] Implemented US-005 tab contract updates (reviewed/flagged mapping, runScope URL normalization, triage tests)
+[2026-02-12 15:21:02] Verification complete for US-005: targeted tests, pnpm lint/typecheck/test/build, browser smoke checks on triage tabs

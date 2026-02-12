@@ -21,6 +21,8 @@ describe("US-001 report triage tabs and dense table behavior", () => {
     expect(source).toContain("parseReportTriageFilters");
     expect(source).toContain("reportTabHref");
     expect(source).toContain('aria-label="Report row status tabs"');
+    expect(source).toContain('{ id: "reviewed", label: "Reviewed" }');
+    expect(source).toContain('{ id: "flagged", label: "Flagged" }');
   });
 
   it("renders dense table markers with sticky header", () => {

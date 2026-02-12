@@ -14,7 +14,8 @@ import { TableFrame, Table, TH } from "../../../ui/Table";
 import { cn } from "../../../ui/cn";
 import { CitationViewerClient } from "../viewer/CitationViewerClient";
 
-type ReportTriageTab = "all" | "needs_review" | "citation_failed" | "missing_input";
+type ReportTriageTab = "all" | "needs_review" | "reviewed" | "flagged";
+const FLAGGED_ROW_STATUSES = new Set(["citation_failed", "missing_input", "flagged"]);
 
 type ReportRowForDrawer = {
   id: string;
@@ -134,6 +135,7 @@ function formatTimestamp(raw: string): string {
 
 function rowMatchesTab(args: { status: string; rowTab: ReportTriageTab }): boolean {
   if (args.rowTab === "all") return true;
+  if (args.rowTab === "flagged") return FLAGGED_ROW_STATUSES.has(args.status);
   return args.status === args.rowTab;
 }
 

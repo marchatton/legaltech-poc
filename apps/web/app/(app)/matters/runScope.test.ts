@@ -8,13 +8,24 @@ describe("run scope helpers", () => {
       matterId: "fld_123",
       tab: "report",
       runId: "run_456",
+      rowTab: "flagged",
+    });
+
+    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=flagged");
+  });
+
+  it("maps legacy row_tab values to row_tab=flagged", () => {
+    const href = buildMatterTabHref({
+      matterId: "fld_123",
+      tab: "report",
+      runId: "run_456",
       rowTab: "citation_failed",
     });
 
-    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=citation_failed");
+    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=flagged");
   });
 
-  it("maps legacy status=failed links to row_tab=citation_failed", () => {
+  it("maps legacy status=failed links to row_tab=flagged", () => {
     const href = buildMatterTabHref({
       matterId: "fld_123",
       tab: "report",
@@ -22,7 +33,18 @@ describe("run scope helpers", () => {
       status: "failed",
     });
 
-    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=citation_failed");
+    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=flagged");
+  });
+
+  it("maps reviewed status links to row_tab=reviewed", () => {
+    const href = buildMatterTabHref({
+      matterId: "fld_123",
+      tab: "report",
+      runId: "run_456",
+      status: "reviewed",
+    });
+
+    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=reviewed");
   });
 
   it("omits optional params when absent", () => {

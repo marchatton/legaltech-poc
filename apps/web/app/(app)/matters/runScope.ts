@@ -1,7 +1,13 @@
 export type MatterSearchParamValue = string | string[] | undefined;
 
 export type MatterTab = "report" | "exports" | "artefacts" | "chat";
-export type ReportRowTab = "all" | "needs_review" | "citation_failed" | "missing_input";
+export type ReportRowTab =
+  | "all"
+  | "needs_review"
+  | "reviewed"
+  | "flagged"
+  | "citation_failed"
+  | "missing_input";
 
 export type RunSelectorOption = {
   run_id: string;
@@ -58,11 +64,27 @@ export function buildMatterTabHref(args: {
 
   const normalizedRowTab = args.rowTab?.trim() ?? "";
   if (normalizedRowTab.length > 0) {
-    params.set("row_tab", normalizedRowTab);
+    if (normalizedRowTab === "needs_review") params.set("row_tab", "needs_review");
+    if (normalizedRowTab === "reviewed") params.set("row_tab", "reviewed");
+    if (
+      normalizedRowTab === "flagged" ||
+      normalizedRowTab === "citation_failed" ||
+      normalizedRowTab === "missing_input"
+    ) {
+      params.set("row_tab", "flagged");
+    }
   } else {
     const normalizedStatus = args.status?.trim() ?? "";
-    if (normalizedStatus === "failed" || normalizedStatus === "flagged") params.set("row_tab", "citation_failed");
+    if (
+      normalizedStatus === "failed" ||
+      normalizedStatus === "flagged" ||
+      normalizedStatus === "citation_failed" ||
+      normalizedStatus === "missing_input"
+    ) {
+      params.set("row_tab", "flagged");
+    }
     if (normalizedStatus === "needs_review") params.set("row_tab", "needs_review");
+    if (normalizedStatus === "reviewed") params.set("row_tab", "reviewed");
   }
 
   return `/matters/${encodeURIComponent(args.matterId)}?${params.toString()}`;
