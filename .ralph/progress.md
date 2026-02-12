@@ -1014,3 +1014,49 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-
   - Useful context
   - Existing `folders/:id/runs` selector tests already enforce completed-run option contracts, so US-009 focused changes were best isolated to export route assertions.
 ---
+## [2026-02-12 15:32 UTC] - US-010: Export Blocking State Contract
+Thread: 
+Run: 20260212-150551-1275 (iteration 2)
+Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-2.log
+Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 7cb4383 fix(exports): gate controls by selected run state (or `none` + reason)
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test -- "app/(app)/matters/runScope.test.ts" "lib/exportCsv.routes.test.ts" "lib/exportDocx.routes.test.ts" "test/exportBlockingState.sync.test.ts" -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -p 3101 -> PASS
+  - Command: npx tsx (dev-browser smoke script for exports tab state toggle) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/ExportCsvButton.tsx
+  - apps/web/app/(app)/matters/[id]/ExportMemoButton.tsx
+  - apps/web/app/(app)/matters/[id]/ExportsPanel.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/runScope.ts
+  - apps/web/app/(app)/matters/runScope.test.ts
+  - apps/web/lib/exportCsv.routes.test.ts
+  - apps/web/lib/exportDocx.routes.test.ts
+  - apps/web/test/exportBlockingState.sync.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0003_exports-provenance-loop/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Expanded exports run options to include non-completed quick-start runs, preserving deterministic selected `run_id` across route refresh and selector changes.
+  - Centralized export eligibility into `runScope` helpers and applied shared disabled-state logic to both memo and CSV export controls.
+  - Updated exports panel UX to show selected run status and explicit disabled messaging for non-completed runs.
+  - Added route-level regression coverage confirming CSV/DOCX exports return `409 CONFLICT` with no artefact for `running`, `failed`, and `partial` runs.
+  - Added sync coverage to prevent regressions back to completed-only selector filtering and to keep CSV run-state gating wired.
+  - Browser smoke verified: latest running run keeps all export controls disabled; switching to completed run enables all export controls.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Shared run-state eligibility helpers reduce drift between memo and CSV export controls.
+  - Gotchas encountered
+  - Vitest in this package runs the full suite even when file targets are passed; treat targeted invocations as full verification cost.
+  - Useful context
+  - `dev-browser` must be launched with `--headless` in this Sprite environment because no X server is present.
+---
