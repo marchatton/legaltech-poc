@@ -757,3 +757,42 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Useful context
   - In this repo, `pnpm --filter @orbital-poc/web test -- ...` may still execute the full suite; `pnpm --filter @orbital-poc/web exec vitest run <files...>` is the reliable scoped path.
 ---
+## [2026-02-12 16:01:51 UTC] - US-003: Matter Create Upload and Readiness Guidance
+Thread: 
+Run: 20260212-150540-748 (iteration 3)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-3.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 2473b1e feat(matters): surface readiness guidance after uploads
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web exec vitest run test/setupDocuments.sync.test.ts lib/folders.routes.test.ts -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (browser smoke: empty-name validation, inline create, documents upload cues, readiness state scan) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json
+  - apps/web/app/(app)/matters/[id]/QuickStartActionButton.tsx
+  - apps/web/app/(app)/matters/[id]/SetupDocumentsPanel.tsx
+  - apps/web/lib/folders.routes.test.ts
+  - apps/web/test/setupDocuments.sync.test.ts
+  - .ralph/progress.md
+- What was implemented
+  - Updated detail header Quick Start guidance to always show explicit readiness reason text for ready, blocked, and already-complete states.
+  - Updated setup documents flow to refresh server-rendered readiness context after upload completion and manual readiness refresh, making transitions explicit in the page header.
+  - Added route-level tests for `POST /folders` covering valid creation and empty/whitespace name rejection with no insert.
+  - Expanded US-003 sync checks for readiness guidance visibility and refresh wiring.
+  - Browser-verified: empty-name validation error, successful inline create from list header, document upload/readiness cues in detail setup, and visible readiness reasons across ready/blocked/already-complete states.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - For this workspace, UI readiness state is server-derived; explicit `router.refresh()` after client-side setup mutations keeps header controls truthful without manual reload.
+  - Gotchas encountered
+  - `pnpm --filter @orbital-poc/web test -- ...` can still execute the full suite; `pnpm --filter @orbital-poc/web exec vitest run ...` is the reliable scoped path.
+  - Useful context
+  - Local upload/browser validation requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` when running `pnpm --filter @orbital-poc/web dev`.
+---
