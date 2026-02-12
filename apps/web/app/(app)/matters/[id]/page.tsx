@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 import { ensureSchema, sql } from "../../../../lib/db.server";
-import { formatDemoLoadedAtLabel } from "../../../../lib/demoMatterMetadata";
+
 import {
   buildDocumentUploadCapabilities,
   deriveDocumentReadinessStatus,
@@ -195,11 +195,27 @@ function matterStateBadgeVariant(state: string): BadgeVariant {
   return "warning";
 }
 
+function matterStatusLabel(state: string): string {
+  if (state === "ready" || state === "indexed") return "Active";
+  if (state === "failed") return "Needs Attention";
+  if (state === "ingesting") return "Processing";
+  if (state === "empty") return "Setup";
+  return state;
+}
+
 function DocumentIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <polyline points="14 2 14 8 20 8" />
+    </svg>
+  );
+}
+
+function ProgressIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-primary" aria-hidden="true">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   );
 }
@@ -451,24 +467,25 @@ export default async function MatterPage(props: {
 
   return (
     <div className="min-w-0">
-      <section className="border-b border-border/70 bg-background/95">
-        <div className="px-6 py-6 lg:px-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-serif text-heading-lg font-normal text-balance">{folder.name}</h1>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Badge variant={matterStateBadgeVariant(folder.state)}>{folder.state}</Badge>
-                <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-2xs text-muted-foreground">{folder.id}</span>
-              </div>
+      <section className="sticky top-0 z-10 border-b border-border bg-card">
+        <div className="px-6 pt-4 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <h1 className="font-serif text-2xl font-semibold text-foreground truncate">{folder.name}</h1>
+              <Badge variant={matterStateBadgeVariant(folder.state)} className="shrink-0">
+                {matterStatusLabel(folder.state)}
+              </Badge>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="min-w-52 rounded-ui-md border border-border bg-muted/30 px-3 py-2">
-                <div className="flex items-center justify-between gap-2 text-2xs font-medium text-muted-foreground">
-                  <span>Quick Start progress</span>
-                  <span className="font-mono tabular-nums">{runQuestionsDone}/{runQuestionsTotal}</span>
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-3 rounded-ui-md border border-border bg-muted/30 px-3 py-2">
+                <ProgressIcon />
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {runQuestionsDone}/{runQuestionsTotal} questions
+                  </span>
+                  <ProgressBar value={runProgress} className="mt-1 w-28" />
                 </div>
-                <ProgressBar value={runProgress} className="mt-2" />
               </div>
               <QuickStartActionButton folderId={folderId} readiness={quickStartReadiness} />
             </div>
@@ -478,7 +495,6 @@ export default async function MatterPage(props: {
             items={detailTabs}
             activeId={activeTab}
             ariaLabel="Matter detail sections"
-            className="mt-4"
           />
         </div>
       </section>
@@ -486,56 +502,36 @@ export default async function MatterPage(props: {
       <div className="px-6 py-6 lg:px-8">
         {activeTab === "report" ? (
           <section className="space-y-4">
-            <section className="rounded-ui-lg border border-border/70 bg-muted/20" title="Fixture context">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-4 py-2.5">
+            <div className="rounded-ui-lg border border-border/70 bg-muted/20 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Fixture context</h2>
+                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Fixture context</span>
                   <span className={fixtureStatusClass(fixtureContextBanner.variant)}>
                     {fixtureStatusLabel(fixtureContextBanner.variant)}
                   </span>
+                  <span className="text-2xs font-mono text-muted-foreground">{fixtureContextBanner.activePack}</span>
                 </div>
-                <Link href="/matters" className={buttonClassName({ variant: "ghost", size: "sm" })}>
-                  Load Pack Again
-                </Link>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xs text-muted-foreground">{operatorChecklistSummary} · {operatorElapsedLabel}</span>
+                  <Link href="/matters" className={buttonClassName({ variant: "ghost", size: "sm" })}>
+                    Load Pack Again
+                  </Link>
+                </div>
               </div>
 
-              <div className="px-4 py-3">
-                <dl className="grid gap-x-4 gap-y-2 text-2xs text-muted-foreground sm:grid-cols-[auto_1fr_auto_1fr]">
-                  <dt className="font-semibold text-muted-foreground">Active pack:</dt>
-                  <dd className="font-mono text-foreground/90">{fixtureContextBanner.activePack}</dd>
-                  <dt className="font-semibold text-muted-foreground">Loaded at:</dt>
-                  <dd className="font-mono tabular-nums text-foreground/90">
-                    {fixtureContextBanner.loadedAt === "not detected"
-                      ? "not detected"
-                      : formatDemoLoadedAtLabel(fixtureContextBanner.loadedAt)}
-                  </dd>
-                  <dt className="font-semibold text-muted-foreground">Load state:</dt>
-                  <dd className="font-mono text-foreground/90">{fixtureContextBanner.loadState}</dd>
-                  <dt className="font-semibold text-muted-foreground">Next step:</dt>
-                  <dd className="text-xs text-foreground/90 sm:col-span-3">{fixtureContextBanner.nextStep}</dd>
-                </dl>
-
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-2.5">
-                  <p className="text-2xs text-muted-foreground">{operatorChecklistSummary}</p>
-                  <span className="rounded-pill border border-border/80 bg-card px-2 py-0.5 text-2xs text-muted-foreground">
-                    {operatorElapsedLabel}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {operatorChecklistSteps.map((step) => (
+                  <span key={step.id} className={checklistStepChipClass(step.state)}>
+                    <span className="flex items-center gap-1.5">
+                      <span className={checklistStepDotClass(step.state)} aria-hidden="true" />
+                      <span className={step.state === "done" ? "line-through text-muted-foreground" : "text-foreground"}>
+                        {step.label}
+                      </span>
+                    </span>
                   </span>
-                </div>
-
-                <ul className="mt-2 grid gap-2 sm:grid-cols-3">
-                  {operatorChecklistSteps.map((step) => (
-                    <li key={step.id} className={checklistStepChipClass(step.state)}>
-                      <div className="flex items-center gap-2">
-                        <span className={checklistStepDotClass(step.state)} aria-hidden="true" />
-                        <span className={step.state === "done" ? "line-through text-muted-foreground" : "text-foreground"}>
-                          {step.label}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                ))}
               </div>
-            </section>
+            </div>
 
             {reportRun ? (
               <>

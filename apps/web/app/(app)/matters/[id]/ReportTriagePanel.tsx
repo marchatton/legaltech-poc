@@ -564,89 +564,77 @@ export function ReportTriagePanel(props: Props) {
           showDesktopSplitViewer ? "pr-0 xl:pr-[70rem]" : selectedRow ? "pr-0 xl:pr-[34rem]" : null,
         )}
       >
-        <div className="max-h-[34rem] overflow-auto rounded-ui-md border border-border">
-          <table className="w-full min-w-[1080px] border-collapse text-left text-xs">
+        <div className="max-h-[34rem] overflow-auto rounded-ui-md border border-border bg-card shadow-ui-sm">
+          <table className="w-full min-w-[640px] border-collapse text-left text-xs">
             <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
               <tr>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  QID
+                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground w-16">
+                  ID
                 </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground w-1/3">
                   Question
                 </th>
                 <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  Answer
+                  Answer Preview
                 </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground w-32">
                   Status
                 </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  Citations
-                </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  Provenance
-                </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  Updated
-                </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  Review
-                </th>
+                <th className="border-b border-border px-3 py-2 w-10" />
               </tr>
             </thead>
             <tbody>
               {visibleRows.length === 0 ? (
                 <tr>
-                  <td className="px-3 py-6 text-sm text-muted-foreground" colSpan={8}>
+                  <td className="px-3 py-6 text-sm text-muted-foreground" colSpan={5}>
                     No rows match <span className="font-mono">{props.rowTab}</span>.
                   </td>
                 </tr>
               ) : (
                 visibleRows.map((row) => {
                   const status = statusPresentation(row.status);
-                  const reasonCode = reasonCodeFromProvenance(row.provenance_json);
                   const selected = selectedRow?.id === row.id;
                   return (
-                    <tr key={row.id} className={cn("border-b border-border/60 align-top hover:bg-muted/30", selected ? "bg-muted/30" : null)}>
-                      <td className="px-3 py-2">
+                    <tr
+                      key={row.id}
+                      onClick={(event) => {
+                        if ((event.target as HTMLElement).closest("button")) return;
+                        const btn = event.currentTarget.querySelector<HTMLButtonElement>("[data-row-trigger]");
+                        if (btn) btn.click();
+                      }}
+                      className={cn(
+                        "group cursor-pointer border-b border-border/60 align-top transition-colors hover:bg-muted/30",
+                        selected ? "bg-muted/30" : null,
+                      )}
+                    >
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <span className="font-mono text-2xs text-muted-foreground">{row.question_id}</span>
                       </td>
-                      <td className="px-3 py-2 text-foreground">
-                        <div className="max-w-sm leading-relaxed">{row.question}</div>
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">
-                        <div className="max-w-xl whitespace-pre-wrap break-words leading-relaxed">
-                          {row.answer.trim().length > 0 ? row.answer : "Not provided."}
-                        </div>
+                      <td className="px-3 py-2">
+                        <p className="text-sm font-medium leading-relaxed text-foreground line-clamp-2">{row.question}</p>
                       </td>
                       <td className="px-3 py-2">
+                        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                          {row.answer.trim().length > 0 ? row.answer : "\u2014"}
+                        </p>
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <Badge variant={status.variant} size="sm">
                           {status.label}
                         </Badge>
                       </td>
-                      <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{row.citation_count}</td>
-                      <td className="px-3 py-2 text-muted-foreground">
-                        <div className="max-w-52 break-words">
-                          {reasonCode ? (
-                            <span className="font-mono text-2xs">{reasonCode}</span>
-                          ) : row.notes?.trim() ? (
-                            row.notes
-                          ) : (
-                            "None"
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{formatTimestamp(row.updated_at)}</td>
-                      <td className="px-3 py-2">
-                        <Button
+                      <td className="px-3 py-2 whitespace-nowrap text-right">
+                        <button
                           type="button"
-                          variant="secondary"
-                          size="sm"
+                          data-row-trigger
                           aria-label={`Open row drawer for ${row.question_id}`}
                           onClick={(event) => openRowDrawer(row.id, event.currentTarget)}
+                          className="inline-flex items-center justify-center rounded-ui-md p-1.5 text-muted-foreground opacity-0 transition-all duration-micro ease-brand-standard hover:bg-muted hover:text-foreground group-hover:opacity-100"
                         >
-                          Open
-                        </Button>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="m9 18 6-6-6-6" />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   );
@@ -693,7 +681,7 @@ export function ReportTriagePanel(props: Props) {
             aria-labelledby={`row-drawer-title-${selectedRow.id}`}
           >
             <div className="flex h-full flex-col">
-              <div className="border-b border-border bg-muted/40 px-5 py-4">
+              <div className="border-b border-border bg-muted/30 px-6 py-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="mb-2 flex items-center gap-2">
@@ -704,21 +692,22 @@ export function ReportTriagePanel(props: Props) {
                         {statusPresentation(selectedRow.status).label}
                       </Badge>
                     </div>
-                    <h2 id={`row-drawer-title-${selectedRow.id}`} className="line-clamp-2 text-base font-semibold text-foreground">
+                    <h2 id={`row-drawer-title-${selectedRow.id}`} className="font-serif text-lg font-medium leading-tight text-foreground line-clamp-2">
                       {selectedRow.question}
                     </h2>
-                    <div className="mt-2 flex flex-wrap gap-2 text-2xs text-muted-foreground">
-                      <span className="rounded-ui-sm bg-card px-2 py-0.5 ring-1 ring-inset ring-border/70">
-                        {selectedRow.citation_count} citations
-                      </span>
-                      <span className="rounded-ui-sm bg-card px-2 py-0.5 ring-1 ring-inset ring-border/70">
-                        updated {formatTimestamp(selectedRow.updated_at)}
-                      </span>
-                    </div>
                   </div>
-                  <Button type="button" variant="ghost" size="sm" aria-keyshortcuts="Escape" onClick={closeRowDrawer}>
-                    Close
-                  </Button>
+                  <button
+                    type="button"
+                    onClick={closeRowDrawer}
+                    aria-keyshortcuts="Escape"
+                    className="shrink-0 rounded-ui-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </svg>
+                    <span className="sr-only">Close</span>
+                  </button>
                 </div>
               </div>
 
