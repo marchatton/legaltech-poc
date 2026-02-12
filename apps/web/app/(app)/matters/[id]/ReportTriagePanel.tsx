@@ -10,6 +10,7 @@ import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
 import { Skeleton, SkeletonLine } from "../../../ui/Skeleton";
+import { TableFrame, Table, TH } from "../../../ui/Table";
 import { cn } from "../../../ui/cn";
 import { CitationViewerClient } from "../viewer/CitationViewerClient";
 
@@ -564,23 +565,15 @@ export function ReportTriagePanel(props: Props) {
           showDesktopSplitViewer ? "pr-0 xl:pr-[70rem]" : selectedRow ? "pr-0 xl:pr-[34rem]" : null,
         )}
       >
-        <div className="max-h-[34rem] overflow-auto rounded-ui-md border border-border bg-card shadow-ui-sm">
-          <table className="w-full min-w-[640px] border-collapse text-left text-xs">
-            <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
+        <TableFrame className="max-h-[34rem] shadow-ui-sm">
+          <Table className="min-w-[640px] text-xs">
+            <thead>
               <tr>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground w-16">
-                  ID
-                </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground w-1/3">
-                  Question
-                </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground">
-                  Answer Preview
-                </th>
-                <th className="border-b border-border px-3 py-2 font-mono text-2xs uppercase tracking-wide text-muted-foreground w-32">
-                  Status
-                </th>
-                <th className="border-b border-border px-3 py-2 w-10" />
+                <TH className="sticky top-0 z-10 w-16">ID</TH>
+                <TH className="sticky top-0 z-10 w-1/3">Question</TH>
+                <TH className="sticky top-0 z-10">Answer Preview</TH>
+                <TH className="sticky top-0 z-10 w-32">Status</TH>
+                <TH className="sticky top-0 z-10 w-10" />
               </tr>
             </thead>
             <tbody>
@@ -641,8 +634,8 @@ export function ReportTriagePanel(props: Props) {
                 })
               )}
             </tbody>
-          </table>
-        </div>
+          </Table>
+        </TableFrame>
       </div>
 
       {selectedRow ? (
