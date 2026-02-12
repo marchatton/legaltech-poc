@@ -182,14 +182,6 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
-  const chatEnabled = process.env.CHAT_ENABLED === "1";
-  if (!chatEnabled) {
-    return Response.json(chatErrorEnvelope({ code: "CHAT_DISABLED", message: "Chat is disabled.", traceId, retryable: false }), {
-      status: 404,
-      headers,
-    });
-  }
-
   const rawParams = await ctx.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);
   if (!parsedParams.success) {

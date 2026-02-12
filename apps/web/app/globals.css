@@ -5,6 +5,10 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --app-topbar-height: 3rem;
+  }
+
   html {
     font-size: 15px;
     line-height: 1.6;

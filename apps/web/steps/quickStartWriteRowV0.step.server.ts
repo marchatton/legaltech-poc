@@ -11,6 +11,8 @@ import {
 
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
+import { parseDemoMatterMetadata } from "../lib/demoMatterMetadata";
+import { loadSeedSnapshot, type ResolvedSeedSnapshot } from "../lib/fixtureSeed.server";
 import { newId } from "../lib/ids";
 import { loadQuestionSetV1 } from "../lib/questionSet.server";
 import type { StepRow } from "../lib/wdk/stepQueue.server";
@@ -23,6 +25,7 @@ const InputSchema = z.object({
 type RunRow = {
   id: string;
   folder_id: string;
+  folder_name: string;
   state: string;
   question_set_version: string;
   trace_id: string | null;
@@ -30,7 +33,38 @@ type RunRow = {
   questions_done: number;
 };
 
-type QuickStartRowStatus = ReturnType<typeof missingInputRow>["status"] | ReturnType<typeof citationFailedRow>["status"];
+type FolderDocumentRow = {
+  id: string;
+  filename: string;
+  upload_completed_at: Date | null;
+  parse_status: string;
+  ocr_status: string;
+};
+
+type QuickStartRowStatus = "needs_review" | "reviewed" | "missing_input" | "citation_failed";
+
+type QuickStartRow = {
+  folder_id: string;
+  question_set_version: string;
+  question_id: string;
+  question: string;
+  answer: string;
+  status: QuickStartRowStatus;
+  citation_ids: string[];
+  notes: string | null;
+  provenance_json: unknown;
+  payload_schema_version: string | null;
+  payload_json: unknown | null;
+};
+
+type QuickStartLockedCitation = {
+  id: string;
+  document_id: string;
+  page_number: number;
+  snippet: string;
+  snippet_hash: string;
+  polygons_json: unknown;
+};
 
 type JsonArg = Parameters<typeof sql.json>[0];
 
@@ -38,7 +72,7 @@ function withDb(db?: Sql): Sql {
   return db ?? sql;
 }
 
-function missingInputRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }) {
+function missingInputRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }): QuickStartRow {
   return {
     folder_id: args.folderId,
     question_set_version: args.questionSetVersion,
@@ -68,13 +102,18 @@ function missingInputRow(args: { folderId: string; questionSetVersion: string; q
   };
 }
 
-function citationFailedRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }) {
+function citationFailedRow(args: {
+  folderId: string;
+  questionSetVersion: string;
+  questionId: string;
+  question: string;
+}): QuickStartRow {
   return {
     folder_id: args.folderId,
     question_set_version: args.questionSetVersion,
     question_id: args.questionId,
     question: args.question,
-    answer: "Unable to produce locked citations in this slice.",
+    answer: "Unable to produce citations.",
     status: "citation_failed" as const,
     citation_ids: [] as string[],
     notes: null as string | null,
@@ -90,11 +129,17 @@ function citationFailedRow(args: { folderId: string; questionSetVersion: string;
   };
 }
 
-function attachListPayloadIfNeeded<T extends { payload_schema_version: string | null; payload_json: unknown | null }>(
+function attachListPayloadIfNeeded<
+  T extends {
+    payload_schema_version: string | null;
+    payload_json: unknown | null;
+  },
+>(
   row: T,
   question: { response_kind: string; artefact_kind?: string; payload_schema_version?: string },
 ): T {
   if (question.response_kind !== "list_payload") return row;
+  if (row.payload_schema_version !== null || row.payload_json !== null) return row;
 
   if (question.payload_schema_version !== LIST_PAYLOAD_V0_SCHEMA_VERSION) {
     throw new Error(
@@ -111,6 +156,145 @@ function attachListPayloadIfNeeded<T extends { payload_schema_version: string | 
     payload_schema_version: LIST_PAYLOAD_V0_SCHEMA_VERSION,
     payload_json: payload,
   } as T;
+}
+
+function normalizeFilename(filename: string): string {
+  return filename.trim().toLowerCase();
+}
+
+function asNullableString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function collectPayloadCitationIds(args: {
+  payloadSchemaVersion: string | null;
+  payloadJson: unknown | null;
+}): string[] {
+  if (args.payloadSchemaVersion !== LIST_PAYLOAD_V0_SCHEMA_VERSION) return [];
+  const parsed = ListPayloadV0Schema.safeParse(args.payloadJson);
+  if (!parsed.success) return [];
+  const ids = parsed.data.items.flatMap((item) => item.citation_ids);
+  return Array.from(new Set(ids));
+}
+
+function remapPayloadCitationIds(args: {
+  payloadSchemaVersion: string | null;
+  payloadJson: unknown | null;
+  citationIdMap: ReadonlyMap<string, string>;
+}): unknown | null {
+  if (args.payloadSchemaVersion !== LIST_PAYLOAD_V0_SCHEMA_VERSION) return args.payloadJson ?? null;
+  const parsed = ListPayloadV0Schema.safeParse(args.payloadJson);
+  if (!parsed.success) return args.payloadJson ?? null;
+
+  return {
+    ...parsed.data,
+    items: parsed.data.items.map((item) => ({
+      ...item,
+      citation_ids: item.citation_ids.flatMap((citationId) => {
+        const mapped = args.citationIdMap.get(citationId);
+        return mapped ? [mapped] : [];
+      }),
+    })),
+  };
+}
+
+function resolveDemoSeedSnapshot(folderName: string): ResolvedSeedSnapshot | null {
+  const metadata = parseDemoMatterMetadata(folderName);
+  if (!metadata) return null;
+  try {
+    return loadSeedSnapshot(metadata.packId);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("wdk.quick_start.write_row_v0.seed_snapshot_failed", {
+      pack_id: metadata.packId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return null;
+  }
+}
+
+function seededRowFromSnapshot(args: {
+  snapshot: ResolvedSeedSnapshot;
+  folderId: string;
+  questionSetVersion: string;
+  question: {
+    question_id: string;
+    question: string;
+  };
+  docIdByFilename: ReadonlyMap<string, string>;
+}): { row: QuickStartRow; citations: QuickStartLockedCitation[] } | null {
+  const sourceRow = args.snapshot.rows.find((row) => row.question_id === args.question.question_id);
+  if (!sourceRow) return null;
+
+  const payloadSchemaVersion = asNullableString(
+    (sourceRow as {
+      payload_schema_version?: unknown;
+    }).payload_schema_version,
+  );
+  const payloadJson =
+    (sourceRow as {
+      payload_json?: unknown;
+    }).payload_json ?? null;
+  const sourceCitationIds = Array.from(
+    new Set([
+      ...sourceRow.citation_ids,
+      ...collectPayloadCitationIds({
+        payloadSchemaVersion,
+        payloadJson,
+      }),
+    ]),
+  );
+
+  const citationIdMap = new Map<string, string>();
+  const citations: QuickStartLockedCitation[] = [];
+  for (const sourceCitationId of sourceCitationIds) {
+    const sourceCitation = args.snapshot.citations?.[sourceCitationId];
+    if (!sourceCitation) continue;
+
+    const mappedId = newId("cit");
+    citationIdMap.set(sourceCitationId, mappedId);
+
+    const mappedDocumentId =
+      args.docIdByFilename.get(normalizeFilename(sourceCitation.document_filename)) ?? sourceCitation.document_id;
+
+    citations.push({
+      id: mappedId,
+      document_id: mappedDocumentId,
+      page_number: sourceCitation.page_number,
+      snippet: sourceCitation.snippet,
+      snippet_hash: sourceCitation.snippet_hash,
+      polygons_json: sourceCitation.polygons,
+    });
+  }
+
+  return {
+    row: {
+      folder_id: args.folderId,
+      question_set_version: args.questionSetVersion,
+      question_id: args.question.question_id,
+      question: args.question.question,
+      answer: sourceRow.answer,
+      status: sourceRow.status,
+      citation_ids: sourceRow.citation_ids.flatMap((citationId) => {
+        const mapped = citationIdMap.get(citationId);
+        return mapped ? [mapped] : [];
+      }),
+      notes: typeof sourceRow.notes === "string" ? sourceRow.notes : null,
+      provenance_json:
+        (sourceRow as {
+          provenance_json?: unknown;
+        }).provenance_json ?? {},
+      payload_schema_version: payloadSchemaVersion,
+      payload_json: remapPayloadCitationIds({
+        payloadSchemaVersion,
+        payloadJson,
+        citationIdMap,
+      }),
+    },
+    citations,
+  };
 }
 
 export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: string; db?: Sql }): Promise<{
@@ -139,9 +323,10 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   const startedAt = Date.now();
 
   const runs = await s<RunRow[]>`
-    SELECT id, folder_id, state, question_set_version, trace_id, questions_total, questions_done
-    FROM runs
-    WHERE id = ${args.step.run_id}
+    SELECT r.id, r.folder_id, f.name AS folder_name, r.state, r.question_set_version, r.trace_id, r.questions_total, r.questions_done
+    FROM runs r
+    JOIN folders f ON f.id = r.folder_id
+    WHERE r.id = ${args.step.run_id}
     LIMIT 1
   `;
   const run = runs[0];
@@ -204,17 +389,39 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
     };
   }
 
-  const docCounts = await s<{ n: number }[]>`
-    SELECT COUNT(*)::int as n
+  const documents = await s<FolderDocumentRow[]>`
+    SELECT id, filename, upload_completed_at, parse_status, ocr_status
     FROM documents
     WHERE folder_id = ${run.folder_id}
-      AND upload_completed_at IS NOT NULL
-      AND parse_status = 'parsed'
-      AND ocr_status = 'done'
   `;
-  const hasDocs = (docCounts[0]?.n ?? 0) > 0;
+  const hasDocs = documents.some(
+    (doc) => doc.upload_completed_at !== null && doc.parse_status === "parsed" && doc.ocr_status === "done",
+  );
+  const docIdByFilename = new Map<string, string>();
+  for (const doc of documents) {
+    const key = normalizeFilename(doc.filename);
+    if (!key || docIdByFilename.has(key)) continue;
+    docIdByFilename.set(key, doc.id);
+  }
 
-  const baseRow = hasDocs
+  const demoSeedSnapshot = hasDocs ? resolveDemoSeedSnapshot(run.folder_name) : null;
+  const seeded =
+    hasDocs && demoSeedSnapshot
+      ? seededRowFromSnapshot({
+          snapshot: demoSeedSnapshot,
+          folderId: run.folder_id,
+          questionSetVersion: run.question_set_version,
+          question: {
+            question_id: q.question_id,
+            question: q.question,
+          },
+          docIdByFilename,
+        })
+      : null;
+
+  const baseRow =
+    seeded?.row ??
+    (hasDocs
     ? citationFailedRow({
         folderId: run.folder_id,
         questionSetVersion: run.question_set_version,
@@ -226,9 +433,10 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
         questionSetVersion: run.question_set_version,
         questionId: q.question_id,
         question: q.question,
-      });
+      }));
+  let rowCitations = seeded?.citations ?? [];
 
-  let rowWithPayload: typeof baseRow = baseRow;
+  let rowWithPayload: QuickStartRow = baseRow;
   try {
     rowWithPayload = attachListPayloadIfNeeded(baseRow, q);
   } catch {
@@ -238,6 +446,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
       questionId: q.question_id,
       question: q.question,
     });
+    rowCitations = [];
     rowWithPayload.provenance_json = {
       reason_code: "VALIDATION_ERROR",
       checklist: ["Question set payload metadata is invalid for this row."],
@@ -252,7 +461,8 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   const traceId = run.trace_id ?? input.trace_id ?? newId("trc");
 
   async function attemptWrite(
-    row: typeof rowWithPayload,
+    row: QuickStartRow,
+    citations: QuickStartLockedCitation[],
   ): Promise<{ inserted: boolean; status: QuickStartRowStatus; reason_code: string | null }> {
     const rowReasonCode =
       row.status === "citation_failed"
@@ -293,7 +503,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
             ${row.answer},
             ${row.status},
             ${row.notes},
-            ${t.json(row.provenance_json)},
+            ${t.json(row.provenance_json as JsonArg)},
             ${row.payload_schema_version},
             ${payloadJson},
             now(),
@@ -303,7 +513,35 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
           RETURNING id
         `;
 
-        if (!insertedRows[0]) return false;
+        const insertedRow = insertedRows[0];
+        if (!insertedRow) return false;
+
+        for (const citation of citations) {
+          await t`
+            INSERT INTO citations (
+              id,
+              report_row_id,
+              document_id,
+              page_number,
+              snippet,
+              snippet_hash,
+              polygons_json,
+              locked_at,
+              created_at
+            )
+            VALUES (
+              ${citation.id},
+              ${insertedRow.id},
+              ${citation.document_id},
+              ${citation.page_number},
+              ${citation.snippet},
+              ${citation.snippet_hash},
+              ${t.json(citation.polygons_json as JsonArg)},
+              now(),
+              now()
+            )
+          `;
+        }
 
         const reasonKey = rowReasonCode ?? "VALIDATION_ERROR";
 
@@ -335,7 +573,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   let finalReasonCode = reasonCode;
 
   try {
-    const res = await attemptWrite(rowWithPayload);
+    const res = await attemptWrite(rowWithPayload, rowCitations);
     wrote = res.inserted;
     rowStatus = res.status;
     finalReasonCode = res.reason_code;
@@ -372,7 +610,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
       // Keep the fallback row writable even if question metadata is malformed.
     }
 
-    const fallbackRes = await attemptWrite(fallbackWithPayload);
+    const fallbackRes = await attemptWrite(fallbackWithPayload, []);
     wrote = fallbackRes.inserted;
     rowStatus = fallbackRes.status;
     finalReasonCode = fallbackRes.reason_code;

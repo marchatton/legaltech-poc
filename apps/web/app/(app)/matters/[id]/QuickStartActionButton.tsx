@@ -58,6 +58,7 @@ export function QuickStartActionButton(props: Props) {
 
   const blocked = props.readiness.state !== "ready";
   const disabledReason = blocked ? props.readiness.reason : undefined;
+  const showInlineReason = blocked && props.readiness.state !== "already-complete";
 
   return (
     <div className="grid justify-items-end gap-1">
@@ -81,9 +82,9 @@ export function QuickStartActionButton(props: Props) {
           onRetry={error.retryable === true ? start : undefined}
           className="w-full max-w-md text-left"
         />
-      ) : (
+      ) : showInlineReason ? (
         <div className={readinessReasonClass(props.readiness.state)}>{props.readiness.reason}</div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -149,7 +149,7 @@ export function ExportMemoButton(props: Props) {
       return;
     }
 
-    setState({ kind: "done", message: "Memo exported. See Artefacts for download." });
+    setState({ kind: "done", message: "Full report exported. Download should start automatically." });
     router.refresh();
   }
 
@@ -232,7 +232,7 @@ export function ExportMemoButton(props: Props) {
         disabled={Boolean(disabled)}
         loading={state.kind === "loading"}
       >
-        Export memo (Word)
+        Full report (DOCX)
       </Button>
 
       {disabled ? (

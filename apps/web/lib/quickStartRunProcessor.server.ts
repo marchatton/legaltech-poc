@@ -61,7 +61,7 @@ function citationFailedRow(args: { folderId: string; questionSetVersion: string;
     question_set_version: args.questionSetVersion,
     question_id: args.questionId,
     question: args.question,
-    answer: "Unable to produce locked citations in this slice.",
+    answer: "Unable to produce citations.",
     status: "citation_failed" as const,
     notes: null as string | null,
     provenance_json: {

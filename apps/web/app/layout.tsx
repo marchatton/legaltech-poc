@@ -41,8 +41,10 @@ export default function RootLayout(props: { children: ReactNode }) {
           {demoEnabled ? (
             <DemoToolbar />
           ) : (
-            <div className="flex justify-end p-3">
-              <ThemeToggle />
+            <div className="sticky top-0 z-50 h-12 border-b border-border bg-card/95 backdrop-blur">
+              <div className="mx-auto flex h-full w-full items-center justify-end px-4 lg:px-6">
+                <ThemeToggle />
+              </div>
             </div>
           )}
           {props.children}

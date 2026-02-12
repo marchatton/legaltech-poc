@@ -8,6 +8,7 @@ import { Alert } from "../../ui/Alert";
 import { Button } from "../../ui/Button";
 import { ErrorBanner } from "../../ui/ErrorBanner";
 import { Input } from "../../ui/Input";
+import { Modal, ModalActions, ModalBody, ModalTitle } from "../../ui/Modal";
 
 type StructuredError = {
   code: string;
@@ -35,6 +36,7 @@ function parseCreateError(payload: unknown): { code: string; message: string } {
 
 export function CreateMatterForm() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [error, setError] = useState<StructuredError | null>(null);
   const [pending, setPending] = useState(false);
@@ -73,6 +75,7 @@ export function CreateMatterForm() {
         return;
       }
 
+      setOpen(false);
       setName("");
       router.push(`/matters/${encodeURIComponent(folderId)}`);
       router.refresh();
@@ -86,43 +89,80 @@ export function CreateMatterForm() {
   const isValidationError = error?.code === "VALIDATION_ERROR";
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-2" noValidate>
-      <label className="grid gap-1 text-sm">
-        <span className="text-muted-foreground">Matter name</span>
-        <Input
-          name="name"
-          value={name}
-          onChange={(event) => {
-            setName(event.currentTarget.value);
-            if (error) setError(null);
-          }}
-          placeholder="e.g. Acme Corp v. GlobalTech"
-          aria-label="Matter name"
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "create-matter-error" : undefined}
-        />
-      </label>
-
-      <Button type="submit" loading={pending} loadingLabel="Creating">
+    <>
+      <Button
+        type="button"
+        onClick={() => {
+          setOpen(true);
+          setError(null);
+        }}
+      >
         New Matter
       </Button>
 
-      {error && isValidationError ? (
-        <Alert id="create-matter-error" variant="destructive" hideIcon className="w-full">
-          {error.message}
-        </Alert>
-      ) : null}
+      <Modal
+        open={open}
+        onClose={() => {
+          if (pending) return;
+          setOpen(false);
+        }}
+      >
+        <form onSubmit={onSubmit} className="space-y-4" noValidate>
+          <div>
+            <ModalTitle>New Matter</ModalTitle>
+            <ModalBody>Create a new matter and continue to setup.</ModalBody>
+          </div>
 
-      {error && !isValidationError ? (
-        <div className="w-full" id="create-matter-error">
-          <ErrorBanner
-            code={error.code}
-            message={error.message}
-            retryable={error.retryable}
-            onRetry={error.retryable ? () => setError(null) : undefined}
-          />
-        </div>
-      ) : null}
-    </form>
+          <label className="grid gap-1 text-sm">
+            <span className="text-muted-foreground">Matter name</span>
+            <Input
+              name="name"
+              value={name}
+              onChange={(event) => {
+                setName(event.currentTarget.value);
+                if (error) setError(null);
+              }}
+              placeholder="e.g. Acme Corp v. GlobalTech"
+              aria-label="Matter name"
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "create-matter-error" : undefined}
+            />
+          </label>
+
+          {error && isValidationError ? (
+            <Alert id="create-matter-error" variant="destructive" hideIcon>
+              {error.message}
+            </Alert>
+          ) : null}
+
+          {error && !isValidationError ? (
+            <div id="create-matter-error">
+              <ErrorBanner
+                code={error.code}
+                message={error.message}
+                retryable={error.retryable}
+                onRetry={error.retryable ? () => setError(null) : undefined}
+              />
+            </div>
+          ) : null}
+
+          <ModalActions>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                if (pending) return;
+                setOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" loading={pending} loadingLabel="Creating">
+              Create Matter
+            </Button>
+          </ModalActions>
+        </form>
+      </Modal>
+    </>
   );
 }

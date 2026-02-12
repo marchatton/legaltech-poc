@@ -24,7 +24,6 @@ import { buttonClassName } from "../../../ui/Button";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { StatePage } from "../../../ui/StatePage";
 import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
-import { ArtefactsList } from "../ArtefactsList";
 import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
 
 import { ExportsPanel } from "./ExportsPanel";
@@ -117,15 +116,14 @@ const REPORT_TRIAGE_TABS: Array<{ id: ReportTriageTab; label: string }> = [
   { id: "flagged", label: "Flagged" },
 ];
 
-type MatterDetailTab = "report" | "documents" | "chat" | "artefacts" | "exports";
+type MatterDetailTab = "report" | "documents" | "chat" | "exports";
 
-const MATTER_DETAIL_TAB_ORDER: MatterDetailTab[] = ["report", "documents", "chat", "artefacts", "exports"];
+const MATTER_DETAIL_TAB_ORDER: MatterDetailTab[] = ["report", "documents", "chat", "exports"];
 const MATTER_DETAIL_TAB_LABELS: Record<MatterDetailTab, string> = {
-  report: "Report",
+  report: "To-do",
   documents: "Documents",
   chat: "Chat",
-  artefacts: "Artefacts",
-  exports: "Exports",
+  exports: "Reports",
 };
 
 function firstString(value: string | string[] | undefined): string | undefined {
@@ -220,6 +218,26 @@ function ProgressIcon() {
   );
 }
 
+function tabIcon(tabId: MatterDetailTab) {
+  if (tabId === "report") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
+        <path d="m5 13 4 4L19 7" />
+      </svg>
+    );
+  }
+  if (tabId === "exports") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
+        <path d="M12 3v12" />
+        <path d="m7 10 5 5 5-5" />
+        <path d="M5 21h14" />
+      </svg>
+    );
+  }
+  return null;
+}
+
 function fixtureStatusClass(variant: BadgeVariant): string {
   if (variant === "success") {
     return "rounded-pill border border-success/30 bg-success/10 px-2 py-0.5 font-medium text-success";
@@ -232,22 +250,18 @@ function fixtureStatusClass(variant: BadgeVariant): string {
 
 function checklistStepChipClass(state: "todo" | "in_progress" | "done"): string {
   if (state === "done") {
-    return "rounded-ui-md border border-success/30 bg-success/10 px-2.5 py-2 text-xs";
+    return "rounded-pill border border-success/30 bg-success/10 px-2.5 py-1.5 text-xs";
   }
   if (state === "in_progress") {
-    return "rounded-ui-md border border-warning/30 bg-warning/10 px-2.5 py-2 text-xs";
+    return "rounded-pill border border-warning/30 bg-warning/10 px-2.5 py-1.5 text-xs";
   }
-  return "rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs";
+  return "rounded-pill border border-border bg-card px-2.5 py-1.5 text-xs";
 }
 
-function checklistStepDotClass(state: "todo" | "in_progress" | "done"): string {
-  if (state === "done") {
-    return "size-3 rounded-pill border border-success/40 bg-success/20";
-  }
-  if (state === "in_progress") {
-    return "size-3 rounded-pill border border-warning/40 bg-warning/20";
-  }
-  return "size-3 rounded-pill border border-border bg-background";
+function checklistStepStateLabel(state: "todo" | "in_progress" | "done"): string {
+  if (state === "done") return "Done";
+  if (state === "in_progress") return "In progress";
+  return "Next";
 }
 
 export default async function MatterPage(props: {
@@ -379,9 +393,6 @@ export default async function MatterPage(props: {
     rowTab: triageFilters.rowTab,
   });
 
-  const artefactsListEnabled = process.env.FEATURE_ARTEFACTS_LIST === "1";
-  const chatEnabled = process.env.CHAT_ENABLED === "1";
-
   const setupDocuments = docs.map((doc) => ({
     id: doc.id,
     folder_id: doc.folder_id,
@@ -451,7 +462,6 @@ export default async function MatterPage(props: {
     report: reportRowsWithCounts.length,
     documents: setupDocuments.length,
     chat: null,
-    artefacts: null,
     exports: runOptions.length,
   };
   const detailTabs: WorkspaceTabItem[] = MATTER_DETAIL_TAB_ORDER.map((tabId) => ({
@@ -464,6 +474,7 @@ export default async function MatterPage(props: {
       reportRunId: reportRun?.id ?? null,
     }),
     count: tabCounts[tabId],
+    icon: tabIcon(tabId),
   }));
   const runQuestionsDone = latestRun?.questions_done ?? 0;
   const runQuestionsTotal = latestRun?.questions_total ?? 0;
@@ -509,7 +520,7 @@ export default async function MatterPage(props: {
             <div className="rounded-ui-lg border border-border/70 bg-muted/20 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Fixture context</span>
+                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Quick Start context</span>
                   <span className={fixtureStatusClass(fixtureContextBanner.variant)}>
                     {fixtureStatusLabel(fixtureContextBanner.variant)}
                   </span>
@@ -538,12 +549,8 @@ export default async function MatterPage(props: {
               <div className="mt-2 flex flex-wrap gap-2">
                 {operatorChecklistSteps.map((step) => (
                   <span key={step.id} className={checklistStepChipClass(step.state)}>
-                    <span className="flex items-center gap-1.5">
-                      <span className={checklistStepDotClass(step.state)} aria-hidden="true" />
-                      <span className={step.state === "done" ? "line-through text-muted-foreground" : "text-foreground"}>
-                        {step.label}
-                      </span>
-                    </span>
+                    <span className="mr-1 font-semibold text-muted-foreground">{checklistStepStateLabel(step.state)}:</span>
+                    <span className={step.state === "done" ? "text-muted-foreground line-through" : "text-foreground"}>{step.label}</span>
                   </span>
                 ))}
               </div>
@@ -624,24 +631,21 @@ export default async function MatterPage(props: {
           </section>
         ) : null}
 
-        {activeTab === "chat" && chatEnabled ? (
+        {activeTab === "chat" ? (
           <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+            <p className="mb-3 text-xs text-muted-foreground">
+              Ask evidence-grounded questions about this matter.
+            </p>
             <ChatPanel folderId={folderId} contextReady={chatContextReady} contextGuidance={chatContextGuidance} />
-          </section>
-        ) : null}
-
-        {activeTab === "chat" && !chatEnabled ? (
-          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-            <EmptyState title="Chat is unavailable" description="Set CHAT_ENABLED=1 to enable evidence-first chat for this matter." />
           </section>
         ) : null}
 
         {activeTab === "exports" ? (
           <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
             <div className="mb-3">
-              <h2 className="font-serif text-heading-sm font-medium">Exports</h2>
+              <h2 className="font-serif text-heading-sm font-medium">Reports</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Export a Word memo and CSV artefacts for a selected run. Only completed runs are export-eligible.
+                Export a Word memo, CSV artefacts, and report files for a selected completed run.
               </p>
             </div>
             <ExportsPanel
@@ -651,21 +655,6 @@ export default async function MatterPage(props: {
               unsafeOverrideEnabled={unsafeOverrideEnabled}
             />
           </section>
-        ) : null}
-
-        {activeTab === "artefacts" ? (
-          artefactsListEnabled ? (
-            <div className="animate-fade-in">
-              <ArtefactsList folderId={folderId} searchParams={rawSearchParams} />
-            </div>
-          ) : (
-            <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-              <EmptyState
-                title="Artefacts list disabled"
-                description="Enable FEATURE_ARTEFACTS_LIST=1 to use filtered artefact list and provenance view."
-              />
-            </section>
-          )
         ) : null}
       </div>
     </div>

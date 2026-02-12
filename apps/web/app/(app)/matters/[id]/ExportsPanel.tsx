@@ -112,7 +112,7 @@ export function ExportsPanel(props: Props) {
 
       <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Export options
+          Download reports
         </p>
         <div className="grid gap-2">
           <ExportMemoButton
@@ -128,21 +128,21 @@ export function ExportsPanel(props: Props) {
               runId={selectedRun?.run_id ?? null}
               runState={selectedRun?.status ?? null}
               kind="requirements_tracker"
-              label="Export requirements"
+              label="Summary CSV"
             />
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
               runState={selectedRun?.status ?? null}
               kind="exceptions_table"
-              label="Export exceptions"
+              label="Details CSV"
             />
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
               runState={selectedRun?.status ?? null}
               kind="survey_issues"
-              label="Export survey issues"
+              label="Citations CSV"
             />
           </div>
         </div>

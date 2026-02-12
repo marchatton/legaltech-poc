@@ -8,7 +8,7 @@ import { cn } from "./cn";
 
 /* ── Destination config ── */
 
-type DestinationId = "matters" | "runs_alerts" | "settings";
+type DestinationId = "matters" | "runs" | "alerts" | "settings";
 
 type Destination = {
   id: DestinationId;
@@ -33,15 +33,24 @@ const DESTINATIONS: Destination[] = [
     ),
   },
   {
-    id: "runs_alerts",
-    label: "Runs + Alerts",
-    disabledHint: "Runs and alerts are coming soon",
+    id: "runs",
+    label: "Runs",
+    disabledHint: "Runs are coming soon",
     icon: (props) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
         <circle cx="9.5" cy="12" r="6.5" />
         <polygon points="8 9.7 12.5 12 8 14.3 8 9.7" fill="currentColor" stroke="none" />
-        <path d="M16.4 8.8a2.4 2.4 0 0 1 2.4 2.4v1.1c0 .5.2 1 .5 1.4l.8.8h-4.9" />
-        <path d="M16.9 17.1a1.2 1.2 0 0 0 2.4 0" />
+      </svg>
+    ),
+  },
+  {
+    id: "alerts",
+    label: "Alerts",
+    disabledHint: "Alerts are coming soon",
+    icon: (props) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
+        <path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5" />
+        <path d="M9.5 20a2.5 2.5 0 0 0 5 0" />
       </svg>
     ),
   },
@@ -51,8 +60,8 @@ const DESTINATIONS: Destination[] = [
     disabledHint: "Settings are coming soon",
     icon: (props) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a1.4 1.4 0 1 1-2 2l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9v.3a1.4 1.4 0 1 1-2.8 0v-.3a1 1 0 0 0-.6-.9 1 1 0 0 0-1.1.2l-.1.1a1.4 1.4 0 1 1-2-2l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6h-.3a1.4 1.4 0 1 1 0-2.8h.3a1 1 0 0 0 .9-.6 1 1 0 0 0-.2-1.1l-.1-.1a1.4 1.4 0 1 1 2-2l.1.1a1 1 0 0 0 1.1.2h.1a1 1 0 0 0 .6-.9v-.3a1.4 1.4 0 1 1 2.8 0v.3a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a1.4 1.4 0 1 1 2 2l-.1.1a1 1 0 0 0-.2 1.1v.1a1 1 0 0 0 .9.6h.3a1.4 1.4 0 1 1 0 2.8h-.3a1 1 0 0 0-.9.6z" />
+        <circle cx="12" cy="12" r="3.2" />
+        <path d="M19.4 15.2a1.5 1.5 0 0 0 .3 1.6l.1.1a1.8 1.8 0 1 1-2.5 2.5l-.1-.1a1.5 1.5 0 0 0-1.6-.3 1.5 1.5 0 0 0-.9 1.3v.2a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-.9-1.3 1.5 1.5 0 0 0-1.6.3l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.5 1.5 0 0 0 .3-1.6 1.5 1.5 0 0 0-1.3-.9h-.2a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1.3-.9 1.5 1.5 0 0 0-.3-1.6l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .8-1.3V3.7a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 .8 1.3 1.5 1.5 0 0 0 1.6-.3l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.5 1.5 0 0 0-.3 1.6v.1a1.5 1.5 0 0 0 1.3.8h.2a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.3.9z" />
       </svg>
     ),
   },
@@ -86,7 +95,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden h-dvh shrink-0 border-r border-sidebar-border bg-sidebar transition-all duration-standard ease-brand-standard lg:flex lg:flex-col",
+        "sticky top-[var(--app-topbar-height,3rem)] hidden h-[calc(100dvh-var(--app-topbar-height,3rem))] shrink-0 border-r border-sidebar-border bg-sidebar transition-all duration-standard ease-brand-standard lg:flex lg:flex-col",
         collapsed ? "w-16" : "w-64",
       )}
     >
@@ -123,7 +132,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
       </div>
 
       {/* Navigation */}
-      <nav aria-label="Primary" className="flex-1 space-y-1 px-2 py-4">
+      <nav aria-label="Primary" className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
         {DESTINATIONS.map((item) => {
           const isActive = item.id === props.active;
           const itemClass = cn(
@@ -151,9 +160,10 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
           }
 
           const disabledNode = (
-            <span
+            <button
+              type="button"
               aria-disabled="true"
-              tabIndex={0}
+              onClick={(event) => event.preventDefault()}
               title={collapsed ? item.label : undefined}
               className={cn(
                 itemClass,
@@ -163,7 +173,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
             >
               <item.icon className={cn(iconClass, "text-muted-foreground/70")} />
               {!collapsed && <span className="truncate">{item.label}</span>}
-            </span>
+            </button>
           );
 
           if (collapsed) {

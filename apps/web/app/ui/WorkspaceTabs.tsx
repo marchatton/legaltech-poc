@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 import { cn } from "./cn";
 
@@ -8,6 +8,7 @@ export type WorkspaceTabItem = {
   label: string;
   href: string;
   count?: number | null;
+  icon?: ReactNode;
 };
 
 type WorkspaceTabsProps = HTMLAttributes<HTMLElement> & {
@@ -38,6 +39,7 @@ export function WorkspaceTabs({ items, activeId, ariaLabel, className, ...props 
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
             )}
           >
+            {item.icon ? <span className="shrink-0">{item.icon}</span> : null}
             {item.label}
             {typeof item.count === "number" ? (
               <span

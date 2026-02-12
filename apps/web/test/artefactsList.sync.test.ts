@@ -24,11 +24,12 @@ describe("US-003 artefacts list parity", () => {
     expect(source).toContain("{artefact.source_run_id ?? \"—\"}");
   });
 
-  it("passes matter search params into artefacts list filtering", () => {
+  it("removes artefacts from the matter detail tabs", () => {
     const root = repoRootFromWebPackage();
     const pagePath = path.join(root, "apps/web/app/(app)/matters/[id]/page.tsx");
     const source = readUtf8(pagePath);
 
-    expect(source).toContain("<ArtefactsList folderId={folderId} searchParams={rawSearchParams} />");
+    expect(source).not.toContain("<ArtefactsList");
+    expect(source).not.toContain('"artefacts"');
   });
 });

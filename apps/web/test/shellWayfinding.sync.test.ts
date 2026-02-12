@@ -27,7 +27,8 @@ describe("US-001 shell wayfinding baseline", () => {
     expect(mattersPageSource).toContain("resolveShellEnvironment");
     expect(sidebarSource).toContain('href: "/matters"');
     expect(sidebarSource).toContain('aria-current={isActive ? "page" : undefined}');
-    expect(sidebarSource).toContain("Runs + Alerts");
+    expect(sidebarSource).toContain("Runs");
+    expect(sidebarSource).toContain("Alerts");
     expect(sidebarSource).toContain("Settings");
     expect(sidebarSource).toContain('aria-disabled="true"');
   });
@@ -50,6 +51,6 @@ describe("US-001 shell wayfinding baseline", () => {
     expect(source).toContain("{shellEnvironment.label}");
     expect(shellEnvironmentSource).toContain('label: "demo-dev"');
     expect(shellEnvironmentSource).toContain('label: "demo-prod"');
-    expect(shellPrimitives).toContain("sticky top-0");
+    expect(shellPrimitives).toContain("sticky top-[var(--app-topbar-height,3rem)]");
   });
 });

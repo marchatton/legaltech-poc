@@ -20,7 +20,7 @@ describe("US-002 fixture context banner presence", () => {
     const pageSource = readUtf8(pagePath);
     const bannerSource = readUtf8(bannerPath);
 
-    expect(pageSource).toContain("Fixture context");
+    expect(pageSource).toContain("Quick Start context");
     expect(pageSource).toContain("fixtureStatusLabel");
     expect(pageSource).toContain("activePack");
     expect(pageSource).toContain("loaded_at");

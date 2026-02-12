@@ -208,65 +208,56 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   const citationId = parsedParams.data.id;
 
-  if (citationsApiEnabled) {
-    await ensureSchema();
-    const citations = await sql<
-      Array<{
-        id: string;
-        document_id: string;
-        page_number: number;
-        snippet: string;
-        snippet_hash: string;
-        polygons_json: unknown;
-        provenance_json: unknown;
-      }>
-    >`
-      SELECT c.id, c.document_id, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
-      FROM citations c
-      LEFT JOIN report_rows r
-        ON r.id = c.report_row_id
-      WHERE c.id = ${citationId}
-      LIMIT 1
-    `;
-    const cit = citations[0];
-    if (!cit) {
-      if (isDevOrDemoProd()) {
-        return seedCitationResponse({
-          citationId,
-          packId: parsedQuery.data.pack,
-          traceId,
-          headers,
-        });
-      }
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Citation not found.", traceId }), {
-        status: 404,
+  await ensureSchema();
+  const citations = await sql<
+    Array<{
+      id: string;
+      document_id: string;
+      page_number: number;
+      snippet: string;
+      snippet_hash: string;
+      polygons_json: unknown;
+      provenance_json: unknown;
+    }>
+  >`
+    SELECT c.id, c.document_id, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
+    FROM citations c
+    LEFT JOIN report_rows r
+      ON r.id = c.report_row_id
+    WHERE c.id = ${citationId}
+    LIMIT 1
+  `;
+  const cit = citations[0];
+  if (!cit) {
+    if (isDevOrDemoProd()) {
+      return seedCitationResponse({
+        citationId,
+        packId: parsedQuery.data.pack,
+        traceId,
         headers,
       });
     }
-    const trust = trustMetadataFromProvenance(cit.provenance_json);
-
-    return Response.json(
-      {
-        citation: {
-          id: cit.id,
-          document_id: cit.document_id,
-          page_number: cit.page_number,
-          polygons: cit.polygons_json,
-          snippet: cit.snippet,
-          snippet_hash: cit.snippet_hash,
-          doc_version: trust.doc_version,
-          verified_at: trust.verified_at,
-          loaded_state: trust.loaded_state,
-        },
-      },
-      { status: 200, headers },
-    );
+    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Citation not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
+  const trust = trustMetadataFromProvenance(cit.provenance_json);
 
-  return seedCitationResponse({
-    citationId,
-    packId: parsedQuery.data.pack,
-    traceId,
-    headers,
-  });
+  return Response.json(
+    {
+      citation: {
+        id: cit.id,
+        document_id: cit.document_id,
+        page_number: cit.page_number,
+        polygons: cit.polygons_json,
+        snippet: cit.snippet,
+        snippet_hash: cit.snippet_hash,
+        doc_version: trust.doc_version,
+        verified_at: trust.verified_at,
+        loaded_state: trust.loaded_state,
+      },
+    },
+    { status: 200, headers },
+  );
 }

@@ -16,9 +16,9 @@ export type OperatorChecklistSignal = {
 const TERMINAL_RUN_STATES = new Set(["completed", "partial", "failed", "cancelled"]);
 
 const ORDERED_STEP_LABELS = [
-  { id: "run_created", label: "Quick Start run started" },
-  { id: "run_phase", label: "Quick Start run phase" },
-  { id: "run_completed", label: "Quick Start completed" },
+  { id: "run_created", label: "Run started" },
+  { id: "run_phase", label: "Processing questions" },
+  { id: "run_completed", label: "Outputs ready" },
 ] as const;
 
 function isValidDate(value: Date | null | undefined): value is Date {

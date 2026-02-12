@@ -3,7 +3,12 @@ import Link from "next/link";
 import { assertDevOrDemoProd } from "../../../lib/devOnly";
 import { isDemoModeEnabled } from "../../../lib/demoMode.server";
 import { formatDemoLoadedAtLabel, parseDemoMatterMetadata } from "../../../lib/demoMatterMetadata";
-import { listMatters, parseMatterListFilters, type MatterListFilters, type MatterSavedView } from "../../../lib/mattersList.server";
+import {
+  listMatters,
+  parseMatterListFilters,
+  type MatterListFilters,
+  type MatterSavedView,
+} from "../../../lib/mattersList.server";
 import { orbitalMode } from "../../../lib/runtimeMode";
 
 import { Badge, type BadgeVariant } from "../../ui/Badge";
@@ -33,13 +38,28 @@ const SAVED_VIEW_OPTIONS: { label: string; value: MatterSavedView }[] = [
   { label: "Demo Packs", value: "demo_packs" },
 ];
 
+const PAGE_SIZE = 12;
+
 /* ── Helpers ── */
 
-function buildQueryString(filters: MatterListFilters): string {
+function firstString(value: string | string[] | undefined): string | null {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return null;
+}
+
+function parsePageNumber(raw: string | string[] | undefined): number {
+  const value = Number.parseInt(firstString(raw) ?? "1", 10);
+  if (!Number.isFinite(value) || value < 1) return 1;
+  return value;
+}
+
+function buildQueryString(filters: MatterListFilters, page?: number): string {
   const params = new URLSearchParams();
   if (filters.q.trim().length > 0) params.set("q", filters.q.trim());
   if (filters.state) params.set("state", filters.state);
   if (filters.view) params.set("view", filters.view);
+  if (page && page > 1) params.set("page", String(page));
   const qs = params.toString();
   return qs.length > 0 ? `?${qs}` : "";
 }
@@ -50,10 +70,11 @@ function statusForState(state: string): { label: string; variant: BadgeVariant; 
   return { label: "Needs Attention", variant: "warning", dot: "warning" };
 }
 
-function formatTimestamp(iso: string): string {
+function formatTimestampParts(iso: string): { date: string; time: string } {
   const parsed = new Date(iso);
-  if (Number.isNaN(parsed.getTime())) return iso;
-  return parsed.toISOString().slice(0, 16).replace("T", " ");
+  if (Number.isNaN(parsed.getTime())) return { date: iso, time: "" };
+  const stamp = parsed.toISOString().replace("T", " ").replace(".000Z", "Z");
+  return { date: stamp.slice(0, 10), time: stamp.slice(11, 19) };
 }
 
 /* ── Icons ── */
@@ -101,6 +122,15 @@ export default async function MattersPage(props: {
     : [];
   const shellEnvironment = resolveShellEnvironment(orbitalMode(), demoModeEnabled);
 
+  const requestedPage = parsePageNumber(rawSearchParams.page);
+  const totalMatters = matters.length;
+  const totalPages = Math.max(1, Math.ceil(totalMatters / PAGE_SIZE));
+  const page = Math.min(requestedPage, totalPages);
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const visibleMatters = matters.slice(startIndex, startIndex + PAGE_SIZE);
+  const visibleRangeStart = totalMatters === 0 ? 0 : startIndex + 1;
+  const visibleRangeEnd = totalMatters === 0 ? 0 : Math.min(startIndex + visibleMatters.length, totalMatters);
+
   return (
     <>
       <WorkspaceContextBar>
@@ -116,52 +146,49 @@ export default async function MattersPage(props: {
         </WorkspaceContextBarBody>
       </WorkspaceContextBar>
 
-      <Page width="xl">
-        <PageHeader
-          title="Matters"
-          subtitle="Manage your legal review projects."
-          right={<CreateMatterForm />}
-        />
+      <Page width="xl" className="pt-0">
+        <section className="sticky top-[var(--app-topbar-height,3rem)] z-20 -mx-6 border-b border-border bg-background/95 px-6 pb-4 pt-6 backdrop-blur sm:-mx-8 sm:px-8">
+          <PageHeader title="Matters" subtitle="Manage your legal review projects." right={<CreateMatterForm />} />
 
-      {/* Search + filter pills toolbar */}
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <form method="get" className="w-full max-w-sm">
-          <SearchInput
-            name="q"
-            defaultValue={filters.q}
-            placeholder="Search matters by name or ID..."
-            aria-label="Search matters"
-          />
-          {filters.view ? <input type="hidden" name="view" value={filters.view} /> : null}
-          {filters.state ? <input type="hidden" name="state" value={filters.state} /> : null}
-          <button type="submit" className="sr-only">Search</button>
-        </form>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <form method="get" className="w-full max-w-2xl">
+              <SearchInput
+                name="q"
+                defaultValue={filters.q}
+                placeholder="Search matters by name or ID..."
+                aria-label="Search matters"
+                className="w-full"
+              />
+              {filters.view ? <input type="hidden" name="view" value={filters.view} /> : null}
+              {filters.state ? <input type="hidden" name="state" value={filters.state} /> : null}
+              <button type="submit" className="sr-only">Search</button>
+            </form>
 
-        <div className="flex flex-wrap gap-2">
-          {SAVED_VIEW_OPTIONS.map((option) => {
-            const isActive = filters.view === option.value;
-            const nextView = isActive ? null : option.value;
-            const href = `/matters${buildQueryString({ ...filters, view: nextView })}`;
-            return (
-              <Link
-                key={option.value}
-                href={href}
-                aria-pressed={isActive}
-                className={
-                  isActive
-                    ? "rounded-pill border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm transition-colors duration-micro ease-brand-standard"
-                    : "rounded-pill border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-micro ease-brand-standard hover:bg-muted hover:text-foreground"
-                }
-              >
-                {option.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+            <div className="flex flex-wrap gap-2">
+              {SAVED_VIEW_OPTIONS.map((option) => {
+                const isActive = filters.view === option.value;
+                const nextView = isActive ? null : option.value;
+                const href = `/matters${buildQueryString({ ...filters, view: nextView }, 1)}`;
+                return (
+                  <Link
+                    key={option.value}
+                    href={href}
+                    aria-pressed={isActive}
+                    className={
+                      isActive
+                        ? "rounded-pill border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm transition-colors duration-micro ease-brand-standard"
+                        : "rounded-pill border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-micro ease-brand-standard hover:bg-muted hover:text-foreground"
+                    }
+                  >
+                    {option.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-      {/* Main content + optional demo sidebar */}
-      <div className={demoModeEnabled ? "mt-6 flex gap-6" : "mt-6"}>
+        <div className={demoModeEnabled ? "mt-6 flex gap-6" : "mt-6"}>
         <div className="min-w-0 flex-1">
           {matters.length === 0 ? (
             <Card className="overflow-hidden">
@@ -179,8 +206,8 @@ export default async function MattersPage(props: {
           ) : (
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground">
-                Showing <span className="font-semibold text-foreground tabular-nums">{matters.length}</span>{" "}
-                matter{matters.length === 1 ? "" : "s"}
+                Showing <span className="font-semibold text-foreground tabular-nums">{visibleRangeStart}-{visibleRangeEnd}</span> of{" "}
+                <span className="font-semibold text-foreground tabular-nums">{totalMatters}</span> matter{totalMatters === 1 ? "" : "s"}
               </p>
 
               <TableFrame className="shadow-ui-sm">
@@ -190,37 +217,44 @@ export default async function MattersPage(props: {
                       <TH className="sticky top-0 z-10">Name</TH>
                       <TH className="sticky top-0 z-10">Status</TH>
                       <TH className="sticky top-0 z-10">Created</TH>
-                      <TH className="sticky top-0 z-10 w-10" />
                     </tr>
                   </thead>
                   <tbody>
-                    {matters.map((matter, i) => {
+                    {visibleMatters.map((matter, i) => {
                       const status = statusForState(matter.state);
                       const delay = Math.min(i * 30, 300);
+                      const createdAt = formatTimestampParts(matter.created_at);
+                      const detailHref = `/matters/${encodeURIComponent(matter.id)}`;
+
                       return (
                         <TR key={matter.id} className="group animate-fade-in" style={{ animationDelay: `${delay}ms` }}>
-                          <TD className="align-top">
-                            <div className="text-sm font-medium text-foreground">{matter.name}</div>
-                            <div className="mt-0.5">
-                              <MonoId>{matter.id}</MonoId>
-                            </div>
+                          <TD className="p-0 align-top">
+                            <Link href={detailHref} className="block px-3 py-2.5">
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">{matter.name}</div>
+                                  <div className="mt-0.5">
+                                    <MonoId>{matter.id}</MonoId>
+                                  </div>
+                                </div>
+                                <span className="pt-1 text-muted-foreground opacity-0 transition-opacity duration-micro group-hover:opacity-100">
+                                  <ArrowRightIcon />
+                                </span>
+                              </div>
+                            </Link>
                           </TD>
-                          <TD className="align-top">
-                            <div className="flex items-center gap-2">
-                              <StatusDot status={status.dot} size="sm" />
-                              <Badge variant={status.variant}>{status.label}</Badge>
-                            </div>
+                          <TD className="p-0 align-top">
+                            <Link href={detailHref} className="block px-3 py-2.5">
+                              <div className="flex items-center gap-2">
+                                <StatusDot status={status.dot} size="sm" />
+                                <Badge variant={status.variant}>{status.label}</Badge>
+                              </div>
+                            </Link>
                           </TD>
-                          <TD className="align-top text-sm text-muted-foreground tabular-nums">
-                            {formatTimestamp(matter.created_at)}
-                          </TD>
-                          <TD className="align-top text-right">
-                            <Link
-                              href={`/matters/${encodeURIComponent(matter.id)}`}
-                              className="inline-flex items-center justify-center rounded-ui-md p-1.5 text-muted-foreground opacity-0 transition-all duration-micro ease-brand-standard hover:bg-muted hover:text-foreground group-hover:opacity-100"
-                              aria-label={`Open ${matter.name}`}
-                            >
-                              <ArrowRightIcon />
+                          <TD className="p-0 align-top">
+                            <Link href={detailHref} className="block px-3 py-2.5">
+                              <div className="text-sm text-foreground tabular-nums">{createdAt.date}</div>
+                              <div className="text-xs text-muted-foreground tabular-nums">{createdAt.time}</div>
                             </Link>
                           </TD>
                         </TR>
@@ -229,6 +263,40 @@ export default async function MattersPage(props: {
                   </tbody>
                 </Table>
               </TableFrame>
+
+              {totalPages > 1 ? (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    Page <span className="font-semibold text-foreground">{page}</span> of {totalPages}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {page > 1 ? (
+                      <Link
+                        href={`/matters${buildQueryString(filters, page - 1)}`}
+                        className={buttonClassName({ variant: "secondary", size: "sm" })}
+                      >
+                        Previous
+                      </Link>
+                    ) : (
+                      <span className={buttonClassName({ variant: "secondary", size: "sm", className: "pointer-events-none opacity-50" })}>
+                        Previous
+                      </span>
+                    )}
+                    {page < totalPages ? (
+                      <Link
+                        href={`/matters${buildQueryString(filters, page + 1)}`}
+                        className={buttonClassName({ variant: "secondary", size: "sm" })}
+                      >
+                        Next
+                      </Link>
+                    ) : (
+                      <span className={buttonClassName({ variant: "secondary", size: "sm", className: "pointer-events-none opacity-50" })}>
+                        Next
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
         </div>

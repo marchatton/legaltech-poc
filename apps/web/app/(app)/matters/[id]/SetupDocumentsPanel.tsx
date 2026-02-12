@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { type ChangeEvent, useMemo, useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -8,7 +8,6 @@ import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { EmptyState } from "../../../ui/EmptyState";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
-import { MonoId } from "../../../ui/MonoId";
 import { SectionTitle } from "../../../ui/Page";
 
 type UploadCapabilities = {
@@ -189,16 +188,8 @@ export function SetupDocumentsPanel(props: {
     }
   }
 
-  async function handleUpload(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function startUpload(file: File): Promise<void> {
     if (isUploading) return;
-
-    const file = fileRef.current?.files?.[0] ?? null;
-    if (!file) {
-      setError({ code: "NO_FILE_SELECTED", message: "Choose a PDF to upload." });
-      setNotice(null);
-      return;
-    }
 
     const fallbackMime = file.name.toLowerCase().endsWith(".pdf") ? "application/pdf" : "";
     const mime = (file.type || fallbackMime).trim();
@@ -216,7 +207,7 @@ export function SetupDocumentsPanel(props: {
 
     setIsUploading(true);
     setError(null);
-    setNotice("Starting upload...");
+    setNotice(`Uploading ${file.name}...`);
 
     try {
       const initRes = await fetch(`/folders/${encodeURIComponent(props.folderId)}/documents`, {
@@ -313,17 +304,18 @@ export function SetupDocumentsPanel(props: {
         ),
       );
 
-      setNotice("Upload complete. Indexing in progress; readiness will update automatically.");
+      setNotice(`Upload complete. Indexing ${file.name}...`);
       await refreshDocuments();
       await pollUntilTerminal(initJson.document.id);
       await refreshDocuments();
       router.refresh();
-      if (fileRef.current) fileRef.current.value = "";
+      setNotice(`${file.name} uploaded.`);
     } catch {
       setError({ code: "UNEXPECTED_ERROR", message: "Upload failed due to an unexpected error.", retryable: true });
       setNotice(null);
     } finally {
       setIsUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
     }
   }
 
@@ -336,40 +328,39 @@ export function SetupDocumentsPanel(props: {
     if (refreshed) router.refresh();
   }
 
+  function onFileSelected(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0] ?? null;
+    if (!file) return;
+    void startUpload(file);
+  }
+
   return (
     <section>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <SectionTitle>Setup documents</SectionTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            Upload source documents and watch readiness move from queued through indexing.
+            Upload source documents and continue once at least one is indexed-ready.
           </p>
         </div>
-        <div className="rounded-ui-md bg-muted px-3 py-2 text-right text-xs text-muted-foreground ring-1 ring-inset ring-border/60">
-          <div>
-            accepted MIME: <span className="font-mono">{capabilities.accepted_mime.join(", ")}</span>
-          </div>
-          <div>
-            max size: <span className="font-mono">{formatBytes(capabilities.max_bytes)}</span>
-          </div>
-        </div>
-      </div>
 
-      <form onSubmit={handleUpload} className="mt-4 grid gap-2 rounded-ui-md border border-border bg-muted p-3">
-        <label className="text-xs font-medium text-foreground" htmlFor={`upload-${props.folderId}`}>
-          Upload PDF
-        </label>
-        <input
-          id={`upload-${props.folderId}`}
-          ref={fileRef}
-          type="file"
-          accept={capabilities.accepted_mime.join(",")}
-          className="block w-full cursor-pointer rounded-ui-md border border-input bg-background px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-ui-md file:border-0 file:bg-muted file:px-2.5 file:py-1.5 file:text-xs file:font-medium"
-          disabled={isUploading}
-        />
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="submit" loading={isUploading} loadingLabel="Uploading">
-            Upload and index
+        <div className="flex items-center gap-3">
+          <input
+            id={`upload-${props.folderId}`}
+            ref={fileRef}
+            type="file"
+            accept={capabilities.accepted_mime.join(",")}
+            className="sr-only"
+            onChange={onFileSelected}
+            disabled={isUploading}
+          />
+          <Button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            loading={isUploading}
+            loadingLabel="Uploading"
+          >
+            Upload documents
           </Button>
           <Button
             type="button"
@@ -380,9 +371,15 @@ export function SetupDocumentsPanel(props: {
           >
             Refresh readiness
           </Button>
-          {notice ? <span className="text-xs text-muted-foreground">{notice}</span> : null}
+          <span className="text-2xs text-muted-foreground">
+            PDF only · max {formatBytes(capabilities.max_bytes)}
+          </span>
         </div>
-        {error ? (
+      </div>
+
+      {notice ? <div className="mt-3 text-xs text-muted-foreground">{notice}</div> : null}
+      {error ? (
+        <div className="mt-3">
           <ErrorBanner
             code={error.code}
             message={error.message}
@@ -390,19 +387,18 @@ export function SetupDocumentsPanel(props: {
             onRetry={error.retryable ? handleRetry : undefined}
             retryLabel="Dismiss"
           />
-        ) : null}
-      </form>
+        </div>
+      ) : null}
 
       <div className="mt-3 text-xs text-muted-foreground">
         {indexedReadyCount > 0 ? (
           <span>
-            {indexedReadyCount} document{indexedReadyCount === 1 ? "" : "s"} indexed-ready. Continue to review or run
-            Quick Start below.
+            {indexedReadyCount} document{indexedReadyCount === 1 ? "" : "s"} indexed-ready.
           </span>
         ) : (
           <span>
-            Matter state is <span className="font-mono">{props.folderState}</span>. Upload and index at least one
-            document before starting Quick Start.
+            Matter state is <span className="font-mono">{props.folderState}</span>. Upload at least one PDF before
+            starting Quick Start.
           </span>
         )}
       </div>
@@ -423,23 +419,24 @@ export function SetupDocumentsPanel(props: {
             return (
               <article
                 key={doc.id}
-                className="rounded-ui-md border border-border bg-card p-3 animate-fade-in"
+                className="animate-fade-in rounded-ui-md border border-border bg-card p-3"
                 style={{ animationDelay: `${delay}ms` }}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <MonoId variant="inverted">{doc.id}</MonoId>
-                    <div className="text-sm font-medium text-foreground">{doc.filename}</div>
-                    <Badge variant={docStatusVariant[doc.status]}>{statusLabel(doc.status)}</Badge>
-                    <Badge variant="muted">{doc.parse_status}/{doc.ocr_status}</Badge>
-                    {typeof doc.page_count === "number" ? (
-                      <span className="text-xs text-muted-foreground">pages: {doc.page_count}</span>
-                    ) : null}
-                    {typeof doc.extraction_quality === "number" ? (
-                      <span className="text-xs text-muted-foreground">
-                        quality: {Math.round(doc.extraction_quality * 100)}%
-                      </span>
-                    ) : null}
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="max-w-[28rem] truncate text-sm font-medium text-foreground" title={`ID: ${doc.id}`}>
+                        {doc.filename}
+                      </div>
+                      <Badge variant={docStatusVariant[doc.status]}>{statusLabel(doc.status)}</Badge>
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="font-mono">{doc.parse_status}/{doc.ocr_status}</span>
+                      {typeof doc.page_count === "number" ? <span>pages: {doc.page_count}</span> : null}
+                      {typeof doc.extraction_quality === "number" ? (
+                        <span>quality: {Math.round(doc.extraction_quality * 100)}%</span>
+                      ) : null}
+                    </div>
                   </div>
 
                   {doc.open_pdf_url ? (
@@ -449,10 +446,10 @@ export function SetupDocumentsPanel(props: {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Open PDF
+                      Open document
                     </a>
                   ) : (
-                    <span className="text-xs text-muted-foreground">PDF not ready</span>
+                    <span className="text-xs text-muted-foreground">Processing</span>
                   )}
                 </div>
 

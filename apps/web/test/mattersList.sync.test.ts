@@ -38,7 +38,8 @@ describe("US-002 matters list controls and actions", () => {
     const pageSource = readUtf8(mattersPagePath);
     const createSource = readUtf8(createFormPath);
 
-    expect(pageSource).toContain("Open");
+    expect(pageSource).toContain("ArrowRightIcon");
+    expect(pageSource).toContain("`/matters/${encodeURIComponent(matter.id)}`");
     expect(createSource).toContain("New Matter");
     expect(createSource).toContain("Matter name is required.");
     expect(createSource).toContain('variant="destructive"');

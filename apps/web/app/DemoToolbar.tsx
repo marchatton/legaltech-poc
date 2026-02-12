@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "./ui/Button";
 import { Select } from "./ui/Input";
+import { ThemeToggle } from "./ui/ThemeToggle";
 
 const PACK_OPTIONS = [
   { id: "pack_01_clean", label: "pack_01_clean" },
@@ -67,17 +68,17 @@ export function DemoToolbar() {
   }
 
   return (
-    <section className="sticky top-0 z-50 border-b border-orange-400/40 bg-primary text-primary-foreground shadow-ui-sm">
-      <div className="flex min-h-12 w-full items-center gap-3 px-4 lg:px-6">
-        <span className="rounded-ui-sm bg-white/20 px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-widest">
+    <section className="sticky top-0 z-50 h-12 border-b border-border bg-card/95 text-foreground backdrop-blur">
+      <div className="flex h-full w-full items-center gap-3 px-4 lg:px-6">
+        <span className="rounded-ui-sm border border-orange-400/40 bg-orange-500/15 px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-widest text-orange-600 dark:text-orange-300">
           DEMO MODE
         </span>
-        <span className="text-sm font-medium text-primary-foreground/90">Operator Controls</span>
+        <span className="text-sm font-medium text-muted-foreground">Operator Controls</span>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-primary-foreground/85">Allowlisted packs</span>
+          <span className="text-xs font-medium text-muted-foreground">Allowlisted packs</span>
           <Select
-            className="min-w-52 border-orange-200/40 bg-primary/20 text-primary-foreground ring-offset-primary [&>option]:text-foreground"
+            className="min-w-52 border-border bg-background text-foreground"
             uiSize="sm"
             value={packId}
             onChange={(e) => setPackId(e.currentTarget.value as PackId)}
@@ -90,14 +91,15 @@ export function DemoToolbar() {
               </option>
             ))}
           </Select>
-          <Button size="sm" variant="secondary" onClick={loadPack} loading={state.kind === "loading"} className="border-white/40 bg-white text-primary hover:bg-orange-50">
+          <Button size="sm" variant="primary" onClick={loadPack} loading={state.kind === "loading"}>
             Load Demo Pack
           </Button>
+          <ThemeToggle />
         </div>
       </div>
 
       {state.kind === "error" ? (
-        <div className="border-t border-orange-300/50 px-4 py-1 text-xs font-medium text-orange-50 lg:px-6">{state.message}</div>
+        <div className="border-t border-border px-4 py-1 text-xs font-medium text-destructive lg:px-6">{state.message}</div>
       ) : null}
     </section>
   );

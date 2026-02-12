@@ -19,7 +19,7 @@ export default function HomePage() {
               Matters workspace
             </Link>
             <p className="mt-1 text-xs text-muted-foreground">
-              Main parity surface: list, detail tabs, evidence workflows, chat, exports, and artefacts.
+              Main parity surface: list, detail tabs, evidence workflows, chat, and reports.
             </p>
           </Card>
 

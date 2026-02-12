@@ -12,9 +12,14 @@ type WorkspaceShellFrameProps = {
 
 export function WorkspaceShellFrame({ sidebar, children, className }: WorkspaceShellFrameProps) {
   return (
-    <div className={cn("flex min-h-dvh w-full bg-background overflow-hidden", className)}>
+    <div
+      className={cn(
+        "flex min-h-[calc(100dvh-var(--app-topbar-height,3rem))] w-full bg-background overflow-x-hidden",
+        className,
+      )}
+    >
       {sidebar}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col">{children}</div>
     </div>
   );
 }
@@ -25,7 +30,7 @@ export function WorkspaceContextBar({ className, ...props }: HTMLAttributes<HTML
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-6",
+        "sticky top-[var(--app-topbar-height,3rem)] z-30 flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/95 px-6 backdrop-blur",
         className,
       )}
       {...props}

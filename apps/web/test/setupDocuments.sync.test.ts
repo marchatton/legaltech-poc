@@ -35,7 +35,7 @@ describe("US-003 setup documents upload flow", () => {
     const pageSource = readUtf8(pagePath);
 
     expect(pageSource).toContain("<SetupDocumentsPanel");
-    expect(panelSource).toContain("accepted mime:");
+    expect(panelSource).toContain("upload documents");
     expect(panelSource).toContain("capabilities.accepted_mime");
     expect(panelSource).toContain("capabilities.max_bytes");
     expect(panelSource).not.toContain("docx");
