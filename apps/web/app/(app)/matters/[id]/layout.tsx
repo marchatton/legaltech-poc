@@ -6,10 +6,13 @@ import Link from "next/link";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { isDemoModeEnabled } from "../../../../lib/demoMode.server";
+import { orbitalMode } from "../../../../lib/runtimeMode";
 
 import { Badge } from "../../../ui/Badge";
 import { MonoId } from "../../../ui/MonoId";
 import { WorkspaceContextBar, WorkspaceContextBarBody } from "../../../ui/WorkspaceShell";
+
+import { resolveShellEnvironment } from "../shellEnvironment";
 
 const ParamsSchema = z.object({
   id: z.string().min(1),
@@ -59,9 +62,7 @@ export default async function MatterDetailLayout(props: {
         `
       : [];
   const latestRunId = latestRuns[0]?.id ?? null;
-  const demoModeEnabled = isDemoModeEnabled();
-  const environmentLabel = demoModeEnabled ? "demo-dev" : "production";
-  const environmentBadgeVariant = demoModeEnabled ? "warning" : "muted";
+  const shellEnvironment = resolveShellEnvironment(orbitalMode(), isDemoModeEnabled());
 
   return (
     <>
@@ -93,8 +94,8 @@ export default async function MatterDetailLayout(props: {
                 {latestRunId}
               </Badge>
             ) : null}
-            <Badge variant={environmentBadgeVariant} size="sm">
-              {environmentLabel}
+            <Badge variant={shellEnvironment.badgeVariant} size="sm">
+              {shellEnvironment.label}
             </Badge>
           </div>
         </WorkspaceContextBarBody>

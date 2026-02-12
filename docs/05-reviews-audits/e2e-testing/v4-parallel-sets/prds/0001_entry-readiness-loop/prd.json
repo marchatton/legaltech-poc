@@ -67,7 +67,7 @@
     {
       "id": "US-001",
       "title": "Shell Wayfinding Baseline",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As an operator, I want stable shell wayfinding so I can enter matter workflows confidently.",
       "acceptanceCriteria": [
@@ -76,7 +76,10 @@
         "Then environment badge, breadcrumb, and stable matter identifiers are visible.",
         "Example: breadcrumb includes Matters > Matter Name and Runs + Alerts appears disabled.",
         "Negative: placeholder navigation never routes to broken or ambiguous screens."
-      ]
+      ],
+      "startedAt": "2026-02-12T15:05:41.228768+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-12T15:05:41.228792+00:00"
     },
     {
       "id": "US-002",

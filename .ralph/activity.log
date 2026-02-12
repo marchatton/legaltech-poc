@@ -124,3 +124,7 @@
 [2026-02-11 19:11:09] Verification complete for US-005: lint/typecheck/test/build passed, browser smoke verified recovery checklist and local-only citation flag acknowledgement
 [2026-02-11 19:12:07] Updated US-005 progress entry with commit hash, verification matrix, browser smoke evidence, and iteration learnings
 [2026-02-11 19:12:51] ITERATION 5 end (duration=688s)
+[2026-02-12 15:05:41] ITERATION 1 start (mode=build story=US-001)
+[2026-02-12 15:06:14] Start US-001 Shell Wayfinding Baseline: reviewing guardrails/errors/PRD and auditing existing shell routing
+[2026-02-12 15:11:15] Implemented US-001 shell wayfinding updates: shared environment resolver, matters list context bar, detail layout environment consistency, and sync/unit tests
+[2026-02-12 15:20:53] Verification complete for US-001: targeted tests + lint/typecheck/test/build + browser flow /matters -> /matters/:id -> /matters with screenshots

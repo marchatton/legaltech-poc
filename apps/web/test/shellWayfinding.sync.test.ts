@@ -16,11 +16,15 @@ describe("US-001 shell wayfinding baseline", () => {
   it("renders matters as active and keeps placeholder destinations visible", () => {
     const root = repoRootFromWebPackage();
     const shellLayoutPath = path.join(root, "apps/web/app/(app)/matters/layout.tsx");
+    const mattersPagePath = path.join(root, "apps/web/app/(app)/matters/page.tsx");
     const sidebarPath = path.join(root, "apps/web/app/ui/WorkspaceSidebar.tsx");
     const layoutSource = readUtf8(shellLayoutPath);
+    const mattersPageSource = readUtf8(mattersPagePath);
     const sidebarSource = readUtf8(sidebarPath);
 
     expect(layoutSource).toContain('WorkspaceSidebar active="matters"');
+    expect(mattersPageSource).toContain("WorkspaceContextBar");
+    expect(mattersPageSource).toContain("resolveShellEnvironment");
     expect(sidebarSource).toContain('href: "/matters"');
     expect(sidebarSource).toContain('aria-current={isActive ? "page" : undefined}');
     expect(sidebarSource).toContain("Runs + Alerts");
@@ -31,15 +35,21 @@ describe("US-001 shell wayfinding baseline", () => {
   it("renders detail breadcrumb and sticky identifier context", () => {
     const root = repoRootFromWebPackage();
     const detailLayoutPath = path.join(root, "apps/web/app/(app)/matters/[id]/layout.tsx");
+    const shellEnvironmentPath = path.join(root, "apps/web/app/(app)/matters/shellEnvironment.ts");
     const shellPrimitivesPath = path.join(root, "apps/web/app/ui/WorkspaceShell.tsx");
     const source = readUtf8(detailLayoutPath);
+    const shellEnvironmentSource = readUtf8(shellEnvironmentPath);
     const shellPrimitives = readUtf8(shellPrimitivesPath);
 
     expect(source).toContain("Matters");
     expect(source).toContain('<polyline points="9 18 15 12 9 6" />');
     expect(source).toContain("folderName");
+    expect(source).toContain("resolveShellEnvironment");
     expect(source).toContain("WorkspaceContextBar");
     expect(source).toContain('<MonoId className="ml-2 shrink-0">{folderId}</MonoId>');
+    expect(source).toContain("{shellEnvironment.label}");
+    expect(shellEnvironmentSource).toContain('label: "demo-dev"');
+    expect(shellEnvironmentSource).toContain('label: "demo-prod"');
     expect(shellPrimitives).toContain("sticky top-0");
   });
 });

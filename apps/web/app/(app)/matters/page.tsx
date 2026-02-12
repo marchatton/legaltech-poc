@@ -4,6 +4,7 @@ import { assertDevOrDemoProd } from "../../../lib/devOnly";
 import { isDemoModeEnabled } from "../../../lib/demoMode.server";
 import { formatDemoLoadedAtLabel, parseDemoMatterMetadata } from "../../../lib/demoMatterMetadata";
 import { listMatters, parseMatterListFilters, type MatterListFilters, type MatterSavedView } from "../../../lib/mattersList.server";
+import { orbitalMode } from "../../../lib/runtimeMode";
 
 import { Badge, type BadgeVariant } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
@@ -14,8 +15,10 @@ import { Page, PageHeader } from "../../ui/Page";
 import { SearchInput } from "../../ui/SearchInput";
 import { StatusDot, type StatusDotStatus } from "../../ui/StatusDot";
 import { TableFrame, Table, TH, TD, TR } from "../../ui/Table";
+import { WorkspaceContextBar, WorkspaceContextBarBody } from "../../ui/WorkspaceShell";
 
 import { CreateMatterForm } from "./CreateMatterForm";
+import { resolveShellEnvironment } from "./shellEnvironment";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -96,14 +99,29 @@ export default async function MattersPage(props: {
   const demoHistory = demoModeEnabled
     ? (await listMatters({ q: "", state: null, view: "demo_packs" })).slice(0, 8)
     : [];
+  const shellEnvironment = resolveShellEnvironment(orbitalMode(), demoModeEnabled);
 
   return (
-    <Page width="xl">
-      <PageHeader
-        title="Matters"
-        subtitle="Manage your legal review projects."
-        right={<CreateMatterForm />}
-      />
+    <>
+      <WorkspaceContextBar>
+        <WorkspaceContextBarBody>
+          <div className="flex min-w-0 items-center text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">Matters</span>
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <Badge variant={shellEnvironment.badgeVariant} size="sm">
+              {shellEnvironment.label}
+            </Badge>
+          </div>
+        </WorkspaceContextBarBody>
+      </WorkspaceContextBar>
+
+      <Page width="xl">
+        <PageHeader
+          title="Matters"
+          subtitle="Manage your legal review projects."
+          right={<CreateMatterForm />}
+        />
 
       {/* Search + filter pills toolbar */}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
@@ -263,6 +281,7 @@ export default async function MattersPage(props: {
           </div>
         ) : null}
       </div>
-    </Page>
+      </Page>
+    </>
   );
 }
