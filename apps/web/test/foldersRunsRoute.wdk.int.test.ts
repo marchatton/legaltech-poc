@@ -21,6 +21,20 @@ function databaseUrl(): string {
   return "postgresql://orbital:orbital@127.0.0.1:5432/orbital";
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function readConflict(json: unknown): { code: string; message: string } | null {
+  if (!isRecord(json)) return null;
+  const error = isRecord(json.error) ? json.error : null;
+  if (!error) return null;
+  const code = typeof error.code === "string" ? error.code : null;
+  const message = typeof error.message === "string" ? error.message : null;
+  if (!code || !message) return null;
+  return { code, message };
+}
+
 describe("POST /folders/:id/runs (quick start)", () => {
   const url = databaseUrl();
   const sql = postgres(url, { max: 1, idle_timeout: 2, connect_timeout: 2 });
@@ -166,6 +180,93 @@ describe("POST /folders/:id/runs (quick start)", () => {
       LIMIT 1
     `;
     expect(finalRun[0]?.state).toBe("completed");
+
+      await sql`DELETE FROM folders WHERE id = ${folderId}`;
+    },
+    20_000,
+  );
+
+  it(
+    "returns explicit conflicts for blocked starts and allows blocked-to-ready transition",
+    async () => {
+      const folderId = `fld_${randomUUID()}`;
+      const docId = `doc_${randomUUID()}`;
+      const chunkId = `chk_${randomUUID()}`;
+
+      await sql`INSERT INTO folders (id, name, state) VALUES (${folderId}, 'readiness gate test', 'empty')`;
+
+      const blockedRes = await POST(
+        new Request(`http://localhost/folders/${folderId}/runs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": `idem_blocked_${randomUUID()}` },
+          body: JSON.stringify({ type: "quick_start_title_survey" }),
+        }),
+        { params: Promise.resolve({ id: folderId }) },
+      );
+      expect(blockedRes.status).toBe(409);
+      const blockedJson = (await blockedRes.json()) as unknown;
+      const blocked = readConflict(blockedJson);
+      expect(blocked?.code).toBe("CONFLICT");
+      expect(blocked?.message).toContain("No indexed documents yet");
+
+      const beforeRows = await sql<Array<{ n: number }>>`
+        SELECT COUNT(*)::int as n
+        FROM runs
+        WHERE folder_id = ${folderId}
+          AND type = 'quick_start_title_survey'
+      `;
+      expect(beforeRows[0]?.n).toBe(0);
+
+      await sql`
+        INSERT INTO documents (id, folder_id, filename, mime, bytes, parse_status, ocr_status)
+        VALUES (${docId}, ${folderId}, 'ready.pdf', 'application/pdf', 1, 'parsed', 'done')
+      `;
+      await sql`
+        INSERT INTO chunks (id, document_id, index_version, chunk_index, text, text_hash)
+        VALUES (${chunkId}, ${docId}, 'v1', 0, 'ready', ${`hash_${randomUUID()}`})
+      `;
+
+      const startedRes = await POST(
+        new Request(`http://localhost/folders/${folderId}/runs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": `idem_started_${randomUUID()}` },
+          body: JSON.stringify({ type: "quick_start_title_survey" }),
+        }),
+        { params: Promise.resolve({ id: folderId }) },
+      );
+      expect(startedRes.status).toBe(200);
+      const startedBody = (await startedRes.json()) as any;
+      const runId = String(startedBody?.run?.id);
+      expect(runId).toMatch(/^run_/);
+
+      const progressRes = await GET_RUN(new Request(`http://localhost/runs/${runId}`, { method: "GET" }), {
+        params: Promise.resolve({ id: runId }),
+      });
+      expect(progressRes.status).toBe(200);
+      const progressBody = (await progressRes.json()) as any;
+      expect(progressBody?.run?.progress?.questions_total).toBeGreaterThan(0);
+
+      const duplicateRes = await POST(
+        new Request(`http://localhost/folders/${folderId}/runs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Idempotency-Key": `idem_duplicate_${randomUUID()}` },
+          body: JSON.stringify({ type: "quick_start_title_survey" }),
+        }),
+        { params: Promise.resolve({ id: folderId }) },
+      );
+      expect(duplicateRes.status).toBe(409);
+      const duplicateJson = (await duplicateRes.json()) as unknown;
+      const duplicate = readConflict(duplicateJson);
+      expect(duplicate?.code).toBe("CONFLICT");
+      expect(duplicate?.message).toContain("Quick Start already");
+
+      const afterRows = await sql<Array<{ n: number }>>`
+        SELECT COUNT(*)::int as n
+        FROM runs
+        WHERE folder_id = ${folderId}
+          AND type = 'quick_start_title_survey'
+      `;
+      expect(afterRows[0]?.n).toBe(1);
 
       await sql`DELETE FROM folders WHERE id = ${folderId}`;
     },

@@ -52,6 +52,11 @@ type RunRow = {
   question_set_version: string;
 };
 
+type LatestRunGateRow = {
+  id: string;
+  state: string;
+};
+
 type RunSelectorRow = {
   id: string;
   state: string;
@@ -85,6 +90,20 @@ function runResponse(row: RunRow) {
       question_set_version: row.question_set_version,
     },
   };
+}
+
+function runStartConflictForLatestRun(state: string): string {
+  if (state === "completed") {
+    return "Latest Quick Start already completed. Review the outputs below, or load the pack again to create a fresh matter.";
+  }
+  return `Quick Start already ${state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`;
+}
+
+function runStartConflictForFolderState(state: string): string {
+  if (state === "failed") return "Folder ingest failed. Retry ingest or re-index.";
+  if (state === "empty") return "No indexed documents yet. Upload a source PDF and refresh readiness.";
+  if (state === "ingesting") return "Folder is ingesting. Wait for indexing to complete, then retry Quick Start.";
+  return `Folder is not runnable yet (state: ${state}).`;
 }
 
 async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey: string }): Promise<RunRow | null> {
@@ -237,6 +256,30 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     });
   }
 
+  const latestRuns = await sql<LatestRunGateRow[]>`
+    SELECT id, state
+    FROM runs
+    WHERE folder_id = ${folderId}
+      AND type = ${parsedBody.data.type}
+    ORDER BY created_at DESC, updated_at DESC, id DESC
+    LIMIT 1
+  `;
+  const latestRun = latestRuns[0] ?? null;
+  if (latestRun) {
+    return Response.json(
+      runsErrorEnvelope({
+        code: "CONFLICT",
+        message: runStartConflictForLatestRun(latestRun.state),
+        details: {
+          run_id: latestRun.id,
+          run_state: latestRun.state,
+        },
+        traceId,
+      }),
+      { status: 409, headers },
+    );
+  }
+
   // Keep folder state consistent with latest persisted facts before enforcing runnable preconditions.
   await refreshFolderState(folderId);
 
@@ -255,11 +298,15 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   }
 
   if (folder.state !== "indexed" && folder.state !== "ready") {
-    const message =
-      folder.state === "failed"
-        ? "Folder ingest failed. Retry ingest or re-index."
-        : "Folder is not runnable yet.";
-    return Response.json(runsErrorEnvelope({ code: "CONFLICT", message, traceId }), { status: 409, headers });
+    return Response.json(
+      runsErrorEnvelope({
+        code: "CONFLICT",
+        message: runStartConflictForFolderState(folder.state),
+        details: { folder_state: folder.state },
+        traceId,
+      }),
+      { status: 409, headers },
+    );
   }
 
   const { version: questionSetVersion, questionSet } = await loadQuestionSetV1();
