@@ -41,8 +41,8 @@ This removes ambiguity and prevents ad-hoc rebuilding.
 Objective: lock references before edits.
 
 Files:
-1. `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md`
-2. `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild-cleanroom-wireframe-mapping-matrix-2026-02-12.md`
+1. `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md`
+2. `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-wireframe-mapping-matrix-2026-02-12.md`
 
 Tasks:
 1. Mark all in-scope rows as `planned` in parity ledger.

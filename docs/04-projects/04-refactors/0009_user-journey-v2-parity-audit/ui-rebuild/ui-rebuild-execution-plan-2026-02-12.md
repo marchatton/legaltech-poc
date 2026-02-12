@@ -5,9 +5,9 @@ Status: Ready for 3-agent parallel execution
 Scope: `apps/web` UI/IA rebuild aligned to wireframes, design-system standards, and parity-v1 behavior contracts.
 
 > Superseded for execution by clean-room planning artifacts:
-> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild-cleanroom-detailed-implementation-plan-2026-02-12.md`
-> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild-cleanroom-wireframe-mapping-matrix-2026-02-12.md`
-> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md`
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-detailed-implementation-plan-2026-02-12.md`
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-wireframe-mapping-matrix-2026-02-12.md`
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md`
 > - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/oracle-cleanroom-batching-plan-2026-02-12.md`
 
 ## Objective
