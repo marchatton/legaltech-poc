@@ -684,3 +684,41 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
   - Useful context
     - Reliable manual/browser failure scenario: `/matters/viewer?pack=pack_01_clean&citation=cit_us003_demo_1&page=2` yields deterministic `WRONG_PAGE` and exercises the recovery checklist + flag acknowledgement flow.
 ---
+## [2026-02-12 15:22:01 +0000] - US-001: Shell Wayfinding Baseline
+Thread: 
+Run: 20260212-150540-748 (iteration 1)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-1.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: c351cfd feat(shell-wayfinding): unify shell context labels
+- Post-commit status: `clean`
+- Verification:
+  - Command: `pnpm --filter @orbital-poc/web exec vitest run test/shellWayfinding.sync.test.ts test/shellEnvironment.test.ts` -> PASS
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `DEMO_MODE=1 pnpm --filter @orbital-poc/web dev -p 3101` + dev-browser smoke (`/matters -> /matters/:id -> /matters`) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/(app)/matters/[id]/layout.tsx
+  - apps/web/app/(app)/matters/shellEnvironment.ts
+  - apps/web/test/shellWayfinding.sync.test.ts
+  - apps/web/test/shellEnvironment.test.ts
+- What was implemented
+  - Added a shared shell environment resolver to keep label/variant deterministic across list and detail contexts (`demo-dev`, `demo-prod`, and explicit fallbacks).
+  - Added a shell context bar on `/matters` with Matters breadcrumb text and environment badge so list/detail/list retains wayfinding parity.
+  - Updated detail layout to reuse the shared environment resolver and keep badge semantics aligned with list context.
+  - Expanded US-001 sync checks and added unit tests for environment label mapping.
+  - Browser-verified active Matters nav, disabled Runs + Alerts placeholder, breadcrumb presence, and deterministic list->detail->list navigation.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Shared shell affordances are easiest to keep deterministic when list/detail derive from one environment resolver.
+  - Gotchas encountered
+  - The dev-browser server must run in headless mode in Sprite (`./server.sh --headless`) because no X server is available.
+  - Useful context
+  - First `/matters` load in dev can exceed 30s due initial compile; browser scripts should set higher navigation timeouts.
+---
