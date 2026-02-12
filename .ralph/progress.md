@@ -796,3 +796,38 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Useful context
   - Local upload/browser validation requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` when running `pnpm --filter @orbital-poc/web dev`.
 ---
+## [2026-02-12 16:30:28 UTC] - US-004: Quick Start Readiness Gate
+Thread: 
+Run: 20260212-150540-748 (iteration 4)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-4.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: d931141 fix(quick-start): enforce readiness gate on starts
+- Post-commit status: `dirty` (.ralph/progress.md pending progress append commit)
+- Verification:
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF` (browser smoke: blocked quick start reason, fixture flip to ready, start run, conflict retry) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/test/foldersRunsRoute.wdk.int.test.ts
+  - .ralph/progress.md
+- What was implemented
+  - Enforced Quick Start readiness at API boundary: run starts now return `409 CONFLICT` when a quick-start run already exists for the matter, matching detail-page readiness gating.
+  - Added explicit conflict messaging/details for blocked folder states (`empty`, `ingesting`, `failed`, fallback state), preventing ambiguous blocked-start responses.
+  - Added integration coverage for blocked attempt -> no run created, fixture transition to runnable -> run created without reload hacks, immediate run progress availability, and blocked duplicate starts returning explicit conflicts with no extra runs.
+  - Browser-verified UI behavior: blocked quick start reason is visible, fixture transition enables Quick Start, starting creates run context, and subsequent start attempt yields conflict behavior.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep readiness enforcement mirrored in UI and API to prevent stale-client bypasses of blocked states.
+  - Gotchas encountered
+  - Matter detail rendering requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` in local dev; otherwise object-store signing throws before quick-start checks can be validated.
+  - Useful context
+  - `pnpm --filter @orbital-poc/web test -- <file>` still runs full suite in this workspace; use `pnpm --filter @orbital-poc/web exec vitest run <file...>` for scoped runs.
+---
