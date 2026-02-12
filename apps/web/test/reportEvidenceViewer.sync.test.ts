@@ -96,3 +96,31 @@ describe("US-007 valid citation trust viewer verification", () => {
     expect(source).not.toContain('trustLoadedState !== TRUST_METADATA_FALLBACK ? trustLoadedState : "Loaded"');
   });
 });
+
+describe("US-008 invalid citation fail closed", () => {
+  it("gates unresolved-anchor source chips with explicit disabled copy", () => {
+    const root = repoRootFromWebPackage();
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
+    const source = readUtf8(panelPath);
+
+    expect(source).toContain("SOURCE_CHIP_DISABLED_REASON_CODES");
+    expect(source).toContain("Source chip disabled: unresolved anchor target. Re-run verification to relock evidence.");
+    expect(source).toContain("disabled={isCitationChipDisabled}");
+    expect(source).toContain('aria-disabled={isCitationChipDisabled ? "true" : undefined}');
+    expect(source).toContain("Evidence unavailable for");
+  });
+
+  it("routes invalid citations through citation_failed reason codes with no overlay fallback", () => {
+    const root = repoRootFromWebPackage();
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
+    const panelSource = readUtf8(panelPath);
+    const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
+    const viewerSource = readUtf8(viewerPath);
+
+    expect(panelSource).toContain("errorCode: chipGate.viewerErrorCode");
+    expect(viewerSource).toContain("if (props.errorCode) {");
+    expect(viewerSource).toContain("setOverlay([]);");
+    expect(viewerSource).toContain("reason_code:");
+    expect(viewerSource).toContain("overlayPath.map");
+  });
+});

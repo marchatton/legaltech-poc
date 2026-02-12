@@ -5,6 +5,7 @@
 - 2026-02-12 16:03:23 | run=20260212-150540-748 | iter=3 | mode=build | story=US-003 | duration=1483s | status=success
 - 2026-02-12 15:38:34 | run=20260212-150540-748 | iter=2 | mode=build | story=US-002 | duration=929s | status=success
 - 2026-02-12 15:22:58 | run=20260212-150540-748 | iter=1 | mode=build | story=US-001 | duration=1037s | status=success
+- 2026-02-12 16:15:20 | run=20260212-150545-1013 | iter=3 | mode=build | story=US-007 | duration=1927s | status=success
 - 2026-02-12 15:43:03 | run=20260212-150545-1013 | iter=2 | mode=build | story=US-006 | duration=1190s | status=success
 - 2026-02-12 15:23:07 | run=20260212-150545-1013 | iter=1 | mode=build | story=US-005 | duration=1042s | status=success
 - 2026-02-11 19:12:51 | run=20260211-171747-21967 | iter=5 | mode=build | story=US-005 | duration=688s | status=success
@@ -173,3 +174,8 @@
 [2026-02-12 15:47:55] US-007 targeted verification complete: web tests passing
 [2026-02-12 16:12:18] US-007 full verification complete: pnpm lint/typecheck/test, pnpm build, and browser validation (dev-browser) passed
 [2026-02-12 16:13:18] US-007 progress entry appended to .ralph/progress.md with commit, verification, and browser evidence
+[2026-02-12 16:15:16] ITERATION 3 end (duration=1927s)
+[2026-02-12 16:15:31] ITERATION 4 start (mode=build story=US-008)
+[2026-02-12 16:16:01] Start US-008 Invalid Citation Fail Closed iteration 4
+[2026-02-12 16:20:31] Implemented US-008 source-chip gating and fail-closed viewer reason-code wiring; added sync coverage
+[2026-02-12 16:38:15] US-008 verification complete: pnpm lint/typecheck/test, pnpm build, and dev-browser checks passed (disabled unresolved source chip + fail-closed viewer reason with zero overlay polygons)

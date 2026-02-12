@@ -73,6 +73,14 @@ type TrustMetadata = {
 };
 
 const TRUST_METADATA_FALLBACK = "Unavailable from payload";
+const REASON_CODE_PATTERN = /^[A-Z0-9_]{3,64}$/;
+const SOURCE_CHIP_DISABLED_REASON_CODES = new Set([
+  "UNRESOLVED_ANCHOR",
+  "ANCHOR_NOT_FOUND",
+  "ANCHOR_UNRESOLVED",
+  "MISSING_ANCHOR",
+  "NO_CITATIONS",
+]);
 
 function isRecord(input: unknown): input is Record<string, unknown> {
   return !!input && typeof input === "object" && !Array.isArray(input);
@@ -90,6 +98,46 @@ function reasonCodeFromProvenance(provenance: unknown): string | null {
   if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) return null;
   const reasonCode = (provenance as { reason_code?: unknown }).reason_code;
   return typeof reasonCode === "string" && reasonCode.trim().length > 0 ? reasonCode : null;
+}
+
+function deterministicReasonCode(value: string | null, fallback: string | null): string | null {
+  if (!value) return fallback;
+  const normalized = value.trim().toUpperCase();
+  if (REASON_CODE_PATTERN.test(normalized)) return normalized;
+  return fallback;
+}
+
+function citationChipGateForRow(row: ReportRowForDrawer): {
+  disabled: boolean;
+  reasonCode: string | null;
+  helperText: string | null;
+  viewerErrorCode: string | null;
+} {
+  if (row.status !== "citation_failed") {
+    return {
+      disabled: false,
+      reasonCode: null,
+      helperText: null,
+      viewerErrorCode: null,
+    };
+  }
+
+  const reasonCode = deterministicReasonCode(reasonCodeFromProvenance(row.provenance_json), "VALIDATION_ERROR");
+  if (reasonCode && SOURCE_CHIP_DISABLED_REASON_CODES.has(reasonCode)) {
+    return {
+      disabled: true,
+      reasonCode,
+      helperText: "Source chip disabled: unresolved anchor target. Re-run verification to relock evidence.",
+      viewerErrorCode: null,
+    };
+  }
+
+  return {
+    disabled: false,
+    reasonCode,
+    helperText: "Source chip opens in fail-closed mode for this citation_failed row.",
+    viewerErrorCode: reasonCode,
+  };
 }
 
 function nonEmptyString(value: unknown): string | null {
@@ -276,6 +324,10 @@ export function ReportTriagePanel(props: Props) {
     () => trustMetadataFromProvenance(selectedRow?.provenance_json),
     [selectedRow],
   );
+  const selectedRowCitationGate = useMemo(
+    () => (selectedRow ? citationChipGateForRow(selectedRow) : null),
+    [selectedRow],
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -367,11 +419,13 @@ export function ReportTriagePanel(props: Props) {
 
   useEffect(() => {
     const activeCitationId = viewerCitationId;
-    if (!activeCitationId || !splitViewLocked) {
+    const activeRow = selectedRow;
+    if (!activeCitationId || !splitViewLocked || !activeRow) {
       setViewerState({ kind: "idle" });
       return;
     }
     const citationId = activeCitationId;
+    const chipGate = citationChipGateForRow(activeRow);
 
     const controller = new AbortController();
     let cancelled = false;
@@ -425,7 +479,7 @@ export function ReportTriagePanel(props: Props) {
             snippet: citation.snippet,
             snippetHash: citation.snippetHash,
             computedSnippetHash: citation.snippetHash,
-            errorCode: null,
+            errorCode: chipGate.viewerErrorCode,
             pdfUrl: render.pdfUrl,
             docVersion: citation.docVersion,
             verifiedAt: citation.verifiedAt,
@@ -445,7 +499,7 @@ export function ReportTriagePanel(props: Props) {
       cancelled = true;
       controller.abort();
     };
-  }, [splitViewLocked, viewerCitationId]);
+  }, [selectedRow, splitViewLocked, viewerCitationId]);
 
   const splitViewerVisible = Boolean(selectedRow && splitViewLocked && viewerCitationId);
   const showDesktopSplitViewer = splitViewerVisible && isDesktopSplit;
@@ -865,19 +919,26 @@ export function ReportTriagePanel(props: Props) {
                         <div className="flex flex-wrap gap-1">
                           {selectedRow.citation_ids.slice(0, 8).map((citationId) => {
                             const isViewerOpen = viewerCitationId === citationId;
+                            const isCitationChipDisabled = selectedRowCitationGate?.disabled ?? false;
+                            const disabledTitle = isCitationChipDisabled ? selectedRowCitationGate?.helperText ?? undefined : undefined;
                             return (
                               <button
                                 key={citationId}
                                 ref={isViewerOpen ? returnFocusRef : null}
                                 type="button"
+                                disabled={isCitationChipDisabled}
+                                title={disabledTitle}
                                 onClick={(event) => {
+                                  if (isCitationChipDisabled) return;
                                   returnFocusRef.current = event.currentTarget;
                                   setViewerCitationId(citationId);
                                 }}
                                 aria-pressed={isViewerOpen}
-                                aria-label={`Open evidence for ${citationId}`}
+                                aria-disabled={isCitationChipDisabled ? "true" : undefined}
+                                aria-label={isCitationChipDisabled ? `Evidence unavailable for ${citationId}` : `Open evidence for ${citationId}`}
                                 className={cn(
                                   "rounded-ui-sm px-1.5 py-0.5 font-mono text-2xs ring-1 ring-inset transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                                  isCitationChipDisabled ? "cursor-not-allowed bg-muted/60 text-muted-foreground ring-border/50 opacity-70" : null,
                                   isViewerOpen
                                     ? "bg-primary text-primary-foreground ring-primary/50"
                                     : "bg-muted text-muted-foreground ring-border/60 hover:bg-muted/80",
@@ -893,6 +954,11 @@ export function ReportTriagePanel(props: Props) {
                             </span>
                           ) : null}
                         </div>
+                        {selectedRowCitationGate?.helperText ? (
+                          <div className="rounded-ui-sm border border-border/70 bg-muted/40 px-2 py-1 text-2xs text-muted-foreground">
+                            {selectedRowCitationGate.helperText}
+                          </div>
+                        ) : null}
                         {viewerCitationId ? (
                           <div className="pt-1">
                             <Button type="button" variant="secondary" size="sm" onClick={closeEvidenceViewer}>
@@ -904,10 +970,10 @@ export function ReportTriagePanel(props: Props) {
                     ) : (
                       <div>No locked citation ids linked to this row.</div>
                     )}
-                    {reasonCodeFromProvenance(selectedRow.provenance_json) ? (
+                    {selectedRowCitationGate?.reasonCode ? (
                       <div className="flex items-center justify-between gap-2">
                         <span>reason_code</span>
-                        <span className="font-mono text-foreground">{reasonCodeFromProvenance(selectedRow.provenance_json)}</span>
+                        <span className="font-mono text-foreground">{selectedRowCitationGate.reasonCode}</span>
                       </div>
                     ) : null}
                   </div>
