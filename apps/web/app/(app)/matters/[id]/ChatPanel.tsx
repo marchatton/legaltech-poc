@@ -217,18 +217,27 @@ export function ChatPanel(props: { folderId: string }) {
   }, [sendMessage]);
 
   return (
-    <div className="grid gap-4">
-      <div className="grid gap-3">
+    <div className="flex flex-col bg-card border border-border rounded-ui-lg shadow-ui-sm overflow-hidden">
+      {/* Header bar */}
+      <div className="px-4 py-2 border-b border-border bg-cyan-50/40 flex items-center gap-2">
+        <div className="w-6 h-6 rounded-md bg-cyan-100 flex items-center justify-center text-cyan-600 text-xs font-bold" aria-hidden="true">⬡</div>
+        <span className="text-sm font-medium text-foreground">Matter Assistant</span>
+        <span className="ml-auto text-2xs text-muted-foreground">Evidence-first — unanswerable queries return &ldquo;{MISSING_EVIDENCE_TEXT}&rdquo;</span>
+      </div>
+
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <EmptyState
-            title="Ask a question"
-            description={`Answers are evidence-first. If retrieval finds no supporting chunks, the response is "${MISSING_EVIDENCE_TEXT}".`}
+            title="Ask about this matter"
+            description="Get answers grounded in the indexed documents. All responses include source citations."
             action={
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg mx-auto">
                 {SUGGESTED_PROMPTS.map((prompt) => (
                   <Chip
                     key={prompt}
                     as="button"
+                    className="text-left text-xs leading-relaxed"
                     onClick={() => {
                       setInput(prompt);
                     }}
@@ -250,8 +259,8 @@ export function ChatPanel(props: { folderId: string }) {
 
             return (
               <div key={m.id} className="grid gap-2 animate-fade-in">
-                <div className={`max-w-[min(70ch,100%)] rounded-ui-lg border border-border px-3 py-2 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
-                  <div className="whitespace-pre-wrap text-sm">
+                <div className={`max-w-[80%] rounded-2xl border border-border px-4 py-3 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
                     {m.content || (m.status === "streaming" ? (
                       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                         <Spinner size="xs" /> Thinking&hellip;
@@ -263,7 +272,7 @@ export function ChatPanel(props: { folderId: string }) {
                 {!isUser && m.status === "citation_failed" ? (
                   <ErrorBanner
                     title="Chat failed"
-                    className="max-w-[min(70ch,100%)]"
+                    className="max-w-[80%]"
                     code={m.error?.code ?? "CHAT_FAILED"}
                     message={m.error?.message ?? "Chat failed. Please retry."}
                     traceId={m.error?.traceId}
@@ -282,7 +291,7 @@ export function ChatPanel(props: { folderId: string }) {
                 ) : null}
 
                 {!isUser && m.status === "complete" && m.sources?.length ? (
-                  <section className="max-w-[min(70ch,100%)] rounded-ui-md bg-muted/50 p-3">
+                  <section className="max-w-[80%] rounded-ui-md bg-muted/50 p-3">
                     <div className="text-2xs font-semibold uppercase tracking-wide text-foreground">Sources</div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       {m.sources.map((s, idx) => (
@@ -303,18 +312,21 @@ export function ChatPanel(props: { folderId: string }) {
         </div>
       </div>
 
-      <form className="flex flex-wrap items-center gap-2 rounded-ui-md border border-border bg-card p-2 shadow-ui-sm" onSubmit={onSubmit}>
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={busy ? "Waiting for response..." : "Ask a question..."}
-          disabled={busy}
-          className="flex-1 min-w-[220px]"
-        />
-        <Button type="submit" disabled={!canSend}>
-          Send
-        </Button>
-      </form>
+      {/* Input area */}
+      <div className="p-3 border-t border-border">
+        <form className="relative" onSubmit={onSubmit}>
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={busy ? "Waiting for response..." : "Ask a question about this matter..."}
+            disabled={busy}
+            className="w-full bg-muted/30 pr-14"
+          />
+          <Button type="submit" disabled={!canSend} className="absolute right-1.5 top-1/2 -translate-y-1/2">
+            Send
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
