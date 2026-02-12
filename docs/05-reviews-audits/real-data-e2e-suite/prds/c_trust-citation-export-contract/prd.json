@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "project": "Real-Data E2E Loop C: Trust, Citation, and Export Contract",
+  "overview": "Stabilize citation evidence outcomes and strict fail-closed export behavior while landing the Phase 0 demo-prod allowlist quick win for pack_09_bad_citation.",
+  "goals": [
+    "Keep trust behavior fail-closed and user-visible.",
+    "Eliminate hidden fallback masking in citation response paths.",
+    "Improve demo-prod operator reliability with minimal-scope allowlist expansion."
+  ],
+  "nonGoals": [
+    "Broad allowlist expansion for all packs in this phase.",
+    "Relaxing fail-closed trust policies or enabling unsafe exports by default.",
+    "Full prod-mode rollout of trust/export workflows."
+  ],
+  "successMetrics": [
+    "pack_09_bad_citation is operator-loadable in demo-prod.",
+    "Citation open path shows explicit success or typed failure with no silent ambiguity.",
+    "Exports remain fail-closed with stable EXPORT_BLOCKED behavior for unsafe scenarios."
+  ],
+  "openQuestions": [
+    "Should pack_09 operator smoke coverage run on every PR or nightly-only after initial rollout?",
+    "Do we need a dedicated operator-facing copy spec for blocked export recovery CTAs?"
+  ],
+  "stack": {
+    "framework": "Next.js App Router + TypeScript",
+    "hosting": "Local dev and demo-prod operator surfaces",
+    "database": "Postgres",
+    "auth": "Existing mode and route gating (dev/demo-prod), no auth model changes in this slice"
+  },
+  "routes": [
+    {
+      "path": "/api/citations/[id]",
+      "name": "Citation API",
+      "purpose": "Return verifiable citation payload or typed failure"
+    },
+    {
+      "path": "/api/documents/[id]/render",
+      "name": "Document render API",
+      "purpose": "Provide render URL behavior for citation evidence"
+    },
+    {
+      "path": "/api/documents/[id]/pdf",
+      "name": "Document PDF API",
+      "purpose": "Serve PDF retrieval behavior for citation verification"
+    },
+    {
+      "path": "/api/export/csv",
+      "name": "Export API",
+      "purpose": "Enforce fail-closed export gating via EXPORT_BLOCKED"
+    },
+    {
+      "path": "/api/demo/load-pack",
+      "name": "Demo load-pack API",
+      "purpose": "Allowlist and load demo packs including pack_09_bad_citation"
+    },
+    {
+      "path": "/matters/viewer",
+      "name": "Citation viewer",
+      "purpose": "Display citation evidence success/failure states"
+    }
+  ],
+  "uiNotes": [
+    "Invalid citations must show citation_failed UI and no stale highlight overlays.",
+    "Blocked exports must include actionable recovery path into report triage.",
+    "Demo toolbar pack list must include pack_09_bad_citation and preserve existing pack options."
+  ],
+  "dataModel": [
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "snippet_hash",
+        "status",
+        "failure_code"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "state",
+        "safety_state"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "run_id",
+        "kind",
+        "safe",
+        "download_url"
+      ]
+    },
+    {
+      "entity": "DemoLoadRequest",
+      "fields": [
+        "pack_id"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Operator smoke flow uses allowlisted demo pack IDs; export/citation behavior is validated against run and citation outcomes.",
+    "example": {
+      "pack_id": "pack_09_bad_citation",
+      "expected_citation_outcome": "citation_failed",
+      "expected_export_outcome": "EXPORT_BLOCKED"
+    }
+  },
+  "rules": [
+    "Citation outcomes must be explicit success payloads or typed failure envelopes.",
+    "Fail-closed export behavior is mandatory when trust preconditions fail.",
+    "Allowlist expansion is additive and limited to explicit approved pack IDs.",
+    "Each story must include one positive and one negative verification path."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Citation evidence requests return explicit stable outcomes",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want citation lookups to return either verifiable evidence or typed failure so trust decisions are auditable.",
+      "acceptanceCriteria": [
+        "Citation open path returns deterministic success payload or typed failure envelope.",
+        "Render and PDF retrieval behavior is explicit for missing or invalid citation anchors.",
+        "Example: valid citation opens expected document page with trust metadata and render URL.",
+        "Negative: invalid citation never renders stale highlight overlays or ambiguous success UI."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Export fail-closed contract remains strict and observable",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want blocked exports to be deterministic so unsafe outputs cannot be downloaded.",
+      "acceptanceCriteria": [
+        "Export route enforces EXPORT_BLOCKED whenever run, report, or citation safety preconditions are not met.",
+        "Blocked export states surface actionable UX to inspect failed rows and evidence.",
+        "Example: pack_09_bad_citation run results in blocked export with explicit reason and no downloadable artefact.",
+        "Negative: blocked or incomplete runs must never produce signed download links."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Demo-prod operator allowlist includes pack_09_bad_citation",
+      "status": "open",
+      "dependsOn": [
+        "US-002"
+      ],
+      "description": "As a demo operator, I want to select pack_09_bad_citation from the toolbar so trust/fail-closed scenarios can be demonstrated without manual API calls.",
+      "acceptanceCriteria": [
+        "Load-pack API schema allowlist includes pack_09_bad_citation.",
+        "Demo toolbar pack dropdown includes pack_09_bad_citation and loads it successfully.",
+        "Example: operator selects pack 09, starts a run, and observes blocked export behavior end to end.",
+        "Negative: non-allowlisted arbitrary pack IDs remain rejected with validation errors."
+      ]
+    }
+  ],
+  "inScope": [
+    "Citation evidence path reliability (citation to render to PDF) with explicit typed outcomes.",
+    "Export fail-closed correctness against report and citation state.",
+    "Phase 0 quick wins for pack_09_bad_citation in API allowlist and demo toolbar.",
+    "Operator smoke checks for load to run to export-blocked contract."
+  ],
+  "functionalRequirements": [
+    "FR-001: Standardize citation outcome envelope across citation/render/pdf routes.",
+    "FR-002: Preserve strict fail-closed export gating for unsafe or unresolved evidence states.",
+    "FR-003: Add pack_09_bad_citation allowlist in load-pack API and toolbar options.",
+    "FR-004: Ensure operator smoke coverage exists for pack_09 fail-closed flow.",
+    "FR-005: Keep compatibility for existing allowlisted packs pack_01_clean and pack_02_missing_rea."
+  ],
+  "failureStatesAndUX": [
+    "Invalid citation: explicit citation_failed presentation and no highlight overlays.",
+    "Blocked export: clear blocked reason and triage or review recovery action.",
+    "Allowlist validation failure: typed input error with no side effects."
+  ],
+  "metricsLogging": [
+    "citation_lookup_failed_total by typed reason code.",
+    "export_blocked_total by run id and failure category.",
+    "demo_pack_load_validation_error_total for non-allowlisted ids."
+  ],
+  "rollbackDisablePath": [
+    "Allowlist quick win can be reverted by removing pack_09_bad_citation from API and UI enums.",
+    "Citation envelope normalization can fall back while keeping fail-closed export defaults intact."
+  ],
+  "risksDependencies": {
+    "risks": [
+      "Citation fallback branches may still mask typed failures in edge cases.",
+      "Toolbar and API allowlist drift could reintroduce operator confusion."
+    ],
+    "dependencies": [
+      "Depends on Loop B run/report contract for reliable export gating decisions.",
+      "Depends on existing citation/render/pdf route contracts remaining stable."
+    ]
+  },
+  "verificationPlan": [
+    "Run citation checks for pack_01_clean and pack_09_bad_citation and verify explicit outcome states.",
+    "Execute export attempt on pack_09 run and assert EXPORT_BLOCKED with no artefact download.",
+    "Perform demo-prod operator smoke for toolbar load pack, run start, and blocked export."
+  ],
+  "sources": [
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md"
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "project": "Real-Data E2E Loop A: Entry + Readiness Foundation",
+  "overview": "Close P0 entry/readiness gaps by enforcing one canonical readiness contract across list/detail/API and deterministic Quick Start gating on real-data states.",
+  "goals": [
+    "Remove contradictory readiness states between UI and API.",
+    "Enforce one canonical readiness reason model.",
+    "Keep feedback fast with pack-based smoke checks."
+  ],
+  "nonGoals": [
+    "Implementing run lifecycle normalization (Loop B scope).",
+    "Implementing citation/export contract changes (Loop C scope).",
+    "Broad demo-prod parity beyond explicit Phase 0 allowlist quick wins."
+  ],
+  "successMetrics": [
+    "pack_01_clean and pack_02_missing_rea produce consistent readiness outcomes across list/detail/API.",
+    "Quick Start never starts when readiness is blocked.",
+    "Setup failures are explicitly surfaced with recovery guidance."
+  ],
+  "openQuestions": [
+    "Should readiness reason codes be centralized in a shared enum module before Loop B starts?",
+    "Do we require a dedicated telemetry dashboard for readiness mismatches in this phase?"
+  ],
+  "stack": {
+    "framework": "Next.js App Router + TypeScript",
+    "hosting": "Local dev and demo-prod operator surfaces",
+    "database": "Postgres",
+    "auth": "Existing mode and route gating (dev/demo-prod), no auth model changes in this slice"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters list",
+      "purpose": "Surface entry and readiness state summaries"
+    },
+    {
+      "path": "/matters/[id]",
+      "name": "Matter detail",
+      "purpose": "Surface setup/readiness details and Quick Start gating"
+    },
+    {
+      "path": "/api/folders/[id]/runs",
+      "name": "Run start API",
+      "purpose": "Enforce readiness preconditions and conflict behavior"
+    }
+  ],
+  "uiNotes": [
+    "Blocked, runnable, and already-complete states must show explicit reason copy.",
+    "Quick Start disabled state must include actionable guidance.",
+    "Setup failures must render deterministic banners with retry affordances."
+  ],
+  "dataModel": [
+    {
+      "entity": "Folder",
+      "fields": [
+        "id",
+        "name",
+        "readiness_state",
+        "readiness_reason"
+      ]
+    },
+    {
+      "entity": "Document",
+      "fields": [
+        "id",
+        "folder_id",
+        "status",
+        "parse_status",
+        "ocr_status",
+        "error_json"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "folder_id",
+        "state",
+        "error_code"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Operator pack-driven setup and readiness checks use existing demo/load and setup APIs; no new file format is introduced.",
+    "example": {
+      "pack_id": "pack_02_missing_rea",
+      "expected_readiness": "blocked",
+      "expected_reason": "required_document_missing"
+    }
+  },
+  "rules": [
+    "Canonical readiness state must be the single source of truth for UI and run-start behavior.",
+    "Blocked readiness must fail loudly with explicit reason codes.",
+    "No optimistic-ready fallback is allowed when prerequisites are missing.",
+    "Each story must be verified with at least one pack fixture and one negative path."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Canonical readiness contract across list/detail/API",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want list and detail readiness signals to match API truth so I can trust whether a matter is runnable.",
+      "acceptanceCriteria": [
+        "Given pack_01_clean, readiness resolves to runnable in both list and detail surfaces and the same state is returned by readiness-dependent APIs.",
+        "Given pack_02_missing_rea, readiness resolves to blocked with explicit reason text in list/detail/API payloads.",
+        "Example: detail page shows blocked required document copy and run-start denial includes the same reason code family.",
+        "Negative: UI must never show ready while run-start API denies due to missing prerequisites."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Quick Start readiness gate is deterministic",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want Quick Start to only run when prerequisites are satisfied so blocked matters fail loudly and predictably.",
+      "acceptanceCriteria": [
+        "Quick Start is enabled only when canonical readiness state is runnable.",
+        "When readiness is blocked, Quick Start shows actionable reason copy and does not enqueue a run.",
+        "Example: remediating missing prerequisites transitions blocked to runnable and enables Quick Start without refresh hacks.",
+        "Negative: blocked start attempts cannot silently enqueue a run or return ambiguous success UI."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Entry/setup error UX is explicit and non-silent",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want setup failures surfaced clearly so I can recover without guessing.",
+      "acceptanceCriteria": [
+        "Upload/init/complete failures render deterministic user-facing error states with retry guidance.",
+        "Readiness recomputation failures surface explicit error code and safe recovery copy.",
+        "Example: upload completion failure shows retry CTA and does not mark readiness complete.",
+        "Negative: failures must not be swallowed into indefinite loading states."
+      ]
+    }
+  ],
+  "inScope": [
+    "P0 entry plus readiness gate consistency for create/upload/ingest readiness messaging.",
+    "Quick Start enablement based on real folder/document readiness state.",
+    "Readiness coverage for pack_01_clean and pack_02_missing_rea.",
+    "UX copy for blocked, runnable, and already-complete states."
+  ],
+  "functionalRequirements": [
+    "FR-001: Use one canonical readiness reason model across list/detail/Quick Start API surfaces.",
+    "FR-002: Quick Start enablement logic must derive from canonical readiness contract only.",
+    "FR-003: Blocked, runnable, and already-complete states must include user-visible reason copy.",
+    "FR-004: Error envelopes for setup/readiness failures must map to deterministic UI banners.",
+    "FR-005: Maintain compatibility with existing dev-first mode posture and no new prod-path enablement."
+  ],
+  "failureStatesAndUX": [
+    "Missing prerequisite documents: blocked state with explicit reason and next step.",
+    "Upload/init/complete failure: deterministic error banner and retry affordance.",
+    "Readiness recomputation failure: safe fallback state with recovery action."
+  ],
+  "metricsLogging": [
+    "readiness_state_mismatch_detected count between UI and API (target 0 in smoke packs).",
+    "quick_start_blocked_attempt_total with reason-code breakdown.",
+    "setup_upload_failure_total and retry success rate."
+  ],
+  "rollbackDisablePath": [
+    "Keep canonical-readiness mapping behind an additive toggle until smoke validation completes.",
+    "If disabled, preserve existing blocked-default behavior rather than optimistic ready states."
+  ],
+  "risksDependencies": {
+    "risks": [
+      "Hidden seeded/fallback branches can still leak contradictory readiness states.",
+      "Error copy drift between route handlers and UI components can reintroduce ambiguity."
+    ],
+    "dependencies": [
+      "Uses existing create/upload/readiness APIs in apps/web/app/(api)/folders/*.",
+      "Provides readiness contract inputs required by Loop B run-start normalization."
+    ]
+  },
+  "verificationPlan": [
+    "Load pack_01_clean and pack_02_missing_rea and compare readiness across /matters, /matters/[id], and run-start behavior.",
+    "Run targeted readiness and run-start guard tests.",
+    "Perform manual spot checks for blocked, runnable, and recovery states."
+  ],
+  "sources": [
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md"
+  ]
+}

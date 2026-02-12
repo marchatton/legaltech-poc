@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "project": "Real-Data E2E Loop B: Run Lifecycle + Report Contract",
+  "overview": "Normalize run state transitions and report row generation so dev report outputs are sourced from real step outcomes instead of seeded fallback rows.",
+  "goals": [
+    "Ensure run states are deterministic and observable.",
+    "Ensure report rows represent real workflow outputs.",
+    "Preserve fail-closed behavior without placeholder synthesis as a default success path."
+  ],
+  "nonGoals": [
+    "Citation rendering and export blocking contract work (Loop C scope).",
+    "Broad review/chat UX polish outside run/report correctness.",
+    "Production-mode rollout for run/report workflows."
+  ],
+  "successMetrics": [
+    "Run state progression is deterministic for target packs with no invalid transitions.",
+    "Report rows map to real run outputs for pack_01_clean, pack_04_multi_parcel, and pack_05_partial_release.",
+    "Seeded fallback report writes are absent from successful P0 runs."
+  ],
+  "openQuestions": [
+    "Should run-status polling cadence be standardized in this loop or deferred?",
+    "Do we need a temporary compatibility shim for any report consumers expecting placeholder rows?"
+  ],
+  "stack": {
+    "framework": "Next.js App Router + TypeScript",
+    "hosting": "Local dev and demo-prod operator surfaces",
+    "database": "Postgres",
+    "auth": "Existing mode and route gating (dev/demo-prod), no auth model changes in this slice"
+  },
+  "routes": [
+    {
+      "path": "/api/folders/[id]/runs",
+      "name": "Run create endpoint",
+      "purpose": "Start run with deterministic readiness and state initialization"
+    },
+    {
+      "path": "/api/runs/[id]",
+      "name": "Run state endpoint",
+      "purpose": "Expose run progress and terminal states"
+    },
+    {
+      "path": "/api/folders/[id]/report",
+      "name": "Report endpoint",
+      "purpose": "Serve run-scoped report rows and statuses"
+    },
+    {
+      "path": "/matters/[id]",
+      "name": "Matter detail",
+      "purpose": "Show run lifecycle and report status cues"
+    }
+  ],
+  "uiNotes": [
+    "Run progress and terminal-state copy must align with API states.",
+    "Report surfaces must show deterministic failed/incomplete error states.",
+    "No stale success rows should appear for failed active runs."
+  ],
+  "dataModel": [
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "folder_id",
+        "state",
+        "started_at",
+        "completed_at",
+        "error_code"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "run_id",
+        "question_id",
+        "status",
+        "payload_schema_version",
+        "payload_json"
+      ]
+    },
+    {
+      "entity": "StepExecution",
+      "fields": [
+        "run_id",
+        "step_name",
+        "state",
+        "output_ref"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Run/report verification is fixture driven by existing pack manifests and run outputs; no new external import format is introduced.",
+    "example": {
+      "pack_id": "pack_04_multi_parcel",
+      "expected_run_states": [
+        "queued",
+        "running",
+        "completed"
+      ],
+      "expected_report_consistency": "rows_match_step_outputs"
+    }
+  },
+  "rules": [
+    "Run-state transitions must follow a single allowed transition graph.",
+    "Report rows must be run-scoped and generated from real step outcomes.",
+    "Seeded fallback rows are not allowed on successful real-data runs.",
+    "Each story requires one positive and one negative verification path."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Run lifecycle state machine is deterministic",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want run start/progress/terminal states to be consistent so I can trust run status before triage/export actions.",
+      "acceptanceCriteria": [
+        "Run creation returns a stable initial state and progresses through valid transitions only.",
+        "Terminal states are explicit and immutable once reached.",
+        "Example: a successful run transitions queued to running to completed and exposes state timeline metadata.",
+        "Negative: run state must never regress from terminal to non-terminal or oscillate across contradictory states."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Report rows are sourced from real step outcomes",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As a reviewer, I want report rows and statuses to map to real step results so triage decisions reflect actual extraction and verification behavior.",
+      "acceptanceCriteria": [
+        "Report rows are generated from persisted run outputs for the selected run.",
+        "Row statuses and payload versions match real step results.",
+        "Example: pack_05_partial_release yields mixed statuses that remain stable across reloads for the same run.",
+        "Negative: seeded fallback placeholder writes from Quick Start are not emitted for successful real-data runs."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Run/report failure contracts are explicit to users",
+      "status": "open",
+      "dependsOn": [
+        "US-002"
+      ],
+      "description": "As an operator, I want run/report failures surfaced with typed reasons so recovery paths are clear.",
+      "acceptanceCriteria": [
+        "Run failures return deterministic error envelopes with stable code fields.",
+        "Report retrieval for failed or incomplete runs surfaces a clear recoverable UI state.",
+        "Example: failed run shows a typed failure banner while preserving prior completed-run history.",
+        "Negative: report surface must not display stale success rows for a failed active run."
+      ]
+    }
+  ],
+  "inScope": [
+    "Run start/progress/terminal-state contract normalization for P0 flows.",
+    "Report row write/read path alignment to real step outputs.",
+    "Removal of seeded/fallback fail-closed placeholder writes from Quick Start critical path.",
+    "Pack coverage for pack_01_clean, pack_04_multi_parcel, and pack_05_partial_release."
+  ],
+  "functionalRequirements": [
+    "FR-001: Enforce one canonical run-state transition model in run APIs and UI consumers.",
+    "FR-002: Persist and expose terminal-state metadata needed for downstream report/export contracts.",
+    "FR-003: Report row generation must be run-scoped and sourced from real step outputs.",
+    "FR-004: Remove Quick Start seeded placeholder row writes from the critical successful path.",
+    "FR-005: Failure envelopes must be typed and safe for UI display without leaking internals."
+  ],
+  "failureStatesAndUX": [
+    "Run creation denied: explicit blocked or conflict message with next action.",
+    "Run execution failure: deterministic error banner with code and trace id.",
+    "Report fetch failure: recoverable empty/error state with retry and run-selection guidance."
+  ],
+  "metricsLogging": [
+    "run_state_transition_invalid_total (target 0).",
+    "report_rows_seeded_fallback_total (target 0 for successful real-data runs).",
+    "report_state_mismatch_total between run terminal state and report payload state."
+  ],
+  "rollbackDisablePath": [
+    "Gate real-run report mapping so it can be toggled off if regressions are detected.",
+    "Fallback keeps blocked/default-safe trust and export posture while preserving current behavior."
+  ],
+  "risksDependencies": {
+    "risks": [
+      "Hidden fallback branches may still write seeded rows under rare timing or error paths.",
+      "Consumers may assume old row status semantics and misrender mixed states."
+    ],
+    "dependencies": [
+      "Depends on Loop A readiness decisions for predictable run-start gating.",
+      "Unblocks Loop C export/citation contracts that depend on reliable run and report state."
+    ]
+  },
+  "verificationPlan": [
+    "Execute quick start runs for pack_01_clean and pack_04_multi_parcel and capture run-state timelines.",
+    "Compare run outputs to report rows for pack_01_clean, pack_04_multi_parcel, and pack_05_partial_release.",
+    "Inject controlled failure path and confirm typed error and recovery UI behavior."
+  ],
+  "sources": [
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md"
+  ]
+}
