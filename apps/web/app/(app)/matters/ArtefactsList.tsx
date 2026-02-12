@@ -135,12 +135,12 @@ export async function ArtefactsList(props: Props) {
         </div>
       </div>
 
-      <form method="get" className="mt-3 flex flex-wrap items-end gap-3 rounded-ui-md border border-border bg-muted/20 p-3">
+      <form method="get" className="mt-3 flex flex-wrap items-center gap-2 rounded-pill bg-muted/30 px-3 py-2">
         {passthroughEntries.map(([key, value], idx) => (
           <input key={`${key}-${idx}`} type="hidden" name={key} value={value} />
         ))}
 
-        <label className="grid min-w-40 gap-1 text-xs text-muted-foreground">
+        <label className="grid gap-0.5 text-2xs text-muted-foreground">
           Kind
           <Select
             name={ARTEFACT_KIND_PARAM}
@@ -157,7 +157,7 @@ export async function ArtefactsList(props: Props) {
           </Select>
         </label>
 
-        <label className="grid min-w-32 gap-1 text-xs text-muted-foreground">
+        <label className="grid gap-0.5 text-2xs text-muted-foreground">
           Type
           <Select
             name={ARTEFACT_TYPE_PARAM}
@@ -174,7 +174,7 @@ export async function ArtefactsList(props: Props) {
           </Select>
         </label>
 
-        <label className="grid min-w-32 gap-1 text-xs text-muted-foreground">
+        <label className="grid gap-0.5 text-2xs text-muted-foreground">
           Safety
           <Select
             name={ARTEFACT_SAFETY_PARAM}
@@ -188,7 +188,7 @@ export async function ArtefactsList(props: Props) {
           </Select>
         </label>
 
-        <label className="grid min-w-40 gap-1 text-xs text-muted-foreground">
+        <label className="grid gap-0.5 text-2xs text-muted-foreground">
           Source run
           <Select
             name={ARTEFACT_RUN_ID_PARAM}
@@ -205,12 +205,12 @@ export async function ArtefactsList(props: Props) {
           </Select>
         </label>
 
-        <button type="submit" className={buttonClassName({ variant: "secondary", size: "sm" })}>
+        <button type="submit" className={buttonClassName({ variant: "secondary", size: "sm", pill: true })}>
           Apply
         </button>
 
         {hasActiveFilters ? (
-          <a className={buttonClassName({ variant: "ghost", size: "sm" })} href={clearHref}>
+          <a className={buttonClassName({ variant: "ghost", size: "sm", pill: true })} href={clearHref}>
             Clear
           </a>
         ) : null}

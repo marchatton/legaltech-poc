@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "project": "E2E V4 Set 4: Chat, Demo, and Resilience",
+  "overview": "Parallel lane covering matter-scoped chat, demo pack loop, and cross-surface error/retry/support behavior.",
+  "goals": [
+    "Validate chat behavior as shipped after ui-rebuild divergence.",
+    "Confirm demo mode pack load/reload remains deterministic.",
+    "Enforce consistent error and retry contracts across multiple surfaces."
+  ],
+  "nonGoals": [
+    "Adding run-scoped chat selectors not present in current shipped UI.",
+    "Changing support integration behavior beyond current contract checks."
+  ],
+  "successMetrics": [
+    "All 3 stories pass with deterministic behavior for chat, demo, and error contracts.",
+    "Negative paths prove safe failure handling and fallback guidance."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev plus demo-prod environments",
+    "database": "Postgres",
+    "auth": "Existing app route gating for dev/demo flows"
+  },
+  "routes": [
+    {
+      "path": "/matters/[id]?tab=chat",
+      "name": "Chat Tab",
+      "purpose": "Validate matter-scoped chat and citation source-jump gating"
+    },
+    {
+      "path": "/matters",
+      "name": "Demo Toolbar Entry",
+      "purpose": "Validate allowlisted demo pack load and history behavior"
+    },
+    {
+      "path": "/matters/[id]",
+      "name": "Cross-Surface Error Checks",
+      "purpose": "Validate deterministic error banners and retry/support contracts"
+    }
+  ],
+  "uiNotes": [
+    "Chat tests assume matter scope with evidence-first source chips.",
+    "Demo loop tests rely on allowlisted packs and non-destructive reload behavior.",
+    "ErrorBanner checks should include retryable and non-retryable cases."
+  ],
+  "rules": [
+    "Record effective route and fixture for each failing error-surface assertion.",
+    "Verify support payload fields are limited to safe identifiers."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "executionMode": {
+    "type": "ralph_testing_loop",
+    "intent": "testing_only",
+    "storyCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0004_chat-demo-resilience-loop/prd.json --no-commit"
+  },
+  "setMetadata": {
+    "setId": "SET-4",
+    "parallelSafe": true,
+    "storiesCount": 3,
+    "sourceSlices": [
+      "0008_l1-run-scoped-chat",
+      "0009_demo-operator-loop",
+      "0010_cross-surface-error-contract"
+    ]
+  },
+  "releaseAlignment": {
+    "releaseDate": "2026-02-12",
+    "parityDelta": "Chat tests assert matter-scoped behavior because ui-rebuild intentionally removed run-scope selector semantics."
+  },
+  "stories": [
+    {
+      "id": "US-012",
+      "title": "Matter Scoped Chat Contract",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want deterministic matter-scoped chat behavior with transparent source-jump gating.",
+      "acceptanceCriteria": [
+        "Given indexed matter context, chat composer is available without requiring a run selector.",
+        "When a question is submitted, sending, streaming, and final response states are explicit.",
+        "Then source chips are clickable only for anchor-ready citations.",
+        "Example: anchor-ready chip opens viewer at expected document and page.",
+        "Negative: no indexed context disables composer with guidance and no request is sent."
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Demo Operator Pack Load Reload Loop",
+      "status": "open",
+      "dependsOn": [
+        "US-012"
+      ],
+      "description": "As a demo operator, I want allowlisted pack load and reload behavior to remain predictable.",
+      "acceptanceCriteria": [
+        "Given demo mode is enabled, toolbar displays explicit DEMO MODE posture and allowlisted packs.",
+        "When a pack loads, system creates or opens deterministic demo matter context.",
+        "Then checklist progression and timing metadata are visible or explicitly unavailable.",
+        "Example: load pack again creates a new demo matter without deleting prior records.",
+        "Negative: non-allowlisted pack values fail validation and create no matter."
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Cross Surface Error Retry and Support Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-013"
+      ],
+      "description": "As an operator, I want consistent error contracts and safe recovery cues across surfaces.",
+      "acceptanceCriteria": [
+        "Given failures in at least three surfaces, each renders deterministic ErrorBanner structure.",
+        "When a failure is retryable and a handler exists, Retry action replays idempotently.",
+        "Then support affordance includes only safe context fields: code, trace_id, and route.",
+        "Example: non-retryable validation errors hide Retry while still exposing support path.",
+        "Negative: missing support configuration yields fallback guidance with copyable identifiers."
+      ]
+    }
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "createdAt"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "matterId",
+        "status",
+        "createdAt",
+        "completedAt"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "runId",
+        "status",
+        "question",
+        "answerPreview"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "rowId",
+        "docId",
+        "page",
+        "anchorState"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "runId",
+        "kind",
+        "type",
+        "safety",
+        "downloadUrl"
+      ]
+    },
+    {
+      "entity": "DemoPack",
+      "fields": [
+        "id",
+        "allowlisted",
+        "name",
+        "steps"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture-driven E2E input contract for Ralph testing loop.",
+    "example": {
+      "matterId": "matter_demo_001",
+      "runId": "run_demo_001",
+      "fixtureSet": "baseline_safe",
+      "expectedStates": {
+        "quickStart": "blocked",
+        "export": "disabled"
+      }
+    }
+  }
+}

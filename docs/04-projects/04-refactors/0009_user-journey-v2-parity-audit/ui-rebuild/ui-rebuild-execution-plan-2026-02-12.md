@@ -4,12 +4,18 @@ Date: 2026-02-12
 Status: Ready for 3-agent parallel execution  
 Scope: `apps/web` UI/IA rebuild aligned to wireframes, design-system standards, and parity-v1 behavior contracts.
 
+> Superseded for execution by clean-room planning artifacts:
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-detailed-implementation-plan-2026-02-12.md`
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-wireframe-mapping-matrix-2026-02-12.md`
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md`
+> - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/oracle-cleanroom-batching-plan-2026-02-12.md`
+
 ## Objective
 Rebuild the `apps/web` information architecture and interaction model to mirror:
 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes`
 
-while preserving visual standards from:
+while preserving visual standards (styling) from:
 
 - `docs/02-guidelines/v5-final/design-system.html`
 
@@ -20,22 +26,36 @@ and behavior/contracts from:
 
 ## Precedence Rules (to avoid acceptance ambiguity)
 1. Behavior and backend contracts are non-negotiable in this pass.
-2. Information architecture follows wireframes at 90%+ fidelity for in-scope surfaces. If wireframes conflict with behavior/backend contracts, contracts win and the delta is logged.
-3. Visual language follows Orbital design-system tokens and standards (or extends on them) - `docs/02-guidelines/v5-final/design-system.html`
+2. Information architecture follows wireframes at 90%+ fidelity for in-scope surfaces. If wireframes conflict with behavior/backend contracts, you ask before proceeding (case-by-case basis) and we log a decision.
+3. Visual language follows - `docs/02-guidelines/v5-final/design-system.html`, however exact creation of tokens etc should be based on the relevant skills and a lot of the mechanics should come from `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes` (this override any notes in AGENTS.md)
 4. If references conflict, log decision in the parity ledger with rationale before implementation.
 
 ## Scope
-1. Rework global shell/navigation, matters list, matter detail, row drawer, and evidence/PDF viewer. Including tables on those pages.
-2. Update/ expand/refactor reusable UI building blocks into `apps/web/app/ui` with clear ownership boundaries.
+1. Rebuild global shell/navigation, matters list, matter detail, row drawer, and evidence/PDF viewer. Including tables on those pages.
+2. Update/ expand/refactor reusable UI building blocks into `apps/web/app/ui` with clear ownership boundaries. In many cases overwriting what already exists
 3. Keep behavior parity for user-visible flows plus loading/error/empty states with existing contracts and route handlers.
 4. Document all intentional deltas in a parity ledger.
 5. Remove hard-coded example data in touched UI surfaces.
-6. Simple UI polish changes are allowed when they do not add backend work or new product features.
+6. Simple UI polish changes are allowed when they do not add backend work.
 
 ## Out of Scope
-1. Backend/API/schema changes.
+1. Backend/API/schema changes, unless a decision is made and documented.
 2. New product features outside parity and simple UI polish.
-3. Mandatory staged rollout or feature flags (not required for this pre-prod pass).
+3. Mandatory staged rollout or feature flags (not required for this as we aren't in production - we are allowed to make extensive changes to the UI.
+
+## Skills to Use During Execution
+Use this minimal skill set across all waves and lane handoffs:
+
+1. `ask-questions-if-underspecified` - required when wireframe, contract, or ownership details are unclear.
+2. `baseline-ui`, `interface-design`, `frontend-design` - drive clean-room UI/IA rebuild quality.
+3. `tailwind-css-patterns`, `generating-tailwind-brand-config` - align token/preset mechanics with wireframe intent.
+4. `composition-patterns`, `react-best-practices` - keep component boundaries clear and Next.js behavior performant.
+5. `fixing-accessibility`, `wcag-audit-patterns`, `web-design-guidelines` - enforce keyboard/focus/a11y and UX quality gates.
+6. `interaction-design`, `fixing-motion-performance` - improve interaction clarity without adding motion debt.
+7. `test-browser` - run route, drawer, and viewer behavior smoke checks.
+8. `verify` - run the verification ladder and report PASS/NO-GO.
+9. `oracle` - use for deep parity cross-checks on risky or disputed deltas.
+10. `kieran-typescript-reviewer`, `code-simplicity-reviewer` - final quality pass before Wave 6 Go/No-Go.
 
 ## Parallel Agent Lanes (3 Areas)
 Use three lanes in parallel to reduce cycle time and keep merge boundaries explicit.
@@ -212,11 +232,13 @@ Exit gate:
 ## Definition of Done
 1. `/matters` and `/matters/[id]` structurally follow wireframe IA at 90%+ fidelity, with logged contract-driven deltas.
 2. Runs + Alerts are unified in left navigation.
-3. Breadcrumb/topbar are reusable and shared.
-4. Drawer and PDF viewer meet reference quality without behavior regressions.
+3. Breadcrumb/topbar are reusable and shared, following wireframe IA at 90%+ fidelity.
+4. Drawer and PDF viewer meet reference quality without behavior regressions, following wireframe IA at 90%+ fidelity.
 5. Reusable components live in `apps/web/app/ui`; no route-level one-off design drift.
 6. Parity includes user-visible flow states plus loading/error/empty states.
 7. Verification matrix passes and parity ledger is complete.
+8. Tables follow wireframe IA at 90%+ fidelity.
+9. Filters and search follow wireframe IA at 90%+ fidelity.
 
 ## Proposed Commit Sequence
 1. `feat(web-ui): rebuild workspace shell and unified sidebar IA`

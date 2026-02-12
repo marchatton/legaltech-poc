@@ -28,9 +28,9 @@ describe("US-001 report triage tabs and dense table behavior", () => {
     const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
     const source = readUtf8(panelPath);
 
-    expect(source).toContain("max-h-[34rem] overflow-auto");
+    expect(source).toContain('TableFrame className="max-h-[34rem] shadow-ui-sm"');
     expect(source).toContain("sticky top-0 z-10");
-    expect(source).toContain("Citations");
-    expect(source).toContain("Provenance");
+    expect(source).toContain("Answer Preview");
+    expect(source).toContain("aria-label={`Open row drawer for ${row.question_id}`}");
   });
 });

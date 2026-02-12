@@ -1,0 +1,442 @@
+{
+  "version": 1,
+  "project": "E2E V4 Ralph Parallel Test Sets",
+  "overview": "Post-ui-rebuild E2E regression plan decomposed into four parallel Ralph testing sets with 14 total stories and explicit parity alignment.",
+  "goals": [
+    "Preserve full V3 coverage while enabling four parallel testing lanes.",
+    "Keep one-story-per-iteration Ralph execution with deterministic pass/fail evidence.",
+    "Align acceptance criteria to shipped ui-rebuild behavior and intentional deltas.",
+    "Retain direct traceability to legacy 0001..0010 source slices."
+  ],
+  "nonGoals": [
+    "Implementing new product features during this test loop.",
+    "Changing backend contracts, schema, or run-state semantics.",
+    "Rewriting legacy source slice PRDs under 0001..0010."
+  ],
+  "successMetrics": [
+    "All 14 stories executed with explicit pass/fail evidence and negative-path validation.",
+    "Each parallel set can run independently with no cross-set story dependencies.",
+    "All known ui-rebuild divergences are reflected in acceptance criteria and execution notes."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev plus demo-prod environments",
+    "database": "Postgres",
+    "auth": "Existing app route gating for dev/demo flows"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters List",
+      "purpose": "Entry point for discovery, create, and demo history surfaces"
+    },
+    {
+      "path": "/matters/[id]",
+      "name": "Matter Detail",
+      "purpose": "Quick start, tabbed review flows, and operator checklist"
+    },
+    {
+      "path": "/matters/[id]?tab=report",
+      "name": "Report Triage",
+      "purpose": "Row filtering, drawer decisions, and citation launch"
+    },
+    {
+      "path": "/matters/viewer",
+      "name": "Citation Viewer",
+      "purpose": "Evidence verification for citation trust and fail-closed flows"
+    }
+  ],
+  "uiNotes": [
+    "Runs + Alerts remains a unified disabled navigation affordance.",
+    "Create matter remains inline in the list header; upload/readiness cues are in detail setup panels.",
+    "Row drawer actions include mark-reviewed and back-to-table; no flag-issue backend mutation is assumed.",
+    "Exports uses run-state-driven control disabling rather than a global blocked banner.",
+    "Chat is matter-scoped in shipped UI; run-scope selector behavior is not a required contract."
+  ],
+  "rules": [
+    "Every story execution validates at least one positive and one negative path.",
+    "Stories are test-only: no product implementation work is included in this PRD.",
+    "When a story fails, capture failing route, fixture, and error contract fields before moving on.",
+    "Maintain deterministic fixtures across reruns so parallel lanes remain comparable."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "executionMode": {
+    "type": "ralph_testing_loop",
+    "intent": "testing_only",
+    "note": "Use the ralph build command as a test iteration harness only; this loop validates behavior and captures evidence, not feature implementation.",
+    "storyCommandTemplate": "ralph build 1 --agent=codex --prd <slice-prd-path> --no-commit",
+    "evidenceRequired": [
+      "Story-level pass/fail outcome",
+      "Acceptance criteria checklist with at least one example and one negative assertion",
+      "Route or surface evidence for any failure"
+    ]
+  },
+  "releaseAlignment": {
+    "releaseDate": "2026-02-12",
+    "releaseReference": "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md",
+    "contractAdjustments": [
+      "Chat tests assert matter-scoped behavior and source-chip gating, not run-selector behavior.",
+      "Export blocking tests assert run-state disabled controls, not a required blocked-banner deep-link UI.",
+      "Drawer decision tests assert mark-reviewed and mutation-failure contracts; no flag-issue mutation is required."
+    ]
+  },
+  "parallelSets": [
+    {
+      "id": "SET-1",
+      "title": "Entry and Readiness",
+      "prdPath": "docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json",
+      "storyIds": [
+        "US-001",
+        "US-002",
+        "US-003",
+        "US-004"
+      ],
+      "storiesCount": 4,
+      "recommendedParallelSlot": 1,
+      "ralphCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json --no-commit"
+    },
+    {
+      "id": "SET-2",
+      "title": "Review and Trust",
+      "prdPath": "docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json",
+      "storyIds": [
+        "US-005",
+        "US-006",
+        "US-007",
+        "US-008"
+      ],
+      "storiesCount": 4,
+      "recommendedParallelSlot": 2,
+      "ralphCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json --no-commit"
+    },
+    {
+      "id": "SET-3",
+      "title": "Exports and Provenance",
+      "prdPath": "docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0003_exports-provenance-loop/prd.json",
+      "storyIds": [
+        "US-009",
+        "US-010",
+        "US-011"
+      ],
+      "storiesCount": 3,
+      "recommendedParallelSlot": 3,
+      "ralphCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0003_exports-provenance-loop/prd.json --no-commit"
+    },
+    {
+      "id": "SET-4",
+      "title": "Chat, Demo, and Resilience",
+      "prdPath": "docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0004_chat-demo-resilience-loop/prd.json",
+      "storyIds": [
+        "US-012",
+        "US-013",
+        "US-014"
+      ],
+      "storiesCount": 3,
+      "recommendedParallelSlot": 4,
+      "ralphCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0004_chat-demo-resilience-loop/prd.json --no-commit"
+    }
+  ],
+  "sources": [
+    "docs/05-reviews-audits/e2e-testing/prd-ralph-v3.md",
+    "docs/05-reviews-audits/e2e-testing/prd-ralph-v3.json",
+    "docs/05-reviews-audits/e2e-testing/e2e-v3-summary.md",
+    "docs/05-reviews-audits/e2e-testing/ralph-loop-note.md",
+    "docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/ui-rebuild/ui-rebuild-cleanroom-parity-ledger-2026-02-12.md"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Shell Wayfinding Baseline",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want stable shell wayfinding so I can enter matter workflows confidently.",
+      "acceptanceCriteria": [
+        "Given demo mode and at least one matter, opening /matters renders shell with Matters active.",
+        "When the operator navigates list -> detail -> list, shell context remains deterministic.",
+        "Then environment badge, breadcrumb, and stable matter identifiers are visible.",
+        "Example: breadcrumb includes Matters > Matter Name and Runs + Alerts appears disabled.",
+        "Negative: placeholder navigation never routes to broken or ambiguous screens."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Matter Discovery Filtering",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want deterministic search and saved-view filters so matter discovery is reliable.",
+      "acceptanceCriteria": [
+        "Given seeded matters, list search and saved-view filters are available.",
+        "When filters are applied in sequence, row sets update deterministically.",
+        "Then filter state is explicit and reversible via URL controls.",
+        "Example: saved view plus query produces a stable row subset across refresh.",
+        "Negative: empty-match states never appear without guidance or reset affordance."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Matter Create Upload and Readiness Guidance",
+      "status": "open",
+      "dependsOn": [
+        "US-002"
+      ],
+      "description": "As an operator, I want create and setup readiness cues so I know when a run can start.",
+      "acceptanceCriteria": [
+        "Given a valid matter name, inline creation succeeds from the matters list header.",
+        "When documents are uploaded in detail setup, readiness transitions are explicit.",
+        "Then reasons are visible as ready, blocked, or already complete with next-step guidance.",
+        "Example: missing required documents yields blocked state with concrete guidance text.",
+        "Negative: empty-name creation is rejected with validation and no new matter created."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Quick Start Readiness Gate",
+      "status": "open",
+      "dependsOn": [
+        "US-003"
+      ],
+      "description": "As an operator, I want Quick Start to enforce readiness so blocked matters cannot start runs.",
+      "acceptanceCriteria": [
+        "Given a blocked matter, Quick Start is visibly blocked with an explicit reason.",
+        "When readiness transitions to runnable, Quick Start starts a run without reload hacks.",
+        "Then run progress becomes visible immediately in detail context.",
+        "Example: blocked-to-ready fixture change enables start and creates a run.",
+        "Negative: blocked start attempts return explicit conflict behavior and no run creation."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Run Triage Tab Scope Contract",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want triage tabs to filter deterministically within current run scope.",
+      "acceptanceCriteria": [
+        "Given a run with mixed statuses, All, Needs Review, Reviewed, and Flagged tabs are visible.",
+        "When each row tab is selected, rows filter by status while retaining run scope.",
+        "Then URL and visible counts remain consistent with selected tab.",
+        "Example: Needs Review count equals visible rows after tab switch and refresh.",
+        "Negative: tab changes never leak rows from another run."
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Drawer Decisions and Mutation Feedback",
+      "status": "open",
+      "dependsOn": [
+        "US-005"
+      ],
+      "description": "As a reviewer, I want drawer-first decisions and explicit mutation feedback for reliable triage.",
+      "acceptanceCriteria": [
+        "Given a needs_review row, opening the row launches a drawer with deterministic payload.",
+        "When mark reviewed is triggered, row and drawer states update without full-page refresh.",
+        "Then copy actions return explicit success or failure feedback.",
+        "Example: reopening a marked row shows reviewed state persisted.",
+        "Negative: mutation failure renders ErrorBanner and leaves review status unchanged."
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Valid Citation Trust Viewer Verification",
+      "status": "open",
+      "dependsOn": [
+        "US-006"
+      ],
+      "description": "As a reviewer, I want valid citations to open verifiable evidence with trust metadata.",
+      "acceptanceCriteria": [
+        "Given a valid citation, source chips open the viewer at expected document and page.",
+        "When the viewer loads, highlight overlays and trust metadata render from payload.",
+        "Then reset-to-100 restores explicit verification posture.",
+        "Example: valid citation displays one or more polygons and no failure panel.",
+        "Negative: missing trust metadata payload renders deterministic fallback, not a silent success state."
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Invalid Citation Fail Closed",
+      "status": "open",
+      "dependsOn": [
+        "US-007"
+      ],
+      "description": "As a reviewer, I want invalid citations to fail closed with explicit recovery cues.",
+      "acceptanceCriteria": [
+        "Given corrupted or unresolved citations, source-chip gating is explicit.",
+        "When an invalid citation is opened, viewer renders citation_failed reason code.",
+        "Then highlight overlays are absent.",
+        "Example: unresolved anchor source chip is disabled with explanation text.",
+        "Negative: invalid citations never render stale or approximate highlight polygons."
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Safe Run Scoped Exports",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want exports to run only for eligible completed runs.",
+      "acceptanceCriteria": [
+        "Given run selector context, completed safe runs are export-eligible.",
+        "When an eligible run is selected, CSV and DOCX exports produce downloadable artefacts.",
+        "Then artefact metadata remains bound to selected run_id.",
+        "Example: selecting a safe completed run enables export and downloads both formats.",
+        "Negative: incomplete runs do not produce downloadable artefacts."
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Export Blocking State Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-009"
+      ],
+      "description": "As an operator, I want blocked or incomplete run states to prevent unsafe exports explicitly.",
+      "acceptanceCriteria": [
+        "Given a run in blocked, failed, or incomplete state, export actions remain disabled.",
+        "When operator switches to a completed safe run, export controls become enabled.",
+        "Then control-state behavior is deterministic across route refresh and run selector changes.",
+        "Example: completed run enables download controls while blocked run keeps controls disabled.",
+        "Negative: blocked or incomplete runs never produce files or stale signed links."
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Artefact Provenance Retrieval and Download Safety",
+      "status": "open",
+      "dependsOn": [
+        "US-010"
+      ],
+      "description": "As an operator, I want provenance-rich artefact retrieval with deterministic filtering and error visibility.",
+      "acceptanceCriteria": [
+        "Given mixed artefacts, list renders source_run_id and provenance metadata.",
+        "When kind, type, and safety filters are applied, row sets update deterministically.",
+        "Then each row exposes actionable download controls with explicit loading or error states.",
+        "Example: unsafe filter shows only UNSAFE-labelled rows with explanation context.",
+        "Negative: expired signed URLs surface explicit errors and never fail silently."
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "Matter Scoped Chat Contract",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want deterministic matter-scoped chat behavior with transparent source-jump gating.",
+      "acceptanceCriteria": [
+        "Given indexed matter context, chat composer is available without requiring a run selector.",
+        "When a question is submitted, sending, streaming, and final response states are explicit.",
+        "Then source chips are clickable only for anchor-ready citations.",
+        "Example: anchor-ready chip opens viewer at expected document and page.",
+        "Negative: no indexed context disables composer with guidance and no request is sent."
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Demo Operator Pack Load Reload Loop",
+      "status": "open",
+      "dependsOn": [
+        "US-012"
+      ],
+      "description": "As a demo operator, I want allowlisted pack load and reload behavior to remain predictable.",
+      "acceptanceCriteria": [
+        "Given demo mode is enabled, toolbar displays explicit DEMO MODE posture and allowlisted packs.",
+        "When a pack loads, system creates or opens deterministic demo matter context.",
+        "Then checklist progression and timing metadata are visible or explicitly unavailable.",
+        "Example: load pack again creates a new demo matter without deleting prior records.",
+        "Negative: non-allowlisted pack values fail validation and create no matter."
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Cross Surface Error Retry and Support Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-013"
+      ],
+      "description": "As an operator, I want consistent error contracts and safe recovery cues across surfaces.",
+      "acceptanceCriteria": [
+        "Given failures in at least three surfaces, each renders deterministic ErrorBanner structure.",
+        "When a failure is retryable and a handler exists, Retry action replays idempotently.",
+        "Then support affordance includes only safe context fields: code, trace_id, and route.",
+        "Example: non-retryable validation errors hide Retry while still exposing support path.",
+        "Negative: missing support configuration yields fallback guidance with copyable identifiers."
+      ]
+    }
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "createdAt"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "matterId",
+        "status",
+        "createdAt",
+        "completedAt"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "runId",
+        "status",
+        "question",
+        "answerPreview"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "rowId",
+        "docId",
+        "page",
+        "anchorState"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "runId",
+        "kind",
+        "type",
+        "safety",
+        "downloadUrl"
+      ]
+    },
+    {
+      "entity": "DemoPack",
+      "fields": [
+        "id",
+        "allowlisted",
+        "name",
+        "steps"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture-driven E2E input contract for Ralph testing loop.",
+    "example": {
+      "matterId": "matter_demo_001",
+      "runId": "run_demo_001",
+      "fixtureSet": "baseline_safe",
+      "expectedStates": {
+        "quickStart": "blocked",
+        "export": "disabled"
+      }
+    }
+  }
+}

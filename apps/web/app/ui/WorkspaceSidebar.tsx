@@ -1,11 +1,17 @@
+"use client";
+
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { Tooltip } from "./Tooltip";
 import { cn } from "./cn";
 
+/* ── Destination config ── */
+
+type DestinationId = "matters" | "runs_alerts" | "settings";
+
 type Destination = {
-  id: "matters" | "runs_alerts" | "settings";
+  id: DestinationId;
   label: string;
   href?: string;
   disabledHint?: string;
@@ -52,76 +58,172 @@ const DESTINATIONS: Destination[] = [
   },
 ];
 
-export function WorkspaceSidebar(props: { active: Destination["id"] }) {
+/* ── Sidebar ── */
+
+export function WorkspaceSidebar(props: { active: DestinationId }) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("orbital.sidebar.collapsed");
+      if (stored !== null) {
+        setCollapsed(stored === "true");
+      }
+    } catch {
+      // Ignore localStorage errors and default to expanded.
+    }
+  }, []);
+
+  const handleCollapsedChange = (next: boolean) => {
+    setCollapsed(next);
+    try {
+      window.localStorage.setItem("orbital.sidebar.collapsed", String(next));
+    } catch {
+      // Ignore localStorage errors and rely on in-memory state.
+    }
+  };
+
   return (
-    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
-      <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-8 items-center justify-center rounded-ui-md bg-primary text-primary-foreground shadow-ui-sm">
+    <aside
+      className={cn(
+        "sticky top-0 hidden h-dvh shrink-0 border-r border-sidebar-border bg-sidebar transition-all duration-standard ease-brand-standard lg:flex lg:flex-col",
+        collapsed ? "w-16" : "w-64",
+      )}
+    >
+      {/* Logo area */}
+      <div
+        className={cn(
+          "flex h-14 items-center border-b border-sidebar-border",
+          collapsed ? "justify-center px-2" : "justify-between px-4",
+        )}
+      >
+        <div className={cn("flex min-w-0 items-center", collapsed && "justify-center")}>
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground shadow-ui-sm ring-2 ring-purple-200 ring-offset-1 ring-offset-sidebar">
             <span className="text-sm font-semibold">O</span>
           </div>
-          <span className="truncate font-serif text-xl font-medium text-sidebar-foreground">Orbital</span>
+          {!collapsed && (
+            <span className="ml-3 truncate font-serif text-xl font-semibold tracking-tight text-sidebar-foreground">
+              Orbital
+            </span>
+          )}
         </div>
-        <button
-          type="button"
-          aria-label="Collapse sidebar"
-          className="inline-flex size-6 items-center justify-center rounded-ui-sm text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-        >
-          <span aria-hidden="true" className="font-mono text-sm">&lt;&lt;</span>
-        </button>
+        {!collapsed && (
+          <button
+            type="button"
+            onClick={() => handleCollapsedChange(true)}
+            aria-label="Collapse sidebar"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded-ui-sm text-muted-foreground transition-colors duration-micro hover:bg-sidebar-accent hover:text-foreground"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+              <polyline points="11 17 6 12 11 7" />
+              <polyline points="18 17 13 12 18 7" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      <nav aria-label="Primary" className="flex-1 space-y-1 p-2">
+      {/* Navigation */}
+      <nav aria-label="Primary" className="flex-1 space-y-1 px-2 py-4">
         {DESTINATIONS.map((item) => {
           const isActive = item.id === props.active;
           const itemClass = cn(
-            "flex w-full items-center gap-3 rounded-ui-md border-l-[3px] px-3 py-2.5 text-sm font-medium transition-colors duration-micro ease-brand-standard",
+            "flex w-full items-center rounded-ui-md border-l-[3px] py-2.5 text-sm font-medium transition-colors duration-micro ease-brand-standard",
+            collapsed ? "justify-center px-2" : "gap-3 px-3",
             isActive
-              ? "border-l-info bg-info/10 text-info shadow-ui-sm"
+              ? "border-l-cyan-500 bg-cyan-50 text-cyan-800 shadow-ui-sm dark:bg-cyan-500/10 dark:text-cyan-300"
               : "border-l-transparent text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
           );
-          const iconClass = cn("size-4 shrink-0", isActive ? "text-info" : "text-muted-foreground");
+          const iconClass = cn("size-5 shrink-0", isActive ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground");
 
           if (item.href) {
             return (
-              <Link key={item.id} href={item.href} aria-current={isActive ? "page" : undefined} className={itemClass}>
+              <Link
+                key={item.id}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                title={collapsed ? item.label : undefined}
+                className={itemClass}
+              >
                 <item.icon className={iconClass} />
-                <span>{item.label}</span>
+                {!collapsed && <span className="truncate">{item.label}</span>}
               </Link>
+            );
+          }
+
+          const disabledNode = (
+            <span
+              aria-disabled="true"
+              tabIndex={0}
+              title={collapsed ? item.label : undefined}
+              className={cn(
+                itemClass,
+                "cursor-not-allowed border-l-transparent text-muted-foreground/70 hover:bg-sidebar-accent/70 hover:text-muted-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar",
+              )}
+            >
+              <item.icon className={cn(iconClass, "text-muted-foreground/70")} />
+              {!collapsed && <span className="truncate">{item.label}</span>}
+            </span>
+          );
+
+          if (collapsed) {
+            return (
+              <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right">
+                {disabledNode}
+              </Tooltip>
             );
           }
 
           return (
             <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right">
-              <span
-                aria-disabled="true"
-                tabIndex={0}
-                className={cn(
-                  itemClass,
-                  "cursor-not-allowed border-l-transparent text-muted-foreground/70 hover:bg-sidebar-accent/70 hover:text-muted-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar",
-                )}
-              >
-                <item.icon className={iconClass} />
-                <span>{item.label}</span>
-              </span>
+              {disabledNode}
             </Tooltip>
           );
         })}
       </nav>
 
+      {/* Expand toggle (collapsed only) */}
+      {collapsed && (
+        <div className="px-2 pb-2">
+          <button
+            type="button"
+            onClick={() => handleCollapsedChange(false)}
+            className="flex w-full items-center justify-center rounded-ui-md p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+            title="Expand sidebar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+              <polyline points="13 17 18 12 13 7" />
+              <polyline points="6 17 11 12 6 7" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* User profile */}
       <div className="border-t border-sidebar-border p-3">
-        <div className="flex items-center gap-3 rounded-ui-md px-1 py-1">
-          <div className="flex size-8 items-center justify-center rounded-pill bg-secondary text-2xs font-semibold text-secondary-foreground">
+        <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3 px-1 py-1")}>
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-pill bg-secondary text-xs font-semibold text-secondary-foreground">
             RG
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-sidebar-foreground">Ruth Bader Ginsburg</p>
-            <p className="truncate text-2xs text-muted-foreground">Operator</p>
-          </div>
-          <span aria-hidden="true" className="text-muted-foreground">
-            -
-          </span>
+          {!collapsed && (
+            <>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-sidebar-foreground">Ruth Bader Ginsburg</p>
+                <p className="truncate text-2xs text-muted-foreground">Operator</p>
+              </div>
+              <button
+                type="button"
+                aria-label="Sign out"
+                className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </aside>

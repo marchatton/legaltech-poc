@@ -62,69 +62,78 @@ export function ExportsPanel(props: Props) {
   }
 
   return (
-    <div className="grid justify-items-end gap-2">
-      <div className="grid w-full max-w-md gap-1 text-left">
-        <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground" htmlFor="exports-run-selector">
-          Source run
-        </label>
-        <Select
-          id="exports-run-selector"
-          value={selectedRun?.run_id ?? ""}
-          onChange={(event) => onRunChange(event.currentTarget.value)}
-          disabled={props.runOptions.length === 0}
-          aria-label="Source run"
-          className="w-full font-mono"
-          uiSize="sm"
-        >
-          {props.runOptions.length === 0 ? (
-            <option value="">No completed runs available</option>
-          ) : (
-            props.runOptions.map((run, index) => (
-              <option key={run.run_id} value={run.run_id}>
-                {runOptionLabel(run, index)}
-              </option>
-            ))
-          )}
-        </Select>
+    <div className="grid gap-6">
+      <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <div className="grid w-full gap-1 text-left">
+          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground" htmlFor="exports-run-selector">
+            Source run
+          </label>
+          <Select
+            id="exports-run-selector"
+            value={selectedRun?.run_id ?? ""}
+            onChange={(event) => onRunChange(event.currentTarget.value)}
+            disabled={props.runOptions.length === 0}
+            aria-label="Source run"
+            className="w-full font-mono"
+            uiSize="sm"
+          >
+            {props.runOptions.length === 0 ? (
+              <option value="">No completed runs available</option>
+            ) : (
+              props.runOptions.map((run, index) => (
+                <option key={run.run_id} value={run.run_id}>
+                  {runOptionLabel(run, index)}
+                </option>
+              ))
+            )}
+          </Select>
 
-        {selectedRun ? (
-          <p className="text-2xs text-muted-foreground">
-            Selected run: <span className="font-mono">{selectedRun.run_id}</span> | updated{" "}
-            <span className="font-mono">{formatTimestamp(selectedRun.updated_at)}</span>
-          </p>
-        ) : (
-          <Alert variant="info" className="text-left">
-            Exports are available once this matter has at least one completed run.
-          </Alert>
-        )}
+          {selectedRun ? (
+            <p className="text-2xs text-muted-foreground">
+              Selected run: <span className="font-mono">{selectedRun.run_id}</span> | updated{" "}
+              <span className="font-mono">{formatTimestamp(selectedRun.updated_at)}</span>
+            </p>
+          ) : (
+            <Alert variant="info" className="text-left">
+              Exports are available once this matter has at least one completed run.
+            </Alert>
+          )}
+        </div>
       </div>
 
-      <ExportMemoButton
-        folderId={props.folderId}
-        runId={selectedRun?.run_id ?? null}
-        runState={selectedRun?.status ?? null}
-        unsafeOverrideEnabled={props.unsafeOverrideEnabled}
-      />
+      <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Export options
+        </p>
+        <div className="grid gap-2">
+          <ExportMemoButton
+            folderId={props.folderId}
+            runId={selectedRun?.run_id ?? null}
+            runState={selectedRun?.status ?? null}
+            unsafeOverrideEnabled={props.unsafeOverrideEnabled}
+          />
 
-      <div className="flex flex-wrap items-start justify-end gap-2">
-        <ExportCsvButton
-          folderId={props.folderId}
-          runId={selectedRun?.run_id ?? null}
-          kind="requirements_tracker"
-          label="Export requirements"
-        />
-        <ExportCsvButton
-          folderId={props.folderId}
-          runId={selectedRun?.run_id ?? null}
-          kind="exceptions_table"
-          label="Export exceptions"
-        />
-        <ExportCsvButton
-          folderId={props.folderId}
-          runId={selectedRun?.run_id ?? null}
-          kind="survey_issues"
-          label="Export survey issues"
-        />
+          <div className="flex flex-wrap items-start gap-2">
+            <ExportCsvButton
+              folderId={props.folderId}
+              runId={selectedRun?.run_id ?? null}
+              kind="requirements_tracker"
+              label="Export requirements"
+            />
+            <ExportCsvButton
+              folderId={props.folderId}
+              runId={selectedRun?.run_id ?? null}
+              kind="exceptions_table"
+              label="Export exceptions"
+            />
+            <ExportCsvButton
+              folderId={props.folderId}
+              runId={selectedRun?.run_id ?? null}
+              kind="survey_issues"
+              label="Export survey issues"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

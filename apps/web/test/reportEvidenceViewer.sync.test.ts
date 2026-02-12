@@ -30,16 +30,16 @@ describe("US-003 split-view evidence controls and verification states", () => {
     const source = readUtf8(viewerPath);
 
     expect(source).toContain("Loading PDF page...");
-    expect(source).toContain("Reset to 100% to verify");
-    expect(source).toContain("Prev");
-    expect(source).toContain("Next");
+    expect(source).toContain("Reset to verify");
+    expect(source).toContain('aria-label="Previous page"');
+    expect(source).toContain('aria-label="Next page"');
     expect(source).toContain("goToPage");
-    expect(source).toContain("Trust footer");
-    expect(source).toContain("doc_version");
-    expect(source).toContain("verified_at");
-    expect(source).toContain("loaded_state");
+    expect(source).toContain("TRUST_METADATA_FALLBACK");
+    expect(source).toContain("trustDocVersion");
+    expect(source).toContain("trustVerifiedAt");
+    expect(source).toContain("trustLoadedState");
     expect(source).toContain("Unavailable from payload");
-    expect(source).not.toContain("Verified at 100% zoom");
+    expect(source).toContain("Verified at 100%");
   });
 });
 
@@ -60,9 +60,9 @@ describe("US-005 citation failure recovery and acknowledgement", () => {
     const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
     const source = readUtf8(viewerPath);
 
-    expect(source).toContain("Flag citation wrong");
-    expect(source).toContain("Thanks, we&apos;ll investigate.");
-    expect(source).toContain("No backend request is sent in parity v1.");
+    expect(source).toContain("Flag citation as wrong");
+    expect(source).toContain("Flagged — thanks");
+    expect(source).toContain("Confirm flag?");
     expect(source).toContain("setFlagCitationState");
   });
 });

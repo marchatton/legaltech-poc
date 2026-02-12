@@ -13,7 +13,6 @@ import {
 import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
 import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 
-import { Button } from "../../../ui/Button";
 import { Input, Select } from "../../../ui/Input";
 import { SectionLabel } from "../../../ui/Page";
 import { Skeleton, SkeletonLine } from "../../../ui/Skeleton";
@@ -464,161 +463,252 @@ export function CitationViewerClient(props: Props) {
 
   return (
     <div className="grid gap-4">
-      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-        <SectionLabel>Evidence Context</SectionLabel>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid gap-1 text-sm text-muted-foreground">
-            <div>
-              <span className="font-medium text-foreground">document_id:</span> {props.documentId}{" "}
-              <span className="ml-2 font-medium text-foreground">page:</span> {activePage}{" "}
-              {pdfPageCount ? <span className="text-muted-foreground">(of {pdfPageCount})</span> : null}
+      {/* Viewer shell: toolbar + canvas + footer */}
+      <div className="rounded-ui-lg border border-border bg-card shadow-ui-sm overflow-hidden flex flex-col" aria-busy={isPageLoading}>
+        {/* Toolbar */}
+        <div className="h-14 border-b border-border bg-card flex items-center justify-between px-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-sm font-medium text-foreground truncate max-w-[200px]">
+              {props.documentId}
+            </span>
+
+            <div className="h-5 w-px bg-border" />
+
+            {/* Page controls */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => goToPage(activePage - 1)}
+                disabled={!canGoPrevPage || isPageLoading}
+                className="p-1 rounded-ui-sm text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                aria-label="Previous page"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <Input
+                uiSize="sm"
+                inputMode="numeric"
+                className="w-12 text-center font-mono tabular-nums"
+                value={pageInputValue}
+                onChange={(e) => setPageInputValue(e.currentTarget.value)}
+                onBlur={commitPageInput}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    commitPageInput();
+                  }
+                }}
+                aria-label="Page number"
+              />
+              <span className="text-sm text-muted-foreground tabular-nums">
+                / {pdfPageCount ?? "—"}
+              </span>
+              <button
+                type="button"
+                onClick={() => goToPage(activePage + 1)}
+                disabled={!canGoNextPage || isPageLoading}
+                className="p-1 rounded-ui-sm text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                aria-label="Next page"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+              </button>
             </div>
-            <div>
-              {props.packId ? (
-                <>
-                  <span className="font-medium text-foreground">pack:</span> {props.packId}{" "}
-                  <span className="ml-2 font-medium text-foreground">pdfjs:</span> {hud.pdfjsVersion ?? "(loading)"}
-                </>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Zoom controls */}
+            <div className="flex items-center bg-muted rounded-ui-md p-0.5">
+              <button
+                type="button"
+                onClick={() => stepZoom("out")}
+                disabled={zoomPercent <= ZOOM_LEVELS[0] || isPageLoading}
+                className="p-1.5 hover:bg-card rounded-ui-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+                aria-label="Zoom out"
+                aria-keyshortcuts="-"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+              </button>
+              <Select
+                value={zoomPercent}
+                onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}
+                className="w-16 text-center text-xs font-mono border-0 bg-transparent h-7"
+              >
+                {ZOOM_LEVELS.map((z) => (
+                  <option key={z} value={z}>
+                    {z}%
+                  </option>
+                ))}
+              </Select>
+              <button
+                type="button"
+                onClick={() => stepZoom("in")}
+                disabled={zoomPercent >= ZOOM_LEVELS[ZOOM_LEVELS.length - 1] || isPageLoading}
+                className="p-1.5 hover:bg-card rounded-ui-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+                aria-label="Zoom in"
+                aria-keyshortcuts="+"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+              </button>
+            </div>
+
+            {/* Rotation */}
+            <div className="flex items-center gap-1">
+              <Select
+                value={userRotation}
+                onChange={(e) => setUserRotation(Number(e.currentTarget.value))}
+                className="w-16 text-xs font-mono h-7"
+              >
+                {[0, 90, 180, 270].map((r) => (
+                  <option key={r} value={r}>
+                    {r}°
+                  </option>
+                ))}
+              </Select>
+              <button
+                type="button"
+                onClick={rotateClockwise}
+                disabled={isPageLoading}
+                className="p-1.5 rounded-ui-sm text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+                aria-label="Rotate clockwise"
+                aria-keyshortcuts="R"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 15.57a10 10 0 1 1-.57-8.38" /></svg>
+              </button>
+            </div>
+
+            <div className="h-5 w-px bg-border" />
+
+            {/* Verification state */}
+            <div role="status" aria-live="polite">
+              {showVerificationReset ? (
+                <button
+                  type="button"
+                  onClick={() => setZoomPercent(100)}
+                  className="flex items-center text-xs text-orange-600 font-medium hover:bg-orange-500/10 px-2.5 py-1.5 rounded-ui-sm transition-colors"
+                  aria-keyshortcuts="0"
+                >
+                  <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M21 21v-5h-5" /></svg>
+                  Reset to verify
+                </button>
               ) : (
-                <>
-                  <span className="font-medium text-foreground">pdfjs:</span> {hud.pdfjsVersion ?? "(loading)"}
-                </>
+                <span className="flex items-center text-xs text-success font-medium px-2.5 py-1.5">
+                  <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                  Verified at 100%
+                </span>
               )}
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="grid gap-1 text-sm">
-              <span className="text-muted-foreground">Page</span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => goToPage(activePage - 1)}
-                  disabled={!canGoPrevPage || isPageLoading}
+        {/* Document canvas */}
+        <div className="flex-1 overflow-auto p-6 flex justify-center bg-muted/30">
+          <div className="relative inline-block">
+            <div className="relative bg-background rounded-ui-sm shadow-ui-md">
+              <canvas id="citation-canvas" className="block rounded-ui-sm" />
+
+              {isPageLoading ? (
+                <div className="absolute inset-0 z-20 rounded-ui-sm border border-border/70 bg-background/95 p-5">
+                  <div className="mb-3 text-xs font-medium text-muted-foreground">Loading PDF page...</div>
+                  <Skeleton className="h-32 w-full" />
+                  <div className="mt-4">
+                    <SkeletonLine width="92%" />
+                    <SkeletonLine width="76%" />
+                    <SkeletonLine width="84%" />
+                  </div>
+                </div>
+              ) : null}
+
+              {hud.errorCode ? (
+                <div className="absolute inset-0 grid place-items-center bg-background/80 p-6 text-center rounded-ui-sm">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">citation_failed</div>
+                    <div className="mt-1 text-xs text-muted-foreground">reason_code: {hud.errorCode}</div>
+                  </div>
+                </div>
+              ) : (
+                <svg
+                  className="absolute left-0 top-0"
+                  width={hud.viewport?.width ?? 0}
+                  height={hud.viewport?.height ?? 0}
+                  viewBox={`0 0 ${hud.viewport?.width ?? 0} ${hud.viewport?.height ?? 0}`}
                 >
-                  Prev
-                </Button>
-                <Input
-                  uiSize="sm"
-                  inputMode="numeric"
-                  className="w-16 text-center font-mono"
-                  value={pageInputValue}
-                  onChange={(e) => setPageInputValue(e.currentTarget.value)}
-                  onBlur={commitPageInput}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      commitPageInput();
-                    }
-                  }}
-                  aria-label="Page number"
-                />
-                <span className="min-w-[2.5rem] text-center text-xs text-muted-foreground">
-                  / {pdfPageCount ?? "?"}
-                </span>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => goToPage(activePage + 1)}
-                  disabled={!canGoNextPage || isPageLoading}
-                >
-                  Next
-                </Button>
-              </div>
+                  {overlayPath.map((points, idx) => (
+                    <polygon
+                      // eslint-disable-next-line react/no-array-index-key
+                      key={idx}
+                      points={points}
+                      {...overlayHighlightPolygonProps}
+                    />
+                  ))}
+                </svg>
+              )}
             </div>
-
-            <label className="grid gap-1 text-sm">
-              <span className="text-muted-foreground">Zoom</span>
-              <div className="flex items-center gap-1">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => stepZoom("out")}
-                  disabled={zoomPercent <= ZOOM_LEVELS[0] || isPageLoading}
-                  aria-label="Zoom out"
-                  aria-keyshortcuts="-"
-                >
-                  -
-                </Button>
-                <Select value={zoomPercent} onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}>
-                  {ZOOM_LEVELS.map((z) => (
-                    <option key={z} value={z}>
-                      {z}%
-                    </option>
-                  ))}
-                </Select>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => stepZoom("in")}
-                  disabled={zoomPercent >= ZOOM_LEVELS[ZOOM_LEVELS.length - 1] || isPageLoading}
-                  aria-label="Zoom in"
-                  aria-keyshortcuts="+"
-                >
-                  +
-                </Button>
-              </div>
-            </label>
-
-            <label className="grid gap-1 text-sm">
-              <span className="text-muted-foreground">Rotation</span>
-              <div className="flex items-center gap-1">
-                <Select
-                  value={userRotation}
-                  onChange={(e) => setUserRotation(Number(e.currentTarget.value))}
-                >
-                  {[0, 90, 180, 270].map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </Select>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={rotateClockwise}
-                  disabled={isPageLoading}
-                  aria-label="Rotate clockwise"
-                  aria-keyshortcuts="R"
-                >
-                  +90°
-                </Button>
-              </div>
-            </label>
           </div>
         </div>
 
-        <div className="mt-3 rounded-ui-md border border-border bg-muted/40 px-3 py-2" role="status" aria-live="polite">
-          {showVerificationReset ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Verification is paused at {zoomPercent}% zoom.</span>
-              <Button variant="secondary" size="sm" aria-keyshortcuts="0" onClick={() => setZoomPercent(100)}>
-                Reset to 100% to verify
-              </Button>
-            </div>
-          ) : (
-            <div className="text-xs text-success">Overlay active at 100% zoom</div>
-          )}
-        </div>
+        {/* Footer */}
+        <div className="border-t border-border bg-card px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-success mr-1.5" />
+              {trustLoadedState !== TRUST_METADATA_FALLBACK ? trustLoadedState : "Loaded"}
+            </span>
+            <span className="font-mono">{trustDocVersion}</span>
+            <span>{trustVerifiedAt !== TRUST_METADATA_FALLBACK ? trustVerifiedAt : null}</span>
+          </div>
 
-        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-2xs text-muted-foreground">
-          <span>Keyboard:</span>
-          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">←/→</kbd>
-          <span>page</span>
-          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">+/-</kbd>
-          <span>zoom</span>
-          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">0</kbd>
-          <span>verify</span>
-          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">R</kbd>
-          <span>rotate</span>
+          <div className="flex items-center gap-2">
+            {flagCitationState === "acknowledged" ? (
+              <span className="text-xs font-medium text-success">Flagged — thanks</span>
+            ) : flagCitationState === "confirm" ? (
+              <>
+                <span className="text-xs text-destructive font-medium">Confirm flag?</span>
+                <button
+                  type="button"
+                  onClick={() => setFlagCitationState("acknowledged")}
+                  className="text-xs px-2.5 py-1 rounded-ui-sm bg-destructive text-destructive-foreground font-medium hover:bg-destructive/90 transition-colors"
+                >
+                  Yes, flag
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFlagCitationState("idle")}
+                  className="text-xs px-2.5 py-1 rounded-ui-sm border border-border text-muted-foreground hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setFlagCitationState("confirm")}
+                className="text-xs text-destructive hover:text-destructive font-medium flex items-center hover:bg-destructive/5 px-2.5 py-1.5 rounded-ui-sm transition-colors"
+              >
+                <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
+                Flag citation as wrong
+              </button>
+            )}
+          </div>
         </div>
+      </div>
 
-        <div className="mt-4 grid gap-2">
-          <div className="text-xs text-muted-foreground">snippet</div>
+      {/* Keyboard shortcuts legend */}
+      <div className="flex flex-wrap items-center gap-1.5 text-2xs text-muted-foreground">
+        <span>Keyboard:</span>
+        <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">←/→</kbd>
+        <span>page</span>
+        <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">+/-</kbd>
+        <span>zoom</span>
+        <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">0</kbd>
+        <span>verify</span>
+        <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">R</kbd>
+        <span>rotate</span>
+      </div>
+
+      {/* Diagnostics: snippet verification + error recovery */}
+      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <SectionLabel>Snippet Verification</SectionLabel>
+        <div className="mt-3 grid gap-2">
           <pre className="overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
             {props.snippet}
           </pre>
@@ -661,115 +751,17 @@ export function CitationViewerClient(props: Props) {
               </div>
             </div>
           ) : null}
-        </div>
-      </section>
 
-      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm" aria-busy={isPageLoading}>
-        <SectionLabel>PDF + Overlay</SectionLabel>
-        <div className="relative mt-3 inline-block overflow-auto rounded-ui-md border border-border bg-muted p-2">
-          <div className="relative">
-            <canvas id="citation-canvas" className="block" />
-
-            {isPageLoading ? (
-              <div className="absolute inset-0 z-20 rounded-ui-sm border border-border/70 bg-background/95 p-5">
-                <div className="mb-3 text-xs font-medium text-muted-foreground">Loading PDF page...</div>
-                <Skeleton className="h-32 w-full" />
-                <div className="mt-4">
-                  <SkeletonLine width="92%" />
-                  <SkeletonLine width="76%" />
-                  <SkeletonLine width="84%" />
-                </div>
-              </div>
-            ) : null}
-
-            {hud.errorCode ? (
-              <div className="absolute inset-0 grid place-items-center bg-background/80 p-6 text-center">
-                <div>
-                  <div className="text-sm font-semibold text-foreground">citation_failed</div>
-                  <div className="mt-1 text-xs text-muted-foreground">reason_code: {hud.errorCode}</div>
-                </div>
-              </div>
-            ) : (
-              <svg
-                className="absolute left-0 top-0"
-                width={hud.viewport?.width ?? 0}
-                height={hud.viewport?.height ?? 0}
-                viewBox={`0 0 ${hud.viewport?.width ?? 0} ${hud.viewport?.height ?? 0}`}
-              >
-                {overlayPath.map((points, idx) => (
-                  <polygon
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={idx}
-                    points={points}
-                    {...overlayHighlightPolygonProps}
-                  />
-                ))}
-              </svg>
-            )}
-          </div>
-        </div>
-
-        {hud.overlayBbox ? (
-          <div className="mt-3 text-xs text-muted-foreground">
-            overlay bbox:{" "}
-            <span className="font-mono">
-              {`{minX:${Math.round(hud.overlayBbox.minX)}, minY:${Math.round(hud.overlayBbox.minY)}, maxX:${Math.round(
-                hud.overlayBbox.maxX,
-              )}, maxY:${Math.round(hud.overlayBbox.maxY)}}`}
-            </span>
-          </div>
-        ) : null}
-      </section>
-
-      <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-        <SectionLabel>Trust footer</SectionLabel>
-        <div className="mt-3 grid gap-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-muted-foreground">doc_version</span>
-            <span className="font-mono text-foreground">{trustDocVersion}</span>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-muted-foreground">verified_at</span>
-            <span className="font-mono text-foreground">{trustVerifiedAt}</span>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-muted-foreground">loaded_state</span>
-            <span className="font-mono text-foreground">{trustLoadedState}</span>
-          </div>
-        </div>
-
-        <div className="mt-4 rounded-ui-md border border-border bg-background p-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Citation feedback</div>
-          {flagCitationState === "acknowledged" ? (
-            <div className="mt-2 text-xs font-medium text-success">
-              Thanks, we&apos;ll investigate.
-              <span className="block text-2xs font-normal text-muted-foreground">
-                This acknowledgement is local to this session only.
+          {hud.overlayBbox ? (
+            <div className="text-xs text-muted-foreground">
+              overlay bbox:{" "}
+              <span className="font-mono">
+                {`{minX:${Math.round(hud.overlayBbox.minX)}, minY:${Math.round(hud.overlayBbox.minY)}, maxX:${Math.round(
+                  hud.overlayBbox.maxX,
+                )}, maxY:${Math.round(hud.overlayBbox.maxY)}}`}
               </span>
             </div>
           ) : null}
-
-          {flagCitationState === "confirm" ? (
-            <div className="mt-2 space-y-2">
-              <div className="text-xs text-foreground">Confirm this citation is incorrect?</div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button type="button" variant="destructive" size="sm" onClick={() => setFlagCitationState("acknowledged")}>
-                  Yes, flag citation wrong
-                </Button>
-                <Button type="button" variant="secondary" size="sm" onClick={() => setFlagCitationState("idle")}>
-                  Cancel
-                </Button>
-              </div>
-              <div className="text-2xs text-muted-foreground">No backend request is sent in parity v1.</div>
-            </div>
-          ) : (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <Button type="button" variant="secondary" size="sm" onClick={() => setFlagCitationState("confirm")}>
-                Flag citation wrong
-              </Button>
-              <span className="text-2xs text-muted-foreground">UI acknowledgement only in parity v1.</span>
-            </div>
-          )}
         </div>
       </section>
     </div>
