@@ -944,3 +944,39 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
   - Useful context
   - Browser evidence screenshots captured at `.agents/skills/00-utilities/dev-browser/tmp/us007-valid-viewer.png` and `.agents/skills/00-utilities/dev-browser/tmp/us007-fallback-viewer.png`.
 ---
+## [2026-02-12 16:41 UTC] - US-008: Invalid Citation Fail Closed
+Thread: 
+Run: 20260212-150545-1013 (iteration 4)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-4.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 14bf246 fix(report-triage): fail closed invalid citations
+- Post-commit status: `clean`
+- Verification:
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> FAIL (flaky `foldersRunsRoute.wdk.int.test.ts` expected `completed`, saw `running`)
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `dev-browser script (matters report triage fail-closed validation)` -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/guardrails.md
+  - apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx
+  - apps/web/test/reportEvidenceViewer.sync.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json
+- What was implemented
+  - Added deterministic citation failure gating in report triage so `citation_failed` rows with unresolved-anchor style reason codes disable source chips with explicit recovery guidance.
+  - Wired split-view viewer state to pass fail-closed `reason_code` for invalid citations, ensuring the viewer renders `citation_failed` and suppresses overlay polygons.
+  - Added US-008 sync tests covering source-chip disablement copy/ARIA and fail-closed viewer wiring (`errorCode` path with no overlays).
+  - Ran required browser validation on `/matters/<id>?tab=report&run_id=<id>&row_tab=citation_failed`, confirming unresolved chip disablement and `reason_code: VALIDATION_ERROR` with zero overlay polygons (screenshot: `.agents/skills/00-utilities/dev-browser/tmp/us008-fail-closed-verification.png`).
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - `citation_failed` UI behavior is safest when reason codes are normalized up front and shared between chip-gating and viewer state.
+  - Gotchas encountered
+  - Local `pnpm test` can intermittently fail on WDK run completion timing (`running` vs `completed`); rerun until one clean pass and record flake in guardrails/errors.
+  - Useful context
+  - For browser verification of invalid citation overlays, fixture document IDs (`fx_pack_*__*`) avoid object-store dependency drift during render URL generation.
+---

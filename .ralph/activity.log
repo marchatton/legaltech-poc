@@ -179,3 +179,4 @@
 [2026-02-12 16:16:01] Start US-008 Invalid Citation Fail Closed iteration 4
 [2026-02-12 16:20:31] Implemented US-008 source-chip gating and fail-closed viewer reason-code wiring; added sync coverage
 [2026-02-12 16:38:15] US-008 verification complete: pnpm lint/typecheck/test, pnpm build, and dev-browser checks passed (disabled unresolved source chip + fail-closed viewer reason with zero overlay polygons)
+[2026-02-12 16:41:34] US-008 progress entry appended with verification, browser evidence, and commit details
