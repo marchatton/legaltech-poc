@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { Tooltip } from "./Tooltip";
 import { cn } from "./cn";
@@ -63,6 +63,26 @@ const DESTINATIONS: Destination[] = [
 export function WorkspaceSidebar(props: { active: DestinationId }) {
   const [collapsed, setCollapsed] = useState(false);
 
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("orbital.sidebar.collapsed");
+      if (stored !== null) {
+        setCollapsed(stored === "true");
+      }
+    } catch {
+      // Ignore localStorage errors and default to expanded.
+    }
+  }, []);
+
+  const handleCollapsedChange = (next: boolean) => {
+    setCollapsed(next);
+    try {
+      window.localStorage.setItem("orbital.sidebar.collapsed", String(next));
+    } catch {
+      // Ignore localStorage errors and rely on in-memory state.
+    }
+  };
+
   return (
     <aside
       className={cn(
@@ -90,7 +110,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
         {!collapsed && (
           <button
             type="button"
-            onClick={() => setCollapsed(true)}
+            onClick={() => handleCollapsedChange(true)}
             aria-label="Collapse sidebar"
             className="inline-flex size-6 shrink-0 items-center justify-center rounded-ui-sm text-muted-foreground transition-colors duration-micro hover:bg-sidebar-accent hover:text-foreground"
           >
@@ -167,7 +187,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
         <div className="px-2 pb-2">
           <button
             type="button"
-            onClick={() => setCollapsed(false)}
+            onClick={() => handleCollapsedChange(false)}
             className="flex w-full items-center justify-center rounded-ui-md p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
             title="Expand sidebar"
           >
