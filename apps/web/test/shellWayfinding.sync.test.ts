@@ -36,10 +36,10 @@ describe("US-001 shell wayfinding baseline", () => {
     const shellPrimitives = readUtf8(shellPrimitivesPath);
 
     expect(source).toContain("Matters");
-    expect(source).toContain("BreadcrumbSeparator");
+    expect(source).toContain('<polyline points="9 18 15 12 9 6" />');
     expect(source).toContain("folderName");
     expect(source).toContain("WorkspaceContextBar");
-    expect(source).toContain("<MonoId>{folderId}</MonoId>");
+    expect(source).toContain('<MonoId className="ml-2 shrink-0">{folderId}</MonoId>');
     expect(shellPrimitives).toContain("sticky top-0");
   });
 });

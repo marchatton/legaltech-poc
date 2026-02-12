@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "project": "E2E V4 Set 3: Exports and Provenance",
+  "overview": "Parallel lane covering safe export eligibility, blocked-state behavior, and provenance-aware artefact retrieval.",
+  "goals": [
+    "Ensure exports only run for eligible completed contexts.",
+    "Validate blocked and incomplete run states are handled safely.",
+    "Confirm provenance filters and download error handling are deterministic."
+  ],
+  "nonGoals": [
+    "Changing export backend semantics.",
+    "Introducing new export formats or artifact kinds."
+  ],
+  "successMetrics": [
+    "All 3 stories pass with deterministic run-state and artefact outcomes.",
+    "Negative paths prove blocked/incomplete contexts cannot leak artefacts."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev plus demo-prod environments",
+    "database": "Postgres",
+    "auth": "Existing app route gating for dev/demo flows"
+  },
+  "routes": [
+    {
+      "path": "/matters/[id]?tab=exports",
+      "name": "Exports Tab",
+      "purpose": "Validate run-state gated export behavior"
+    },
+    {
+      "path": "/matters/[id]?tab=artefacts",
+      "name": "Artefacts Tab",
+      "purpose": "Validate provenance filtering and download behavior"
+    }
+  ],
+  "uiNotes": [
+    "Blocked export behavior is modeled as disabled controls per selected run state.",
+    "Artefacts list remains richer than wireframe with provenance columns.",
+    "Signed URL failures must be explicit in UI feedback."
+  ],
+  "rules": [
+    "Test each run state with a deterministic fixture set.",
+    "Record selected run_id for every export/provenance assertion."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "executionMode": {
+    "type": "ralph_testing_loop",
+    "intent": "testing_only",
+    "storyCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0003_exports-provenance-loop/prd.json --no-commit"
+  },
+  "setMetadata": {
+    "setId": "SET-3",
+    "parallelSafe": true,
+    "storiesCount": 3,
+    "sourceSlices": [
+      "0006_run-scoped-export-loop",
+      "0007_artefact-provenance-retrieval"
+    ]
+  },
+  "releaseAlignment": {
+    "releaseDate": "2026-02-12",
+    "parityDelta": "Exports tests assert run-state disabled controls rather than requiring a global blocked-banner UI."
+  },
+  "stories": [
+    {
+      "id": "US-009",
+      "title": "Safe Run Scoped Exports",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want exports to run only for eligible completed runs.",
+      "acceptanceCriteria": [
+        "Given run selector context, completed safe runs are export-eligible.",
+        "When an eligible run is selected, CSV and DOCX exports produce downloadable artefacts.",
+        "Then artefact metadata remains bound to selected run_id.",
+        "Example: selecting a safe completed run enables export and downloads both formats.",
+        "Negative: incomplete runs do not produce downloadable artefacts."
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Export Blocking State Contract",
+      "status": "open",
+      "dependsOn": [
+        "US-009"
+      ],
+      "description": "As an operator, I want blocked or incomplete run states to prevent unsafe exports explicitly.",
+      "acceptanceCriteria": [
+        "Given a run in blocked, failed, or incomplete state, export actions remain disabled.",
+        "When operator switches to a completed safe run, export controls become enabled.",
+        "Then control-state behavior is deterministic across route refresh and run selector changes.",
+        "Example: completed run enables download controls while blocked run keeps controls disabled.",
+        "Negative: blocked or incomplete runs never produce files or stale signed links."
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Artefact Provenance Retrieval and Download Safety",
+      "status": "open",
+      "dependsOn": [
+        "US-010"
+      ],
+      "description": "As an operator, I want provenance-rich artefact retrieval with deterministic filtering and error visibility.",
+      "acceptanceCriteria": [
+        "Given mixed artefacts, list renders source_run_id and provenance metadata.",
+        "When kind, type, and safety filters are applied, row sets update deterministically.",
+        "Then each row exposes actionable download controls with explicit loading or error states.",
+        "Example: unsafe filter shows only UNSAFE-labelled rows with explanation context.",
+        "Negative: expired signed URLs surface explicit errors and never fail silently."
+      ]
+    }
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "createdAt"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "matterId",
+        "status",
+        "createdAt",
+        "completedAt"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "runId",
+        "status",
+        "question",
+        "answerPreview"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "rowId",
+        "docId",
+        "page",
+        "anchorState"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "runId",
+        "kind",
+        "type",
+        "safety",
+        "downloadUrl"
+      ]
+    },
+    {
+      "entity": "DemoPack",
+      "fields": [
+        "id",
+        "allowlisted",
+        "name",
+        "steps"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture-driven E2E input contract for Ralph testing loop.",
+    "example": {
+      "matterId": "matter_demo_001",
+      "runId": "run_demo_001",
+      "fixtureSet": "baseline_safe",
+      "expectedStates": {
+        "quickStart": "blocked",
+        "export": "disabled"
+      }
+    }
+  }
+}

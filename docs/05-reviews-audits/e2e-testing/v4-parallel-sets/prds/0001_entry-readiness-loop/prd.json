@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "project": "E2E V4 Set 1: Entry and Readiness",
+  "overview": "Parallel lane covering shell wayfinding, matter setup flow, and quick-start run readiness gating.",
+  "goals": [
+    "Validate stable entry and setup behaviors before downstream review flows.",
+    "Ensure readiness contracts block unsafe run starts and enable valid run starts.",
+    "Produce deterministic evidence for list/detail routing and setup transitions."
+  ],
+  "nonGoals": [
+    "Changing shell navigation architecture.",
+    "Implementing new setup features beyond current shipped UI."
+  ],
+  "successMetrics": [
+    "All 4 stories pass with deterministic fixture behavior.",
+    "Each story includes explicit positive and negative evidence."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev plus demo-prod environments",
+    "database": "Postgres",
+    "auth": "Existing app route gating for dev/demo flows"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters List",
+      "purpose": "Validate shell and discovery contracts"
+    },
+    {
+      "path": "/matters/[id]",
+      "name": "Matter Detail",
+      "purpose": "Validate setup and quick-start readiness"
+    }
+  ],
+  "uiNotes": [
+    "Create matter remains inline in list header.",
+    "Readiness and upload cues live in detail setup context.",
+    "Runs + Alerts remains disabled in navigation."
+  ],
+  "rules": [
+    "Run stories in listed order for this set.",
+    "Capture fixture IDs and route context for each failure."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "executionMode": {
+    "type": "ralph_testing_loop",
+    "intent": "testing_only",
+    "storyCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json --no-commit"
+  },
+  "setMetadata": {
+    "setId": "SET-1",
+    "parallelSafe": true,
+    "storiesCount": 4,
+    "sourceSlices": [
+      "0001_shell-wayfinding-baseline",
+      "0002_matter-discovery-setup-lane",
+      "0003_run-readiness-triage-core"
+    ]
+  },
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Shell Wayfinding Baseline",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want stable shell wayfinding so I can enter matter workflows confidently.",
+      "acceptanceCriteria": [
+        "Given demo mode and at least one matter, opening /matters renders shell with Matters active.",
+        "When the operator navigates list -> detail -> list, shell context remains deterministic.",
+        "Then environment badge, breadcrumb, and stable matter identifiers are visible.",
+        "Example: breadcrumb includes Matters > Matter Name and Runs + Alerts appears disabled.",
+        "Negative: placeholder navigation never routes to broken or ambiguous screens."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Matter Discovery Filtering",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want deterministic search and saved-view filters so matter discovery is reliable.",
+      "acceptanceCriteria": [
+        "Given seeded matters, list search and saved-view filters are available.",
+        "When filters are applied in sequence, row sets update deterministically.",
+        "Then filter state is explicit and reversible via URL controls.",
+        "Example: saved view plus query produces a stable row subset across refresh.",
+        "Negative: empty-match states never appear without guidance or reset affordance."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Matter Create Upload and Readiness Guidance",
+      "status": "open",
+      "dependsOn": [
+        "US-002"
+      ],
+      "description": "As an operator, I want create and setup readiness cues so I know when a run can start.",
+      "acceptanceCriteria": [
+        "Given a valid matter name, inline creation succeeds from the matters list header.",
+        "When documents are uploaded in detail setup, readiness transitions are explicit.",
+        "Then reasons are visible as ready, blocked, or already complete with next-step guidance.",
+        "Example: missing required documents yields blocked state with concrete guidance text.",
+        "Negative: empty-name creation is rejected with validation and no new matter created."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Quick Start Readiness Gate",
+      "status": "open",
+      "dependsOn": [
+        "US-003"
+      ],
+      "description": "As an operator, I want Quick Start to enforce readiness so blocked matters cannot start runs.",
+      "acceptanceCriteria": [
+        "Given a blocked matter, Quick Start is visibly blocked with an explicit reason.",
+        "When readiness transitions to runnable, Quick Start starts a run without reload hacks.",
+        "Then run progress becomes visible immediately in detail context.",
+        "Example: blocked-to-ready fixture change enables start and creates a run.",
+        "Negative: blocked start attempts return explicit conflict behavior and no run creation."
+      ]
+    }
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "createdAt"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "matterId",
+        "status",
+        "createdAt",
+        "completedAt"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "runId",
+        "status",
+        "question",
+        "answerPreview"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "rowId",
+        "docId",
+        "page",
+        "anchorState"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "runId",
+        "kind",
+        "type",
+        "safety",
+        "downloadUrl"
+      ]
+    },
+    {
+      "entity": "DemoPack",
+      "fields": [
+        "id",
+        "allowlisted",
+        "name",
+        "steps"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture-driven E2E input contract for Ralph testing loop.",
+    "example": {
+      "matterId": "matter_demo_001",
+      "runId": "run_demo_001",
+      "fixtureSet": "baseline_safe",
+      "expectedStates": {
+        "quickStart": "blocked",
+        "export": "disabled"
+      }
+    }
+  }
+}

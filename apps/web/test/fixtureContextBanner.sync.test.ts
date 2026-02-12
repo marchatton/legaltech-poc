@@ -20,11 +20,10 @@ describe("US-002 fixture context banner presence", () => {
     const pageSource = readUtf8(pagePath);
     const bannerSource = readUtf8(bannerPath);
 
-    expect(pageSource).toContain('title="Fixture context"');
-    expect(pageSource).toContain("Active pack:");
-    expect(pageSource).toContain("Loaded at:");
-    expect(pageSource).toContain("Load state:");
-    expect(pageSource).toContain("Next step:");
+    expect(pageSource).toContain("Fixture context");
+    expect(pageSource).toContain("fixtureStatusLabel");
+    expect(pageSource).toContain("activePack");
+    expect(pageSource).toContain("Load Pack Again");
     expect(pageSource).toContain("deriveFixtureContextBanner");
 
     expect(bannerSource).toContain("loadStateFromReadiness");

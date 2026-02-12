@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "project": "E2E V4 Set 2: Review and Trust",
+  "overview": "Parallel lane covering run triage filtering, drawer decisions, and citation trust/fail-closed viewer behavior.",
+  "goals": [
+    "Validate reviewer workflow contracts in report triage surfaces.",
+    "Ensure citation trust behavior is deterministic for valid and invalid paths.",
+    "Confirm mutation and error feedback remains explicit."
+  ],
+  "nonGoals": [
+    "Adding new triage mutations not already shipped.",
+    "Changing trust metadata backend contracts."
+  ],
+  "successMetrics": [
+    "All 4 stories pass with deterministic row, drawer, and viewer outcomes.",
+    "Negative-path checks prove fail-closed behavior where required."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js",
+    "hosting": "Local dev plus demo-prod environments",
+    "database": "Postgres",
+    "auth": "Existing app route gating for dev/demo flows"
+  },
+  "routes": [
+    {
+      "path": "/matters/[id]?tab=report",
+      "name": "Report Triage",
+      "purpose": "Validate row filtering and drawer decisions"
+    },
+    {
+      "path": "/matters/viewer",
+      "name": "Citation Viewer",
+      "purpose": "Validate citation trust and fail-closed behavior"
+    }
+  ],
+  "uiNotes": [
+    "Drawer actions assume mark-reviewed behavior and explicit error banners.",
+    "Citation viewer remains page-based and verification-centric.",
+    "Fail-closed behavior must not render stale overlays."
+  ],
+  "rules": [
+    "Keep fixture run context stable for row-tab comparisons.",
+    "Capture viewer reason codes for invalid citation failures."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "executionMode": {
+    "type": "ralph_testing_loop",
+    "intent": "testing_only",
+    "storyCommand": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json --no-commit"
+  },
+  "setMetadata": {
+    "setId": "SET-2",
+    "parallelSafe": true,
+    "storiesCount": 4,
+    "sourceSlices": [
+      "0003_run-readiness-triage-core",
+      "0004_drawer-first-review-decisions",
+      "0005_trust-viewer-loop"
+    ]
+  },
+  "stories": [
+    {
+      "id": "US-005",
+      "title": "Run Triage Tab Scope Contract",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a reviewer, I want triage tabs to filter deterministically within current run scope.",
+      "acceptanceCriteria": [
+        "Given a run with mixed statuses, All, Needs Review, Reviewed, and Flagged tabs are visible.",
+        "When each row tab is selected, rows filter by status while retaining run scope.",
+        "Then URL and visible counts remain consistent with selected tab.",
+        "Example: Needs Review count equals visible rows after tab switch and refresh.",
+        "Negative: tab changes never leak rows from another run."
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Drawer Decisions and Mutation Feedback",
+      "status": "open",
+      "dependsOn": [
+        "US-005"
+      ],
+      "description": "As a reviewer, I want drawer-first decisions and explicit mutation feedback for reliable triage.",
+      "acceptanceCriteria": [
+        "Given a needs_review row, opening the row launches a drawer with deterministic payload.",
+        "When mark reviewed is triggered, row and drawer states update without full-page refresh.",
+        "Then copy actions return explicit success or failure feedback.",
+        "Example: reopening a marked row shows reviewed state persisted.",
+        "Negative: mutation failure renders ErrorBanner and leaves review status unchanged."
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Valid Citation Trust Viewer Verification",
+      "status": "open",
+      "dependsOn": [
+        "US-006"
+      ],
+      "description": "As a reviewer, I want valid citations to open verifiable evidence with trust metadata.",
+      "acceptanceCriteria": [
+        "Given a valid citation, source chips open the viewer at expected document and page.",
+        "When the viewer loads, highlight overlays and trust metadata render from payload.",
+        "Then reset-to-100 restores explicit verification posture.",
+        "Example: valid citation displays one or more polygons and no failure panel.",
+        "Negative: missing trust metadata payload renders deterministic fallback, not a silent success state."
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Invalid Citation Fail Closed",
+      "status": "open",
+      "dependsOn": [
+        "US-007"
+      ],
+      "description": "As a reviewer, I want invalid citations to fail closed with explicit recovery cues.",
+      "acceptanceCriteria": [
+        "Given corrupted or unresolved citations, source-chip gating is explicit.",
+        "When an invalid citation is opened, viewer renders citation_failed reason code.",
+        "Then highlight overlays are absent.",
+        "Example: unresolved anchor source chip is disabled with explanation text.",
+        "Negative: invalid citations never render stale or approximate highlight polygons."
+      ]
+    }
+  ],
+  "dataModel": [
+    {
+      "entity": "Matter",
+      "fields": [
+        "id",
+        "name",
+        "state",
+        "createdAt"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "matterId",
+        "status",
+        "createdAt",
+        "completedAt"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "runId",
+        "status",
+        "question",
+        "answerPreview"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "rowId",
+        "docId",
+        "page",
+        "anchorState"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "runId",
+        "kind",
+        "type",
+        "safety",
+        "downloadUrl"
+      ]
+    },
+    {
+      "entity": "DemoPack",
+      "fields": [
+        "id",
+        "allowlisted",
+        "name",
+        "steps"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture-driven E2E input contract for Ralph testing loop.",
+    "example": {
+      "matterId": "matter_demo_001",
+      "runId": "run_demo_001",
+      "fixtureSet": "baseline_safe",
+      "expectedStates": {
+        "quickStart": "blocked",
+        "export": "disabled"
+      }
+    }
+  }
+}
