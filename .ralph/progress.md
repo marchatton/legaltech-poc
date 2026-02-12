@@ -866,3 +866,41 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Useful context
   - `flagged` tab currently aggregates `citation_failed` and `missing_input`, matching reviewer-facing run triage semantics.
 ---
+## [2026-02-12 15:41:34 UTC] - US-006: Drawer Decisions and Mutation Feedback
+Thread: 
+Run: 20260212-150545-1013 (iteration 2)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-2.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 3c7db8f feat(report-triage): add drawer copy feedback
+- Post-commit status: `clean`
+- Verification:
+  - Command: `pnpm --filter @orbital-poc/web test -- reportRowDrawer.sync.test.ts reportRows.routes.test.ts reportTriage.sync.test.ts reportTriageFilters.test.ts` -> PASS
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3201` + `curl -s -o /tmp/us006_dev_smoke.html -w "%{http_code}" "http://localhost:3201/matters/matter_us005_demo?tab=report"` -> PASS
+  - Command: `cd .agents/skills/00-utilities/dev-browser && ./server.sh --headless` + `npx tsx` browser flow for drawer open/copy success+failure/mark-reviewed failure+success/reopen -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx
+  - apps/web/test/reportRowDrawer.sync.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Added drawer copy actions for extracted answer and structured payload with deterministic clipboard payloads.
+  - Added explicit copy success feedback and copy failure error rendering through existing `InlineStatus` + `ErrorBanner` surfaces.
+  - Preserved existing mark-reviewed optimistic update flow and validated negative mutation path keeps `needs_review` unchanged.
+  - Extended sync coverage to assert copy controls and feedback/error contract are present.
+  - Browser-validated story acceptance path on `matter_us005_demo` including reopen persistence after successful review mutation.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Report drawer feedback surface can safely handle multiple action types (mutation + clipboard) without additional state containers.
+  - Gotchas encountered
+  - `dev-browser` must run with `--headless` in this VM (no X server), and local dev smoke for matter routes is cleaner with `ALLOW_DEV_OBJECT_STORE_SECRET=1`.
+  - Useful context
+  - Browser evidence screenshot saved at `.agents/skills/00-utilities/dev-browser/tmp/us006-drawer-reviewed.png`.
+---
