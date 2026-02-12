@@ -8,7 +8,6 @@ import { ensureSchema, sql } from "../../../../lib/db.server";
 import { isDemoModeEnabled } from "../../../../lib/demoMode.server";
 
 import { Badge } from "../../../ui/Badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbSeparator } from "../../../ui/Breadcrumb";
 import { MonoId } from "../../../ui/MonoId";
 import { WorkspaceContextBar, WorkspaceContextBarBody } from "../../../ui/WorkspaceShell";
 
@@ -68,19 +67,27 @@ export default async function MatterDetailLayout(props: {
     <>
       <WorkspaceContextBar>
         <WorkspaceContextBarBody>
-          <Breadcrumb className="min-w-0 text-xs">
-            <BreadcrumbItem>
-              <Link href="/matters" className="font-medium text-muted-foreground hover:text-primary transition-colors duration-micro">
-                Matters
-              </Link>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem current className="truncate">
-              {folderName}
-            </BreadcrumbItem>
-          </Breadcrumb>
+          {/* Breadcrumb (left) */}
+          <div className="flex min-w-0 items-center text-sm text-muted-foreground">
+            <Link
+              href="/matters"
+              className="flex shrink-0 items-center gap-2 font-medium transition-colors duration-micro hover:text-foreground"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+              Matters
+            </Link>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mx-2 size-4 shrink-0 text-border" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            <span className="truncate font-medium text-foreground">{folderName}</span>
+            <MonoId className="ml-2 shrink-0">{folderId}</MonoId>
+          </div>
 
-          <div className="ml-auto flex items-center gap-2">
+          {/* Context badges (right) */}
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             {latestRunId ? (
               <Badge variant="info" size="sm" className="font-mono">
                 {latestRunId}
@@ -89,12 +96,11 @@ export default async function MatterDetailLayout(props: {
             <Badge variant={environmentBadgeVariant} size="sm">
               {environmentLabel}
             </Badge>
-            <MonoId>{folderId}</MonoId>
           </div>
         </WorkspaceContextBarBody>
       </WorkspaceContextBar>
 
-      {props.children}
+      <main className="flex-1 overflow-auto">{props.children}</main>
     </>
   );
 }

@@ -4,12 +4,14 @@ import { cn } from "./cn";
 
 /* ── Page (outer container) ── */
 
-export type PageWidth = "sm" | "md" | "lg";
+export type PageWidth = "sm" | "md" | "lg" | "xl" | "full";
 
 const widthClasses: Record<PageWidth, string> = {
   sm: "max-w-3xl",
   md: "max-w-5xl",
   lg: "max-w-6xl",
+  xl: "max-w-7xl",
+  full: "",
 };
 
 export function Page({
