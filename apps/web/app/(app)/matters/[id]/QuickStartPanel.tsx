@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
+
 import { Alert, type AlertVariant } from "../../../ui/Alert";
 import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
@@ -18,29 +20,16 @@ type Props = {
   readiness: QuickStartReadiness;
 };
 
-type StructuredError = {
-  code: string;
-  message: string;
-  retryable: boolean;
-};
+export const QUICK_START_IDEMPOTENCY_KEY = "demo-quick-start";
 
 type QuickStartState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "error"; error: StructuredError }
+  | { kind: "error"; error: SafeErrorDisplay }
   | { kind: "started"; runId: string; runState: string };
 
 function isRecord(val: unknown): val is Record<string, unknown> {
   return !!val && typeof val === "object" && !Array.isArray(val);
-}
-
-function readSafeError(json: unknown): { code: string; message: string } | null {
-  const env = isRecord(json) && isRecord(json.error) ? json.error : null;
-  if (!env) return null;
-  const code = typeof env.code === "string" && env.code.trim() ? env.code.trim() : null;
-  const message = typeof env.message === "string" && env.message.trim() ? env.message.trim() : null;
-  if (!code || !message) return null;
-  return { code, message };
 }
 
 function readinessLabel(state: QuickStartReadinessState): string {
@@ -68,7 +57,7 @@ export function QuickStartPanel(props: Props) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Idempotency-Key": "demo-quick-start",
+          "Idempotency-Key": QUICK_START_IDEMPOTENCY_KEY,
         },
         body: JSON.stringify({ type: "quick_start_title_survey" }),
       });
@@ -81,10 +70,10 @@ export function QuickStartPanel(props: Props) {
     const json: unknown = await res.json().catch(() => null);
 
     if (!res.ok) {
-      const env = readSafeError(json);
+      const env = parseSafeErrorEnvelope(json);
       const retryable = res.status >= 500 || res.status === 429;
       if (env) {
-        setState({ kind: "error", error: { code: env.code, message: env.message, retryable } });
+        setState({ kind: "error", error: { ...env, retryable: env.retryable ?? retryable } });
         return;
       }
       setState({ kind: "error", error: { code: `HTTP_${res.status}`, message: `Request failed (${res.status}).`, retryable } });
@@ -101,11 +90,6 @@ export function QuickStartPanel(props: Props) {
 
     setState({ kind: "started", runId, runState });
   }
-
-  function handleRetry() {
-    setState({ kind: "idle" });
-  }
-
   return (
     <div className="grid gap-3">
       <Alert variant={readinessAlertVariant[props.readiness.state]} title={readinessLabel(props.readiness.state)}>
@@ -120,8 +104,10 @@ export function QuickStartPanel(props: Props) {
         <ErrorBanner
           code={state.error.code}
           message={state.error.message}
+          traceId={state.error.traceId}
+          supportRoute={`/matters/${props.folderId}`}
           retryable={state.error.retryable}
-          onRetry={state.error.retryable ? handleRetry : undefined}
+          onRetry={state.error.retryable === true ? start : undefined}
         />
       ) : null}
 

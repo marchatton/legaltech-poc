@@ -59,13 +59,16 @@ export function buildSupportMailtoHref(args: {
   traceId?: string;
   route?: string;
 }): string {
+  const supportContextLines = [
+    `code: ${supportContextValue(args.code)}`,
+    `trace_id: ${supportContextValue(args.traceId)}`,
+    `route: ${supportContextValue(args.route)}`,
+  ];
   const subject = `Orbital support request: ${supportContextValue(args.code)}`;
   const body = [
     "Please help investigate this Orbital error.",
     "",
-    `code: ${supportContextValue(args.code)}`,
-    `trace_id: ${supportContextValue(args.traceId)}`,
-    `route: ${supportContextValue(args.route)}`,
+    ...supportContextLines,
   ].join("\n");
 
   const separator = args.target.includes("?") ? "&" : "?";
@@ -113,6 +116,12 @@ export function ErrorBanner({
   const resolvedSupportTarget = resolveSupportMailtoTarget(supportTarget ?? DEFAULT_SUPPORT_MAILTO_TARGET);
   const showSupportCta = showSupportAction && Boolean(resolvedSupportTarget);
   const showSupportFallback = showSupportAction && !resolvedSupportTarget;
+  const fallbackRoute = routeContext ?? "current page route";
+  const supportContextText = [
+    `code: ${supportContextValue(code)}`,
+    `trace_id: ${supportContextValue(traceId)}`,
+    `route: ${supportContextValue(fallbackRoute)}`,
+  ].join("\n");
 
   const openSupportChannel = React.useCallback(() => {
     if (!resolvedSupportTarget || typeof window === "undefined") return;
@@ -164,15 +173,12 @@ export function ErrorBanner({
           {showSupportFallback ? (
             <div className="mt-3 rounded-ui-sm border border-border/60 bg-card p-2 text-2xs text-muted-foreground">
               <div>Support channel is not configured. Share these identifiers with your support contact:</div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-ui-sm bg-destructive/10 px-2 py-0.5 font-mono text-destructive">code: {code}</span>
-                <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-muted-foreground">
-                  trace_id: {supportContextValue(traceId)}
-                </span>
-                <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-muted-foreground">
-                  route: {supportContextValue(routeContext ?? "current page route")}
-                </span>
-              </div>
+              <textarea
+                aria-label="Support identifiers"
+                className="mt-2 h-20 w-full resize-none rounded-ui-sm border border-border/60 bg-background/40 p-2 font-mono text-2xs text-foreground"
+                readOnly
+                value={supportContextText}
+              />
             </div>
           ) : null}
         </div>

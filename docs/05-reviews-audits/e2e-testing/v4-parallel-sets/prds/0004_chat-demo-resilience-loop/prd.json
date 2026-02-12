@@ -93,7 +93,7 @@
     {
       "id": "US-013",
       "title": "Demo Operator Pack Load Reload Loop",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-012"
       ],
@@ -106,13 +106,13 @@
         "Negative: non-allowlisted pack values fail validation and create no matter."
       ],
       "startedAt": "2026-02-12T15:32:14.281653+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-12T15:32:14.281678+00:00"
+      "completedAt": "2026-02-12T16:00:34.711060+00:00",
+      "updatedAt": "2026-02-12T16:00:34.711036+00:00"
     },
     {
       "id": "US-014",
       "title": "Cross Surface Error Retry and Support Contract",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-013"
       ],
@@ -123,7 +123,10 @@
         "Then support affordance includes only safe context fields: code, trace_id, and route.",
         "Example: non-retryable validation errors hide Retry while still exposing support path.",
         "Negative: missing support configuration yields fallback guidance with copyable identifiers."
-      ]
+      ],
+      "startedAt": "2026-02-12T16:00:37.246209+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-12T16:00:37.246224+00:00"
     }
   ],
   "dataModel": [

@@ -4,17 +4,15 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { type QuickStartReadiness } from "./QuickStartPanel";
+import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
+
+import { QUICK_START_IDEMPOTENCY_KEY, type QuickStartReadiness } from "./QuickStartPanel";
 import { Button } from "../../../ui/Button";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 
 type Props = {
   folderId: string;
   readiness: QuickStartReadiness;
-};
-
-type StructuredError = {
-  code: string;
-  message: string;
 };
 
 function readinessReasonClass(state: QuickStartReadiness["state"]): string {
@@ -22,24 +20,10 @@ function readinessReasonClass(state: QuickStartReadiness["state"]): string {
   if (state === "already-complete") return "max-w-64 text-right text-2xs text-primary";
   return "max-w-64 text-right text-2xs text-muted-foreground";
 }
-
-function isRecord(val: unknown): val is Record<string, unknown> {
-  return !!val && typeof val === "object" && !Array.isArray(val);
-}
-
-function readSafeError(json: unknown): StructuredError | null {
-  const env = isRecord(json) && isRecord(json.error) ? json.error : null;
-  if (!env) return null;
-  const code = typeof env.code === "string" && env.code.trim() ? env.code.trim() : null;
-  const message = typeof env.message === "string" && env.message.trim() ? env.message.trim() : null;
-  if (!code || !message) return null;
-  return { code, message };
-}
-
 export function QuickStartActionButton(props: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<StructuredError | null>(null);
+  const [error, setError] = useState<SafeErrorDisplay | null>(null);
 
   async function start() {
     if (props.readiness.state !== "ready") return;
@@ -51,21 +35,22 @@ export function QuickStartActionButton(props: Props) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Idempotency-Key": "demo-quick-start",
+          "Idempotency-Key": QUICK_START_IDEMPOTENCY_KEY,
         },
         body: JSON.stringify({ type: "quick_start_title_survey" }),
       });
       const json: unknown = await res.json().catch(() => null);
       if (!res.ok) {
-        const env = readSafeError(json);
-        setError(env ?? { code: `HTTP_${res.status}`, message: `Quick Start failed (${res.status}).` });
+        const env = parseSafeErrorEnvelope(json);
+        const retryable = res.status >= 500 || res.status === 429;
+        setError(env ? { ...env, retryable: env.retryable ?? retryable } : { code: `HTTP_${res.status}`, message: `Quick Start failed (${res.status}).`, retryable });
         return;
       }
 
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError({ code: "NETWORK_ERROR", message });
+      setError({ code: "NETWORK_ERROR", message, retryable: true });
     } finally {
       setPending(false);
     }
@@ -87,9 +72,15 @@ export function QuickStartActionButton(props: Props) {
         Quick Start
       </Button>
       {error ? (
-        <div className="text-right font-mono text-2xs text-destructive">
-          {error.code}: {error.message}
-        </div>
+        <ErrorBanner
+          code={error.code}
+          message={error.message}
+          traceId={error.traceId}
+          supportRoute={`/matters/${props.folderId}`}
+          retryable={error.retryable}
+          onRetry={error.retryable === true ? start : undefined}
+          className="w-full max-w-md text-left"
+        />
       ) : (
         <div className={readinessReasonClass(props.readiness.state)}>{props.readiness.reason}</div>
       )}

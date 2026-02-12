@@ -24,6 +24,23 @@ describe("ErrorBanner", () => {
     expect(html).not.toContain("Retry");
   });
 
+  it("keeps support CTA for non-retryable validation errors", () => {
+    const html = renderToStaticMarkup(
+      <ErrorBanner
+        code="VALIDATION_ERROR"
+        message="Invalid input."
+        traceId="trc_000"
+        onRetry={() => undefined}
+        retryable={false}
+        supportTarget="support@orbital.test"
+        supportRoute="/matters/fld_123"
+      />,
+    );
+
+    expect(html).not.toContain("Retry");
+    expect(html).toContain("Need help?");
+  });
+
   it("hides retry CTA when retryable is missing", () => {
     const html = renderToStaticMarkup(
       <ErrorBanner code="HTTP_500" message="Request failed." onRetry={() => undefined} />,
@@ -61,6 +78,7 @@ describe("ErrorBanner", () => {
     expect(body).toContain("code: EXPORT_BLOCKED");
     expect(body).toContain("trace_id: trc_456");
     expect(body).toContain("route: /matters/pack_01");
+    expect(body).not.toContain("Cannot export");
   });
 
   it("shows fallback instructions when support target is unset", () => {
@@ -75,6 +93,7 @@ describe("ErrorBanner", () => {
     );
 
     expect(html).toContain("Support channel is not configured.");
+    expect(html).toContain("Support identifiers");
     expect(html).toContain("code: MODEL_STREAM_FAILED");
     expect(html).toContain("trace_id: trc_789");
     expect(html).toContain("route: /matters/pack_02");
