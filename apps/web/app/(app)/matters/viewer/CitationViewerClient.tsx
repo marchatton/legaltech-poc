@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   bboxFromCssPolygons,
@@ -15,7 +15,9 @@ import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 
 import { Button } from "../../../ui/Button";
 import { Input, Select } from "../../../ui/Input";
+import { SectionLabel } from "../../../ui/Page";
 import { Skeleton, SkeletonLine } from "../../../ui/Skeleton";
+import { cn } from "../../../ui/cn";
 
 type Props = {
   packId: string | null;
@@ -62,6 +64,26 @@ type PdfJsModule = {
 
 const TRUST_METADATA_FALLBACK = "Unavailable from payload";
 const REASON_CODE_PATTERN = /^[A-Z0-9_]{3,64}$/;
+const ZOOM_LEVELS = [75, 100, 125, 150] as const;
+
+function isEditableElement(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  const tagName = target.tagName.toLowerCase();
+  return tagName === "input" || tagName === "textarea" || tagName === "select";
+}
+
+function nextZoomLevel(current: number, direction: "in" | "out"): number {
+  const currentIdx = ZOOM_LEVELS.indexOf(current as (typeof ZOOM_LEVELS)[number]);
+  const fallbackIdx = ZOOM_LEVELS.reduce((closestIdx, value, idx) => {
+    const closestDistance = Math.abs(ZOOM_LEVELS[closestIdx] - current);
+    const nextDistance = Math.abs(value - current);
+    return nextDistance < closestDistance ? idx : closestIdx;
+  }, 0);
+  const activeIdx = currentIdx === -1 ? fallbackIdx : currentIdx;
+  if (direction === "in") return ZOOM_LEVELS[Math.min(activeIdx + 1, ZOOM_LEVELS.length - 1)];
+  return ZOOM_LEVELS[Math.max(activeIdx - 1, 0)];
+}
 
 function deterministicReasonCode(value: unknown, fallback: string): string {
   if (typeof value !== "string") return fallback;
@@ -167,6 +189,7 @@ export function CitationViewerClient(props: Props) {
   const showVerificationReset = zoomPercent !== 100;
   const canGoPrevPage = activePage > 1;
   const canGoNextPage = pdfPageCount ? activePage < pdfPageCount : true;
+  const snippetHashMatches = props.snippetHash === props.computedSnippetHash;
   const trustDocVersion = trustValue(nonEmptyString(props.docVersion));
   const trustVerifiedAt = trustValue(formatTrustTimestamp(props.verifiedAt));
   const trustLoadedState = trustValue(nonEmptyString(props.loadedState));
@@ -209,6 +232,66 @@ export function CitationViewerClient(props: Props) {
     }
     goToPage(parsed);
   }
+
+  const stepZoom = useCallback((direction: "in" | "out"): void => {
+    setZoomPercent((prev) => nextZoomLevel(prev, direction));
+  }, []);
+
+  const rotateClockwise = useCallback((): void => {
+    setUserRotation((prev) => {
+      const next = (prev + 90) % 360;
+      return next >= 0 ? next : next + 360;
+    });
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent): void {
+      if (event.defaultPrevented || isEditableElement(event.target)) return;
+
+      if (event.key === "ArrowLeft" && canGoPrevPage && !isPageLoading) {
+        event.preventDefault();
+        const next = Math.max(1, activePage - 1);
+        setActivePage(next);
+        setPageInputValue(String(next));
+        return;
+      }
+
+      if (event.key === "ArrowRight" && canGoNextPage && !isPageLoading) {
+        event.preventDefault();
+        const maxPage = pdfPageCount ?? Number.POSITIVE_INFINITY;
+        const next = Math.min(maxPage, activePage + 1);
+        setActivePage(next);
+        setPageInputValue(String(next));
+        return;
+      }
+
+      if (event.key === "0") {
+        event.preventDefault();
+        setZoomPercent(100);
+        return;
+      }
+
+      if (event.key === "+" || event.key === "=") {
+        event.preventDefault();
+        stepZoom("in");
+        return;
+      }
+
+      if (event.key === "-" || event.key === "_") {
+        event.preventDefault();
+        stepZoom("out");
+        return;
+      }
+
+      if (event.key.toLowerCase() === "r") {
+        event.preventDefault();
+        rotateClockwise();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activePage, canGoNextPage, canGoPrevPage, isPageLoading, pdfPageCount, rotateClockwise, stepZoom]);
 
   // Load pdf.js + PDF
   useEffect(() => {
@@ -382,6 +465,7 @@ export function CitationViewerClient(props: Props) {
   return (
     <div className="grid gap-4">
       <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+        <SectionLabel>Evidence Context</SectionLabel>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="grid gap-1 text-sm text-muted-foreground">
             <div>
@@ -446,42 +530,91 @@ export function CitationViewerClient(props: Props) {
 
             <label className="grid gap-1 text-sm">
               <span className="text-muted-foreground">Zoom</span>
-              <Select value={zoomPercent} onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}>
-                {[75, 100, 125, 150].map((z) => (
-                  <option key={z} value={z}>
-                    {z}%
-                  </option>
-                ))}
-              </Select>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => stepZoom("out")}
+                  disabled={zoomPercent <= ZOOM_LEVELS[0] || isPageLoading}
+                  aria-label="Zoom out"
+                  aria-keyshortcuts="-"
+                >
+                  -
+                </Button>
+                <Select value={zoomPercent} onChange={(e) => setZoomPercent(Number(e.currentTarget.value))}>
+                  {ZOOM_LEVELS.map((z) => (
+                    <option key={z} value={z}>
+                      {z}%
+                    </option>
+                  ))}
+                </Select>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => stepZoom("in")}
+                  disabled={zoomPercent >= ZOOM_LEVELS[ZOOM_LEVELS.length - 1] || isPageLoading}
+                  aria-label="Zoom in"
+                  aria-keyshortcuts="+"
+                >
+                  +
+                </Button>
+              </div>
             </label>
 
             <label className="grid gap-1 text-sm">
               <span className="text-muted-foreground">Rotation</span>
-              <Select
-                value={userRotation}
-                onChange={(e) => setUserRotation(Number(e.currentTarget.value))}
-              >
-                {[0, 90, 180, 270].map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </Select>
+              <div className="flex items-center gap-1">
+                <Select
+                  value={userRotation}
+                  onChange={(e) => setUserRotation(Number(e.currentTarget.value))}
+                >
+                  {[0, 90, 180, 270].map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </Select>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={rotateClockwise}
+                  disabled={isPageLoading}
+                  aria-label="Rotate clockwise"
+                  aria-keyshortcuts="R"
+                >
+                  +90°
+                </Button>
+              </div>
             </label>
           </div>
         </div>
 
-        <div className="mt-3 rounded-ui-md border border-border bg-muted/40 px-3 py-2">
+        <div className="mt-3 rounded-ui-md border border-border bg-muted/40 px-3 py-2" role="status" aria-live="polite">
           {showVerificationReset ? (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">Verification is paused at {zoomPercent}% zoom.</span>
-              <Button variant="secondary" size="sm" onClick={() => setZoomPercent(100)}>
+              <Button variant="secondary" size="sm" aria-keyshortcuts="0" onClick={() => setZoomPercent(100)}>
                 Reset to 100% to verify
               </Button>
             </div>
           ) : (
             <div className="text-xs text-success">Overlay active at 100% zoom</div>
           )}
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-2xs text-muted-foreground">
+          <span>Keyboard:</span>
+          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">←/→</kbd>
+          <span>page</span>
+          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">+/-</kbd>
+          <span>zoom</span>
+          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">0</kbd>
+          <span>verify</span>
+          <kbd className="rounded-ui-sm border border-border bg-background px-1.5 py-0.5 font-mono">R</kbd>
+          <span>rotate</span>
         </div>
 
         <div className="mt-4 grid gap-2">
@@ -498,6 +631,19 @@ export function CitationViewerClient(props: Props) {
             <div>
               <span className="font-medium text-foreground">computed:</span>{" "}
               <span className="font-mono">{props.computedSnippetHash}</span>
+            </div>
+          </div>
+          <div
+            className={cn(
+              "rounded-ui-md border px-3 py-2 text-xs",
+              snippetHashMatches ? "border-success/40 bg-success/10 text-success" : "border-destructive/40 bg-destructive/10 text-destructive",
+            )}
+          >
+            <div className="font-semibold">{snippetHashMatches ? "Snippet hash verified" : "Snippet hash mismatch"}</div>
+            <div className="mt-1 text-2xs">
+              {snippetHashMatches
+                ? "Computed snippet hash matches citation payload."
+                : "Computed snippet hash differs from citation payload. Keep this row in needs-review until corrected."}
             </div>
           </div>
 
@@ -519,7 +665,7 @@ export function CitationViewerClient(props: Props) {
       </section>
 
       <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm" aria-busy={isPageLoading}>
-        <div className="text-sm text-muted-foreground">PDF + highlight overlay</div>
+        <SectionLabel>PDF + Overlay</SectionLabel>
         <div className="relative mt-3 inline-block overflow-auto rounded-ui-md border border-border bg-muted p-2">
           <div className="relative">
             <canvas id="citation-canvas" className="block" />
@@ -576,7 +722,7 @@ export function CitationViewerClient(props: Props) {
       </section>
 
       <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-        <div className="text-sm text-muted-foreground">Trust footer</div>
+        <SectionLabel>Trust footer</SectionLabel>
         <div className="mt-3 grid gap-2 text-xs">
           <div className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">doc_version</span>

@@ -62,11 +62,13 @@ describe("artefacts filters", () => {
         searchParams,
         availableKinds: ["requirements_tracker", "memo"],
         availableTypes: ["csv", "docx"],
+        availableSourceRunIds: ["run_safe", "run_unsafe_csv", "run_unsafe_docx"],
       }),
     ).toEqual({
       kind: "requirements_tracker",
       type: "csv",
       safety: "unsafe",
+      sourceRunId: null,
     });
   });
 
@@ -82,11 +84,13 @@ describe("artefacts filters", () => {
         searchParams,
         availableKinds: ["requirements_tracker", "memo"],
         availableTypes: ["csv", "docx"],
+        availableSourceRunIds: ["run_safe", "run_unsafe_csv", "run_unsafe_docx"],
       }),
     ).toEqual({
       kind: null,
       type: null,
       safety: "all",
+      sourceRunId: null,
     });
   });
 
@@ -95,6 +99,7 @@ describe("artefacts filters", () => {
       kind: null,
       type: null,
       safety: "unsafe",
+      sourceRunId: null,
     });
 
     expect(filtered.map((artefact) => artefact.id)).toEqual(["art_csv_unsafe", "art_docx_unsafe"]);
@@ -107,6 +112,7 @@ describe("artefacts filters", () => {
       kind: "requirements_tracker",
       type: "csv",
       safety: "safe",
+      sourceRunId: null,
     });
 
     expect(filtered).toEqual([
@@ -122,9 +128,11 @@ describe("artefacts filters", () => {
       tab: "artefacts",
       run_id: "run_123",
       status: ["failed", "completed"],
+      row_tab: "citation_failed",
       artefact_kind: "memo",
       artefact_type: "docx",
       artefact_safety: "unsafe",
+      artefact_run_id: "run_123",
     });
 
     expect(entries).toEqual([
@@ -132,7 +140,21 @@ describe("artefacts filters", () => {
       ["run_id", "run_123"],
       ["status", "failed"],
       ["status", "completed"],
+      ["row_tab", "citation_failed"],
     ]);
-    expect(searchFromEntries(entries)).toBe("?tab=artefacts&run_id=run_123&status=failed&status=completed");
+    expect(searchFromEntries(entries)).toBe(
+      "?tab=artefacts&run_id=run_123&status=failed&status=completed&row_tab=citation_failed",
+    );
+  });
+
+  it("filters by source run id", () => {
+    const filtered = applyArtefactFilters(ARTEFACTS, {
+      kind: null,
+      type: null,
+      safety: "all",
+      sourceRunId: "run_unsafe_docx",
+    });
+
+    expect(filtered.map((artefact) => artefact.id)).toEqual(["art_docx_unsafe"]);
   });
 });

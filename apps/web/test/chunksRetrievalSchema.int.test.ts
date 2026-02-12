@@ -23,6 +23,13 @@ function oneHotVectorLiteral(dim: number, index: number, value: number): string 
   return `[${arr.join(",")}]`;
 }
 
+async function hasPgvector(sql: postgres.Sql): Promise<boolean> {
+  const rows = await sql<Array<{ enabled: boolean }>>`
+    SELECT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector') AS enabled
+  `;
+  return rows[0]?.enabled ?? false;
+}
+
 describe("chunks retrieval schema (db)", () => {
   const url = databaseUrl();
   const sql = postgres(url, { max: 1, idle_timeout: 2, connect_timeout: 2 });
@@ -36,6 +43,7 @@ describe("chunks retrieval schema (db)", () => {
   });
 
   it("adds lexical + semantic columns and indexes", async () => {
+    const pgvectorEnabled = await hasPgvector(sql);
     const cols = await sql<
       Array<{
         column_name: string;
@@ -54,11 +62,16 @@ describe("chunks retrieval schema (db)", () => {
     const byName = new Map(cols.map((c) => [c.column_name, c]));
 
     expect(byName.get("text_tsv")?.udt_name).toBe("tsvector");
-    expect(byName.get("embedding")?.udt_name).toBe("vector");
     expect(byName.get("embedding_model")?.data_type).toBe("text");
     expect(byName.get("embedding_model")?.is_nullable).toBe("NO");
     expect(String(byName.get("embedding_model")?.column_default ?? "")).toContain("openai/text-embedding-3-small");
     expect(byName.get("embedded_at")?.data_type).toBe("timestamp with time zone");
+    if (pgvectorEnabled) {
+      expect(byName.get("embedding")?.udt_name).toBe("vector");
+    } else {
+      // Lexical fallback is valid when pgvector is unavailable.
+      expect(byName.get("embedding")).toBeUndefined();
+    }
 
     const indexes = await sql<Array<{ indexname: string; indexdef: string }>>`
       SELECT indexname, indexdef
@@ -70,14 +83,20 @@ describe("chunks retrieval schema (db)", () => {
 
     expect(idxByName.get("chunks_text_tsv_gin_idx") ?? "").toMatch(/USING gin/i);
     const ivfflat = idxByName.get("chunks_embedding_ivfflat_idx");
-    // IVFFlat index is created conservatively (only after enough vectors exist).
-    if (ivfflat) {
-      expect(ivfflat).toMatch(/USING ivfflat/i);
-      expect(ivfflat).toMatch(/vector_cosine_ops/i);
+    if (pgvectorEnabled) {
+      // IVFFlat index is created conservatively (only after enough vectors exist).
+      if (ivfflat) {
+        expect(ivfflat).toMatch(/USING ivfflat/i);
+        expect(ivfflat).toMatch(/vector_cosine_ops/i);
+      }
+    } else {
+      expect(ivfflat).toBeUndefined();
     }
   }, 20_000);
 
   it("orders semantic results by cosine distance (<=>)", async () => {
+    if (!(await hasPgvector(sql))) return;
+
     const folderId = `fld_${randomUUID()}`;
     const documentId = `doc_${randomUUID()}`;
     const indexVersion = "v1";

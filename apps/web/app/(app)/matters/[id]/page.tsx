@@ -18,27 +18,26 @@ import {
   parseReportTriageFilters,
   type ReportTriageTab,
 } from "../../../../lib/reportTriage.server";
-import { Alert } from "../../../ui/Alert";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
-import { Card, CardHeader } from "../../../ui/Card";
 import { EmptyState } from "../../../ui/EmptyState";
-import { MonoId } from "../../../ui/MonoId";
-import { Page, PageHeader, PageSection, SectionTitle } from "../../../ui/Page";
+import { buttonClassName } from "../../../ui/Button";
 import { ProgressBar } from "../../../ui/ProgressBar";
-import { Steps, type StepItem, type StepStatus } from "../../../ui/Steps";
+import { StatePage } from "../../../ui/StatePage";
+import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
 import { ArtefactsList } from "../ArtefactsList";
 import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
 
 import { ExportsPanel } from "./ExportsPanel";
 import { SetupDocumentsPanel } from "./SetupDocumentsPanel";
-import { QuickStartPanel, type QuickStartReadiness } from "./QuickStartPanel";
+import { type QuickStartReadiness } from "./QuickStartPanel";
+import { QuickStartActionButton } from "./QuickStartActionButton";
 import { ChatPanel } from "./ChatPanel";
 import {
   deriveOperatorChecklistSteps,
   formatOperatorElapsedLabel,
-  type OperatorChecklistState,
+  summarizeOperatorChecklist,
 } from "./operatorChecklist";
-import { deriveFixtureContextBanner } from "./fixtureContextBanner";
+import { deriveFixtureContextBanner, fixtureStatusLabel } from "./fixtureContextBanner";
 import { ReportTriagePanel } from "./ReportTriagePanel";
 
 export const runtime = "nodejs";
@@ -114,9 +113,20 @@ const RunIdSchema = z.string().trim().min(1).max(200);
 const REPORT_TRIAGE_TABS: Array<{ id: ReportTriageTab; label: string }> = [
   { id: "all", label: "All" },
   { id: "needs_review", label: "Needs Review" },
-  { id: "reviewed", label: "Reviewed" },
-  { id: "flagged", label: "Flagged" },
+  { id: "citation_failed", label: "Citation Failed" },
+  { id: "missing_input", label: "Missing Input" },
 ];
+
+type MatterDetailTab = "report" | "documents" | "chat" | "artefacts" | "exports";
+
+const MATTER_DETAIL_TAB_ORDER: MatterDetailTab[] = ["report", "documents", "chat", "artefacts", "exports"];
+const MATTER_DETAIL_TAB_LABELS: Record<MatterDetailTab, string> = {
+  report: "Report",
+  documents: "Documents",
+  chat: "Chat",
+  artefacts: "Artefacts",
+  exports: "Exports",
+};
 
 function firstString(value: string | string[] | undefined): string | undefined {
   if (typeof value === "string") return value;
@@ -135,6 +145,34 @@ function reportTabHref(args: { folderId: string; runId: string | null; rowTab: R
   const params = new URLSearchParams();
   if (args.runId) params.set("run_id", args.runId);
   if (args.rowTab !== "all") params.set("row_tab", args.rowTab);
+  params.set("tab", "report");
+  const query = params.toString();
+  return query.length > 0 ? `/matters/${encodeURIComponent(args.folderId)}?${query}` : `/matters/${encodeURIComponent(args.folderId)}`;
+}
+
+function parseDetailTab(searchParams: SearchParamRecord): MatterDetailTab {
+  const raw = firstString(searchParams.tab);
+  if (!raw) return "report";
+  return MATTER_DETAIL_TAB_ORDER.includes(raw as MatterDetailTab) ? (raw as MatterDetailTab) : "report";
+}
+
+function buildDetailTabHref(args: {
+  folderId: string;
+  tab: MatterDetailTab;
+  rawSearchParams: SearchParamRecord;
+  reportRunId: string | null;
+}): string {
+  const params = new URLSearchParams();
+  const runId = firstString(args.rawSearchParams.run_id);
+  const rowTab = firstString(args.rawSearchParams.row_tab);
+  if (runId) params.set("run_id", runId);
+  if (rowTab && rowTab !== "all") params.set("row_tab", rowTab);
+  params.set("tab", args.tab);
+
+  if (args.tab === "report" && args.reportRunId && !params.get("run_id")) {
+    params.set("run_id", args.reportRunId);
+  }
+
   const query = params.toString();
   return query.length > 0 ? `/matters/${encodeURIComponent(args.folderId)}?${query}` : `/matters/${encodeURIComponent(args.folderId)}`;
 }
@@ -157,12 +195,6 @@ function matterStateBadgeVariant(state: string): BadgeVariant {
   return "warning";
 }
 
-function checklistStepStatus(state: OperatorChecklistState): StepStatus {
-  if (state === "done") return "complete";
-  if (state === "in_progress") return "active";
-  return "pending";
-}
-
 function DocumentIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -172,12 +204,34 @@ function DocumentIcon() {
   );
 }
 
-function PlayIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polygon points="6 3 20 12 6 21 6 3" />
-    </svg>
-  );
+function fixtureStatusClass(variant: BadgeVariant): string {
+  if (variant === "success") {
+    return "rounded-pill border border-success/30 bg-success/10 px-2 py-0.5 font-medium text-success";
+  }
+  if (variant === "info") {
+    return "rounded-pill border border-primary/20 bg-primary/10 px-2 py-0.5 font-medium text-primary";
+  }
+  return "rounded-pill border border-warning/30 bg-warning/10 px-2 py-0.5 font-medium text-warning";
+}
+
+function checklistStepChipClass(state: "todo" | "in_progress" | "done"): string {
+  if (state === "done") {
+    return "rounded-ui-md border border-success/30 bg-success/10 px-2.5 py-2 text-xs";
+  }
+  if (state === "in_progress") {
+    return "rounded-ui-md border border-warning/30 bg-warning/10 px-2.5 py-2 text-xs";
+  }
+  return "rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs";
+}
+
+function checklistStepDotClass(state: "todo" | "in_progress" | "done"): string {
+  if (state === "done") {
+    return "size-3 rounded-pill border border-success/40 bg-success/20";
+  }
+  if (state === "in_progress") {
+    return "size-3 rounded-pill border border-warning/40 bg-warning/20";
+  }
+  return "size-3 rounded-pill border border-border bg-background";
 }
 
 export default async function MatterPage(props: {
@@ -190,11 +244,7 @@ export default async function MatterPage(props: {
   const rawSearchParams = (await props.searchParams) ?? {};
   const parsed = ParamsSchema.safeParse(rawParams);
   if (!parsed.success) {
-    return (
-      <Page>
-        <PageHeader title="Matter" subtitle="Invalid route params." />
-      </Page>
-    );
+    return <StatePage title="Matter" message="Invalid route params." />;
   }
 
   await ensureSchema();
@@ -208,11 +258,7 @@ export default async function MatterPage(props: {
   `;
   const folder = folders[0] ?? null;
   if (!folder) {
-    return (
-      <Page>
-        <PageHeader title="Matter" subtitle="Matter not found." />
-      </Page>
-    );
+    return <StatePage title="Matter" message="Matter not found." backHref="/matters" backLabel="Back to matters" />;
   }
 
   const docs = await sql<DocRow[]>`
@@ -241,9 +287,11 @@ export default async function MatterPage(props: {
     : null;
   const operatorChecklistSteps = deriveOperatorChecklistSteps(checklistSignal);
   const operatorElapsedLabel = formatOperatorElapsedLabel(checklistSignal);
+  const operatorChecklistSummary = summarizeOperatorChecklist(operatorChecklistSteps);
   const requestedRunId = firstSearchParamValue(rawSearchParams.run_id);
   const triageFilters = parseReportTriageFilters(rawSearchParams);
   const reportRequestedRunId = parseRunIdFilter(rawSearchParams);
+  const activeTab = parseDetailTab(rawSearchParams);
 
   const completedRuns = await sql<RunSelectorDbRow[]>`
     SELECT id, state, created_at, updated_at
@@ -379,281 +427,238 @@ export default async function MatterPage(props: {
     process.env.ALLOW_UNSAFE_EXPORTS === "1" &&
     Boolean(process.env.ORBITAL_ADMIN_TOKEN?.trim());
 
-  const stepItems: StepItem[] = operatorChecklistSteps.map((step) => ({
-    label: step.label,
-    status: checklistStepStatus(step.state),
+  const tabCounts: Record<MatterDetailTab, number | null> = {
+    report: reportRowsWithCounts.length,
+    documents: setupDocuments.length,
+    chat: null,
+    artefacts: null,
+    exports: runOptions.length,
+  };
+  const detailTabs: WorkspaceTabItem[] = MATTER_DETAIL_TAB_ORDER.map((tabId) => ({
+    id: tabId,
+    label: MATTER_DETAIL_TAB_LABELS[tabId],
+    href: buildDetailTabHref({
+      folderId,
+      tab: tabId,
+      rawSearchParams,
+      reportRunId: reportRun?.id ?? null,
+    }),
+    count: tabCounts[tabId],
   }));
+  const runQuestionsDone = latestRun?.questions_done ?? 0;
+  const runQuestionsTotal = latestRun?.questions_total ?? 0;
+  const runProgress = runQuestionsTotal > 0 ? Math.round((runQuestionsDone / runQuestionsTotal) * 100) : 0;
 
   return (
-    <Page>
-      <PageHeader
-        title="Matter"
-        subtitle={
-          <span className="flex flex-wrap items-center gap-2">
-            <MonoId>{folder.id}</MonoId>
-            <span className="text-muted-foreground/60">•</span>
-            <span className="font-medium text-foreground">{folder.name}</span>
-            <span className="text-muted-foreground/60">•</span>
-            <Badge variant={matterStateBadgeVariant(folder.state)}>{folder.state}</Badge>
-          </span>
-        }
-        right={
-          <Link className="text-xs font-medium text-muted-foreground underline hover:text-foreground" href="/matters">
-            Back to matters
-          </Link>
-        }
-      />
-
-      {/* Fixture context banner */}
-      <PageSection>
-        <Card className="p-5 animate-fade-in">
-          <Alert variant={fixtureContextBanner.variant} title="Fixture context">
-            <div className="grid gap-2 text-sm">
-              <div>
-                <span className="font-semibold text-foreground">Active pack:</span>{" "}
-                <span className="font-mono text-xs text-foreground">{fixtureContextBanner.activePack}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-foreground">Loaded at:</span>{" "}
-                <span className="font-mono text-xs text-foreground">
-                  {fixtureContextBanner.loadedAt === "not detected"
-                    ? "not detected"
-                    : formatDemoLoadedAtLabel(fixtureContextBanner.loadedAt)}
-                </span>
-              </div>
-              <div>
-                <span className="font-semibold text-foreground">Load state:</span> {fixtureContextBanner.loadState}
-              </div>
-              <div>
-                <span className="font-semibold text-foreground">Next step:</span> {fixtureContextBanner.nextStep}
+    <div className="min-w-0">
+      <section className="border-b border-border/70 bg-background/95">
+        <div className="px-6 py-6 lg:px-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-serif text-heading-lg font-normal text-balance">{folder.name}</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge variant={matterStateBadgeVariant(folder.state)}>{folder.state}</Badge>
+                <span className="rounded-ui-sm bg-muted px-2 py-0.5 font-mono text-2xs text-muted-foreground">{folder.id}</span>
               </div>
             </div>
-          </Alert>
-        </Card>
-      </PageSection>
 
-      {/* Setup documents */}
-      <PageSection>
-        <Card className="p-5 animate-fade-in" style={{ animationDelay: "30ms" }}>
-          <SetupDocumentsPanel
-            folderId={folderId}
-            folderState={folder.state}
-            initialDocuments={setupDocuments}
-            initialCapabilities={buildDocumentUploadCapabilities()}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="min-w-52 rounded-ui-md border border-border bg-muted/30 px-3 py-2">
+                <div className="flex items-center justify-between gap-2 text-2xs font-medium text-muted-foreground">
+                  <span>Quick Start progress</span>
+                  <span className="font-mono tabular-nums">{runQuestionsDone}/{runQuestionsTotal}</span>
+                </div>
+                <ProgressBar value={runProgress} className="mt-2" />
+              </div>
+              <QuickStartActionButton folderId={folderId} readiness={quickStartReadiness} />
+            </div>
+          </div>
+
+          <WorkspaceTabs
+            items={detailTabs}
+            activeId={activeTab}
+            ariaLabel="Matter detail sections"
+            className="mt-4"
           />
-        </Card>
-      </PageSection>
+        </div>
+      </section>
 
-      {/* Operator checklist */}
-      <PageSection>
-        <Card className="p-5 animate-fade-in" style={{ animationDelay: "60ms" }}>
-          <CardHeader>
-            <div>
-              <SectionTitle>Operator checklist</SectionTitle>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Ordered run steps derived from live Quick Start signals.
-              </p>
-            </div>
-            <Badge variant="muted">{operatorElapsedLabel}</Badge>
-          </CardHeader>
-
-          <div className="mt-4">
-            <Steps items={stepItems} />
-          </div>
-        </Card>
-      </PageSection>
-
-      {chatEnabled ? (
-        <PageSection>
-          <Card className="p-5 animate-fade-in" style={{ animationDelay: "90ms" }}>
-            <SectionTitle>Chat</SectionTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Evidence-first chat over the indexed documents in this matter.
-            </p>
-            <div className="mt-4">
-              <ChatPanel folderId={folderId} />
-            </div>
-          </Card>
-        </PageSection>
-      ) : null}
-
-      {/* Quick Start */}
-      <PageSection>
-        <Card className="p-5 animate-fade-in" style={{ animationDelay: "120ms" }}>
-          <CardHeader>
-            <div>
-              <SectionTitle>Quick Start</SectionTitle>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Start the Quick Start run for this matter. To run the same demo again, load the pack again to create a
-                fresh matter.
-              </p>
-            </div>
-          </CardHeader>
-
-          <div className="mt-4">
-            <QuickStartPanel folderId={folderId} readiness={quickStartReadiness} />
-          </div>
-
-          {latestRun ? (
-            <div className="mt-4 grid gap-1 text-xs text-muted-foreground">
-              <div>
-                latest run: <span className="font-mono">{latestRun.id}</span> ({latestRun.state})
+      <div className="px-6 py-6 lg:px-8">
+        {activeTab === "report" ? (
+          <section className="space-y-4">
+            <section className="rounded-ui-lg border border-border/70 bg-muted/20" title="Fixture context">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-4 py-2.5">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Fixture context</h2>
+                  <span className={fixtureStatusClass(fixtureContextBanner.variant)}>
+                    {fixtureStatusLabel(fixtureContextBanner.variant)}
+                  </span>
+                </div>
+                <Link href="/matters" className={buttonClassName({ variant: "ghost", size: "sm" })}>
+                  Load Pack Again
+                </Link>
               </div>
-              <div>
-                progress: {latestRun.questions_done}/{latestRun.questions_total} questions
-              </div>
-              {latestRun.questions_total > 0 ? (
-                <ProgressBar value={Math.round((latestRun.questions_done / latestRun.questions_total) * 100)} className="mt-1" />
-              ) : null}
-              <div className="flex flex-wrap gap-3">
-                <a
-                  className="underline hover:text-foreground"
-                  href={`/runs/${encodeURIComponent(latestRun.id)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Run JSON
-                </a>
-                <a
-                  className="underline hover:text-foreground"
-                  href={`/folders/${encodeURIComponent(folderId)}/report?${new URLSearchParams({
-                    run_id: latestRun.id,
-                  }).toString()}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Report JSON
-                </a>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                created: {latestRun.created_at.toISOString()} • updated: {latestRun.updated_at.toISOString()}
-              </div>
-            </div>
-          ) : (
-            <EmptyState
-              icon={<PlayIcon />}
-              title="No runs yet"
-              description="Start a Quick Start run to analyse this matter."
-            />
-          )}
-        </Card>
-      </PageSection>
 
-      {/* Report Triage */}
-      <PageSection>
-        <Card className="p-5 animate-fade-in" style={{ animationDelay: "150ms" }}>
-          <CardHeader>
-            <div>
-              <SectionTitle>Report Triage</SectionTitle>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Filter report rows by status and scan long outputs using a dense, sticky-header table.
-              </p>
-            </div>
+              <div className="px-4 py-3">
+                <dl className="grid gap-x-4 gap-y-2 text-2xs text-muted-foreground sm:grid-cols-[auto_1fr_auto_1fr]">
+                  <dt className="font-semibold text-muted-foreground">Active pack:</dt>
+                  <dd className="font-mono text-foreground/90">{fixtureContextBanner.activePack}</dd>
+                  <dt className="font-semibold text-muted-foreground">Loaded at:</dt>
+                  <dd className="font-mono tabular-nums text-foreground/90">
+                    {fixtureContextBanner.loadedAt === "not detected"
+                      ? "not detected"
+                      : formatDemoLoadedAtLabel(fixtureContextBanner.loadedAt)}
+                  </dd>
+                  <dt className="font-semibold text-muted-foreground">Load state:</dt>
+                  <dd className="font-mono text-foreground/90">{fixtureContextBanner.loadState}</dd>
+                  <dt className="font-semibold text-muted-foreground">Next step:</dt>
+                  <dd className="text-xs text-foreground/90 sm:col-span-3">{fixtureContextBanner.nextStep}</dd>
+                </dl>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-2.5">
+                  <p className="text-2xs text-muted-foreground">{operatorChecklistSummary}</p>
+                  <span className="rounded-pill border border-border/80 bg-card px-2 py-0.5 text-2xs text-muted-foreground">
+                    {operatorElapsedLabel}
+                  </span>
+                </div>
+
+                <ul className="mt-2 grid gap-2 sm:grid-cols-3">
+                  {operatorChecklistSteps.map((step) => (
+                    <li key={step.id} className={checklistStepChipClass(step.state)}>
+                      <div className="flex items-center gap-2">
+                        <span className={checklistStepDotClass(step.state)} aria-hidden="true" />
+                        <span className={step.state === "done" ? "line-through text-muted-foreground" : "text-foreground"}>
+                          {step.label}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
             {reportRun ? (
-              <div className="grid justify-items-end gap-1 text-xs text-muted-foreground">
-                <div>
-                  run: <span className="font-mono">{reportRun.id}</span>
-                </div>
-                <div>
-                  showing {visibleReportRows.length} of {reportRowsWithCounts.length}
-                </div>
-              </div>
-            ) : null}
-          </CardHeader>
-
-          {reportRun ? (
-            <>
-              <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Report row status tabs">
-                {REPORT_TRIAGE_TABS.map((tab) => {
-                  const isActive = triageFilters.rowTab === tab.id;
-                  return (
-                    <Link
-                      key={tab.id}
-                      href={reportTabHref({
-                        folderId,
-                        runId: reportRun?.id ?? null,
-                        rowTab: tab.id,
-                      })}
-                      aria-current={isActive ? "page" : undefined}
-                      className={
-                        isActive
-                          ? "inline-flex items-center gap-2 rounded-full border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                          : "inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-micro ease-brand-standard"
-                      }
-                    >
-                      <span>{tab.label}</span>
-                      <span
+              <>
+                <div className="flex flex-wrap items-center gap-2" aria-label="Report row status tabs">
+                  {REPORT_TRIAGE_TABS.map((tab) => {
+                    const isActive = triageFilters.rowTab === tab.id;
+                    return (
+                      <Link
+                        key={tab.id}
+                        href={reportTabHref({
+                          folderId,
+                          runId: reportRun?.id ?? null,
+                          rowTab: tab.id,
+                        })}
+                        aria-current={isActive ? "page" : undefined}
                         className={
                           isActive
-                            ? "rounded-full bg-primary-foreground/20 px-1.5 py-0.5 text-2xs font-semibold"
-                            : "rounded-full bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground"
+                            ? "inline-flex items-center gap-2 rounded-pill border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                            : "inline-flex items-center gap-2 rounded-pill border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-micro ease-brand-standard"
                         }
                       >
-                        {reportRowCounts[tab.id]}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
+                        <span>{tab.label}</span>
+                        <span
+                          className={
+                            isActive
+                              ? "rounded-pill bg-primary-foreground/20 px-1.5 py-0.5 text-2xs font-semibold tabular-nums"
+                              : "rounded-pill bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground tabular-nums"
+                          }
+                        >
+                          {reportRowCounts[tab.id]}
+                        </span>
+                      </Link>
+                    );
+                  })}
 
-              {reportRowsWithCounts.length === 0 ? (
-                <div className="mt-4">
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    run <span className="font-mono">{reportRun.id}</span> | showing {visibleReportRows.length}/{reportRowsWithCounts.length}
+                  </span>
+                </div>
+
+                {reportRowsWithCounts.length === 0 ? (
                   <EmptyState
                     icon={<DocumentIcon />}
                     title="No report rows yet"
                     description="Run Quick Start to generate report rows for triage."
                   />
-                </div>
-              ) : (
-                <ReportTriagePanel
-                  folderId={folderId}
-                  rowTab={triageFilters.rowTab}
-                  rows={reportRowsForClient}
-                  modelVersion={reportRun.agent_bundle_version}
-                />
-              )}
-            </>
-          ) : (
-            <div className="mt-4">
+                ) : (
+                  <ReportTriagePanel
+                    folderId={folderId}
+                    rowTab={triageFilters.rowTab}
+                    rows={reportRowsForClient}
+                    modelVersion={reportRun.agent_bundle_version}
+                  />
+                )}
+              </>
+            ) : (
               <EmptyState
                 icon={<DocumentIcon />}
                 title="No runs to review"
                 description="Start Quick Start first, then triage report rows here."
               />
-            </div>
-          )}
-        </Card>
-      </PageSection>
+            )}
+          </section>
+        ) : null}
 
-      {/* Exports */}
-      <PageSection>
-        <Card className="p-5 animate-fade-in" style={{ animationDelay: "180ms" }}>
-          <CardHeader>
-            <div>
-              <SectionTitle>Exports</SectionTitle>
+        {activeTab === "documents" ? (
+          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+            <SetupDocumentsPanel
+              folderId={folderId}
+              folderState={folder.state}
+              initialDocuments={setupDocuments}
+              initialCapabilities={buildDocumentUploadCapabilities()}
+            />
+          </section>
+        ) : null}
+
+        {activeTab === "chat" && chatEnabled ? (
+          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+            <div className="mb-3 rounded-ui-md border border-warning/20 bg-warning/5 px-3 py-2 text-xs text-warning">
+              Run-scoped chat picker is a backend follow-up (`N11`) and is flagged as a non-UI delta in this pass.
+            </div>
+            <ChatPanel folderId={folderId} />
+          </section>
+        ) : null}
+
+        {activeTab === "chat" && !chatEnabled ? (
+          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+            <EmptyState title="Chat is unavailable" description="Set CHAT_ENABLED=1 to enable evidence-first chat for this matter." />
+          </section>
+        ) : null}
+
+        {activeTab === "exports" ? (
+          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+            <div className="mb-3">
+              <h2 className="font-serif text-heading-sm font-medium">Exports</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Export a Word memo (.docx) and CSV artefacts for a selected completed run. Review links keep the same run
-                scope.
+                Export a Word memo and CSV artefacts for a selected completed run.
               </p>
             </div>
-
             <ExportsPanel
               folderId={folderId}
               runOptions={runOptions}
               initialRunId={initialExportRunId}
               unsafeOverrideEnabled={unsafeOverrideEnabled}
             />
-          </CardHeader>
-        </Card>
-      </PageSection>
+          </section>
+        ) : null}
 
-      {artefactsListEnabled ? (
-        <PageSection>
-          <div className="animate-fade-in" style={{ animationDelay: "210ms" }}>
-            <ArtefactsList folderId={folderId} searchParams={rawSearchParams} />
-          </div>
-        </PageSection>
-      ) : null}
-    </Page>
+        {activeTab === "artefacts" ? (
+          artefactsListEnabled ? (
+            <div className="animate-fade-in">
+              <ArtefactsList folderId={folderId} searchParams={rawSearchParams} />
+            </div>
+          ) : (
+            <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+              <EmptyState
+                title="Artefacts list disabled"
+                description="Enable FEATURE_ARTEFACTS_LIST=1 to use filtered artefact list and provenance view."
+              />
+            </section>
+          )
+        ) : null}
+      </div>
+    </div>
   );
 }

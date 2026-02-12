@@ -39,14 +39,16 @@ export default async function Rh2OverlayPage(props: {
       />
 
       <PageSection>
-        <Rh2OverlayClient
-          pack={pack}
-          docKey={docKey}
-          pdfUrl={pdfUrl}
-          pdfFilename={pdfFilename}
-          anchorIds={anchorIds}
-          anchors={anchors}
-        />
+        <div className="rounded-ui-lg border border-border/80 bg-card p-4 shadow-ui-sm">
+          <Rh2OverlayClient
+            pack={pack}
+            docKey={docKey}
+            pdfUrl={pdfUrl}
+            pdfFilename={pdfFilename}
+            anchorIds={anchorIds}
+            anchors={anchors}
+          />
+        </div>
       </PageSection>
     </Page>
   );

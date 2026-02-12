@@ -75,12 +75,14 @@ describe("artefacts list + download", () => {
     expect(res.headers.get("Cache-Control")).toBe("no-store, no-cache");
 
     const json = (await res.json()) as unknown;
-    expect(json).toEqual({
+    expect(json).toEqual(
+      expect.objectContaining({
       artefacts: [
         expect.objectContaining({ id: newest.id }),
         expect.objectContaining({ id: older.id }),
       ],
-    });
+      }),
+    );
 
     const artefacts = (json as { artefacts: Array<{ download_url: string }> }).artefacts;
     expect(artefacts[0]?.download_url).toContain(`/artefacts/${newest.id}/download?`);
@@ -115,6 +117,56 @@ describe("artefacts list + download", () => {
     const json2 = (await res2.json()) as { artefacts: Array<{ download_url: string }> };
 
     expect(json1.artefacts[0]?.download_url).not.toEqual(json2.artefacts[0]?.download_url);
+  });
+
+  it("supports thin filtering + summary fields", async () => {
+    const { GET } = await import("../app/(api)/folders/[id]/artefacts/route");
+
+    const folderId = "fld_test_filter";
+    const rows = [
+      {
+        id: "art_safe",
+        folder_id: folderId,
+        type: "csv",
+        kind: "requirements_tracker",
+        filename: "requirements_tracker.csv",
+        storage_key: `folders/${folderId}/artefacts/art_safe.csv`,
+        source_run_id: "run_safe",
+        metadata_json: {},
+        created_at: new Date("2026-02-08T00:00:03.000Z"),
+      },
+      {
+        id: "art_unsafe",
+        folder_id: folderId,
+        type: "csv",
+        kind: "requirements_tracker",
+        filename: "requirements_tracker.UNSAFE.csv",
+        storage_key: `folders/${folderId}/artefacts/art_unsafe.csv`,
+        source_run_id: "run_unsafe",
+        metadata_json: { unsafe_override: true },
+        created_at: new Date("2026-02-08T00:00:02.000Z"),
+      },
+    ];
+
+    queueSqlResults([[{ id: folderId }], rows]);
+    const res = await GET(
+      new Request(
+        `http://localhost:3000/folders/${folderId}/artefacts?type=csv&kind=requirements_tracker&safety=unsafe&source_run_id=run_unsafe`,
+      ),
+      {
+        params: Promise.resolve({ id: folderId }),
+      },
+    );
+    const json = (await res.json()) as {
+      artefacts: Array<{ id: string; source_run_id: string | null }>;
+      summary?: { total: number; unsafe: number; safe: number };
+      next_cursor: string | null;
+    };
+
+    expect(res.status).toBe(200);
+    expect(json.artefacts.map((row) => row.id)).toEqual(["art_unsafe"]);
+    expect(json.summary).toEqual(expect.objectContaining({ total: 1, safe: 0, unsafe: 1 }));
+    expect(json.next_cursor).toBeNull();
   });
 
   it("serves artefact bytes for a valid signed download_url", async () => {

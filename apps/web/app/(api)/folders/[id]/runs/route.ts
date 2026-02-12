@@ -9,6 +9,8 @@ import { newId } from "../../../../../lib/ids";
 import { assertJsonContentType } from "../../../../../lib/jsonContentType";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
+import { kickInlineWdkWorker } from "../../../../../lib/wdk/wdkInlineKick.server";
+import { quickStartStepHandlers } from "../../../../../steps/quickStartStepHandlers.server";
 import { startQuickStartTitleSurveyWorkflow } from "../../../../../workflows/quickStartTitleSurveyWorkflow.server";
 
 export const runtime = "nodejs";
@@ -392,6 +394,10 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     steps_total: scheduled.steps.length,
     steps_inserted: insertedSteps,
   });
+
+  // Local development fallback: drain freshly scheduled steps inline so Quick
+  // Start progresses without requiring a separate worker process.
+  kickInlineWdkWorker({ handlers: quickStartStepHandlers, runId, maxSteps: Math.max(25, questionsTotal) });
 
   return Response.json(runResponse(created), { status: 200, headers });
 }

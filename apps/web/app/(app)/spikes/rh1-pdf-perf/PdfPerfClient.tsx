@@ -723,7 +723,7 @@ export function PdfPerfClient(props: { initialDoc: DocRef }) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 text-sm">
       <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           <label className="grid gap-1 text-sm">

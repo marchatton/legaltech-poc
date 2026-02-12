@@ -3,7 +3,18 @@ import { describe, expect, it } from "vitest";
 import { buildMatterTabHref, firstSearchParamValue, resolveSelectedRunId } from "./runScope";
 
 describe("run scope helpers", () => {
-  it("builds report deep-links with run + status filters", () => {
+  it("builds report deep-links with run + row_tab filters", () => {
+    const href = buildMatterTabHref({
+      matterId: "fld_123",
+      tab: "report",
+      runId: "run_456",
+      rowTab: "citation_failed",
+    });
+
+    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=citation_failed");
+  });
+
+  it("maps legacy status=failed links to row_tab=citation_failed", () => {
     const href = buildMatterTabHref({
       matterId: "fld_123",
       tab: "report",
@@ -11,7 +22,7 @@ describe("run scope helpers", () => {
       status: "failed",
     });
 
-    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&status=failed");
+    expect(href).toBe("/matters/fld_123?tab=report&run_id=run_456&row_tab=citation_failed");
   });
 
   it("omits optional params when absent", () => {

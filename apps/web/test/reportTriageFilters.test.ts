@@ -18,7 +18,12 @@ describe("report triage filters", () => {
     expect(parsed).toEqual({ rowTab: "needs_review" });
   });
 
-  it("maps flagged tab to missing_input and citation_failed rows", () => {
+  it("maps legacy status=failed to citation_failed", () => {
+    const parsed = parseReportTriageFilters({ status: "failed" });
+    expect(parsed).toEqual({ rowTab: "citation_failed" });
+  });
+
+  it("filters rows by explicit citation_failed tab", () => {
     const rows = [
       { id: "r1", status: "needs_review" },
       { id: "r2", status: "reviewed" },
@@ -26,8 +31,8 @@ describe("report triage filters", () => {
       { id: "r4", status: "citation_failed" },
     ];
 
-    const filtered = filterReportRowsByTab({ rows, rowTab: "flagged" });
-    expect(filtered.map((row) => row.id)).toEqual(["r3", "r4"]);
+    const filtered = filterReportRowsByTab({ rows, rowTab: "citation_failed" });
+    expect(filtered.map((row) => row.id)).toEqual(["r4"]);
   });
 
   it("returns deterministic tab counts", () => {
@@ -42,14 +47,14 @@ describe("report triage filters", () => {
     expect(countReportRowsByTab(rows)).toEqual({
       all: 5,
       needs_review: 1,
-      reviewed: 2,
-      flagged: 2,
+      citation_failed: 1,
+      missing_input: 1,
     });
   });
 
   it("matches individual status rows against active triage tab", () => {
-    expect(rowMatchesReportTriageTab({ status: "reviewed", rowTab: "reviewed" })).toBe(true);
-    expect(rowMatchesReportTriageTab({ status: "citation_failed", rowTab: "flagged" })).toBe(true);
+    expect(rowMatchesReportTriageTab({ status: "citation_failed", rowTab: "citation_failed" })).toBe(true);
+    expect(rowMatchesReportTriageTab({ status: "missing_input", rowTab: "missing_input" })).toBe(true);
     expect(rowMatchesReportTriageTab({ status: "reviewed", rowTab: "needs_review" })).toBe(false);
   });
 });

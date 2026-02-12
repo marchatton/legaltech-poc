@@ -77,7 +77,7 @@ export function ExportMemoButton(props: Props) {
         matterId: props.folderId,
         tab: "report",
         runId: props.runId,
-        status: "failed",
+        rowTab: "citation_failed",
       })
     : null;
 

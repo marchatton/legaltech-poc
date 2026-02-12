@@ -249,8 +249,8 @@ export function ChatPanel(props: { folderId: string }) {
               : "bg-card text-foreground justify-self-start";
 
             return (
-              <div key={m.id} className="grid gap-2">
-                <div className={`max-w-[min(70ch,100%)] rounded-ui-lg border border-border px-3 py-2 shadow-ui-sm ${bubbleCls}`}>
+              <div key={m.id} className="grid gap-2 animate-fade-in">
+                <div className={`max-w-[min(70ch,100%)] rounded-ui-lg border border-border px-3 py-2 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
                   <div className="whitespace-pre-wrap text-sm">
                     {m.content || (m.status === "streaming" ? (
                       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
@@ -283,10 +283,14 @@ export function ChatPanel(props: { folderId: string }) {
 
                 {!isUser && m.status === "complete" && m.sources?.length ? (
                   <section className="max-w-[min(70ch,100%)] rounded-ui-md bg-muted/50 p-3">
-                    <div className="text-2xs font-semibold text-foreground">Sources</div>
+                    <div className="text-2xs font-semibold uppercase tracking-wide text-foreground">Sources</div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       {m.sources.map((s, idx) => (
-                        <Chip key={`${s.document_id}:${s.page_number}:${idx}`} variant="citation" title={`${s.document_id} p.${s.page_number}`}>
+                        <Chip
+                          key={`${s.document_id}:${s.page_number}:${idx}`}
+                          variant="citation"
+                          title={`${s.document_id} p.${s.page_number} (jump-to-evidence coming soon)`}
+                        >
                           {s.document_id} p.{s.page_number}
                         </Chip>
                       ))}
@@ -299,7 +303,7 @@ export function ChatPanel(props: { folderId: string }) {
         </div>
       </div>
 
-      <form className="flex flex-wrap items-center gap-2" onSubmit={onSubmit}>
+      <form className="flex flex-wrap items-center gap-2 rounded-ui-md border border-border bg-card p-2 shadow-ui-sm" onSubmit={onSubmit}>
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}

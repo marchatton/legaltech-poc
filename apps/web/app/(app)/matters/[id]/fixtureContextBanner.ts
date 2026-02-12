@@ -25,6 +25,12 @@ function bannerVariant(state: FixtureReadiness["state"]): FixtureContextBanner["
   return "warning";
 }
 
+export function fixtureStatusLabel(variant: FixtureContextBanner["variant"]): string {
+  if (variant === "success") return "ready";
+  if (variant === "info") return "already complete";
+  return "blocked";
+}
+
 export function deriveFixtureContextBanner(args: {
   matterName: string;
   readiness: FixtureReadiness;

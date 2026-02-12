@@ -1,12 +1,14 @@
 import { z } from "zod";
 
 import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import Link from "next/link";
 
 import { headers } from "next/headers";
 
 import { assertDevOrDemoProd } from "../../../../lib/devOnly";
 
-import { Page } from "../../../ui/Page";
+import { Page, PageHeader, SectionLabel } from "../../../ui/Page";
+import { StatePage } from "../../../ui/StatePage";
 import { CitationViewerClient } from "../../matters/viewer/CitationViewerClient";
 
 export const runtime = "nodejs";
@@ -95,23 +97,13 @@ export default async function EvidenceViewerPage(props: {
   const rawParams = await props.params;
   const parsedParams = ParamsSchema.safeParse(rawParams);
   if (!parsedParams.success) {
-    return (
-      <Page width="sm">
-        <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Invalid route params.</p>
-      </Page>
-    );
+    return <StatePage title="Evidence" message="Invalid route params." />;
   }
 
   const rawSearchParams = (await props.searchParams) ?? {};
   const parsedSearchParams = SearchSchema.safeParse(rawSearchParams);
   if (!parsedSearchParams.success) {
-    return (
-      <Page width="sm">
-        <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Invalid query params.</p>
-      </Page>
-    );
+    return <StatePage title="Evidence" message="Invalid query params." />;
   }
 
   const citationId = parsedParams.data.id;
@@ -134,17 +126,16 @@ export default async function EvidenceViewerPage(props: {
     if (!res.ok) {
       if (res.status === 404) {
         return (
-          <Page width="sm">
-            <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Citation not found: <span className="font-mono">{citationId}</span>
-            </p>
-            <div className="mt-4">
-              <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-                Back to matters
-              </a>
-            </div>
-          </Page>
+          <StatePage
+            title="Evidence"
+            message={
+              <>
+                Citation not found: <span className="font-mono">{citationId}</span>
+              </>
+            }
+            backHref={citationHref}
+            backLabel="Back to matters"
+          />
         );
       }
 
@@ -153,53 +144,43 @@ export default async function EvidenceViewerPage(props: {
         message: `Request failed (${res.status}).`,
       });
       return (
-        <Page width="sm">
-          <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Failed to load citation: <span className="font-mono">{citationId}</span>
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {e.code}: {e.message}
-          </p>
-          <div className="mt-4">
-            <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-              Back to matters
-            </a>
-          </div>
-        </Page>
+        <StatePage
+          title="Evidence"
+          message={
+            <>
+              Failed to load citation: <span className="font-mono">{citationId}</span>
+            </>
+          }
+          detail={
+            <>
+              {e.code}: {e.message}
+            </>
+          }
+          backHref={citationHref}
+          backLabel="Back to matters"
+        />
       );
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (
-      <Page width="sm">
-        <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Failed to load citation: <span className="font-mono">{citationId}</span>
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">{message}</p>
-        <div className="mt-4">
-          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-            Back to matters
-          </a>
-        </div>
-      </Page>
+      <StatePage
+        title="Evidence"
+        message={
+          <>
+            Failed to load citation: <span className="font-mono">{citationId}</span>
+          </>
+        }
+        detail={message}
+        backHref={citationHref}
+        backLabel="Back to matters"
+      />
     );
   }
 
   const parsedCitation = CitationResponseSchema.safeParse(citationJson);
   if (!parsedCitation.success) {
-    return (
-      <Page width="sm">
-        <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Invalid citation payload.</p>
-        <div className="mt-4">
-          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-            Back to matters
-          </a>
-        </div>
-      </Page>
-    );
+    return <StatePage title="Evidence" message="Invalid citation payload." backHref={citationHref} backLabel="Back to matters" />;
   }
 
   const cit = parsedCitation.data.citation;
@@ -216,65 +197,60 @@ export default async function EvidenceViewerPage(props: {
     if (!res.ok) {
       const e = safeErrFromJson(renderJson, { code: "RENDER_URL_FAILED", message: `Request failed (${res.status}).` });
       return (
-        <Page width="sm">
-          <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Failed to fetch render_url for <span className="font-mono">{cit.document_id}</span> (page {cit.page_number}).
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {e.code}: {e.message}
-          </p>
-          <div className="mt-4">
-            <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-              Back to matters
-            </a>
-          </div>
-        </Page>
+        <StatePage
+          title="Evidence"
+          message={
+            <>
+              Failed to fetch render_url for <span className="font-mono">{cit.document_id}</span> (page {cit.page_number}).
+            </>
+          }
+          detail={`${e.code}: ${e.message}`}
+          backHref={citationHref}
+          backLabel="Back to matters"
+        />
       );
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (
-      <Page width="sm">
-        <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Failed to fetch render_url for <span className="font-mono">{cit.document_id}</span> (page {cit.page_number}).
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">{message}</p>
-        <div className="mt-4">
-          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-            Back to matters
-          </a>
-        </div>
-      </Page>
+      <StatePage
+        title="Evidence"
+        message={
+          <>
+            Failed to fetch render_url for <span className="font-mono">{cit.document_id}</span> (page {cit.page_number}).
+          </>
+        }
+        detail={message}
+        backHref={citationHref}
+        backLabel="Back to matters"
+      />
     );
   }
 
   const parsedRender = RenderResponseSchema.safeParse(renderJson);
   if (!parsedRender.success) {
-    return (
-      <Page width="sm">
-        <h1 className="font-serif text-heading-lg font-normal">Evidence</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Invalid render_url payload.</p>
-        <div className="mt-4">
-          <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-            Back to matters
-          </a>
-        </div>
-      </Page>
-    );
+    return <StatePage title="Evidence" message="Invalid render_url payload." backHref={citationHref} backLabel="Back to matters" />;
   }
 
   const pdfUrl = parsedRender.data.render_url;
 
   return (
     <Page width="lg">
-      <div className="flex flex-wrap items-center gap-3">
-        <a className="text-sm font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
-          Back to matters
-        </a>
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">citation:</span> <span className="font-mono">{citationId}</span>
+      <PageHeader
+        title="Evidence Viewer"
+        subtitle="Citation-level verification with trust metadata and recovery actions."
+        right={
+          <Link className="text-xs font-medium text-muted-foreground underline hover:text-foreground" href={citationHref}>
+            Back to matters
+          </Link>
+        }
+      />
+
+      <div className="mt-6 rounded-ui-lg border border-border bg-card px-4 py-3 shadow-ui-sm">
+        <SectionLabel>Context</SectionLabel>
+        <div className="mt-2 text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">citation:</span>{" "}
+          <span className="rounded-ui-sm bg-muted px-2 py-1 font-mono text-xs text-foreground">{citationId}</span>
         </div>
       </div>
 

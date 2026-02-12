@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "./ui/Button";
 import { Select } from "./ui/Input";
-import { ThemeToggle } from "./ui/ThemeToggle";
 
 const PACK_OPTIONS = [
   { id: "pack_01_clean", label: "pack_01_clean" },
@@ -68,18 +67,21 @@ export function DemoToolbar() {
   }
 
   return (
-    <section className="sticky top-0 z-50 border-t-[3px] border-t-primary border-b border-border bg-card/90 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-end gap-3 p-3">
-        <div className="font-mono text-2xs font-semibold uppercase tracking-widest text-primary">DEMO MODE</div>
+    <section className="sticky top-0 z-50 border-b border-orange-400/40 bg-primary text-primary-foreground shadow-ui-sm">
+      <div className="flex min-h-12 w-full items-center gap-3 px-4 lg:px-6">
+        <span className="rounded-ui-sm bg-white/20 px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-widest">
+          Demo Mode
+        </span>
+        <span className="text-sm font-medium text-primary-foreground/90">Operator Controls</span>
 
-        <label className="grid gap-1 text-xs">
-          <span className="text-muted-foreground">Pack</span>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <Select
-            className="min-w-56"
+            className="min-w-52 border-orange-200/40 bg-primary/20 text-primary-foreground ring-offset-primary [&>option]:text-foreground"
             uiSize="sm"
             value={packId}
             onChange={(e) => setPackId(e.currentTarget.value as PackId)}
             disabled={state.kind === "loading"}
+            aria-label="Demo pack"
           >
             {PACK_OPTIONS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -87,32 +89,15 @@ export function DemoToolbar() {
               </option>
             ))}
           </Select>
-        </label>
-
-        <Button
-          size="sm"
-          onClick={loadPack}
-          loading={state.kind === "loading"}
-        >
-          Load demo pack
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={loadPack}
-          loading={state.kind === "loading"}
-        >
-          Load pack again
-        </Button>
-
-        {state.kind === "error" ? <div className="text-xs font-medium text-destructive">{state.message}</div> : null}
-
-        <div className="h-6 w-px bg-border" />
-
-        <div className="ml-auto">
-          <ThemeToggle />
+          <Button size="sm" variant="secondary" onClick={loadPack} loading={state.kind === "loading"} className="border-white/40 bg-white text-primary hover:bg-orange-50">
+            Load Demo Pack
+          </Button>
         </div>
       </div>
+
+      {state.kind === "error" ? (
+        <div className="border-t border-orange-300/50 px-4 py-1 text-xs font-medium text-orange-50 lg:px-6">{state.message}</div>
+      ) : null}
     </section>
   );
 }

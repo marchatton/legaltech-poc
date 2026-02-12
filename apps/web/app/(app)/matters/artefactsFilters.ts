@@ -3,11 +3,13 @@ import { firstSearchParamValue, type MatterSearchParamValue } from "./runScope";
 export const ARTEFACT_KIND_PARAM = "artefact_kind";
 export const ARTEFACT_TYPE_PARAM = "artefact_type";
 export const ARTEFACT_SAFETY_PARAM = "artefact_safety";
+export const ARTEFACT_RUN_ID_PARAM = "artefact_run_id";
 
 const ARTEFACT_FILTER_PARAM_KEYS = new Set<string>([
   ARTEFACT_KIND_PARAM,
   ARTEFACT_TYPE_PARAM,
   ARTEFACT_SAFETY_PARAM,
+  ARTEFACT_RUN_ID_PARAM,
 ]);
 
 export type ArtefactSafetyFilter = "all" | "safe" | "unsafe";
@@ -16,6 +18,7 @@ export type ArtefactFilters = {
   kind: string | null;
   type: string | null;
   safety: ArtefactSafetyFilter;
+  sourceRunId: string | null;
 };
 
 export type ArtefactFilterSearchParams = Record<string, MatterSearchParamValue>;
@@ -62,10 +65,12 @@ export function parseArtefactFilters(args: {
   searchParams?: ArtefactFilterSearchParams;
   availableKinds: ReadonlyArray<string>;
   availableTypes: ReadonlyArray<string>;
+  availableSourceRunIds: ReadonlyArray<string>;
 }): ArtefactFilters {
   const searchParams = args.searchParams ?? {};
   const availableKinds = new Set(args.availableKinds);
   const availableTypes = new Set(args.availableTypes);
+  const availableSourceRuns = new Set(args.availableSourceRunIds);
 
   return {
     kind: parseOptionFilter({
@@ -77,6 +82,10 @@ export function parseArtefactFilters(args: {
       allowedValues: availableTypes,
     }),
     safety: parseSafetyFilter(searchParams[ARTEFACT_SAFETY_PARAM]),
+    sourceRunId: parseOptionFilter({
+      raw: searchParams[ARTEFACT_RUN_ID_PARAM],
+      allowedValues: availableSourceRuns,
+    }),
   };
 }
 
@@ -117,13 +126,14 @@ export function isUnsafeArtefact(artefact: ArtefactSafetyInput): boolean {
   return artefact.metadata_json.unsafe_override === true;
 }
 
-export function applyArtefactFilters<T extends ArtefactSafetyInput & { kind: string; type: string }>(
+export function applyArtefactFilters<T extends ArtefactSafetyInput & { kind: string; type: string; source_run_id: string | null }>(
   artefacts: ReadonlyArray<T>,
   filters: ArtefactFilters,
 ): T[] {
   return artefacts.filter((artefact) => {
     if (filters.kind && artefact.kind !== filters.kind) return false;
     if (filters.type && artefact.type !== filters.type) return false;
+    if (filters.sourceRunId && artefact.source_run_id !== filters.sourceRunId) return false;
 
     const unsafe = isUnsafeArtefact(artefact);
     if (filters.safety === "unsafe" && !unsafe) return false;

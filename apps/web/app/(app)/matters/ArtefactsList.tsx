@@ -13,6 +13,7 @@ import { ensureSchema, sql } from "../../../lib/db.server";
 import { createSignedGetHeaders } from "../../../lib/objectStore.server";
 import {
   ARTEFACT_KIND_PARAM,
+  ARTEFACT_RUN_ID_PARAM,
   ARTEFACT_SAFETY_PARAM,
   ARTEFACT_TYPE_PARAM,
   applyArtefactFilters,
@@ -103,16 +104,25 @@ export async function ArtefactsList(props: Props) {
 
   const availableKinds = uniqueFilterValues(artefacts.map((artefact) => artefact.kind));
   const availableTypes = uniqueFilterValues(artefacts.map((artefact) => artefact.type));
+  const availableSourceRunIds = uniqueFilterValues(
+    artefacts
+      .map((artefact) => artefact.source_run_id)
+      .filter((value): value is string => typeof value === "string" && value.trim().length > 0),
+  );
   const selectedFilters = parseArtefactFilters({
     searchParams: props.searchParams,
     availableKinds,
     availableTypes,
+    availableSourceRunIds,
   });
   const filteredArtefacts = applyArtefactFilters(artefacts, selectedFilters);
   const passthroughEntries = buildPassthroughSearchEntries(props.searchParams);
   const clearHref = searchFromEntries(passthroughEntries) || "?";
   const hasActiveFilters =
-    selectedFilters.kind !== null || selectedFilters.type !== null || selectedFilters.safety !== "all";
+    selectedFilters.kind !== null ||
+    selectedFilters.type !== null ||
+    selectedFilters.safety !== "all" ||
+    selectedFilters.sourceRunId !== null;
 
   return (
     <Card className="p-4">
@@ -175,6 +185,23 @@ export async function ArtefactsList(props: Props) {
             <option value="all">All outputs</option>
             <option value="safe">Safe only</option>
             <option value="unsafe">Unsafe only</option>
+          </Select>
+        </label>
+
+        <label className="grid min-w-40 gap-1 text-xs text-muted-foreground">
+          Source run
+          <Select
+            name={ARTEFACT_RUN_ID_PARAM}
+            uiSize="sm"
+            defaultValue={selectedFilters.sourceRunId ?? ""}
+            aria-label="Filter artefacts by source run"
+          >
+            <option value="">All runs</option>
+            {availableSourceRunIds.map((runId) => (
+              <option key={runId} value={runId}>
+                {runId}
+              </option>
+            ))}
           </Select>
         </label>
 

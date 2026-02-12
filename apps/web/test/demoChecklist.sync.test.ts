@@ -41,8 +41,8 @@ describe("0007 demo checklist", () => {
     }
 
     // Keep operator-facing copy aligned with the UI buttons/flag.
-    expect(demoToolbar).toContain("Load demo pack");
-    expect(checklist).toContain("Load demo pack");
+    expect(demoToolbar).toMatch(/Load demo pack/i);
+    expect(checklist).toMatch(/Load demo pack/i);
     expect(checklist).toContain("DEMO_MODE=1");
 
     const quickStartPanelPath = path.join(root, "apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx");

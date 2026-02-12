@@ -21,7 +21,7 @@ export async function startDocumentIngest(args: {
     step_id: stepId,
   });
 
-  kickInlineWdkWorker({ handlers: wdkSmokeStepHandlers, maxSteps: 5 });
+  kickInlineWdkWorker({ handlers: wdkSmokeStepHandlers, maxSteps: 5, runId });
 
   return { runId, stepId };
 }

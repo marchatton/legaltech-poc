@@ -5,9 +5,12 @@ import { z } from "zod";
 import Link from "next/link";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
+import { isDemoModeEnabled } from "../../../../lib/demoMode.server";
 
+import { Badge } from "../../../ui/Badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbSeparator } from "../../../ui/Breadcrumb";
 import { MonoId } from "../../../ui/MonoId";
+import { WorkspaceContextBar, WorkspaceContextBarBody } from "../../../ui/WorkspaceShell";
 
 const ParamsSchema = z.object({
   id: z.string().min(1),
@@ -16,6 +19,10 @@ const ParamsSchema = z.object({
 type FolderShellContextRow = {
   id: string;
   name: string;
+};
+
+type RunShellContextRow = {
+  id: string;
 };
 
 async function loadFolderShellContext(folderId: string): Promise<FolderShellContextRow | null> {
@@ -41,11 +48,26 @@ export default async function MatterDetailLayout(props: {
   const folderId = parsed.success ? parsed.data.id : "unknown";
   const folder = parsed.success ? await loadFolderShellContext(parsed.data.id) : null;
   const folderName = folder?.name ?? "Unknown matter";
+  const latestRuns =
+    parsed.success && folder
+      ? await sql<RunShellContextRow[]>`
+          SELECT id
+          FROM runs
+          WHERE folder_id = ${folderId}
+            AND type = 'quick_start_title_survey'
+          ORDER BY created_at DESC
+          LIMIT 1
+        `
+      : [];
+  const latestRunId = latestRuns[0]?.id ?? null;
+  const demoModeEnabled = isDemoModeEnabled();
+  const environmentLabel = demoModeEnabled ? "demo-dev" : "production";
+  const environmentBadgeVariant = demoModeEnabled ? "warning" : "muted";
 
   return (
     <>
-      <section className="sticky top-0 z-20 border-b border-border/80 bg-background/95 backdrop-blur animate-fade-in">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-6 py-2 sm:px-8">
+      <WorkspaceContextBar>
+        <WorkspaceContextBarBody>
           <Breadcrumb className="min-w-0 text-xs">
             <BreadcrumbItem>
               <Link href="/matters" className="font-medium text-muted-foreground hover:text-primary transition-colors duration-micro">
@@ -59,13 +81,18 @@ export default async function MatterDetailLayout(props: {
           </Breadcrumb>
 
           <div className="ml-auto flex items-center gap-2">
-            <span className="font-mono text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Matter ID
-            </span>
+            {latestRunId ? (
+              <Badge variant="info" size="sm" className="font-mono">
+                {latestRunId}
+              </Badge>
+            ) : null}
+            <Badge variant={environmentBadgeVariant} size="sm">
+              {environmentLabel}
+            </Badge>
             <MonoId>{folderId}</MonoId>
           </div>
-        </div>
-      </section>
+        </WorkspaceContextBarBody>
+      </WorkspaceContextBar>
 
       {props.children}
     </>

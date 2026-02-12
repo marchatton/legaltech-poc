@@ -43,6 +43,12 @@ export function deriveOperatorChecklistSteps(signal: OperatorChecklistSignal): O
   ];
 }
 
+export function summarizeOperatorChecklist(steps: OperatorChecklistStep[]): string {
+  if (steps.length === 0) return "0/0 steps complete";
+  const doneCount = steps.reduce((count, step) => (step.state === "done" ? count + 1 : count), 0);
+  return `${doneCount}/${steps.length} steps complete`;
+}
+
 export function formatOperatorElapsedLabel(signal: OperatorChecklistSignal, now: Date = new Date()): string {
   if (!signal) return "Elapsed unavailable";
 

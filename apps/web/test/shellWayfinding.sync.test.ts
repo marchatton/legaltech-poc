@@ -16,27 +16,30 @@ describe("US-001 shell wayfinding baseline", () => {
   it("renders matters as active and keeps placeholder destinations visible", () => {
     const root = repoRootFromWebPackage();
     const shellLayoutPath = path.join(root, "apps/web/app/(app)/matters/layout.tsx");
-    const source = readUtf8(shellLayoutPath);
+    const sidebarPath = path.join(root, "apps/web/app/ui/WorkspaceSidebar.tsx");
+    const layoutSource = readUtf8(shellLayoutPath);
+    const sidebarSource = readUtf8(sidebarPath);
 
-    expect(source).toContain('href="/matters"');
-    expect(source).toContain('aria-current="page"');
-
-    expect(source).toContain("Runs");
-    expect(source).toContain("Alerts");
-    expect(source).toContain("Settings");
-    expect(source).toContain("disabled");
+    expect(layoutSource).toContain('WorkspaceSidebar active="matters"');
+    expect(sidebarSource).toContain('href: "/matters"');
+    expect(sidebarSource).toContain('aria-current={isActive ? "page" : undefined}');
+    expect(sidebarSource).toContain("Runs + Alerts");
+    expect(sidebarSource).toContain("Settings");
+    expect(sidebarSource).toContain('aria-disabled="true"');
   });
 
   it("renders detail breadcrumb and sticky identifier context", () => {
     const root = repoRootFromWebPackage();
     const detailLayoutPath = path.join(root, "apps/web/app/(app)/matters/[id]/layout.tsx");
+    const shellPrimitivesPath = path.join(root, "apps/web/app/ui/WorkspaceShell.tsx");
     const source = readUtf8(detailLayoutPath);
+    const shellPrimitives = readUtf8(shellPrimitivesPath);
 
     expect(source).toContain("Matters");
     expect(source).toContain("BreadcrumbSeparator");
     expect(source).toContain("folderName");
-    expect(source).toContain("Matter ID");
-    expect(source).toContain("<MonoId>");
-    expect(source).toContain("sticky");
+    expect(source).toContain("WorkspaceContextBar");
+    expect(source).toContain("<MonoId>{folderId}</MonoId>");
+    expect(shellPrimitives).toContain("sticky top-0");
   });
 });

@@ -97,7 +97,8 @@ describe("POST /folders/:id/runs (quick start)", () => {
     `;
     expect(stepRows.length).toBe(questionSet.questions.length);
     for (const row of stepRows) {
-      expect(row.state).toBe("queued");
+      // Inline worker kicks can claim or complete steps immediately after scheduling.
+      expect(["queued", "running", "succeeded"]).toContain(row.state);
       expect(row.step_type).toBe("quick_start_title_survey.write_row_v0");
     }
     expect(stepRows.map((r) => r.step_key).sort()).toEqual([...expectedStepKeys].sort());
@@ -146,7 +147,8 @@ describe("POST /folders/:id/runs (quick start)", () => {
     });
     expect(progressRes.status).toBe(200);
     const progressBody = (await progressRes.json()) as any;
-    expect(progressBody?.run?.progress?.questions_done).toBe(1);
+    expect(progressBody?.run?.progress?.questions_done).toBeGreaterThanOrEqual(1);
+    expect(progressBody?.run?.progress?.questions_done).toBeLessThanOrEqual(questionSet.questions.length);
     expect(progressBody?.run?.progress?.questions_total).toBe(questionSet.questions.length);
 
     await drainWdkStepsOnce({

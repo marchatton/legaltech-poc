@@ -1,6 +1,7 @@
 export type MatterSearchParamValue = string | string[] | undefined;
 
 export type MatterTab = "report" | "exports" | "artefacts" | "chat";
+export type ReportRowTab = "all" | "needs_review" | "citation_failed" | "missing_input";
 
 export type RunSelectorOption = {
   run_id: string;
@@ -46,6 +47,7 @@ export function buildMatterTabHref(args: {
   matterId: string;
   tab: MatterTab;
   runId?: string | null;
+  rowTab?: ReportRowTab | null;
   status?: string | null;
 }): string {
   const params = new URLSearchParams();
@@ -54,8 +56,14 @@ export function buildMatterTabHref(args: {
   const normalizedRunId = args.runId?.trim() ?? "";
   if (normalizedRunId.length > 0) params.set("run_id", normalizedRunId);
 
-  const normalizedStatus = args.status?.trim() ?? "";
-  if (normalizedStatus.length > 0) params.set("status", normalizedStatus);
+  const normalizedRowTab = args.rowTab?.trim() ?? "";
+  if (normalizedRowTab.length > 0) {
+    params.set("row_tab", normalizedRowTab);
+  } else {
+    const normalizedStatus = args.status?.trim() ?? "";
+    if (normalizedStatus === "failed" || normalizedStatus === "flagged") params.set("row_tab", "citation_failed");
+    if (normalizedStatus === "needs_review") params.set("row_tab", "needs_review");
+  }
 
   return `/matters/${encodeURIComponent(args.matterId)}?${params.toString()}`;
 }

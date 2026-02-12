@@ -13,7 +13,7 @@ import { Skeleton, SkeletonLine } from "../../../ui/Skeleton";
 import { cn } from "../../../ui/cn";
 import { CitationViewerClient } from "../viewer/CitationViewerClient";
 
-type ReportTriageTab = "all" | "needs_review" | "reviewed" | "flagged";
+type ReportTriageTab = "all" | "needs_review" | "citation_failed" | "missing_input";
 
 type ReportRowForDrawer = {
   id: string;
@@ -133,7 +133,6 @@ function formatTimestamp(raw: string): string {
 
 function rowMatchesTab(args: { status: string; rowTab: ReportTriageTab }): boolean {
   if (args.rowTab === "all") return true;
-  if (args.rowTab === "flagged") return args.status === "citation_failed" || args.status === "missing_input";
   return args.status === args.rowTab;
 }
 
@@ -246,6 +245,7 @@ export function ReportTriagePanel(props: Props) {
   const [viewerState, setViewerState] = useState<ViewerPanelState>({ kind: "idle" });
   const [isDesktopSplit, setIsDesktopSplit] = useState(false);
   const returnFocusRef = useRef<HTMLButtonElement | null>(null);
+  const rowReturnFocusRef = useRef<HTMLButtonElement | null>(null);
 
   const visibleRows = useMemo(
     () => rows.filter((row) => rowMatchesTab({ status: row.status, rowTab: props.rowTab })),
@@ -311,6 +311,22 @@ export function ReportTriagePanel(props: Props) {
     window.requestAnimationFrame(() => target.focus());
   }, []);
 
+  const closeRowDrawer = useCallback(() => {
+    setViewerCitationId(null);
+    setViewerState({ kind: "idle" });
+    setSelectedRowId(null);
+    if (typeof window === "undefined") return;
+    const target = rowReturnFocusRef.current;
+    rowReturnFocusRef.current = null;
+    if (!target || !document.contains(target)) return;
+    window.requestAnimationFrame(() => target.focus());
+  }, []);
+
+  const openRowDrawer = useCallback((rowId: string, trigger: HTMLButtonElement) => {
+    rowReturnFocusRef.current = trigger;
+    setSelectedRowId(rowId);
+  }, []);
+
   useEffect(() => {
     if (!viewerCitationId) return;
     function handleKeyDown(event: KeyboardEvent): void {
@@ -322,11 +338,16 @@ export function ReportTriagePanel(props: Props) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [closeEvidenceViewer, viewerCitationId]);
 
-  function handleCloseRowDrawer(): void {
-    setViewerCitationId(null);
-    setViewerState({ kind: "idle" });
-    setSelectedRowId(null);
-  }
+  useEffect(() => {
+    if (!selectedRow) return;
+    function handleKeyDown(event: KeyboardEvent): void {
+      if (event.key !== "Escape" || viewerCitationId) return;
+      event.preventDefault();
+      closeRowDrawer();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [closeRowDrawer, selectedRow, viewerCitationId]);
 
   useEffect(() => {
     const activeCitationId = viewerCitationId;
@@ -617,7 +638,13 @@ export function ReportTriagePanel(props: Props) {
                       </td>
                       <td className="px-3 py-2 font-mono text-2xs text-muted-foreground">{formatTimestamp(row.updated_at)}</td>
                       <td className="px-3 py-2">
-                        <Button type="button" variant="secondary" size="sm" onClick={() => setSelectedRowId(row.id)}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          aria-label={`Open row drawer for ${row.question_id}`}
+                          onClick={(event) => openRowDrawer(row.id, event.currentTarget)}
+                        >
                           Open
                         </Button>
                       </td>
@@ -631,9 +658,19 @@ export function ReportTriagePanel(props: Props) {
       </div>
 
       {selectedRow ? (
-        <div className="fixed inset-y-0 right-0 z-40 flex max-w-full">
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-background/45 backdrop-blur-[1px]"
+            aria-hidden="true"
+            onClick={closeRowDrawer}
+          />
+          <div className="fixed inset-y-0 right-0 z-40 flex max-w-full">
           {showDesktopSplitViewer ? (
-            <aside className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg">
+            <aside
+              className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg"
+              role="region"
+              aria-label="Evidence viewer panel"
+            >
               <div className="flex h-full w-full flex-col">
                 <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-5 py-4">
                   <div className="min-w-0">
@@ -649,7 +686,12 @@ export function ReportTriagePanel(props: Props) {
             </aside>
           ) : null}
 
-          <aside className="h-full w-full max-w-[34rem] border-l border-border bg-card shadow-ui-lg">
+          <aside
+            className="h-full w-full max-w-[34rem] border-l border-border bg-card shadow-ui-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`row-drawer-title-${selectedRow.id}`}
+          >
             <div className="flex h-full flex-col">
               <div className="border-b border-border bg-muted/40 px-5 py-4">
                 <div className="flex items-start justify-between gap-3">
@@ -662,9 +704,19 @@ export function ReportTriagePanel(props: Props) {
                         {statusPresentation(selectedRow.status).label}
                       </Badge>
                     </div>
-                    <h2 className="line-clamp-2 text-base font-semibold text-foreground">{selectedRow.question}</h2>
+                    <h2 id={`row-drawer-title-${selectedRow.id}`} className="line-clamp-2 text-base font-semibold text-foreground">
+                      {selectedRow.question}
+                    </h2>
+                    <div className="mt-2 flex flex-wrap gap-2 text-2xs text-muted-foreground">
+                      <span className="rounded-ui-sm bg-card px-2 py-0.5 ring-1 ring-inset ring-border/70">
+                        {selectedRow.citation_count} citations
+                      </span>
+                      <span className="rounded-ui-sm bg-card px-2 py-0.5 ring-1 ring-inset ring-border/70">
+                        updated {formatTimestamp(selectedRow.updated_at)}
+                      </span>
+                    </div>
                   </div>
-                  <Button type="button" variant="ghost" size="sm" onClick={handleCloseRowDrawer}>
+                  <Button type="button" variant="ghost" size="sm" aria-keyshortcuts="Escape" onClick={closeRowDrawer}>
                     Close
                   </Button>
                 </div>
@@ -681,9 +733,11 @@ export function ReportTriagePanel(props: Props) {
                     showSupportAction={false}
                   />
                 ) : null}
-                <InlineStatus kind={feedback.kind === "success" ? "success" : "idle"}>
-                  {feedback.kind === "success" ? feedback.message : null}
-                </InlineStatus>
+                <div aria-live="polite">
+                  <InlineStatus kind={feedback.kind === "success" ? "success" : "idle"}>
+                    {feedback.kind === "success" ? feedback.message : null}
+                  </InlineStatus>
+                </div>
 
                 <section>
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Extracted answer</h3>
@@ -752,7 +806,7 @@ export function ReportTriagePanel(props: Props) {
                                 aria-pressed={isViewerOpen}
                                 aria-label={`Open evidence for ${citationId}`}
                                 className={cn(
-                                  "rounded-ui-sm px-1.5 py-0.5 font-mono text-2xs ring-1 ring-inset",
+                                  "rounded-ui-sm px-1.5 py-0.5 font-mono text-2xs ring-1 ring-inset transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                                   isViewerOpen
                                     ? "bg-primary text-primary-foreground ring-primary/50"
                                     : "bg-muted text-muted-foreground ring-border/60 hover:bg-muted/80",
@@ -806,36 +860,46 @@ export function ReportTriagePanel(props: Props) {
 
                 <section>
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Metadata</h3>
-                  <div className="mt-2 space-y-2 rounded-ui-md border border-border bg-background p-3 text-xs">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">schema field</span>
-                      <span className="font-mono text-foreground">{selectedRow.question_id}</span>
+                  <div className="mt-2 space-y-3 rounded-ui-md border border-border bg-background p-3 text-xs">
+                    <div className="rounded-ui-sm border border-border/70 bg-muted/30 p-2.5">
+                      <div className="mb-2 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Row metadata</div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">schema field</span>
+                          <span className="font-mono text-foreground">{selectedRow.question_id}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">data type</span>
+                          <span className="font-mono text-foreground">{inferDataType(selectedRow)}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">model/version</span>
+                          <span className="font-mono text-foreground">{props.modelVersion ?? "unknown"}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">updated</span>
+                          <span className="font-mono text-foreground">{formatTimestamp(selectedRow.updated_at)}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">data type</span>
-                      <span className="font-mono text-foreground">{inferDataType(selectedRow)}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">model/version</span>
-                      <span className="font-mono text-foreground">{props.modelVersion ?? "unknown"}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">doc_version</span>
-                      <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.docVersion)}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">verified_at</span>
-                      <span className="font-mono text-foreground">
-                        {trustValue(formatTrustTimestamp(selectedRowTrustMetadata.verifiedAt))}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">loaded_state</span>
-                      <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.loadedState)}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground">updated</span>
-                      <span className="font-mono text-foreground">{formatTimestamp(selectedRow.updated_at)}</span>
+                    <div className="rounded-ui-sm border border-border/70 bg-muted/30 p-2.5">
+                      <div className="mb-2 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Trust metadata</div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">doc_version</span>
+                          <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.docVersion)}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">verified_at</span>
+                          <span className="font-mono text-foreground">
+                            {trustValue(formatTrustTimestamp(selectedRowTrustMetadata.verifiedAt))}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground">loaded_state</span>
+                          <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.loadedState)}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -854,7 +918,7 @@ export function ReportTriagePanel(props: Props) {
                   >
                     Mark reviewed
                   </Button>
-                  <Button type="button" variant="secondary" size="sm" onClick={handleCloseRowDrawer}>
+                  <Button type="button" variant="secondary" size="sm" onClick={closeRowDrawer}>
                     Back to table
                   </Button>
                 </div>
@@ -862,6 +926,7 @@ export function ReportTriagePanel(props: Props) {
             </div>
           </aside>
         </div>
+        </>
       ) : null}
     </>
   );

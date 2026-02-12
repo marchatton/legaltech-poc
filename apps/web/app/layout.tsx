@@ -17,11 +17,24 @@ export const metadata = {
 
 export default function RootLayout(props: { children: ReactNode }) {
   const demoEnabled = isDemoModeEnabled();
+  const themeInitScript = `(() => {
+  try {
+    const t = localStorage.getItem("orbital-theme");
+    if (t === "dark") document.documentElement.classList.add("dark");
+    else if (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("dark");
+    }
+  } catch (e) {
+    // best-effort: avoid blocking first paint due to storage access issues
+  }
+})();`;
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script src="/theme-init.js" strategy="beforeInteractive" />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
       </head>
       <body className="min-h-dvh bg-background font-sans text-foreground">
         <ThemeProvider>
