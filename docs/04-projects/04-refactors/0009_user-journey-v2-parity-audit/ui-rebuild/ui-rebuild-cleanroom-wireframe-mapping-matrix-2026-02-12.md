@@ -13,6 +13,14 @@ Status: Planning baseline
 5. Overwriting existing `apps/web` UI components is allowed where needed for clean-room parity.
 6. Tables, search, and filter affordances must target >=90% IA fidelity to wireframes.
 
+## Skills to use for mapping quality
+
+1. `breadboarding` - keep the source-to-target wiring explicit and run fit checks before implementation.
+2. `ask-questions-if-underspecified` - pause on ambiguous ownership, missing contract anchors, or wireframe-vs-contract conflicts.
+3. `web-design-guidelines` - review IA and interaction affordances for consistency during mapping QA.
+4. `oracle` - cross-validate high-risk mapping decisions using bounded bundles before coding.
+5. `verify` - confirm mapping coverage and contract anchors are represented in verification tasks.
+
 ## Mapping table
 
 | Wireframe source | Production target file(s) | Fresh-build output | Contract anchors (must keep) | Status |

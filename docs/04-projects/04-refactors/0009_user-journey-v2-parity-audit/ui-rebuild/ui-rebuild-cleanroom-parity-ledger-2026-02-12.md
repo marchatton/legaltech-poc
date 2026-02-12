@@ -17,6 +17,14 @@ Purpose: Track clean-room rebuild decisions against wireframe parity.
 2. Log the final decision and rationale in this ledger before marking a surface done.
 3. Styling direction follows design system while mechanics are driven by wireframe parity.
 
+## Skills to use for ledger decisions and evidence
+
+1. `ask-questions-if-underspecified` - required before logging any conflict-driven delta as final.
+2. `oracle` - use for deep review when parity rationale is non-obvious or high-risk.
+3. `fixing-accessibility`, `wcag-audit-patterns`, `web-design-guidelines` - include a11y/UX evidence before setting a row to `done`.
+4. `test-browser` - capture route/drawer/viewer behavior evidence for row closeout.
+5. `verify` - run the verification ladder and attach PASS/NO-GO evidence to closeout notes.
+
 ## Parity table
 
 | Surface | Wireframe source(s) | Production target(s) | Contract anchors | Status | Evidence |

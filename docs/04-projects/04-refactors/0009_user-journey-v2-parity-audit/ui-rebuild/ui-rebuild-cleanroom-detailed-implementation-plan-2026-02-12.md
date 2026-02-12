@@ -36,6 +36,19 @@ This removes ambiguity and prevents ad-hoc rebuilding.
 4. New branch created: `refactor/ui-wireframe-cleanroom`.
 5. Detailed planning artifacts created (this file + mapping + oracle batching + clean-room ledger).
 
+## Skills to use in this plan
+
+Apply these skills during implementation:
+1. `ask-questions-if-underspecified` - resolve wireframe-vs-contract conflicts before coding and log the decision in the parity ledger.
+2. `baseline-ui`, `interface-design`, `frontend-design` - rebuild shell/pages/tabs from wireframe IA with high-quality UI composition.
+3. `tailwind-css-patterns`, `generating-tailwind-brand-config` - reconcile wireframe mechanics with token/preset contracts.
+4. `composition-patterns`, `react-best-practices` - keep reusable primitives small, orthogonal, and performant in Next.js.
+5. `fixing-accessibility`, `wcag-audit-patterns`, `web-design-guidelines` - validate keyboard, focus, and state clarity before marking a phase done.
+6. `interaction-design`, `fixing-motion-performance` - add interaction polish without introducing motion/performance regressions.
+7. `test-browser` - run route-level smoke checks for `/matters`, `/matters/[id]`, drawer, and viewer flows.
+8. `verify` - execute the verification ladder and record PASS/NO-GO evidence.
+9. `oracle` - run deep parity cross-checks for risky or disputed deltas.
+
 ## 4) Detailed implementation phases
 
 ## Phase 0: Baseline lock and guardrails

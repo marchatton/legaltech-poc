@@ -43,6 +43,20 @@ and behavior/contracts from:
 2. New product features outside parity and simple UI polish.
 3. Mandatory staged rollout or feature flags (not required for this as we aren't in production - we are allowed to make extensive changes to the UI.
 
+## Skills to Use During Execution
+Use this minimal skill set across all waves and lane handoffs:
+
+1. `ask-questions-if-underspecified` - required when wireframe, contract, or ownership details are unclear.
+2. `baseline-ui`, `interface-design`, `frontend-design` - drive clean-room UI/IA rebuild quality.
+3. `tailwind-css-patterns`, `generating-tailwind-brand-config` - align token/preset mechanics with wireframe intent.
+4. `composition-patterns`, `react-best-practices` - keep component boundaries clear and Next.js behavior performant.
+5. `fixing-accessibility`, `wcag-audit-patterns`, `web-design-guidelines` - enforce keyboard/focus/a11y and UX quality gates.
+6. `interaction-design`, `fixing-motion-performance` - improve interaction clarity without adding motion debt.
+7. `test-browser` - run route, drawer, and viewer behavior smoke checks.
+8. `verify` - run the verification ladder and report PASS/NO-GO.
+9. `oracle` - use for deep parity cross-checks on risky or disputed deltas.
+10. `kieran-typescript-reviewer`, `code-simplicity-reviewer` - final quality pass before Wave 6 Go/No-Go.
+
 ## Parallel Agent Lanes (3 Areas)
 Use three lanes in parallel to reduce cycle time and keep merge boundaries explicit.
 
