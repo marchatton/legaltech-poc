@@ -70,18 +70,19 @@ export function DemoToolbar() {
     <section className="sticky top-0 z-50 border-b border-orange-400/40 bg-primary text-primary-foreground shadow-ui-sm">
       <div className="flex min-h-12 w-full items-center gap-3 px-4 lg:px-6">
         <span className="rounded-ui-sm bg-white/20 px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-widest">
-          Demo Mode
+          DEMO MODE
         </span>
         <span className="text-sm font-medium text-primary-foreground/90">Operator Controls</span>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-primary-foreground/85">Allowlisted packs</span>
           <Select
             className="min-w-52 border-orange-200/40 bg-primary/20 text-primary-foreground ring-offset-primary [&>option]:text-foreground"
             uiSize="sm"
             value={packId}
             onChange={(e) => setPackId(e.currentTarget.value as PackId)}
             disabled={state.kind === "loading"}
-            aria-label="Demo pack"
+            aria-label="Allowlisted demo pack"
           >
             {PACK_OPTIONS.map((p) => (
               <option key={p.id} value={p.id}>

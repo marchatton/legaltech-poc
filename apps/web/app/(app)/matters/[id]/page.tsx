@@ -525,6 +525,18 @@ export default async function MatterPage(props: {
               </div>
 
               <div className="mt-2 flex flex-wrap gap-2">
+                <span className="rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs text-muted-foreground">
+                  loaded_at: <span className="font-mono text-foreground">{fixtureContextBanner.loadedAt}</span>
+                </span>
+                <span className="rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs text-muted-foreground">
+                  load_state: <span className="font-mono text-foreground">{fixtureContextBanner.loadState}</span>
+                </span>
+                <span className="rounded-ui-md border border-border bg-card px-2.5 py-2 text-xs text-muted-foreground">
+                  next_step: <span className="text-foreground">{fixtureContextBanner.nextStep}</span>
+                </span>
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-2">
                 {operatorChecklistSteps.map((step) => (
                   <span key={step.id} className={checklistStepChipClass(step.state)}>
                     <span className="flex items-center gap-1.5">

@@ -20,7 +20,9 @@ describe("US-003 repeat-load and demo-history shortcuts", () => {
     const toolbarSource = readUtf8(toolbarPath);
     const mattersPageSource = readUtf8(mattersPagePath);
 
+    expect(toolbarSource).toContain("DEMO MODE");
     expect(toolbarSource).toContain("Operator Controls");
+    expect(toolbarSource).toContain("Allowlisted packs");
     expect(toolbarSource).toMatch(/Load (?:Demo Pack|pack again)/i);
     expect(mattersPageSource).toContain("Recent Demo Matters");
     expect(mattersPageSource).toContain("Reopen");

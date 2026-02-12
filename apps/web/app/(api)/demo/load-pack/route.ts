@@ -72,8 +72,6 @@ export async function POST(req: Request): Promise<Response> {
   const ctGate = assertJsonContentType({ req, traceId, headers });
   if (ctGate) return ctGate;
 
-  await ensureSchema();
-
   let body: unknown;
   try {
     body = await req.json();
@@ -120,6 +118,8 @@ export async function POST(req: Request): Promise<Response> {
       headers,
     });
   }
+
+  await ensureSchema();
 
   const folderId = newId("fld");
   const folderName = demoFolderName(packId);
