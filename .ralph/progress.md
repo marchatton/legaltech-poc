@@ -768,6 +768,17 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
 - Post-commit status: clean
 - Verification:
   - Command: pnpm --filter @orbital-poc/web exec vitest run test/setupDocuments.sync.test.ts lib/folders.routes.test.ts -> PASS
+## [2026-02-12 15:22:09 UTC] - US-005: Run Triage Tab Scope Contract
+Thread: 
+Run: 20260212-150545-1013 (iteration 1)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-1.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 2ff059d fix(report-triage): enforce reviewed/flagged tabs (or `none` + reason)
+- Post-commit status: `clean`
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test test/reportTriageFilters.test.ts "app/(app)/matters/runScope.test.ts" test/reportTriage.sync.test.ts -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
@@ -830,4 +841,28 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Matter detail rendering requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` in local dev; otherwise object-store signing throws before quick-start checks can be validated.
   - Useful context
   - `pnpm --filter @orbital-poc/web test -- <file>` still runs full suite in this workspace; use `pnpm --filter @orbital-poc/web exec vitest run <file...>` for scoped runs.
+  - Command: npx tsx <<'EOF' [dev-browser triage tab smoke script against http://localhost:3201/matters/matter_us005_demo?tab=report&run_id=run_us005_main] EOF -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - apps/web/lib/reportTriage.server.ts
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx
+  - apps/web/app/(app)/matters/runScope.ts
+  - apps/web/app/(app)/matters/runScope.test.ts
+  - apps/web/test/reportTriageFilters.test.ts
+  - apps/web/test/reportTriage.sync.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Replaced triage tab contract with `All`, `Needs Review`, `Reviewed`, and `Flagged` in report UI and filter logic.
+  - Added legacy URL/status normalization (`citation_failed`, `missing_input`, `failed`) to `flagged` to keep old links deterministic.
+  - Kept run scope deterministic via existing `run_id` linking, verified counts/URL parity on tab switches and browser refresh.
+  - Added/updated tests for row-tab parsing, filtering/count behavior, and run-scope URL helpers.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Canonicalize legacy filter values at parse/build boundaries to avoid fragmented URL contracts.
+  - Gotchas encountered
+  - `dev-browser` startup can fail in headed mode in Sprite; use `--headless` or attach to an existing server instance.
+  - Useful context
+  - `flagged` tab currently aggregates `citation_failed` and `missing_input`, matching reviewer-facing run triage semantics.
 ---
