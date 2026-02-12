@@ -22,9 +22,11 @@ This removes ambiguity and prevents ad-hoc rebuilding.
 1. `orbital-ui-wireframes/src` is the only UI/IA source of truth.
 2. Existing `apps/web` UI code is reference-only for behavior contracts, not visual/layout source.
 3. Rebuild touched UI as fresh component code (no incremental class patching).
-4. Keep server behavior and URL contracts stable unless explicitly logged and approved.
-5. Every intentional delta is logged in the clean-room parity ledger before coding.
-6. Oracle bundles must stay under 5000 total lines (see batching plan).
+4. Keep server behavior and URL contracts stable; if wireframe and behavior contracts conflict, pause and ask before proceeding, then log the decision.
+5. Styling follows `docs/02-guidelines/v5-final/design-system.html`, but token/component mechanics should be built from wireframe patterns and relevant skills even when they differ from generic defaults.
+6. Overwriting existing `apps/web` UI components is expected when needed to hit clean-room parity.
+7. Every intentional delta is logged in the clean-room parity ledger before coding.
+8. Oracle bundles must stay under 5000 total lines (see batching plan).
 
 ## 3) Prep completed on 2026-02-12
 
@@ -68,6 +70,7 @@ Tasks:
 2. Add missing semantic spacing/layout tokens (if needed) without introducing hardcoded route-level values.
 3. Ensure mobile/tablet/desktop container behavior is explicit and reusable.
 4. Define one canonical page shell spacing contract used by list/detail/new-matter.
+5. Replace existing shell primitives where needed rather than preserving legacy styling structures.
 
 Exit criteria:
 1. No hardcoded page-level spacing constants in route files for rebuilt surfaces.
@@ -96,7 +99,7 @@ Tasks:
 
 Exit criteria:
 1. `/matters` and `/matters/[id]` both use rebuilt shared shell primitives.
-2. Sidebar and topbar visually/structurally match wireframe intent.
+2. Sidebar and topbar visually/structurally match wireframe intent at >=90% IA fidelity.
 3. Disabled nav destinations are visually and behaviorally explicit.
 
 ## Phase 3: Matters list + new matter clean rebuild
@@ -125,6 +128,7 @@ Exit criteria:
 1. List page structure follows wireframe page hierarchy.
 2. New matter flow remains fully functional.
 3. URL semantics and server filtering behavior remain stable.
+4. Search, filters, and table structure reach >=90% IA fidelity to wireframe.
 
 ## Phase 4: Matter detail top-level clean rebuild
 
@@ -149,7 +153,7 @@ Tasks:
 3. Keep tab/content switching semantics intact.
 
 Exit criteria:
-1. Detail frame and tab hierarchy align with wireframe.
+1. Detail frame and tab hierarchy align with wireframe at >=90% IA fidelity.
 2. Existing deep-link behavior remains intact.
 
 ## Phase 5: Report table + drawer clean rebuild
@@ -176,7 +180,7 @@ Tasks:
 3. Preserve keyboard/focus + escape behavior for accessibility.
 
 Exit criteria:
-1. Triage flow matches wireframe information hierarchy.
+1. Triage table and filter rail match wireframe information hierarchy at >=90% IA fidelity.
 2. No regression in triage actions or row selection behavior.
 
 ## Phase 6: Evidence viewer clean rebuild
@@ -202,7 +206,7 @@ Tasks:
 3. Preserve keyboard controls and focus behavior.
 
 Exit criteria:
-1. Viewer UX follows wireframe hierarchy.
+1. Viewer UX follows wireframe hierarchy at >=90% IA fidelity.
 2. Evidence integrity behavior remains unchanged.
 
 ## Phase 7: Chat, artefacts, exports clean rebuild
@@ -232,7 +236,7 @@ Tasks:
 3. Rebuild tab-level empty/error/loading states to match wireframe tone.
 
 Exit criteria:
-1. All tab surfaces follow mapped wireframe structure.
+1. All tab surfaces follow mapped wireframe structure at >=90% IA fidelity.
 2. Behavior contracts remain stable.
 
 ## Phase 8: Verification and closeout
@@ -267,3 +271,15 @@ Exit criteria:
 
 This document and associated planning files are prep-only artifacts.
 No UI rebuild implementation has started yet.
+
+## 7) Definition of done alignment
+
+1. `/matters` and `/matters/[id]` structurally follow wireframe IA at >=90% fidelity with logged deltas.
+2. Runs + Alerts remain unified in left navigation with disabled affordances.
+3. Breadcrumb and topbar are reusable/shared and at >=90% wireframe IA fidelity.
+4. Drawer and evidence viewer are at >=90% wireframe IA fidelity with no behavior regressions.
+5. Reusable components live in `apps/web/app/ui` with minimal route-level style drift.
+6. Parity includes user-visible states: loading, empty, and error.
+7. Verification matrix passes and parity ledger is complete.
+8. Core tables (matters/report/artefacts) meet >=90% wireframe IA fidelity.
+9. Core filters and search affordances meet >=90% wireframe IA fidelity.
