@@ -2,6 +2,8 @@
 
 import { FormEvent, useMemo, useRef, useState } from "react";
 
+import { useRouter } from "next/navigation";
+
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { EmptyState } from "../../../ui/EmptyState";
@@ -149,6 +151,7 @@ export function SetupDocumentsPanel(props: {
   initialDocuments: SetupDocumentRow[];
   initialCapabilities: UploadCapabilities;
 }) {
+  const router = useRouter();
   const [documents, setDocuments] = useState<SetupDocumentRow[]>(props.initialDocuments);
   const [capabilities, setCapabilities] = useState<UploadCapabilities>(props.initialCapabilities);
   const [notice, setNotice] = useState<string | null>(null);
@@ -313,6 +316,8 @@ export function SetupDocumentsPanel(props: {
       setNotice("Upload complete. Indexing in progress; readiness will update automatically.");
       await refreshDocuments();
       await pollUntilTerminal(initJson.document.id);
+      await refreshDocuments();
+      router.refresh();
       if (fileRef.current) fileRef.current.value = "";
     } catch {
       setError({ code: "UNEXPECTED_ERROR", message: "Upload failed due to an unexpected error.", retryable: true });
@@ -324,6 +329,11 @@ export function SetupDocumentsPanel(props: {
 
   function handleRetry() {
     setError(null);
+  }
+
+  async function refreshReadiness(): Promise<void> {
+    const refreshed = await refreshDocuments();
+    if (refreshed) router.refresh();
   }
 
   return (
@@ -365,7 +375,7 @@ export function SetupDocumentsPanel(props: {
             type="button"
             variant="secondary"
             size="sm"
-            onClick={() => void refreshDocuments()}
+            onClick={() => void refreshReadiness()}
             disabled={isUploading}
           >
             Refresh readiness

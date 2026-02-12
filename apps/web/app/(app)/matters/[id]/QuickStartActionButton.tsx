@@ -17,6 +17,12 @@ type StructuredError = {
   message: string;
 };
 
+function readinessReasonClass(state: QuickStartReadiness["state"]): string {
+  if (state === "ready") return "max-w-64 text-right text-2xs text-success";
+  if (state === "already-complete") return "max-w-64 text-right text-2xs text-primary";
+  return "max-w-64 text-right text-2xs text-muted-foreground";
+}
+
 function isRecord(val: unknown): val is Record<string, unknown> {
   return !!val && typeof val === "object" && !Array.isArray(val);
 }
@@ -84,9 +90,9 @@ export function QuickStartActionButton(props: Props) {
         <div className="text-right font-mono text-2xs text-destructive">
           {error.code}: {error.message}
         </div>
-      ) : blocked ? (
-        <div className="max-w-64 text-right text-2xs text-muted-foreground">{props.readiness.reason}</div>
-      ) : null}
+      ) : (
+        <div className={readinessReasonClass(props.readiness.state)}>{props.readiness.reason}</div>
+      )}
     </div>
   );
 }

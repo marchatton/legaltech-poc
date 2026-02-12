@@ -84,7 +84,7 @@
     {
       "id": "US-002",
       "title": "Matter Discovery Filtering",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -97,13 +97,13 @@
         "Negative: empty-match states never appear without guidance or reset affordance."
       ],
       "startedAt": "2026-02-12T15:23:05.282328+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-12T15:23:05.282357+00:00"
+      "completedAt": "2026-02-12T15:38:37.706268+00:00",
+      "updatedAt": "2026-02-12T15:38:37.706227+00:00"
     },
     {
       "id": "US-003",
       "title": "Matter Create Upload and Readiness Guidance",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002"
       ],
@@ -114,7 +114,10 @@
         "Then reasons are visible as ready, blocked, or already complete with next-step guidance.",
         "Example: missing required documents yields blocked state with concrete guidance text.",
         "Negative: empty-name creation is rejected with validation and no new matter created."
-      ]
+      ],
+      "startedAt": "2026-02-12T15:38:40.184498+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-12T15:38:40.184527+00:00"
     },
     {
       "id": "US-004",

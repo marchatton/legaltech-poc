@@ -23,6 +23,8 @@ describe("US-003 setup documents upload flow", () => {
     expect(source).toContain('/documents/${encodeURIComponent(initJson.document.id)}/complete');
     expect(source).toContain('status === "indexed-ready"');
     expect(source).toContain("pollUntilTerminal");
+    expect(source).toContain("useRouter");
+    expect(source).toContain("router.refresh()");
   });
 
   it("renders setup panel on matter detail and only advertises supported upload capability signals", () => {
@@ -37,5 +39,16 @@ describe("US-003 setup documents upload flow", () => {
     expect(panelSource).toContain("capabilities.accepted_mime");
     expect(panelSource).toContain("capabilities.max_bytes");
     expect(panelSource).not.toContain("docx");
+  });
+
+  it("keeps readiness guidance visible in the quick start header", () => {
+    const root = repoRootFromWebPackage();
+    const actionPath = path.join(root, "apps/web/app/(app)/matters/[id]/QuickStartActionButton.tsx");
+    const actionSource = readUtf8(actionPath);
+
+    expect(actionSource).toContain("function readinessReasonClass");
+    expect(actionSource).toContain('state === "ready"');
+    expect(actionSource).toContain('state === "already-complete"');
+    expect(actionSource).toContain("{props.readiness.reason}");
   });
 });
