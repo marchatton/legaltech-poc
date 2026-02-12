@@ -980,3 +980,37 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
   - Useful context
   - For browser verification of invalid citation overlays, fixture document IDs (`fx_pack_*__*`) avoid object-store dependency drift during render URL generation.
 ---
+## [2026-02-12 15:15:19 UTC] - US-009: Safe Run Scoped Exports
+Thread: 
+Run: 20260212-150551-1275 (iteration 1)
+Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-1.log
+Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: ef9a27f test(exports): cover run-scoped safe export checks
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test -- lib/exportCsv.routes.test.ts lib/exportDocx.routes.test.ts -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -p 3201 -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/progress.md
+  - apps/web/lib/exportCsv.routes.test.ts
+  - apps/web/lib/exportDocx.routes.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0003_exports-provenance-loop/prd.json
+- What was implemented
+  - Added US-009 coverage for safe completed-run CSV exports, asserting downloadable artefact output and selected run binding via `source_run_id`.
+  - Added US-009 negative coverage for CSV to ensure incomplete runs return conflict and do not return artefacts.
+  - Tightened DOCX success assertions so run-bound provenance and download-link shape are validated for selected run context.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Export acceptance is most stable at route-contract level by asserting both response artefact fields and fail-closed status paths.
+  - Gotchas encountered
+  - Vitest invocation with file args still executes the full configured suite in this repo, so command scope expectations should account for that.
+  - Useful context
+  - Existing `folders/:id/runs` selector tests already enforce completed-run option contracts, so US-009 focused changes were best isolated to export route assertions.
+---
