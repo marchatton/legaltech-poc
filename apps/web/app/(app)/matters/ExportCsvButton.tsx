@@ -9,11 +9,12 @@ import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../lib/safe
 import { Button } from "../../ui/Button";
 import { ErrorBanner } from "../../ui/ErrorBanner";
 import { InlineStatus } from "../../ui/InlineStatus";
-import { buildMatterTabHref } from "./runScope";
+import { buildMatterTabHref, exportDisabledReason } from "./runScope";
 
 type Props = {
   folderId: string;
   runId: string | null;
+  runState: string | null;
   kind: "requirements_tracker" | "exceptions_table" | "survey_issues";
   label?: string;
 };
@@ -32,6 +33,7 @@ function isRecord(val: unknown): val is Record<string, unknown> {
 export function ExportCsvButton(props: Props) {
   const router = useRouter();
   const [state, setState] = useState<ExportState>({ kind: "idle" });
+  const disabled = exportDisabledReason({ runId: props.runId, runStatus: props.runState });
   const reviewFailedRowsHref = props.runId
     ? buildMatterTabHref({
         matterId: props.folderId,
@@ -43,15 +45,15 @@ export function ExportCsvButton(props: Props) {
 
   useEffect(() => {
     setState({ kind: "idle" });
-  }, [props.runId]);
+  }, [props.runId, props.runState]);
 
   async function run() {
-    if (!props.runId) {
+    if (disabled) {
       setState({
         kind: "error",
         error: {
           code: "VALIDATION_ERROR",
-          message: "Select a completed run before exporting.",
+          message: disabled,
           retryable: false,
         },
       });
@@ -118,7 +120,8 @@ export function ExportCsvButton(props: Props) {
         variant="secondary"
         size="sm"
         onClick={run}
-        disabled={!props.runId}
+        disabled={Boolean(disabled)}
+        title={disabled ?? undefined}
         loading={state.kind === "loading"}
       >
         {props.label ?? "Export CSV"}

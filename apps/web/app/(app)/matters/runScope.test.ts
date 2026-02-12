@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildMatterTabHref, firstSearchParamValue, resolveSelectedRunId } from "./runScope";
+import {
+  buildMatterTabHref,
+  exportDisabledReason,
+  firstSearchParamValue,
+  isExportRunEligible,
+  resolveSelectedRunId,
+} from "./runScope";
 
 describe("run scope helpers", () => {
   it("builds report deep-links with run + row_tab filters", () => {
@@ -87,5 +93,24 @@ describe("run scope helpers", () => {
     expect(firstSearchParamValue(" run_1 ")).toBe("run_1");
     expect(firstSearchParamValue(["", " run_2 "])).toBe("run_2");
     expect(firstSearchParamValue(undefined)).toBeNull();
+  });
+
+  it("treats only completed runs as export-eligible", () => {
+    expect(isExportRunEligible("completed")).toBe(true);
+    expect(isExportRunEligible("running")).toBe(false);
+    expect(isExportRunEligible("failed")).toBe(false);
+    expect(isExportRunEligible("partial")).toBe(false);
+    expect(isExportRunEligible(null)).toBe(false);
+  });
+
+  it("publishes deterministic disabled reasons for non-completed runs", () => {
+    expect(exportDisabledReason({ runId: null, runStatus: null })).toBe("Export is disabled until a run exists.");
+    expect(exportDisabledReason({ runId: "run_a", runStatus: "running" })).toBe(
+      "Export is disabled until the run completes (current: running).",
+    );
+    expect(exportDisabledReason({ runId: "run_b", runStatus: "failed" })).toBe(
+      "Export is disabled until the run completes (current: failed).",
+    );
+    expect(exportDisabledReason({ runId: "run_c", runStatus: "completed" })).toBeNull();
   });
 });

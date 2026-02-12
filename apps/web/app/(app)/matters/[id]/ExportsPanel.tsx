@@ -25,8 +25,8 @@ function formatTimestamp(iso: string): string {
 }
 
 function runOptionLabel(run: RunSelectorOption, index: number): string {
-  const latest = index === 0 ? " (latest completed)" : "";
-  return `${run.run_id}${latest} - ${formatTimestamp(run.created_at)}`;
+  const latest = index === 0 ? " (latest)" : "";
+  return `${run.run_id}${latest} - ${run.status} - ${formatTimestamp(run.created_at)}`;
 }
 
 export function ExportsPanel(props: Props) {
@@ -78,7 +78,7 @@ export function ExportsPanel(props: Props) {
             uiSize="sm"
           >
             {props.runOptions.length === 0 ? (
-              <option value="">No completed runs available</option>
+              <option value="">No runs available</option>
             ) : (
               props.runOptions.map((run, index) => (
                 <option key={run.run_id} value={run.run_id}>
@@ -89,13 +89,22 @@ export function ExportsPanel(props: Props) {
           </Select>
 
           {selectedRun ? (
-            <p className="text-2xs text-muted-foreground">
-              Selected run: <span className="font-mono">{selectedRun.run_id}</span> | updated{" "}
-              <span className="font-mono">{formatTimestamp(selectedRun.updated_at)}</span>
-            </p>
+            <div className="grid gap-2">
+              <p className="text-2xs text-muted-foreground">
+                Selected run: <span className="font-mono">{selectedRun.run_id}</span> | status{" "}
+                <span className="font-mono">{selectedRun.status}</span> | updated{" "}
+                <span className="font-mono">{formatTimestamp(selectedRun.updated_at)}</span>
+              </p>
+              {selectedRun.status !== "completed" ? (
+                <Alert variant="info" className="text-left">
+                  Exports stay disabled until the selected run reaches{" "}
+                  <span className="font-mono">completed</span>.
+                </Alert>
+              ) : null}
+            </div>
           ) : (
             <Alert variant="info" className="text-left">
-              Exports are available once this matter has at least one completed run.
+              Exports are available once this matter has at least one run.
             </Alert>
           )}
         </div>
@@ -117,18 +126,21 @@ export function ExportsPanel(props: Props) {
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
+              runState={selectedRun?.status ?? null}
               kind="requirements_tracker"
               label="Export requirements"
             />
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
+              runState={selectedRun?.status ?? null}
               kind="exceptions_table"
               label="Export exceptions"
             />
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
+              runState={selectedRun?.status ?? null}
               kind="survey_issues"
               label="Export survey issues"
             />

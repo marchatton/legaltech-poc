@@ -98,37 +98,41 @@ describe("export docx (memo)", () => {
     expect(errorCode(json)).toBe("UNSUPPORTED_MEDIA_TYPE");
   });
 
-  it("returns 409 when run is not completed", async () => {
-    const { POST } = await import("../app/(api)/export/docx/route");
+  it.each(["running", "failed", "partial"] as const)(
+    "returns 409 and no artefact when run state is %s",
+    async (runState) => {
+      const { POST } = await import("../app/(api)/export/docx/route");
 
-    const folderId = "fld_test_409";
-    const runId = "run_test_409";
+      const folderId = `fld_test_${runState}`;
+      const runId = `run_test_${runState}`;
 
-    queueSqlResults([
-      [{ id: folderId, name: "Test folder" }],
-      [
-        {
-          id: runId,
-          state: "running",
-          index_version: "v1",
-          agent_bundle_version: "git:test",
-          question_set_version: "qs:test",
-        },
-      ],
-    ]);
+      queueSqlResults([
+        [{ id: folderId, name: "Test folder" }],
+        [
+          {
+            id: runId,
+            state: runState,
+            index_version: "v1",
+            agent_bundle_version: "git:test",
+            question_set_version: "qs:test",
+          },
+        ],
+      ]);
 
-    const res = await POST(
-      new Request("http://localhost:3000/export/docx", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder_id: folderId, run_id: runId, kind: "memo" }),
-      }),
-    );
+      const res = await POST(
+        new Request("http://localhost:3000/export/docx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ folder_id: folderId, run_id: runId, kind: "memo" }),
+        }),
+      );
 
-    expect(res.status).toBe(409);
-    const json: unknown = await res.json().catch(() => null);
-    expect(errorCode(json)).toBe("CONFLICT");
-  });
+      expect(res.status).toBe(409);
+      const json: unknown = await res.json().catch(() => null);
+      expect(errorCode(json)).toBe("CONFLICT");
+      expect(artefactFrom(json)).toBeNull();
+    },
+  );
 
   it("returns EXPORT_BLOCKED when any row is citation_failed", async () => {
     const { POST } = await import("../app/(api)/export/docx/route");

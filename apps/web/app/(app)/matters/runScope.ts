@@ -16,6 +16,25 @@ export type RunSelectorOption = {
   updated_at: string;
 };
 
+function normalizeRunStatus(status: string | null | undefined): string {
+  return typeof status === "string" ? status.trim().toLowerCase() : "";
+}
+
+export function isExportRunEligible(status: string | null | undefined): boolean {
+  return normalizeRunStatus(status) === "completed";
+}
+
+export function exportDisabledReason(args: {
+  runId: string | null;
+  runStatus: string | null;
+}): string | null {
+  if (!args.runId) return "Export is disabled until a run exists.";
+  if (!isExportRunEligible(args.runStatus)) {
+    return `Export is disabled until the run completes (current: ${args.runStatus ?? "unknown"}).`;
+  }
+  return null;
+}
+
 export function firstSearchParamValue(value: MatterSearchParamValue): string | null {
   if (typeof value === "string") {
     const trimmed = value.trim();

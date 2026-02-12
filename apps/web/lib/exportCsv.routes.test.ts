@@ -203,31 +203,34 @@ describe("export csv", () => {
     expect(errorRetryable(json)).toBe(false);
   });
 
-  it("returns CONFLICT and no artefact when run is incomplete", async () => {
-    const { POST } = await import("../app/(api)/export/csv/route");
+  it.each(["running", "failed", "partial"] as const)(
+    "returns CONFLICT and no artefact when run state is %s",
+    async (runState) => {
+      const { POST } = await import("../app/(api)/export/csv/route");
 
-    const folderId = "fld_test_csv_incomplete";
-    const runId = "run_test_csv_incomplete";
+      const folderId = `fld_test_csv_${runState}`;
+      const runId = `run_test_csv_${runState}`;
 
-    queueSqlResults([[{ id: runId, state: "running" }]]);
+      queueSqlResults([[{ id: runId, state: runState }]]);
 
-    const res = await POST(
-      new Request("http://localhost:3000/export/csv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          folder_id: folderId,
-          run_id: runId,
-          kind: "requirements_tracker",
+      const res = await POST(
+        new Request("http://localhost:3000/export/csv", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            folder_id: folderId,
+            run_id: runId,
+            kind: "requirements_tracker",
+          }),
         }),
-      }),
-    );
+      );
 
-    expect(res.status).toBe(409);
-    const json: unknown = await res.json().catch(() => null);
-    expect(errorCode(json)).toBe("CONFLICT");
-    expect(artefactFrom(json)).toBeNull();
-  });
+      expect(res.status).toBe(409);
+      const json: unknown = await res.json().catch(() => null);
+      expect(errorCode(json)).toBe("CONFLICT");
+      expect(artefactFrom(json)).toBeNull();
+    },
+  );
 
   it("allows unsafe_override=true in dev when properly authorized", async () => {
     const { POST } = await import("../app/(api)/export/csv/route");

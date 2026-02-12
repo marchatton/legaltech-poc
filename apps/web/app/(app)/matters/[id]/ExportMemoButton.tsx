@@ -10,7 +10,7 @@ import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
 import { Input } from "../../../ui/Input";
-import { buildMatterTabHref } from "../runScope";
+import { buildMatterTabHref, exportDisabledReason } from "../runScope";
 
 type Props = {
   folderId: string;
@@ -59,18 +59,12 @@ function parseBlockedDetails(details: unknown): ExportBlockedDetails | null {
   return { citationFailedCount, failedQuestionIds, reasonCodes };
 }
 
-function disabledReason(props: Props): string | null {
-  if (!props.runId) return "Export is disabled until a run exists.";
-  if (props.runState !== "completed") return `Export is disabled until the run completes (current: ${props.runState ?? "unknown"}).`;
-  return null;
-}
-
 export function ExportMemoButton(props: Props) {
   const router = useRouter();
   const [state, setState] = useState<ExportState>({ kind: "idle" });
   const [adminToken, setAdminToken] = useState("");
 
-  const disabled = disabledReason(props);
+  const disabled = exportDisabledReason({ runId: props.runId, runStatus: props.runState });
 
   const reviewFailedRowsHref = props.runId
     ? buildMatterTabHref({
@@ -83,7 +77,7 @@ export function ExportMemoButton(props: Props) {
 
   useEffect(() => {
     setState({ kind: "idle" });
-  }, [props.runId]);
+  }, [props.runId, props.runState]);
 
   async function run(args: { unsafeOverride: boolean }) {
     if (disabled) return;

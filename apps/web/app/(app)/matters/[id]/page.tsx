@@ -309,16 +309,15 @@ export default async function MatterPage(props: {
   const reportRequestedRunId = parseRunIdFilter(rawSearchParams);
   const activeTab = parseDetailTab(rawSearchParams);
 
-  const completedRuns = await sql<RunSelectorDbRow[]>`
+  const exportRuns = await sql<RunSelectorDbRow[]>`
     SELECT id, state, created_at, updated_at
     FROM runs
     WHERE folder_id = ${folderId}
       AND type = 'quick_start_title_survey'
-      AND state = 'completed'
     ORDER BY created_at DESC, updated_at DESC, id DESC
     LIMIT 25
   `;
-  const runOptions: RunSelectorOption[] = completedRuns.map((run) => ({
+  const runOptions: RunSelectorOption[] = exportRuns.map((run) => ({
     run_id: run.id,
     status: run.state,
     created_at: run.created_at.toISOString(),
@@ -642,7 +641,7 @@ export default async function MatterPage(props: {
             <div className="mb-3">
               <h2 className="font-serif text-heading-sm font-medium">Exports</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Export a Word memo and CSV artefacts for a selected completed run.
+                Export a Word memo and CSV artefacts for a selected run. Only completed runs are export-eligible.
               </p>
             </div>
             <ExportsPanel
