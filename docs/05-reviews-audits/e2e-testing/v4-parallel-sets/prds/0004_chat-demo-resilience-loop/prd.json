@@ -76,7 +76,7 @@
     {
       "id": "US-012",
       "title": "Matter Scoped Chat Contract",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As an operator, I want deterministic matter-scoped chat behavior with transparent source-jump gating.",
       "acceptanceCriteria": [
@@ -85,7 +85,10 @@
         "Then source chips are clickable only for anchor-ready citations.",
         "Example: anchor-ready chip opens viewer at expected document and page.",
         "Negative: no indexed context disables composer with guidance and no request is sent."
-      ]
+      ],
+      "startedAt": "2026-02-12T15:05:57.412055+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-12T15:05:57.412068+00:00"
     },
     {
       "id": "US-013",

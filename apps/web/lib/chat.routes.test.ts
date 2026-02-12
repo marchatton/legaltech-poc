@@ -102,4 +102,80 @@ describe("POST /folders/:id/chat", () => {
     expect(error?.trace_id).toBe(meta?.trace_id);
     expect(body).not.toContain("provider timeout payload=raw_internal_blob");
   });
+
+  it("emits anchor-gated sources and marks missing anchors unavailable", async () => {
+    queueSqlResults([
+      [{ latest_index_version: "v1" }],
+      [
+        {
+          id: "chk_ready",
+          document_id: "doc_ready",
+          page_start: 4,
+          page_end: 4,
+          text: "Ready anchor chunk",
+        },
+        {
+          id: "chk_unready",
+          document_id: "doc_unready",
+          page_start: null,
+          page_end: null,
+          text: "Unready anchor chunk",
+        },
+      ],
+    ]);
+    hybridSearchMock.mockResolvedValueOnce([
+      {
+        chunk_id: "chk_ready",
+        document_id: "doc_ready",
+        page_start: 4,
+        page_end: 4,
+      },
+      {
+        chunk_id: "chk_unready",
+        document_id: "doc_unready",
+        page_start: null,
+        page_end: null,
+      },
+    ]);
+    streamTextMock.mockReturnValueOnce({
+      textStream: (async function* () {
+        yield "Answer.";
+      })(),
+    });
+
+    const { POST } = await import("../app/(api)/folders/[id]/chat/route");
+    const res = await POST(
+      new Request("http://localhost:3000/folders/fld_123/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "test question" }),
+      }),
+      { params: Promise.resolve({ id: "fld_123" }) },
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    const events = body
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    const sourcesEvent = events.find((evt) => evt.type === "sources");
+    expect(sourcesEvent).toEqual({
+      type: "sources",
+      sources: [
+        {
+          document_id: "doc_ready",
+          page_number: 4,
+          anchor_state: "ready",
+        },
+        {
+          document_id: "doc_unready",
+          page_number: 1,
+          anchor_state: "unavailable",
+          anchor_reason: "Source anchor is unavailable for this citation.",
+        },
+      ],
+    });
+  });
 });

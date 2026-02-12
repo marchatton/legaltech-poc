@@ -3,6 +3,8 @@ export const MISSING_EVIDENCE_TEXT = "Not found in provided documents." as const
 export type ChatSource = {
   document_id: string;
   page_number: number;
+  anchor_state: "ready" | "unavailable";
+  anchor_reason?: string;
 };
 
 export type ChatStreamEvent =
@@ -22,7 +24,12 @@ function isString(value: unknown): value is string {
 
 function isChatSource(value: unknown): value is ChatSource {
   if (!isRecord(value)) return false;
-  return isString(value.document_id) && typeof value.page_number === "number" && Number.isInteger(value.page_number);
+  if (!isString(value.document_id) || typeof value.page_number !== "number" || !Number.isInteger(value.page_number)) return false;
+  if (value.anchor_state !== "ready" && value.anchor_state !== "unavailable") return false;
+  if (value.anchor_state === "unavailable") {
+    return isString(value.anchor_reason) && value.anchor_reason.trim().length > 0;
+  }
+  return value.anchor_reason === undefined || isString(value.anchor_reason);
 }
 
 export function parseChatStreamEvent(line: string): ChatStreamEvent | null {

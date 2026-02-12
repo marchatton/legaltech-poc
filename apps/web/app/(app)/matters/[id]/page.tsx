@@ -407,6 +407,11 @@ export default async function MatterPage(props: {
   );
 
   const runnable = folder.state === "indexed" || folder.state === "ready";
+  const chatContextReady = runnable && indexedReadyCount > 0;
+  const chatContextGuidance =
+    indexedReadyCount === 0
+      ? "No indexed documents yet. Upload a source PDF and refresh readiness until at least one document is indexed-ready."
+      : `Matter state is ${folder.state}. Wait until the matter reaches indexed/ready before using chat.`;
   let quickStartReadiness: QuickStartReadiness;
   if (latestRun?.state === "completed") {
     quickStartReadiness = {
@@ -610,10 +615,7 @@ export default async function MatterPage(props: {
 
         {activeTab === "chat" && chatEnabled ? (
           <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-            <div className="mb-3 rounded-ui-md border border-warning/20 bg-warning/5 px-3 py-2 text-xs text-warning">
-              Run-scoped chat picker is a backend follow-up (`N11`) and is flagged as a non-UI delta in this pass.
-            </div>
-            <ChatPanel folderId={folderId} />
+            <ChatPanel folderId={folderId} contextReady={chatContextReady} contextGuidance={chatContextGuidance} />
           </section>
         ) : null}
 

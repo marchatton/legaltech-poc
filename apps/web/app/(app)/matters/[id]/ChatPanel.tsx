@@ -13,7 +13,8 @@ import { Spinner } from "../../../ui/Spinner";
 
 import { MISSING_EVIDENCE_TEXT, parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
 
-type MessageStatus = "streaming" | "complete" | "citation_failed";
+type MessageStatus = "sending" | "streaming" | "complete" | "citation_failed";
+type ComposerState = "idle" | "sending" | "streaming" | "final" | "failed";
 
 type ChatMessage = {
   id: string;
@@ -36,8 +37,24 @@ function sourcesEqual(a: ChatSource[] | undefined, b: ChatSource[] | undefined):
   for (let i = 0; i < a.length; i++) {
     if (a[i]!.document_id !== b[i]!.document_id) return false;
     if (a[i]!.page_number !== b[i]!.page_number) return false;
+    if (a[i]!.anchor_state !== b[i]!.anchor_state) return false;
+    if ((a[i]!.anchor_reason ?? "") !== (b[i]!.anchor_reason ?? "")) return false;
   }
   return true;
+}
+
+function parseRenderUrl(json: unknown): string | null {
+  if (!json || typeof json !== "object" || Array.isArray(json)) return null;
+  const url = (json as { render_url?: unknown }).render_url;
+  return typeof url === "string" && url.trim().length > 0 ? url : null;
+}
+
+function composerStateLabel(state: ComposerState): string {
+  if (state === "sending") return "Sending question";
+  if (state === "streaming") return "Streaming response";
+  if (state === "final") return "Final response ready";
+  if (state === "failed") return "Response failed";
+  return "Ready";
 }
 
 async function readNdjsonStream(args: {
@@ -78,32 +95,73 @@ const SUGGESTED_PROMPTS = [
   "List all parties and their roles",
 ];
 
-export function ChatPanel(props: { folderId: string }) {
+export function ChatPanel(props: { folderId: string; contextReady: boolean; contextGuidance: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [composerState, setComposerState] = useState<ComposerState>("idle");
+  const [sourceOpenError, setSourceOpenError] = useState<string | null>(null);
+  const [openingSourceKey, setOpeningSourceKey] = useState<string | null>(null);
   const lastUserMessageRef = useRef<string | null>(null);
 
-  const canSend = useMemo(() => !busy && input.trim().length > 0, [busy, input]);
+  const composerDisabled = !props.contextReady || busy;
+  const canSend = useMemo(() => !composerDisabled && input.trim().length > 0, [composerDisabled, input]);
 
   const updateMessage = useCallback((id: string, updater: (m: ChatMessage) => ChatMessage) => {
     setMessages((prev) => prev.map((m) => (m.id === id ? updater(m) : m)));
   }, []);
 
+  const openSource = useCallback(async (source: ChatSource) => {
+    if (source.anchor_state !== "ready") return;
+
+    const sourceKey = `${source.document_id}:${source.page_number}`;
+    setOpeningSourceKey(sourceKey);
+    setSourceOpenError(null);
+
+    try {
+      const res = await fetch(
+        `/documents/${encodeURIComponent(source.document_id)}/render?${new URLSearchParams({
+          page: String(source.page_number),
+        }).toString()}`,
+        { cache: "no-store" },
+      );
+      const json: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const env = parseSafeErrorEnvelope(json);
+        throw new Error(env?.message ?? `Source viewer failed (${res.status}).`);
+      }
+
+      const renderUrl = parseRenderUrl(json);
+      if (!renderUrl) {
+        throw new Error("Source viewer payload was invalid.");
+      }
+
+      const target = renderUrl.includes("#") ? renderUrl : `${renderUrl}#page=${source.page_number}`;
+      window.open(target, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to open this source.";
+      setSourceOpenError(message);
+    } finally {
+      setOpeningSourceKey(null);
+    }
+  }, []);
+
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
-      if (!trimmed) return;
+      if (!trimmed || !props.contextReady) return;
 
       const userId = safeRandomId("usr");
       const assistantId = safeRandomId("ast");
 
       lastUserMessageRef.current = trimmed;
       setBusy(true);
+      setComposerState("sending");
+      setSourceOpenError(null);
       setMessages((prev) => [
         ...prev,
         { id: userId, role: "user", content: trimmed },
-        { id: assistantId, role: "assistant", content: "", status: "streaming", sources: [] },
+        { id: assistantId, role: "assistant", content: "", status: "sending", sources: [] },
       ]);
       setInput("");
 
@@ -140,6 +198,7 @@ export function ChatPanel(props: { folderId: string }) {
             status: "citation_failed",
             error: { code, message, traceId, retryable },
           }));
+          setComposerState("failed");
           return;
         }
 
@@ -150,15 +209,19 @@ export function ChatPanel(props: { folderId: string }) {
             status: "citation_failed",
             error: { code: "NO_STREAM", message: "Chat response stream is missing. Please retry.", retryable: true },
           }));
+          setComposerState("failed");
           return;
         }
 
         let terminalSeen = false;
+        let streamedToken = false;
         await readNdjsonStream({
           body,
           onEvent: (evt) => {
             if (evt.type === "token") {
-              updateMessage(assistantId, (m) => ({ ...m, content: m.content + evt.token }));
+              streamedToken = true;
+              setComposerState("streaming");
+              updateMessage(assistantId, (m) => ({ ...m, status: "streaming", content: m.content + evt.token }));
               return;
             }
 
@@ -169,12 +232,14 @@ export function ChatPanel(props: { folderId: string }) {
 
             if (evt.type === "done") {
               terminalSeen = true;
+              setComposerState("final");
               updateMessage(assistantId, (m) => ({ ...m, status: "complete" }));
               return;
             }
 
             if (evt.type === "error") {
               terminalSeen = true;
+              setComposerState("failed");
               updateMessage(assistantId, (m) => ({
                 ...m,
                 status: "citation_failed",
@@ -188,17 +253,23 @@ export function ChatPanel(props: { folderId: string }) {
         });
 
         if (!terminalSeen) {
+          setComposerState("failed");
           updateMessage(assistantId, (m) => ({
             ...m,
             status: "citation_failed",
             error: { code: "STREAM_ENDED", message: "Chat response ended unexpectedly. Please retry.", retryable: true },
           }));
+          return;
+        }
+
+        if (!streamedToken) {
+          setComposerState("final");
         }
       } finally {
         setBusy(false);
       }
     },
-    [props.folderId, updateMessage],
+    [props.contextReady, props.folderId, updateMessage],
   );
 
   const onSubmit = useCallback(
@@ -222,7 +293,12 @@ export function ChatPanel(props: { folderId: string }) {
       <div className="px-4 py-2 border-b border-border bg-cyan-50/40 flex items-center gap-2">
         <div className="w-6 h-6 rounded-md bg-cyan-100 flex items-center justify-center text-cyan-600 text-xs font-bold" aria-hidden="true">⬡</div>
         <span className="text-sm font-medium text-foreground">Matter Assistant</span>
-        <span className="ml-auto text-2xs text-muted-foreground">Evidence-first — unanswerable queries return &ldquo;{MISSING_EVIDENCE_TEXT}&rdquo;</span>
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-2xs text-muted-foreground" aria-live="polite">
+            Status: {composerStateLabel(composerState)}
+          </span>
+          <span className="text-2xs text-muted-foreground">Evidence-first — unanswerable queries return &ldquo;{MISSING_EVIDENCE_TEXT}&rdquo;</span>
+        </div>
       </div>
 
       {/* Messages area */}
@@ -239,6 +315,7 @@ export function ChatPanel(props: { folderId: string }) {
                     as="button"
                     className="text-left text-xs leading-relaxed"
                     onClick={() => {
+                      if (!props.contextReady) return;
                       setInput(prompt);
                     }}
                   >
@@ -261,13 +338,19 @@ export function ChatPanel(props: { folderId: string }) {
               <div key={m.id} className="grid gap-2 animate-fade-in">
                 <div className={`max-w-[80%] rounded-2xl border border-border px-4 py-3 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {m.content || (m.status === "streaming" ? (
+                    {m.content || (m.status === "sending" || m.status === "streaming" ? (
                       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                        <Spinner size="xs" /> Thinking&hellip;
+                        <Spinner size="xs" /> {m.status === "sending" ? "Sending&hellip;" : "Streaming&hellip;"}
                       </span>
                     ) : null)}
                   </div>
                 </div>
+
+                {!isUser && (m.status === "sending" || m.status === "streaming" || m.status === "complete") ? (
+                  <div className="max-w-[80%] text-2xs text-muted-foreground">
+                    {m.status === "sending" ? "State: sending question" : m.status === "streaming" ? "State: streaming response" : "State: final response"}
+                  </div>
+                ) : null}
 
                 {!isUser && m.status === "citation_failed" ? (
                   <ErrorBanner
@@ -294,17 +377,47 @@ export function ChatPanel(props: { folderId: string }) {
                   <section className="max-w-[80%] rounded-ui-md bg-muted/50 p-3">
                     <div className="text-2xs font-semibold uppercase tracking-wide text-foreground">Sources</div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      {m.sources.map((s, idx) => (
-                        <Chip
-                          key={`${s.document_id}:${s.page_number}:${idx}`}
-                          variant="citation"
-                          title={`${s.document_id} p.${s.page_number} (jump-to-evidence coming soon)`}
-                        >
-                          {s.document_id} p.{s.page_number}
-                        </Chip>
-                      ))}
+                      {m.sources.map((s, idx) => {
+                        const sourceKey = `${s.document_id}:${s.page_number}:${idx}`;
+                        const sourceReady = s.anchor_state === "ready";
+                        const title = sourceReady
+                          ? `Open ${s.document_id} page ${s.page_number}`
+                          : s.anchor_reason ?? "Source anchor is unavailable.";
+                        const opening = openingSourceKey === `${s.document_id}:${s.page_number}`;
+                        return sourceReady ? (
+                          <Chip
+                            key={sourceKey}
+                            as="button"
+                            variant="citation"
+                            title={title}
+                            className={opening ? "opacity-70" : undefined}
+                            onClick={() => {
+                              void openSource(s);
+                            }}
+                          >
+                            {s.document_id} p.{s.page_number}
+                          </Chip>
+                        ) : (
+                          <Chip
+                            key={sourceKey}
+                            variant="citation"
+                            className="cursor-not-allowed opacity-55"
+                            title={title}
+                            aria-disabled="true"
+                          >
+                            {s.document_id} p.{s.page_number} unavailable
+                          </Chip>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-2 text-2xs text-muted-foreground">
+                      Clickable chips require anchor-ready citations.
                     </div>
                   </section>
+                ) : null}
+
+                {!isUser && sourceOpenError ? (
+                  <div className="max-w-[80%] text-2xs text-destructive">{sourceOpenError}</div>
                 ) : null}
               </div>
             );
@@ -314,16 +427,21 @@ export function ChatPanel(props: { folderId: string }) {
 
       {/* Input area */}
       <div className="p-3 border-t border-border">
+        {!props.contextReady ? (
+          <div className="mb-2 rounded-ui-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
+            {props.contextGuidance}
+          </div>
+        ) : null}
         <form className="relative" onSubmit={onSubmit}>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={busy ? "Waiting for response..." : "Ask a question about this matter..."}
-            disabled={busy}
+            placeholder={!props.contextReady ? "Chat is disabled until indexed context is available." : busy ? "Waiting for response..." : "Ask a question about this matter..."}
+            disabled={composerDisabled}
             className="w-full bg-muted/30 pr-14"
           />
           <Button type="submit" disabled={!canSend} className="absolute right-1.5 top-1/2 -translate-y-1/2">
-            Send
+            {props.contextReady ? "Send" : "Blocked"}
           </Button>
         </form>
       </div>

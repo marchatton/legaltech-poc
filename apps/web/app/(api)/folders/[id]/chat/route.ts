@@ -123,8 +123,23 @@ function ndjsonStream(args: {
         hits.forEach((h, idx) => {
           const c = chunkById.get(h.chunk_id);
           const documentId = c?.document_id ?? h.document_id;
-          const pageNumber = c?.page_start ?? h.page_start ?? h.page_end ?? 1;
-          sources.push({ document_id: documentId, page_number: pageNumber });
+          const anchorPage = c?.page_start ?? h.page_start ?? h.page_end ?? null;
+          const anchorReady = typeof anchorPage === "number" && Number.isInteger(anchorPage) && anchorPage > 0;
+          const pageNumber = anchorReady ? anchorPage : 1;
+          sources.push(
+            anchorReady
+              ? {
+                  document_id: documentId,
+                  page_number: pageNumber,
+                  anchor_state: "ready",
+                }
+              : {
+                  document_id: documentId,
+                  page_number: pageNumber,
+                  anchor_state: "unavailable",
+                  anchor_reason: "Source anchor is unavailable for this citation.",
+                },
+          );
 
           const snippet = (c?.text ?? "").trim().slice(0, 1200);
           sourceLines.push(`[S${idx + 1}] ${documentId} p.${pageNumber}\n${snippet}`);
