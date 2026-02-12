@@ -43,6 +43,7 @@ type ActionFeedback =
   | { kind: "idle" }
   | { kind: "success"; message: string }
   | { kind: "error"; error: SafeErrorDisplay };
+type CopyAction = "answer" | "payload";
 
 type ViewerEvidenceData = {
   citationId: string;
@@ -182,6 +183,17 @@ function toSafeError(err: unknown, fallbackMessage: string): SafeErrorDisplay {
   return { code: "UNKNOWN_ERROR", message: fallbackMessage, retryable: true };
 }
 
+async function writeClipboardText(value: string): Promise<void> {
+  if (typeof navigator === "undefined" || !navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    throw {
+      code: "CLIPBOARD_UNAVAILABLE",
+      message: "Clipboard is unavailable in this browser.",
+      retryable: false,
+    } satisfies SafeErrorDisplay;
+  }
+  await navigator.clipboard.writeText(value);
+}
+
 const SPLIT_VIEW_LOCK_STORAGE_KEY = "orbital.report.split_view_lock";
 
 function parseCitationResponse(json: unknown): {
@@ -241,6 +253,7 @@ export function ReportTriagePanel(props: Props) {
   const [rows, setRows] = useState<ReportRowForDrawer[]>(props.rows);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [pendingRowId, setPendingRowId] = useState<string | null>(null);
+  const [pendingCopyAction, setPendingCopyAction] = useState<CopyAction | null>(null);
   const [feedback, setFeedback] = useState<ActionFeedback>({ kind: "idle" });
   const [splitViewLocked, setSplitViewLocked] = useState(false);
   const [splitViewPreferenceLoaded, setSplitViewPreferenceLoaded] = useState(false);
@@ -559,6 +572,56 @@ export function ReportTriagePanel(props: Props) {
     }
   }
 
+  const handleCopyExtractedAnswer = useCallback(
+    async (rowId: string): Promise<void> => {
+      const existing = rows.find((row) => row.id === rowId);
+      if (!existing) return;
+
+      setPendingCopyAction("answer");
+      setFeedback({ kind: "idle" });
+      try {
+        await writeClipboardText(existing.answer);
+        setFeedback({
+          kind: "success",
+          message: `Copied extracted answer for ${existing.question_id}.`,
+        });
+      } catch (err) {
+        setFeedback({
+          kind: "error",
+          error: toSafeError(err, "Copy extracted answer failed."),
+        });
+      } finally {
+        setPendingCopyAction(null);
+      }
+    },
+    [rows],
+  );
+
+  const handleCopyStructuredPayload = useCallback(
+    async (rowId: string): Promise<void> => {
+      const existing = rows.find((row) => row.id === rowId);
+      if (!existing) return;
+
+      setPendingCopyAction("payload");
+      setFeedback({ kind: "idle" });
+      try {
+        await writeClipboardText(stringifyJson(existing.payload_json));
+        setFeedback({
+          kind: "success",
+          message: `Copied structured payload for ${existing.question_id}.`,
+        });
+      } catch (err) {
+        setFeedback({
+          kind: "error",
+          error: toSafeError(err, "Copy structured payload failed."),
+        });
+      } finally {
+        setPendingCopyAction(null);
+      }
+    },
+    [rows],
+  );
+
   return (
     <>
       <div
@@ -724,14 +787,38 @@ export function ReportTriagePanel(props: Props) {
                 </div>
 
                 <section>
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Extracted answer</h3>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Extracted answer</h3>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => void handleCopyExtractedAnswer(selectedRow.id)}
+                      loading={pendingCopyAction === "answer"}
+                      loadingLabel="Copying"
+                    >
+                      Copy answer
+                    </Button>
+                  </div>
                   <div className="mt-2 rounded-ui-md border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
                     {selectedRow.answer.trim().length > 0 ? selectedRow.answer : "Not provided."}
                   </div>
                 </section>
 
                 <section>
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Structured payload</h3>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Structured payload</h3>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => void handleCopyStructuredPayload(selectedRow.id)}
+                      loading={pendingCopyAction === "payload"}
+                      loadingLabel="Copying"
+                    >
+                      Copy payload
+                    </Button>
+                  </div>
                   <div className="mt-2 space-y-2 rounded-ui-md border border-border bg-background p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
                       <span>schema</span>

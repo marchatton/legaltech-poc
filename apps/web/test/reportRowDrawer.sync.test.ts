@@ -37,4 +37,18 @@ describe("US-002 row drawer decision surface", () => {
     expect(source).toContain("ErrorBanner");
     expect(source).toContain("Row action failed");
   });
+
+  it("exposes copy actions with explicit success and failure feedback", () => {
+    const root = repoRootFromWebPackage();
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
+    const source = readUtf8(panelPath);
+
+    expect(source).toContain("Copy answer");
+    expect(source).toContain("Copy payload");
+    expect(source).toContain("Copied extracted answer");
+    expect(source).toContain("Copied structured payload");
+    expect(source).toContain("CLIPBOARD_UNAVAILABLE");
+    expect(source).toContain("Copy extracted answer failed.");
+    expect(source).toContain("Copy structured payload failed.");
+  });
 });
