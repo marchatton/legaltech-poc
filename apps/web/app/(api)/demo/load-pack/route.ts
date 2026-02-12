@@ -19,7 +19,7 @@ import { createTraceContext } from "../../../../lib/trace.server";
 export const runtime = "nodejs";
 
 const BodySchema = z.object({
-  pack_id: z.enum(["pack_01_clean", "pack_02_missing_rea"]),
+  pack_id: z.enum(["pack_01_clean", "pack_02_missing_rea", "pack_09_bad_citation"]),
 });
 
 const PDF_FILENAME_RE = /^[A-Za-z0-9_-]+\.pdf$/i;

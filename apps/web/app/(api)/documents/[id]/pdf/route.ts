@@ -13,7 +13,7 @@ import { parseSingleRangeHeader } from "../../../../../lib/httpRange.server";
 import { createObjectReadStream, statObject, validateStorageKey, verifySignature } from "../../../../../lib/objectStore.server";
 import { safePdfFilename } from "../../../../../lib/safePdfFilename.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
-import { isDevOrDemoProd } from "../../../../../lib/runtimeMode";
+import { isDbOnlyEvidenceMode, isDevOrDemoProd } from "../../../../../lib/runtimeMode";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +24,7 @@ const ParamsSchema = z.object({
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const dbOnlyEvidenceMode = isDbOnlyEvidenceMode();
   const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
@@ -77,6 +78,13 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   const fixture = parseFixtureDocumentId(documentId);
   if (fixture.ok) {
+    if (dbOnlyEvidenceMode) {
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+        status: 404,
+        headers,
+      });
+    }
+
     // Fixture documents are only available in dev and demo-prod.
     if (!isDevOrDemoProd()) {
       return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {

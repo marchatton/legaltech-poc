@@ -11,6 +11,7 @@ import { ThemeToggle } from "./ui/ThemeToggle";
 const PACK_OPTIONS = [
   { id: "pack_01_clean", label: "pack_01_clean" },
   { id: "pack_02_missing_rea", label: "pack_02_missing_rea" },
+  { id: "pack_09_bad_citation", label: "pack_09_bad_citation" },
 ] as const;
 
 type PackId = (typeof PACK_OPTIONS)[number]["id"];

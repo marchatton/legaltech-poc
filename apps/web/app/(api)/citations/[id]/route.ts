@@ -5,7 +5,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
-import { isDevOrDemoProd } from "../../../../lib/runtimeMode";
+import { isDbOnlyEvidenceMode, isDevOrDemoProd } from "../../../../lib/runtimeMode";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -171,6 +171,7 @@ function seedCitationResponse(args: { citationId: string; packId?: string; trace
 
 export async function GET(req: Request, ctx: { params: Promise<Record<string, string | string[] | undefined>> }) {
   const { traceId, headers } = createTraceContext();
+  const dbOnlyEvidenceMode = isDbOnlyEvidenceMode();
   const citationsApiEnabled = process.env.FEATURE_CITATIONS_API === "1";
   if (!citationsApiEnabled) {
     // Preserve existing dev-only fixture behavior until the feature is enabled.
@@ -229,7 +230,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   `;
   const cit = citations[0];
   if (!cit) {
-    if (isDevOrDemoProd()) {
+    if (!dbOnlyEvidenceMode && isDevOrDemoProd()) {
       return seedCitationResponse({
         citationId,
         packId: parsedQuery.data.pack,

@@ -49,6 +49,8 @@ Goal: a private demo-prod instance that behaves like a production build.
   - `BASIC_AUTH_USER`
   - `BASIC_AUTH_PASS`
   - `OBJECT_STORE_SIGNING_SECRET` (any long random string)
+- 1 runtime-mode setting:
+  - `EVIDENCE_BACKEND=db_only` (recommended to disable fixture fallback and use DB/object-store evidence only)
 
 ## 2) Configure Secrets
 1. Copy `.env.demo-prod.example` to `.env.demo-prod`.
@@ -56,6 +58,7 @@ Goal: a private demo-prod instance that behaves like a production build.
    - `BASIC_AUTH_USER`
    - `BASIC_AUTH_PASS`
    - `OBJECT_STORE_SIGNING_SECRET` (any long random string)
+   - `EVIDENCE_BACKEND=db_only` (recommended for demo-prod)
 
 ### B1) Get the repo onto the VM
 Pick one:

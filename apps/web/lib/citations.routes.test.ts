@@ -31,6 +31,7 @@ function queueSqlResults(results: unknown[]) {
 describe("GET /citations/:id (db-first)", () => {
   beforeEach(() => {
     delete process.env.FEATURE_CITATIONS_API;
+    delete process.env.EVIDENCE_BACKEND;
     delete process.env.ORBITAL_MODE;
     (process.env as Record<string, string | undefined>).NODE_ENV = originalNodeEnv;
     ensureSchemaMock.mockReset();
@@ -224,6 +225,55 @@ describe("GET /citations/:id (db-first)", () => {
         doc_version: "seed-v2",
         verified_at: "2026-02-11T18:22:00.000Z",
         loaded_state: "seeded",
+      },
+    });
+  });
+
+  it("returns 404 on DB miss when EVIDENCE_BACKEND=db_only (no fixture fallback)", async () => {
+    process.env.FEATURE_CITATIONS_API = "1";
+    process.env.EVIDENCE_BACKEND = "db_only";
+    (process.env as Record<string, string | undefined>).NODE_ENV = "development";
+    process.env.ORBITAL_MODE = "dev";
+
+    const missingId = "cit_TS-04_1";
+    queueSqlResults([[]]);
+
+    listSeededPackIdsMock.mockReturnValue(["pack_01_demo"]);
+    loadSeedSnapshotMock.mockImplementation((packId: string) => {
+      if (packId !== "pack_01_demo") return null;
+      return {
+        meta: { pack_id: packId },
+        rows: [],
+        citations: {
+          [missingId]: {
+            document_id: "doc_fixture",
+            document_filename: "fixture.pdf",
+            page_number: 1,
+            polygons: [[[0.1, 0.2], [0.4, 0.2], [0.4, 0.25]]],
+            snippet: "Fixture snippet.",
+            snippet_hash: "sha256:fixture",
+          },
+        },
+      };
+    });
+
+    const { GET } = await import("../app/(api)/citations/[id]/route");
+    const res = await GET(new Request(`http://localhost:3000/citations/${missingId}`), {
+      params: Promise.resolve({ id: missingId }),
+    });
+
+    expect(assertDevOrDemoProdApiMock).not.toHaveBeenCalled();
+    expect(ensureSchemaMock).toHaveBeenCalledTimes(1);
+    expect(sqlMock).toHaveBeenCalledTimes(1);
+    expect(listSeededPackIdsMock).not.toHaveBeenCalled();
+    expect(loadSeedSnapshotMock).not.toHaveBeenCalled();
+
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({
+      error: {
+        code: "NOT_FOUND",
+        message: "Citation not found.",
+        trace_id: expect.any(String),
       },
     });
   });

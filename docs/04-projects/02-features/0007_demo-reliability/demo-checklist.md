@@ -18,6 +18,7 @@ DEMO_MODE=1 pnpm dev
 - [ ] Confirm fixture packs exist on disk:
   - [ ] `docs/08-example-data/pack_01_clean/docs/*.pdf`
   - [ ] `docs/08-example-data/pack_02_missing_rea/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_09_bad_citation/docs/*.pdf`
 
 ## Demo: `pack_01_clean` (happy path)
 
@@ -35,6 +36,14 @@ DEMO_MODE=1 pnpm dev
 - [ ] In **Report JSON**, confirm at least one row has:
   - [ ] `status: "missing_input"`
   - [ ] `citation_ids: []`
+
+## Demo: `pack_09_bad_citation` (export-blocked trust journey)
+
+- [ ] Repeat load + run with `pack_09_bad_citation`.
+- [ ] In **Report JSON**, confirm at least one row has:
+  - [ ] `status: "citation_failed"`
+- [ ] Attempt CSV export without unsafe override.
+- [ ] Confirm API returns `EXPORT_BLOCKED`.
 
 ## Repeatability (run twice, no cleanup)
 

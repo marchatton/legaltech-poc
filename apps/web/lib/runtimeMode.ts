@@ -34,3 +34,9 @@ export function isDevOrDemoProd(): boolean {
 export function isDemoProd(): boolean {
   return orbitalMode() === "demo-prod";
 }
+
+// When enabled, evidence paths must resolve strictly from persisted DB/object-store
+// data and must never fall back to fixture seed snapshots.
+export function isDbOnlyEvidenceMode(): boolean {
+  return (process.env.EVIDENCE_BACKEND ?? "").trim().toLowerCase() === "db_only";
+}

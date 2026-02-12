@@ -9,6 +9,7 @@ import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { newId } from "../../../../lib/ids";
 import { assertJsonContentType } from "../../../../lib/jsonContentType";
+import { isDbOnlyEvidenceMode } from "../../../../lib/runtimeMode";
 import {
   createSignedGetHeaders,
   putObject,
@@ -136,6 +137,7 @@ function snapshotRowForKind(snapshot: NonNullable<ReturnType<typeof loadSeedSnap
 // In dev, we also support fixture-backed runs from tmp/fixture-seed for tracer bullets.
 export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
+  const dbOnlyEvidenceMode = isDbOnlyEvidenceMode();
   const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
@@ -309,6 +311,13 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
   } else {
+    if (dbOnlyEvidenceMode) {
+      return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
+        status: 404,
+        headers,
+      });
+    }
+
     // Fixture-backed tracer bullets: folder_id maps to pack_id.
     const snapshot = /^pack_\d{2}_[a-z0-9_]+$/i.test(folderId) ? loadSeedSnapshot(folderId) : null;
     if (!snapshot) {
