@@ -172,3 +172,4 @@
 [2026-02-12 15:47:55] US-007 major code changes applied: viewer trust fallback + sync and route tests
 [2026-02-12 15:47:55] US-007 targeted verification complete: web tests passing
 [2026-02-12 16:12:18] US-007 full verification complete: pnpm lint/typecheck/test, pnpm build, and browser validation (dev-browser) passed
+[2026-02-12 16:13:18] US-007 progress entry appended to .ralph/progress.md with commit, verification, and browser evidence

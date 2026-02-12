@@ -904,3 +904,43 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
   - Useful context
   - Browser evidence screenshot saved at `.agents/skills/00-utilities/dev-browser/tmp/us006-drawer-reviewed.png`.
 ---
+## [2026-02-12 16:12:50 UTC] - US-007: Valid Citation Trust Viewer Verification
+Thread: 
+Run: 20260212-150545-1013 (iteration 3)
+Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-3.log
+Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 9ece54e fix(viewer): show explicit trust fallback metadata
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm --filter @orbital-poc/web test -- apps/web/test/reportEvidenceViewer.sync.test.ts apps/web/lib/citations.routes.test.ts -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> FAIL (transient existing flake in `test/foldersRunsRoute.wdk.int.test.ts`, expected `completed` got `running`)
+  - Command: pnpm test -> PASS (re-run succeeded: 49 files, 166 tests)
+  - Command: pnpm build -> PASS
+  - Command: ALLOW_DEV_OBJECT_STORE_SECRET=1 FEATURE_CITATIONS_API=1 pnpm --filter @orbital-poc/web dev -p 3301 -> PASS
+  - Command: cd .agents/skills/00-utilities/dev-browser && ./server.sh --headless -> PASS
+  - Command: cd .agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (US-007 viewer smoke: source-chip open, payload doc/page, overlay polygon render, reset-to-100, missing trust fallback) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+  - apps/web/lib/citations.routes.test.ts
+  - apps/web/test/reportEvidenceViewer.sync.test.ts
+  - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0002_review-trust-loop/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Updated the citation viewer trust footer to always render explicit `loaded_state`, `doc_version`, and `verified_at` labels with deterministic fallback text (`Unavailable from payload`) instead of implicit success-like `Loaded` copy.
+  - Added US-007 sync contract tests validating source-chip viewer loading uses citation payload document/page, overlay path rendering remains wired, trust metadata is rendered from payload, and fallback copy remains explicit.
+  - Added citations route coverage verifying missing provenance trust metadata is returned as explicit `null` fields for deterministic fallback behavior.
+  - Browser-validated both positive and fallback paths against seeded US-007 data on `/matters/fld_us007_browser?tab=report&run_id=run_us007_browser`, including reset-to-100 behavior.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keep trust footer labels explicit so missing metadata cannot be mistaken for a success state.
+  - Gotchas encountered
+  - Web test suite includes a pre-existing intermittent WDK integration flake; immediate re-run was stable and all tests passed.
+  - Useful context
+  - Browser evidence screenshots captured at `.agents/skills/00-utilities/dev-browser/tmp/us007-valid-viewer.png` and `.agents/skills/00-utilities/dev-browser/tmp/us007-fallback-viewer.png`.
+---
