@@ -312,6 +312,81 @@ describe("POST /folders/:id/runs (quick start)", () => {
     20_000,
   );
 
+  it(
+    "dedupes concurrent quick start starts to one canonical run",
+    async () => {
+      const folderId = `fld_${randomUUID()}`;
+      const docId = `doc_${randomUUID()}`;
+      const chunkId = `chk_${randomUUID()}`;
+
+      await sql`
+        INSERT INTO folders (id, name, state, latest_index_version)
+        VALUES (${folderId}, 'concurrency guardrails', 'ready', 'v1')
+      `;
+      await sql`
+        INSERT INTO documents (id, folder_id, filename, mime, bytes, parse_status, ocr_status)
+        VALUES (${docId}, ${folderId}, 'REA.pdf', 'application/pdf', 1, 'parsed', 'done')
+      `;
+      await sql`
+        INSERT INTO chunks (id, document_id, index_version, chunk_index, text, text_hash)
+        VALUES (${chunkId}, ${docId}, 'v1', 0, 'ready', ${`hash_${randomUUID()}`})
+      `;
+
+      const reqA = new Request(`http://localhost/folders/${folderId}/runs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": `idem_parallel_a_${randomUUID()}` },
+        body: JSON.stringify({ type: "quick_start_title_survey" }),
+      });
+      const reqB = new Request(`http://localhost/folders/${folderId}/runs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": `idem_parallel_b_${randomUUID()}` },
+        body: JSON.stringify({ type: "quick_start_title_survey" }),
+      });
+
+      const [resA, resB] = await Promise.all([
+        POST(reqA, { params: Promise.resolve({ id: folderId }) }),
+        POST(reqB, { params: Promise.resolve({ id: folderId }) }),
+      ]);
+
+      const responses = [resA, resB];
+      const successful = responses.filter((res) => res.status === 200);
+      const duplicates = responses.filter((res) => res.status === 409);
+      expect(successful).toHaveLength(1);
+      expect(duplicates).toHaveLength(1);
+
+      const successBody = (await successful[0].json()) as any;
+      const runId = String(successBody?.run?.id);
+      expect(runId).toMatch(/^run_/);
+
+      const duplicateJson = (await duplicates[0].json()) as unknown;
+      const duplicate = readConflict(duplicateJson);
+      expect(duplicate?.code).toBe("CONFLICT");
+      expect(duplicate?.message).toContain("Quick Start already");
+      expect(duplicate?.details?.run_id).toBe(runId);
+
+      const runRows = await sql<Array<{ id: string; state: string }>>`
+        SELECT id, state
+        FROM runs
+        WHERE folder_id = ${folderId}
+          AND type = 'quick_start_title_survey'
+      `;
+      expect(runRows).toHaveLength(1);
+      expect(runRows[0]?.id).toBe(runId);
+
+      const activeRows = await sql<Array<{ n: number }>>`
+        SELECT COUNT(*)::int AS n
+        FROM runs
+        WHERE folder_id = ${folderId}
+          AND type = 'quick_start_title_survey'
+          AND state IN ('queued', 'running')
+      `;
+      expect(activeRows[0]?.n ?? 0).toBeLessThanOrEqual(1);
+
+      await sql`DELETE FROM folders WHERE id = ${folderId}`;
+    },
+    20_000,
+  );
+
   it("exposes a typed failure envelope for failed runs", async () => {
     const folderId = `fld_${randomUUID()}`;
     const runId = `run_${randomUUID()}`;

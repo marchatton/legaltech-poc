@@ -33,6 +33,7 @@ const IdempotencyKeySchema = z
   .regex(/^[A-Za-z0-9._:-]+$/, "Invalid Idempotency-Key");
 
 const RUN_SELECTOR_LIMIT = 25;
+const RUN_START_LOCK_NAMESPACE = 32_011;
 
 function agentBundleVersion(): string {
   const configured =
@@ -65,6 +66,25 @@ type RunSelectorRow = {
   created_at: Date;
   updated_at: Date;
 };
+
+type StartRunDecision =
+  | { kind: "existing"; run: RunRow }
+  | { kind: "not_found" }
+  | { kind: "duplicate"; latestRun: LatestRunGateRow }
+  | {
+      kind: "blocked";
+      folderState: string;
+      readinessReasonCode: string;
+      readinessReason: string;
+      missingDocuments: string[];
+    }
+  | {
+      kind: "created";
+      runId: string;
+      indexVersion: string;
+      questionSetVersion: string;
+      questionsTotal: number;
+    };
 
 function runsErrorEnvelope(opts: {
   code: string;
@@ -101,8 +121,13 @@ function runStartConflictForLatestRun(state: string): string {
   return `Quick Start already ${state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`;
 }
 
-async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey: string }): Promise<RunRow | null> {
-  const runs = await sql<RunRow[]>`
+function runStartLockScope(args: { folderId: string; runType: string }): string {
+  return `${args.folderId}:${args.runType}`;
+}
+
+async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey: string; db?: typeof sql }): Promise<RunRow | null> {
+  const db = args.db ?? sql;
+  const runs = await db<RunRow[]>`
     SELECT id, folder_id, state, index_version, agent_bundle_version, question_set_version
     FROM runs
     WHERE folder_id = ${args.folderId}
@@ -238,140 +263,136 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   }
 
   const folderId = parsedParams.data.id;
-  const folders = await sql<{ id: string; name: string; state: string; latest_index_version: string }[]>`
-    SELECT id, name, state, latest_index_version
-    FROM folders
-    WHERE id = ${folderId}
-    LIMIT 1
-  `;
-  if (!folders[0]) {
-    return Response.json(runsErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
-      status: 404,
-      headers,
-    });
-  }
-
-  const latestRuns = await sql<LatestRunGateRow[]>`
-    SELECT id, state
-    FROM runs
-    WHERE folder_id = ${folderId}
-      AND type = ${parsedBody.data.type}
-    ORDER BY created_at DESC, updated_at DESC, id DESC
-    LIMIT 1
-  `;
-  const latestRun = latestRuns[0] ?? null;
-  if (latestRun) {
-    return Response.json(
-      runsErrorEnvelope({
-        code: "CONFLICT",
-        message: runStartConflictForLatestRun(latestRun.state),
-        details: {
-          run_id: latestRun.id,
-          run_state: latestRun.state,
-        },
-        traceId,
-      }),
-      { status: 409, headers },
-    );
-  }
-
-  // Keep folder state consistent with latest persisted facts before enforcing runnable preconditions.
-  await refreshFolderState(folderId);
-
-  const refreshed = await sql<{ name: string; state: string; latest_index_version: string }[]>`
-    SELECT name, state, latest_index_version
-    FROM folders
-    WHERE id = ${folderId}
-    LIMIT 1
-  `;
-  const folder = refreshed[0];
-  if (!folder) {
-    return Response.json(runsErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
-      status: 404,
-      headers,
-    });
-  }
-
-  const docs = await sql<Array<{ filename: string }>>`
-    SELECT filename
-    FROM documents
-    WHERE folder_id = ${folderId}
-  `;
-  const readiness = resolveCanonicalReadiness({
-    folderState: folder.state,
-    folderName: folder.name,
-    documentFilenames: docs.map((doc) => doc.filename),
-  });
-
-  if (readiness.state !== "runnable") {
-    return Response.json(
-      runsErrorEnvelope({
-        code: "CONFLICT",
-        message: readiness.reason,
-        details: {
-          folder_state: folder.state,
-          readiness_reason_code: readiness.reason_code,
-          readiness_reason: readiness.reason,
-          missing_documents: readiness.missing_documents,
-        },
-        traceId,
-      }),
-      { status: 409, headers },
-    );
-  }
-
-  const { version: questionSetVersion, questionSet } = await loadQuestionSetV1();
-
-  const runId = newId("run");
-  const indexVersion = folder.latest_index_version;
+  const runType = parsedBody.data.type;
   const agentVersion = agentBundleVersion();
-  const questionsTotal = questionSet.questions.length;
+  const lockScope = runStartLockScope({ folderId, runType });
 
+  let startDecision: StartRunDecision;
   try {
-    await sql`
-      INSERT INTO runs (
-        id,
-        folder_id,
-        type,
-        state,
-        index_version,
-        agent_bundle_version,
-        question_set_version,
-        idempotency_key,
-        trace_id,
-        questions_total,
-        questions_done,
-        created_at,
-        updated_at
-      )
-      VALUES (
-        ${runId},
-        ${folderId},
-        ${parsedBody.data.type},
-        'queued',
-        ${indexVersion},
-        ${agentVersion},
-        ${questionSetVersion},
-        ${idempotencyKey},
-        ${traceId},
-        ${questionsTotal},
-        0,
-        now(),
-        now()
-      )
-    `;
-  } catch (err: unknown) {
-    // Idempotency-key races should return the previously created run.
-    const code = typeof err === "object" && err ? (err as { code?: unknown }).code : null;
-    if (idempotencyKey && code === "23505") {
-      const existing = await findRunByIdempotencyKey({ folderId, idempotencyKey });
-      if (existing) return Response.json(runResponse(existing), { status: 200, headers });
-    }
+    startDecision = await sql.begin(async (tx) => {
+      // postgres.js TransactionSql types lose call signatures; cast for tagged template usage.
+      const t = tx as unknown as typeof sql;
+      await t`SELECT pg_advisory_xact_lock(${RUN_START_LOCK_NAMESPACE}, hashtext(${lockScope}))`;
 
+      if (idempotencyKey) {
+        const existing = await findRunByIdempotencyKey({ folderId, idempotencyKey, db: t });
+        if (existing) return { kind: "existing", run: existing } as const;
+      }
+
+      const folders = await t<{ id: string; name: string; state: string; latest_index_version: string }[]>`
+        SELECT id, name, state, latest_index_version
+        FROM folders
+        WHERE id = ${folderId}
+        LIMIT 1
+      `;
+      if (!folders[0]) return { kind: "not_found" } as const;
+
+      const latestRuns = await t<LatestRunGateRow[]>`
+        SELECT id, state
+        FROM runs
+        WHERE folder_id = ${folderId}
+          AND type = ${runType}
+        ORDER BY created_at DESC, updated_at DESC, id DESC
+        LIMIT 1
+      `;
+      const latestRun = latestRuns[0] ?? null;
+      if (latestRun) return { kind: "duplicate", latestRun } as const;
+
+      // Keep folder state consistent with latest persisted facts before enforcing runnable preconditions.
+      await refreshFolderState(folderId);
+
+      const refreshed = await t<{ name: string; state: string; latest_index_version: string }[]>`
+        SELECT name, state, latest_index_version
+        FROM folders
+        WHERE id = ${folderId}
+        LIMIT 1
+      `;
+      const folder = refreshed[0];
+      if (!folder) return { kind: "not_found" } as const;
+
+      const docs = await t<Array<{ filename: string }>>`
+        SELECT filename
+        FROM documents
+        WHERE folder_id = ${folderId}
+      `;
+      const readiness = resolveCanonicalReadiness({
+        folderState: folder.state,
+        folderName: folder.name,
+        documentFilenames: docs.map((doc) => doc.filename),
+      });
+
+      if (readiness.state !== "runnable") {
+        return {
+          kind: "blocked",
+          folderState: folder.state,
+          readinessReasonCode: readiness.reason_code,
+          readinessReason: readiness.reason,
+          missingDocuments: readiness.missing_documents,
+        } as const;
+      }
+
+      const { version: questionSetVersion, questionSet } = await loadQuestionSetV1();
+
+      const runId = newId("run");
+      const indexVersion = folder.latest_index_version;
+      const questionsTotal = questionSet.questions.length;
+      try {
+        await t`
+          INSERT INTO runs (
+            id,
+            folder_id,
+            type,
+            state,
+            index_version,
+            agent_bundle_version,
+            question_set_version,
+            idempotency_key,
+            trace_id,
+            questions_total,
+            questions_done,
+            created_at,
+            updated_at
+          )
+          VALUES (
+            ${runId},
+            ${folderId},
+            ${runType},
+            'queued',
+            ${indexVersion},
+            ${agentVersion},
+            ${questionSetVersion},
+            ${idempotencyKey},
+            ${traceId},
+            ${questionsTotal},
+            0,
+            now(),
+            now()
+          )
+        `;
+      } catch (err: unknown) {
+        // Idempotency-key races should return the previously created run.
+        const code = typeof err === "object" && err ? (err as { code?: unknown }).code : null;
+        if (idempotencyKey && code === "23505") {
+          const existing = await findRunByIdempotencyKey({ folderId, idempotencyKey, db: t });
+          if (existing) return { kind: "existing", run: existing } as const;
+        }
+        throw err;
+      }
+
+      return {
+        kind: "created",
+        runId,
+        indexVersion,
+        questionSetVersion,
+        questionsTotal,
+      } as const;
+    });
+  } catch (err: unknown) {
     // eslint-disable-next-line no-console
-    console.error("runs.insert failed", {
+    console.error("runs.start failed", {
       trace_id: traceId,
       folder_id: folderId,
+      run_type: runType,
       message: err instanceof Error ? err.message : String(err),
     });
 
@@ -380,6 +401,49 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       headers,
     });
   }
+
+  if (startDecision.kind === "existing") return Response.json(runResponse(startDecision.run), { status: 200, headers });
+
+  if (startDecision.kind === "not_found") {
+    return Response.json(runsErrorEnvelope({ code: "NOT_FOUND", message: "Folder not found.", traceId }), {
+      status: 404,
+      headers,
+    });
+  }
+
+  if (startDecision.kind === "duplicate") {
+    return Response.json(
+      runsErrorEnvelope({
+        code: "CONFLICT",
+        message: runStartConflictForLatestRun(startDecision.latestRun.state),
+        details: {
+          run_id: startDecision.latestRun.id,
+          run_state: startDecision.latestRun.state,
+        },
+        traceId,
+      }),
+      { status: 409, headers },
+    );
+  }
+
+  if (startDecision.kind === "blocked") {
+    return Response.json(
+      runsErrorEnvelope({
+        code: "CONFLICT",
+        message: startDecision.readinessReason,
+        details: {
+          folder_state: startDecision.folderState,
+          readiness_reason_code: startDecision.readinessReasonCode,
+          readiness_reason: startDecision.readinessReason,
+          missing_documents: startDecision.missingDocuments,
+        },
+        traceId,
+      }),
+      { status: 409, headers },
+    );
+  }
+
+  const { runId, indexVersion, questionSetVersion, questionsTotal } = startDecision;
 
   const stepId = newId("stp");
   const stepKey = `quick_start:${questionSetVersion}:start`;
@@ -418,7 +482,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     folder_id: folderId,
     run_id: runId,
     step_key: stepKey,
-    run_type: parsedBody.data.type,
+    run_type: runType,
     index_version: indexVersion,
     agent_bundle_version: agentVersion,
     question_set_version: questionSetVersion,
@@ -486,7 +550,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     orchestration: "wdk",
     trace_id: traceId,
     run_id: runId,
-    workflow_type: parsedBody.data.type,
+    workflow_type: runType,
     step_type: scheduled.stepType,
     steps_total: scheduled.steps.length,
     steps_inserted: insertedSteps,

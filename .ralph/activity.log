@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-13 03:17:56 | run=20260213-005806-15124 | iter=10 | mode=build | story=US-010 | duration=651s | status=success
 - 2026-02-13 03:06:58 | run=20260213-005806-15124 | iter=9 | mode=build | story=US-009 | duration=684s | status=success
 - 2026-02-13 02:55:31 | run=20260213-005806-15124 | iter=8 | mode=build | story=US-008 | duration=606s | status=success
 - 2026-02-13 02:45:23 | run=20260213-005806-15124 | iter=7 | mode=build | story=US-007 | duration=896s | status=success
@@ -269,3 +270,8 @@
 [2026-02-13 03:13:08] US-010 major code changes: added overnight checkpoint loop module and tests
 [2026-02-13 03:15:40] US-010 verification complete: pnpm lint/typecheck/test/build all passing
 [2026-02-13 03:17:15] US-010 progress entry appended to .ralph/progress.md
+[2026-02-13 03:17:56] ITERATION 10 end (duration=651s)
+[2026-02-13 03:18:01] ITERATION 11 start (mode=build story=US-011)
+[2026-02-13 03:18:19] US-011 start: reviewed guardrails/errors/PRD and beginning run-start idempotency audit
+[2026-02-13 03:22:53] US-011 major change: added run-start advisory lock transaction + concurrent start integration test
+[2026-02-13 03:24:52] US-011 verification complete: pnpm lint/typecheck/test/build passing
