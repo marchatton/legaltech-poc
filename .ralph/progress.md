@@ -1393,3 +1393,40 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - `foldersRunsRoute.wdk.int.test.ts` remains flaky (`running` vs `completed`); rerun `pnpm test` until one clean pass and log repeated failures in `.ralph/errors.log`.
 ---
+## [2026-02-13 02:54 UTC] - US-008: Export fail-closed behavior is strict and observable
+Thread: 019c54e3-98ed-7b32-b8fb-3706edb94263
+Run: 20260213-005806-15124 (iteration 8)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-8.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-8.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: b33919a fix(export): fail-close csv precondition checks
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm exec vitest run lib/exportCsv.routes.test.ts test/realDataWorkflows.e2e.int.test.ts -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -p 3101 + curl -I --max-time 10 http://127.0.0.1:3101 -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/export/csv/route.ts
+  - apps/web/lib/exportCsv.routes.test.ts
+  - apps/web/test/realDataWorkflows.e2e.int.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Updated `POST /export/csv` to fail closed with `EXPORT_BLOCKED` for run/report/citation safety precondition failures, including incomplete runs, missing report payload rows, ambiguous structured rows, and missing locked citations.
+  - Added explicit `reason_codes` in blocked envelopes for observability and deterministic operator triage.
+  - Kept `pack_09_bad_citation` blocked export behavior strict and verified blocked responses contain explicit reason metadata with no downloadable artefact.
+  - Extended route + real-data E2E tests to assert blocked and incomplete export responses never include signed download links.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - A shared blocked-response helper keeps fail-closed policy consistent across multiple safety preconditions.
+  - Gotchas encountered
+  - Real-data quick-start citation failures currently emit `NO_CITATIONS`, so E2E reason-code assertions should anchor to that deterministic code for this flow.
+  - Useful context
+  - Global test gate passed on first run in this iteration; no flaky `foldersRunsRoute.wdk.int.test.ts` rerun was required.
+---
