@@ -14,10 +14,12 @@ import { deriveRunFailureEnvelope } from "../../../../lib/runFailureEnvelope";
 import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.server";
 import { Alert } from "../../../ui/Alert";
 import { Badge } from "../../../ui/Badge";
+import { Card } from "../../../ui/Card";
 import { EmptyState } from "../../../ui/EmptyState";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { SegmentedControl } from "../../../ui/SegmentedControl";
+import { Spinner } from "../../../ui/Spinner";
 import { StatePage } from "../../../ui/StatePage";
 import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
 import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
@@ -119,6 +121,13 @@ function tabIcon(tabId: MatterDetailTab) {
   return null;
 }
 
+const RUN_PROGRESS_FAILURE_CODES = new Set(["RUN_QUEUED", "RUN_IN_PROGRESS"]);
+
+function isRunProgressFailure(args: { code: string } | null): boolean {
+  if (!args) return false;
+  return RUN_PROGRESS_FAILURE_CODES.has(args.code);
+}
+
 export default async function MatterPage(props: {
   params: Promise<Record<string, string | string[] | undefined>>;
   searchParams?: Promise<SearchParamRecord>;
@@ -198,7 +207,13 @@ export default async function MatterPage(props: {
         traceId: activeRun.trace_id,
       })
     : null;
-  const showingCompletedHistory = Boolean(activeRunFailure && activeRun && reportRun && activeRun.id !== reportRun.id);
+  const reportRunProgress = isRunProgressFailure(reportRunFailure);
+  const activeRunProgress = isRunProgressFailure(activeRunFailure);
+  const reportRunBlockingFailure = reportRunFailure && !reportRunProgress ? reportRunFailure : null;
+  const activeRunBlockingFailure = activeRunFailure && !activeRunProgress ? activeRunFailure : null;
+  const showingCompletedHistory = Boolean(
+    activeRun && reportRun && activeRun.id !== reportRun.id && activeRun.state !== "completed",
+  );
 
   const reportRows = reportRun ? await fetchReportRows(reportRun.id) : [];
   const reportRowIds = reportRows.map((row) => row.id);
@@ -289,10 +304,17 @@ export default async function MatterPage(props: {
   const runQuestionsDone = latestRun?.questions_done ?? 0;
   const runQuestionsTotal = latestRun?.questions_total ?? 0;
   const runProgress = runQuestionsTotal > 0 ? Math.round((runQuestionsDone / runQuestionsTotal) * 100) : 0;
-  const reportEmptyStateTitle = reportRunFailure ? "Run report unavailable" : "No report rows yet";
-  const reportEmptyStateDescription = reportRunFailure
+  const reportEmptyStateTitle = reportRunBlockingFailure
+    ? "Run report unavailable"
+    : reportRunProgress
+      ? "Analysis in progress"
+      : "No report rows yet";
+  const reportEmptyStateDescription = reportRunBlockingFailure
     ? "No report rows were produced for this run. Re-run analysis after fixing the failure."
-    : "Run analysis to generate report rows for triage.";
+    : reportRunProgress
+      ? "Report rows will appear after processing completes. Refresh in a moment."
+      : "Run analysis to generate report rows for triage.";
+  const showIngestingCenterState = !reportRun && canonicalReadiness.reason_code === "INGEST_IN_PROGRESS";
 
   return (
     <div className="min-w-0">
@@ -390,13 +412,13 @@ export default async function MatterPage(props: {
 
             {reportRun ? (
               <>
-                {activeRunFailure ? (
+                {activeRunBlockingFailure ? (
                   <ErrorBanner
                     title="Latest run needs attention"
-                    code={activeRunFailure.code}
-                    message={activeRunFailure.message}
-                    traceId={activeRunFailure.trace_id}
-                    retryable={activeRunFailure.retryable}
+                    code={activeRunBlockingFailure.code}
+                    message={activeRunBlockingFailure.message}
+                    traceId={activeRunBlockingFailure.trace_id}
+                    retryable={activeRunBlockingFailure.retryable}
                     supportRoute={`/matters/${folderId}`}
                     showSupportAction={false}
                     className="mb-4"
@@ -414,6 +436,20 @@ export default async function MatterPage(props: {
                       </div>
                     )}
                   </ErrorBanner>
+                ) : null}
+                {!activeRunBlockingFailure && activeRunProgress ? (
+                  <div className="mb-3 text-xs text-muted-foreground">
+                    {showingCompletedHistory && activeRun && reportRun ? (
+                      <>
+                        Showing report history from completed run{" "}
+                        <span className="font-mono text-foreground">{reportRun.id}</span> while active run{" "}
+                        <span className="font-mono text-foreground">{activeRun.id}</span> is{" "}
+                        <span className="font-medium text-foreground">{activeRun.state}</span>.
+                      </>
+                    ) : (
+                      "Analysis is still running. Report rows will appear when processing finishes."
+                    )}
+                  </div>
                 ) : null}
 
                 <SegmentedControl
@@ -450,6 +486,27 @@ export default async function MatterPage(props: {
                   </>
                 )}
               </>
+            ) : showIngestingCenterState ? (
+              <Card className="mx-auto max-w-2xl">
+                <div className="px-6 py-10 text-center animate-fade-in-up sm:px-8">
+                  <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-ui-lg bg-warning/10 text-warning">
+                    <Spinner size="md" variant="current" aria-label="Ingesting folder" />
+                  </div>
+                  <h2 className="font-serif text-heading-sm font-medium text-foreground">Folder is ingesting</h2>
+                  <p className="mx-auto mt-1.5 max-w-xl text-sm text-muted-foreground">
+                    Wait for indexing to complete, then refresh readiness.
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    <Badge variant="warning">Indexing in progress</Badge>
+                    <Badge variant="muted">
+                      {indexedReadyCount}/{setupDocuments.length} documents ready
+                    </Badge>
+                  </div>
+                  <Alert variant="warning" title="Action required" className="mx-auto mt-5 max-w-xl text-left">
+                    {canonicalReadiness.reason}
+                  </Alert>
+                </div>
+              </Card>
             ) : (
               <EmptyState
                 icon={<DocumentIcon />}
