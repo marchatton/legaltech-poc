@@ -311,4 +311,61 @@ describe("POST /folders/:id/runs (quick start)", () => {
     },
     20_000,
   );
+
+  it("exposes a typed failure envelope for failed runs", async () => {
+    const folderId = `fld_${randomUUID()}`;
+    const runId = `run_${randomUUID()}`;
+    const traceId = `trc_${randomUUID()}`;
+
+    await sql`
+      INSERT INTO folders (id, name, state, latest_index_version)
+      VALUES (${folderId}, 'failure envelope run', 'ready', 'v1')
+    `;
+    await sql`
+      INSERT INTO runs (
+        id,
+        folder_id,
+        type,
+        state,
+        index_version,
+        agent_bundle_version,
+        question_set_version,
+        trace_id,
+        error_json,
+        questions_total,
+        questions_done
+      )
+      VALUES (
+        ${runId},
+        ${folderId},
+        'quick_start_title_survey',
+        'failed',
+        'v1',
+        'git:test',
+        'qs:test',
+        ${traceId},
+        ${sql.json({
+          code: "WORKFLOW_SCHEDULE_FAILED",
+          message: "Failed to schedule Quick Start workflow steps.",
+        })},
+        3,
+        0
+      )
+    `;
+
+    const res = await GET_RUN(new Request(`http://localhost/runs/${runId}`, { method: "GET" }), {
+      params: Promise.resolve({ id: runId }),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as any;
+    expect(body?.run?.state).toBe("failed");
+    expect(body?.run?.failure).toMatchObject({
+      code: "WORKFLOW_SCHEDULE_FAILED",
+      message: "Failed to schedule Quick Start workflow steps.",
+      trace_id: traceId,
+      retryable: false,
+    });
+
+    await sql`DELETE FROM folders WHERE id = ${folderId}`;
+  });
 });

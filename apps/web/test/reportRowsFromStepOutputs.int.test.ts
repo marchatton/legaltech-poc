@@ -25,7 +25,22 @@ function seedSnapshotPath(packId: string): string {
 }
 
 type ReportRouteJson = {
-  run: { id: string };
+  run: {
+    id: string;
+    failure?: {
+      code?: string;
+      message?: string;
+      retryable?: boolean;
+    } | null;
+  };
+  active_run?: {
+    id: string;
+    failure?: {
+      code?: string;
+      message?: string;
+      retryable?: boolean;
+    } | null;
+  } | null;
   rows: Array<{
     question_id: string;
     status: string;
@@ -325,5 +340,134 @@ describe("report rows from persisted step outputs", () => {
       await sql`DELETE FROM folders WHERE id = ${folderId}`;
       await fs.rm(snapshotDir, { recursive: true, force: true });
     }
+  });
+
+  it("shows failed active-run envelope while preserving completed history without stale success rows", async () => {
+    const folderId = `fld_${randomUUID()}`;
+    const completedRunId = `run_${randomUUID()}`;
+    const failedRunId = `run_${randomUUID()}`;
+    const completedTraceId = `trc_${randomUUID()}`;
+    const failedTraceId = `trc_${randomUUID()}`;
+    const rowId = `row_${randomUUID()}`;
+
+    await sql`INSERT INTO folders (id, name, state) VALUES (${folderId}, 'report failure history', 'ready')`;
+    await sql`
+      INSERT INTO runs (
+        id,
+        folder_id,
+        type,
+        state,
+        index_version,
+        agent_bundle_version,
+        question_set_version,
+        trace_id,
+        questions_total,
+        questions_done
+      )
+      VALUES (
+        ${completedRunId},
+        ${folderId},
+        'quick_start_title_survey',
+        'completed',
+        'v1',
+        'git:test',
+        'qs:test',
+        ${completedTraceId},
+        1,
+        1
+      )
+    `;
+    await sql`
+      INSERT INTO report_rows (
+        id,
+        run_id,
+        folder_id,
+        question_set_version,
+        question_id,
+        question,
+        answer,
+        status,
+        notes,
+        provenance_json,
+        payload_schema_version,
+        payload_json
+      )
+      VALUES (
+        ${rowId},
+        ${completedRunId},
+        ${folderId},
+        'qs:test',
+        'TS-01',
+        'Who is the Proposed Insured?',
+        'Completed run history row',
+        'needs_review',
+        NULL,
+        ${sql.json({})},
+        NULL,
+        NULL
+      )
+    `;
+    await sql`
+      INSERT INTO runs (
+        id,
+        folder_id,
+        type,
+        state,
+        index_version,
+        agent_bundle_version,
+        question_set_version,
+        trace_id,
+        error_json,
+        questions_total,
+        questions_done
+      )
+      VALUES (
+        ${failedRunId},
+        ${folderId},
+        'quick_start_title_survey',
+        'failed',
+        'v1',
+        'git:test',
+        'qs:test',
+        ${failedTraceId},
+        ${sql.json({
+          code: "WORKFLOW_SCHEDULE_FAILED",
+          message: "Failed to schedule Quick Start workflow steps.",
+        })},
+        1,
+        0
+      )
+    `;
+
+    const defaultRes = await GET_REPORT(new Request(`http://localhost/folders/${folderId}/report`), {
+      params: Promise.resolve({ id: folderId }),
+    });
+    expect(defaultRes.status).toBe(200);
+    const defaultJson = (await defaultRes.json()) as ReportRouteJson;
+    expect(defaultJson.run.id).toBe(completedRunId);
+    expect(defaultJson.rows).toHaveLength(1);
+    expect(defaultJson.rows[0]?.answer).toBe("Completed run history row");
+    expect(defaultJson.active_run?.id).toBe(failedRunId);
+    expect(defaultJson.active_run?.failure).toMatchObject({
+      code: "WORKFLOW_SCHEDULE_FAILED",
+      message: "Failed to schedule Quick Start workflow steps.",
+      retryable: false,
+    });
+
+    const failedRunRes = await GET_REPORT(
+      new Request(`http://localhost/folders/${folderId}/report?${new URLSearchParams({ run_id: failedRunId }).toString()}`),
+      { params: Promise.resolve({ id: folderId }) },
+    );
+    expect(failedRunRes.status).toBe(200);
+    const failedRunJson = (await failedRunRes.json()) as ReportRouteJson;
+    expect(failedRunJson.run.id).toBe(failedRunId);
+    expect(failedRunJson.run.failure).toMatchObject({
+      code: "WORKFLOW_SCHEDULE_FAILED",
+      message: "Failed to schedule Quick Start workflow steps.",
+      retryable: false,
+    });
+    expect(failedRunJson.rows).toHaveLength(0);
+
+    await sql`DELETE FROM folders WHERE id = ${folderId}`;
   });
 });

@@ -18,9 +18,11 @@ import {
   parseReportTriageFilters,
   type ReportTriageTab,
 } from "../../../../lib/reportTriage.server";
+import { deriveRunFailureEnvelope } from "../../../../lib/runFailureEnvelope";
 import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.server";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { EmptyState } from "../../../ui/EmptyState";
+import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { buttonClassName } from "../../../ui/Button";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { StatePage } from "../../../ui/StatePage";
@@ -77,6 +79,8 @@ type RunSummaryRow = {
   agent_bundle_version: string | null;
   questions_total: number;
   questions_done: number;
+  error_json: unknown | null;
+  trace_id: string | null;
   created_at: Date;
   updated_at: Date;
   started_at: Date | null;
@@ -278,11 +282,11 @@ export default async function MatterPage(props: {
   `;
 
   const runs = await sql<RunSummaryRow[]>`
-    SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at, started_at
+    SELECT id, state, agent_bundle_version, questions_total, questions_done, error_json, trace_id, created_at, updated_at, started_at
     FROM runs
     WHERE folder_id = ${folderId}
       AND type = 'quick_start_title_survey'
-    ORDER BY created_at DESC
+    ORDER BY created_at DESC, updated_at DESC, id DESC
     LIMIT 1
   `;
   const latestRun = runs[0] ?? null;
@@ -322,9 +326,10 @@ export default async function MatterPage(props: {
   });
 
   let reportRun = latestRun;
+  let activeRun = latestRun;
   if (reportRequestedRunId && reportRequestedRunId !== latestRun?.id) {
     const requestedRuns = await sql<RunSummaryRow[]>`
-      SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at, started_at
+      SELECT id, state, agent_bundle_version, questions_total, questions_done, error_json, trace_id, created_at, updated_at, started_at
       FROM runs
       WHERE id = ${reportRequestedRunId}
         AND folder_id = ${folderId}
@@ -332,7 +337,38 @@ export default async function MatterPage(props: {
       LIMIT 1
     `;
     reportRun = requestedRuns[0] ?? latestRun;
+    activeRun = reportRun;
+  } else if (!reportRequestedRunId && latestRun && latestRun.state !== "completed") {
+    const fallbackRuns = await sql<RunSummaryRow[]>`
+      SELECT id, state, agent_bundle_version, questions_total, questions_done, error_json, trace_id, created_at, updated_at, started_at
+      FROM runs
+      WHERE folder_id = ${folderId}
+        AND type = 'quick_start_title_survey'
+        AND state = ${"completed"}
+      ORDER BY created_at DESC, updated_at DESC, id DESC
+      LIMIT 1
+    `;
+    const fallbackRun = fallbackRuns[0] ?? null;
+    if (fallbackRun && fallbackRun.id !== latestRun.id) reportRun = fallbackRun;
   }
+
+  const reportRunFailure = reportRun
+    ? deriveRunFailureEnvelope({
+        runId: reportRun.id,
+        state: reportRun.state,
+        errorJson: reportRun.error_json,
+        traceId: reportRun.trace_id,
+      })
+    : null;
+  const activeRunFailure = activeRun
+    ? deriveRunFailureEnvelope({
+        runId: activeRun.id,
+        state: activeRun.state,
+        errorJson: activeRun.error_json,
+        traceId: activeRun.trace_id,
+      })
+    : null;
+  const showingCompletedHistory = Boolean(activeRunFailure && activeRun && reportRun && activeRun.id !== reportRun.id);
 
   const reportRows = reportRun
     ? await sql<ReportRow[]>`
@@ -446,6 +482,10 @@ export default async function MatterPage(props: {
   const runQuestionsDone = latestRun?.questions_done ?? 0;
   const runQuestionsTotal = latestRun?.questions_total ?? 0;
   const runProgress = runQuestionsTotal > 0 ? Math.round((runQuestionsDone / runQuestionsTotal) * 100) : 0;
+  const reportEmptyStateTitle = reportRunFailure ? "Run report unavailable" : "No report rows yet";
+  const reportEmptyStateDescription = reportRunFailure
+    ? "No report rows were produced for this run. Re-run Quick Start after fixing the failure."
+    : "Run Quick Start to generate report rows for triage.";
 
   return (
     <div className="min-w-0">
@@ -535,6 +575,32 @@ export default async function MatterPage(props: {
 
             {reportRun ? (
               <>
+                {activeRunFailure ? (
+                  <ErrorBanner
+                    title="Latest run needs attention"
+                    code={activeRunFailure.code}
+                    message={activeRunFailure.message}
+                    traceId={activeRunFailure.trace_id}
+                    retryable={activeRunFailure.retryable}
+                    supportRoute={`/matters/${folderId}`}
+                    showSupportAction={false}
+                    className="mb-4"
+                  >
+                    {showingCompletedHistory && activeRun && reportRun ? (
+                      <div className="text-2xs text-muted-foreground">
+                        Showing report history from completed run{" "}
+                        <span className="font-mono text-foreground">{reportRun.id}</span> while active run{" "}
+                        <span className="font-mono text-foreground">{activeRun.id}</span> is{" "}
+                        <span className="font-medium text-foreground">{activeRun.state}</span>.
+                      </div>
+                    ) : (
+                      <div className="text-2xs text-muted-foreground">
+                        Select a completed run history or re-run Quick Start after the failure is resolved.
+                      </div>
+                    )}
+                  </ErrorBanner>
+                ) : null}
+
                 <div className="flex flex-wrap items-center gap-2" aria-label="Report row status tabs">
                   {REPORT_TRIAGE_TABS.map((tab) => {
                     const isActive = triageFilters.rowTab === tab.id;
@@ -575,8 +641,8 @@ export default async function MatterPage(props: {
                 {reportRowsWithCounts.length === 0 ? (
                   <EmptyState
                     icon={<DocumentIcon />}
-                    title="No report rows yet"
-                    description="Run Quick Start to generate report rows for triage."
+                    title={reportEmptyStateTitle}
+                    description={reportEmptyStateDescription}
                   />
                 ) : (
                   <ReportTriagePanel

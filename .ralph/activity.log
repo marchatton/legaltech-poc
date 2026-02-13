@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-13 02:08:49 | run=20260213-005806-15124 | iter=5 | mode=build | story=US-005 | duration=776s | status=success
 - 2026-02-13 01:55:48 | run=20260213-005806-15124 | iter=4 | mode=build | story=US-004 | duration=937s | status=success
 - 2026-02-13 01:40:09 | run=20260213-005806-15124 | iter=3 | mode=build | story=US-003 | duration=714s | status=success
 - 2026-02-13 01:28:10 | run=20260213-005806-15124 | iter=2 | mode=build | story=US-002 | duration=679s | status=success
@@ -232,3 +233,10 @@
 [2026-02-13 02:04:50] Implemented US-005 code changes: remove seeded row injection, add step-output report row materialization, add integration tests
 [2026-02-13 02:07:28] Completed US-005 verification: lint, typecheck, test, build, and dev-server startup
 [2026-02-13 02:08:20] US-005 progress entry appended to .ralph/progress.md with commit and verification details
+[2026-02-13 02:08:49] ITERATION 5 end (duration=776s)
+[2026-02-13 02:08:52] ITERATION 6 start (mode=build story=US-006)
+[2026-02-13 02:09:31] Start US-006 iteration 6: read guardrails/errors/prd and audit current failure envelope handling
+[2026-02-13 02:16:38] Implemented US-006 code changes: typed run/report failure envelopes, failed-active-run history fallback, explicit report failure UI state, and new targeted tests
+[2026-02-13 02:22:29] Verification complete for US-006: pnpm lint/typecheck/test(pass on rerun due known flake)/build plus headless browser smoke on /matters/[id] failed-run banner + stale-row guard
+[2026-02-13 02:24:56] US-006 iteration 6: final verification run starting (lint/typecheck/test/build).
+[2026-02-13 02:27:17] US-006 iteration 6: verification complete (lint/typecheck/test/build passed; pnpm test flaky once then passed on rerun).

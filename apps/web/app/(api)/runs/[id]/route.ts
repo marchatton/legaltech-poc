@@ -4,6 +4,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
+import { deriveRunFailureEnvelope } from "../../../../lib/runFailureEnvelope";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -54,6 +55,8 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
       questions_total: number;
       questions_done: number;
       failure_counts_json: unknown;
+      error_json: unknown;
+      trace_id: string | null;
       queued_at: Date;
       started_at: Date | null;
       completed_at: Date | null;
@@ -68,6 +71,8 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
       questions_total,
       questions_done,
       failure_counts_json,
+      error_json,
+      trace_id,
       queued_at,
       started_at,
       completed_at
@@ -95,6 +100,12 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
           questions_total: run.questions_total ?? 0,
           questions_done: run.questions_done ?? 0,
         },
+        failure: deriveRunFailureEnvelope({
+          runId: run.id,
+          state: run.state,
+          errorJson: run.error_json,
+          traceId: run.trace_id,
+        }),
         failure_counts: asFailureCounts(run.failure_counts_json),
         transitions: {
           queued_at: run.queued_at.toISOString(),

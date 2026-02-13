@@ -5,6 +5,7 @@ import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { materializeReportRowsFromStepOutputs } from "../../../../../lib/reportRowsFromStepOutputs.server";
+import { deriveRunFailureEnvelope } from "../../../../../lib/runFailureEnvelope";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -21,6 +22,8 @@ type RunRow = {
   index_version: string;
   agent_bundle_version: string;
   question_set_version: string;
+  error_json: unknown;
+  trace_id: string | null;
 };
 
 type ReportRow = {
@@ -96,24 +99,40 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   }
 
   let run: RunRow | null = null;
+  let activeRun: RunRow | null = null;
   if (runId) {
     const runs = await sql<RunRow[]>`
-      SELECT id, state, index_version, agent_bundle_version, question_set_version
+      SELECT id, state, index_version, agent_bundle_version, question_set_version, error_json, trace_id
       FROM runs
       WHERE id = ${runId}
         AND folder_id = ${folderId}
       LIMIT 1
     `;
     run = runs[0] ?? null;
+    activeRun = run;
   } else {
     const runs = await sql<RunRow[]>`
-      SELECT id, state, index_version, agent_bundle_version, question_set_version
+      SELECT id, state, index_version, agent_bundle_version, question_set_version, error_json, trace_id
       FROM runs
       WHERE folder_id = ${folderId}
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC, updated_at DESC, id DESC
       LIMIT 1
     `;
-    run = runs[0] ?? null;
+    activeRun = runs[0] ?? null;
+    run = activeRun;
+
+    if (activeRun && activeRun.state !== "completed") {
+      const completedRuns = await sql<RunRow[]>`
+        SELECT id, state, index_version, agent_bundle_version, question_set_version, error_json, trace_id
+        FROM runs
+        WHERE folder_id = ${folderId}
+          AND state = 'completed'
+        ORDER BY created_at DESC, updated_at DESC, id DESC
+        LIMIT 1
+      `;
+      const fallback = completedRuns[0] ?? null;
+      if (fallback && fallback.id !== activeRun.id) run = fallback;
+    }
   }
 
   if (!run) {
@@ -216,7 +235,29 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
         index_version: run.index_version,
         agent_bundle_version: run.agent_bundle_version,
         question_set_version: run.question_set_version,
+        failure: deriveRunFailureEnvelope({
+          runId: run.id,
+          state: run.state,
+          errorJson: run.error_json,
+          traceId: run.trace_id,
+        }),
       },
+      active_run:
+        activeRun && activeRun.id !== run.id
+          ? {
+              id: activeRun.id,
+              state: activeRun.state,
+              index_version: activeRun.index_version,
+              agent_bundle_version: activeRun.agent_bundle_version,
+              question_set_version: activeRun.question_set_version,
+              failure: deriveRunFailureEnvelope({
+                runId: activeRun.id,
+                state: activeRun.state,
+                errorJson: activeRun.error_json,
+                traceId: activeRun.trace_id,
+              }),
+            }
+          : null,
       rows: rows.map((r) => {
         const cids = citationIdsByRow.get(r.id) ?? [];
         return {
