@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node --experimental-strip-types scripts/dev.ts",
     "worker": "node --experimental-strip-types scripts/worker.ts",
-    "build": "next build",
+    "build": "node --experimental-strip-types scripts/build.ts",
     "start": "next start",
     "lint": "next lint",
     "test:push": "vitest run --exclude \"test/**/*.int.test.ts\"",
