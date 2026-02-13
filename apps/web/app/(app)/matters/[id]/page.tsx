@@ -23,7 +23,7 @@ import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.ser
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { EmptyState } from "../../../ui/EmptyState";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
-import { buttonClassName } from "../../../ui/Button";
+
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { StatePage } from "../../../ui/StatePage";
 import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
@@ -555,14 +555,9 @@ export default async function MatterPage(props: {
         {activeTab === "report" ? (
           <section className="space-y-4">
             <div className="max-w-lg rounded-ui-lg border border-border/70 bg-muted/20 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
-                  <span className="text-2xs text-muted-foreground">{operatorChecklistSummary} · {operatorElapsedLabel}</span>
-                </div>
-                <Link href="/matters" className={buttonClassName({ variant: "secondary", size: "sm" })}>
-                  Load Pack Again
-                </Link>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
+                <span className="text-2xs text-muted-foreground">{operatorChecklistSummary} · {operatorElapsedLabel}</span>
               </div>
 
               <ol className="relative ml-3 space-y-4">
