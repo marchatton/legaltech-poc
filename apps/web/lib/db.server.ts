@@ -100,6 +100,13 @@ async function ensureSchemaInner(): Promise<void> {
 }
 
 export async function ensureSchema(): Promise<void> {
+  // In Next dev, module code can hot-reload while `globalThis` survives.
+  // Re-run schema ensures each call so new migration steps are applied.
+  if (process.env.NODE_ENV === "development") {
+    await ensureSchemaInner();
+    return;
+  }
+
   if (!g.__orbitalSchemaReady) {
     g.__orbitalSchemaReady = ensureSchemaInner();
   }
