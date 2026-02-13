@@ -154,7 +154,7 @@ export function ExportMemoButton(props: Props) {
   }
 
   return (
-    <div className="grid justify-items-end gap-2">
+    <div className="grid justify-items-center gap-2">
       {state.kind === "blocked" ? (
         <ErrorBanner
           title="Export blocked"
@@ -226,13 +226,13 @@ export function ExportMemoButton(props: Props) {
       ) : null}
 
       <Button
-        variant="neutral"
+        variant="primary"
         size="sm"
         onClick={() => run({ unsafeOverride: false })}
         disabled={Boolean(disabled)}
         loading={state.kind === "loading"}
       >
-        Full report (DOCX)
+        Download (docx)
       </Button>
 
       {disabled ? (

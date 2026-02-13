@@ -34,6 +34,7 @@ export type MatterListItem = {
   state: FolderState;
   readiness: CanonicalReadiness;
   latest_index_version: string;
+  jurisdiction_state: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -102,11 +103,12 @@ export async function listMatters(filters: MatterListFilters): Promise<MatterLis
       name: string;
       state: FolderState;
       latest_index_version: string;
+      jurisdiction_state: string | null;
       created_at: Date;
       updated_at: Date;
     }>
   >`
-    SELECT id, name, state, latest_index_version, created_at, updated_at
+    SELECT id, name, state, latest_index_version, jurisdiction_state, created_at, updated_at
     FROM folders
     WHERE (
       ${searchPattern === null}
@@ -143,6 +145,7 @@ export async function listMatters(filters: MatterListFilters): Promise<MatterLis
       documentFilenames: docsByFolder.get(row.id) ?? [],
     }),
     latest_index_version: row.latest_index_version,
+    jurisdiction_state: row.jurisdiction_state ?? null,
     created_at: row.created_at.toISOString(),
     updated_at: row.updated_at.toISOString(),
   }));

@@ -49,7 +49,7 @@ export function Tooltip({
 
   return (
     <div
-      className={cn("relative inline-block", className)}
+      className={cn("relative", className)}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       onFocus={handleEnter}

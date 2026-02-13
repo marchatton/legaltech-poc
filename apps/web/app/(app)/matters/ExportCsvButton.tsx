@@ -115,7 +115,7 @@ export function ExportCsvButton(props: Props) {
   }
 
   return (
-    <div className="grid justify-items-end gap-2">
+    <div className="grid justify-items-center gap-2">
       <Button
         variant="secondary"
         size="sm"

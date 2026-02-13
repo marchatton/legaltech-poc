@@ -55,6 +55,7 @@ type FolderRow = {
   name: string;
   state: string;
   latest_index_version: string;
+  jurisdiction_state: string | null;
   created_at: Date;
   updated_at: Date;
 };
@@ -235,6 +236,21 @@ function tabIcon(tabId: MatterDetailTab) {
       </svg>
     );
   }
+  if (tabId === "documents") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+    );
+  }
+  if (tabId === "chat") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    );
+  }
   if (tabId === "exports") {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
@@ -264,7 +280,7 @@ export default async function MatterPage(props: {
 
   const folderId = parsed.data.id;
   const folders = await sql<FolderRow[]>`
-    SELECT id, name, state, latest_index_version, created_at, updated_at
+    SELECT id, name, state, latest_index_version, jurisdiction_state, created_at, updated_at
     FROM folders
     WHERE id = ${folderId}
     LIMIT 1
@@ -506,6 +522,11 @@ export default async function MatterPage(props: {
                   folderState: folder.state,
                 })}
               </Badge>
+              {folder.jurisdiction_state ? (
+                <Badge variant="muted" className="shrink-0">
+                  {folder.jurisdiction_state}
+                </Badge>
+              ) : null}
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
@@ -533,22 +554,26 @@ export default async function MatterPage(props: {
       <div className="px-6 py-6 lg:px-8">
         {activeTab === "report" ? (
           <section className="space-y-4">
-            <div className="rounded-ui-lg border border-border/70 bg-muted/20 p-4">
+            <div className="max-w-lg rounded-ui-lg border border-border/70 bg-muted/20 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
                   <span className="text-2xs text-muted-foreground">{operatorChecklistSummary} · {operatorElapsedLabel}</span>
                 </div>
-                <Link href="/matters" className={buttonClassName({ variant: "ghost", size: "sm" })}>
+                <Link href="/matters" className={buttonClassName({ variant: "secondary", size: "sm" })}>
                   Load Pack Again
                 </Link>
               </div>
 
-              <ol className="relative ml-3 border-l-2 border-border space-y-4">
+              <ol className="relative ml-3 space-y-4">
                 {operatorChecklistSteps.map((step, i) => {
+                  const isFirst = i === 0;
                   const isLast = i === operatorChecklistSteps.length - 1;
                   return (
                     <li key={step.id} className="relative pl-6">
+                      {!isLast && (
+                        <span className="absolute -left-[1px] top-4 h-[calc(100%+0.5rem)] w-0.5 bg-border" aria-hidden="true" />
+                      )}
                       <span className={`absolute -left-[9px] top-0.5 flex size-4 items-center justify-center rounded-full ${
                         step.state === "done"
                           ? "bg-success text-white"
@@ -633,9 +658,6 @@ export default async function MatterPage(props: {
                     );
                   })}
 
-                  <span className="ml-auto text-xs text-muted-foreground">
-                    Showing {visibleReportRows.length}/{reportRowsWithCounts.length}
-                  </span>
                 </div>
 
                 {reportRowsWithCounts.length === 0 ? (
@@ -645,12 +667,17 @@ export default async function MatterPage(props: {
                     description={reportEmptyStateDescription}
                   />
                 ) : (
-                  <ReportTriagePanel
-                    folderId={folderId}
-                    rowTab={triageFilters.rowTab}
-                    rows={reportRowsForClient}
-                    modelVersion={reportRun.agent_bundle_version}
-                  />
+                  <>
+                    <ReportTriagePanel
+                      folderId={folderId}
+                      rowTab={triageFilters.rowTab}
+                      rows={reportRowsForClient}
+                      modelVersion={reportRun.agent_bundle_version}
+                    />
+                    <p className="mt-2 text-right text-xs text-muted-foreground">
+                      Showing {visibleReportRows.length}/{reportRowsWithCounts.length}
+                    </p>
+                  </>
                 )}
               </>
             ) : (

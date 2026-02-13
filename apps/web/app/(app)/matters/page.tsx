@@ -1,14 +1,12 @@
 import Link from "next/link";
 
 import { assertDevOrDemoProd } from "../../../lib/devOnly";
-import { isDemoModeEnabled } from "../../../lib/demoMode.server";
 import {
   listMatters,
   parseMatterListFilters,
   type MatterListFilters,
   type MatterSavedView,
 } from "../../../lib/mattersList.server";
-import { orbitalMode } from "../../../lib/runtimeMode";
 
 import { Badge, type BadgeVariant } from "../../ui/Badge";
 import { buttonClassName } from "../../ui/Button";
@@ -18,10 +16,8 @@ import { Page, PageHeader } from "../../ui/Page";
 import { SearchInput } from "../../ui/SearchInput";
 import { StatusDot, type StatusDotStatus } from "../../ui/StatusDot";
 import { TableFrame, Table, TH, TD, TR } from "../../ui/Table";
-import { WorkspaceContextBar, WorkspaceContextBarBody } from "../../ui/WorkspaceShell";
 
 import { CreateMatterForm } from "./CreateMatterForm";
-import { resolveShellEnvironment } from "./shellEnvironment";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +30,6 @@ const SAVED_VIEW_OPTIONS: { label: string; value: MatterSavedView | null }[] = [
   { label: "All", value: null },
   { label: "Active", value: "active" },
   { label: "Needs Attention", value: "needs_attention" },
-  { label: "Demo Packs", value: "demo_packs" },
 ];
 
 const PAGE_SIZE = 12;
@@ -109,9 +104,6 @@ export default async function MattersPage(props: {
   const rawSearchParams = (await props.searchParams) ?? {};
   const filters = parseMatterListFilters(rawSearchParams);
   const matters = await listMatters(filters);
-  const demoModeEnabled = isDemoModeEnabled();
-  const shellEnvironment = resolveShellEnvironment(orbitalMode(), demoModeEnabled);
-
   const requestedPage = parsePageNumber(rawSearchParams.page);
   const totalMatters = matters.length;
   const totalPages = Math.max(1, Math.ceil(totalMatters / PAGE_SIZE));
@@ -122,22 +114,8 @@ export default async function MattersPage(props: {
   const visibleRangeEnd = totalMatters === 0 ? 0 : Math.min(startIndex + visibleMatters.length, totalMatters);
 
   return (
-    <>
-      <WorkspaceContextBar>
-        <WorkspaceContextBarBody>
-          <div className="flex min-w-0 items-center text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">Matters</span>
-          </div>
-          <div className="ml-auto flex shrink-0 items-center gap-2">
-            <Badge variant={shellEnvironment.badgeVariant} size="sm">
-              {shellEnvironment.label}
-            </Badge>
-          </div>
-        </WorkspaceContextBarBody>
-      </WorkspaceContextBar>
-
       <Page width="xl" className="pt-0">
-        <section className="sticky top-[var(--app-topbar-height,3rem)] z-20 -mx-6 border-b border-border bg-background/95 px-6 pb-4 pt-6 backdrop-blur sm:-mx-8 sm:px-8">
+        <section className="sticky top-[var(--app-topbar-height,3rem)] z-20 -mx-6 border-b border-border bg-background/95 px-6 pb-4 pt-4 backdrop-blur sm:-mx-8 sm:px-8">
           <PageHeader title="Matters" right={<CreateMatterForm />} />
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -196,17 +174,13 @@ export default async function MattersPage(props: {
             </Card>
           ) : (
             <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Showing <span className="font-semibold text-foreground tabular-nums">{visibleRangeStart}-{visibleRangeEnd}</span> of{" "}
-                <span className="font-semibold text-foreground tabular-nums">{totalMatters}</span> matter{totalMatters === 1 ? "" : "s"}
-              </p>
-
               <TableFrame className="shadow-ui-sm">
                 <Table>
                   <thead>
                     <tr>
                       <TH className="sticky top-0 z-10">Name</TH>
                       <TH className="sticky top-0 z-10">Status</TH>
+                      <TH className="sticky top-0 z-10">State</TH>
                       <TH className="sticky top-0 z-10">Created</TH>
                       <TH className="sticky top-0 z-10 w-10" />
                     </tr>
@@ -239,6 +213,15 @@ export default async function MattersPage(props: {
                           </TD>
                           <TD className="p-0 align-top">
                             <Link href={detailHref} className="block px-3 py-2.5">
+                              {matter.jurisdiction_state ? (
+                                <Badge variant="muted" size="sm">{matter.jurisdiction_state}</Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">&mdash;</span>
+                              )}
+                            </Link>
+                          </TD>
+                          <TD className="p-0 align-top">
+                            <Link href={detailHref} className="block px-3 py-2.5">
                               <span className="text-sm text-foreground tabular-nums">{createdAt.date}</span>
                             </Link>
                           </TD>
@@ -255,6 +238,13 @@ export default async function MattersPage(props: {
                   </tbody>
                 </Table>
               </TableFrame>
+
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">
+                  Showing <span className="font-semibold text-foreground tabular-nums">{visibleRangeStart}-{visibleRangeEnd}</span> of{" "}
+                  <span className="font-semibold text-foreground tabular-nums">{totalMatters}</span> matter{totalMatters === 1 ? "" : "s"}
+                </p>
+              </div>
 
               {totalPages > 1 ? (
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -295,6 +285,5 @@ export default async function MattersPage(props: {
 
       </div>
       </Page>
-    </>
   );
 }

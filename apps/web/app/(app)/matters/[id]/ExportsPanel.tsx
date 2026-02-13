@@ -102,55 +102,84 @@ export function ExportsPanel(props: Props) {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-primary" aria-hidden="true">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
+          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
-            <span className="text-sm font-medium text-foreground">Full Report</span>
           </div>
-          <p className="text-xs text-muted-foreground mb-3">Complete Word memo with findings and citations.</p>
-          <ExportMemoButton
-            folderId={props.folderId}
-            runId={selectedRun?.run_id ?? null}
-            runState={selectedRun?.status ?? null}
-            unsafeOverrideEnabled={props.unsafeOverrideEnabled}
-          />
+          <div className="text-xs font-medium text-foreground">Full Report</div>
+          <div className="mt-3">
+            <ExportMemoButton
+              folderId={props.folderId}
+              runId={selectedRun?.run_id ?? null}
+              runState={selectedRun?.status ?? null}
+              unsafeOverrideEnabled={props.unsafeOverrideEnabled}
+            />
+          </div>
         </div>
 
-        <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4 text-primary" aria-hidden="true">
-              <path d="M12 3v12" />
-              <path d="m7 10 5 5 5-5" />
-              <path d="M5 21h14" />
+        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
+          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18" />
+              <path d="M3 15h18" />
+              <path d="M9 3v18" />
             </svg>
-            <span className="text-sm font-medium text-foreground">CSV Exports</span>
           </div>
-          <p className="text-xs text-muted-foreground mb-3">Structured data for analysis and tracking.</p>
-          <div className="grid gap-2">
+          <div className="text-xs font-medium text-foreground">Summary</div>
+          <div className="mt-3">
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
               runState={selectedRun?.status ?? null}
               kind="requirements_tracker"
-              label="Summary CSV"
+              label="Download (csv)"
             />
+          </div>
+        </div>
+
+        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
+          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+          </div>
+          <div className="text-xs font-medium text-foreground">Details</div>
+          <div className="mt-3">
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
               runState={selectedRun?.status ?? null}
               kind="exceptions_table"
-              label="Details CSV"
+              label="Download (csv)"
             />
+          </div>
+        </div>
+
+        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
+          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+          </div>
+          <div className="text-xs font-medium text-foreground">Citations</div>
+          <div className="mt-3">
             <ExportCsvButton
               folderId={props.folderId}
               runId={selectedRun?.run_id ?? null}
               runState={selectedRun?.status ?? null}
               kind="survey_issues"
-              label="Citations CSV"
+              label="Download (csv)"
             />
           </div>
         </div>

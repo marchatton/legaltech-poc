@@ -14,7 +14,7 @@ export function WorkspaceShellFrame({ sidebar, children, className }: WorkspaceS
   return (
     <div
       className={cn(
-        "flex min-h-[calc(100dvh-var(--app-topbar-height,3rem))] w-full bg-background overflow-x-hidden",
+        "flex min-h-[calc(100dvh-var(--app-topbar-height,3rem))] w-full bg-background overflow-x-clip",
         className,
       )}
     >

@@ -12,7 +12,7 @@ type Props = {
 
 export function UnsafeArtefactBadge(props: Props) {
   return (
-    <Tooltip content={UNSAFE_ARTEFACT_EXPLANATION} position="top">
+    <Tooltip content={UNSAFE_ARTEFACT_EXPLANATION} position="top" className="inline-block">
       <span
         tabIndex={0}
         className="inline-flex cursor-help rounded-ui-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"

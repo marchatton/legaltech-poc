@@ -645,7 +645,7 @@ export function SetupDocumentsPanel(props: {
               loading={isRefreshing}
               loadingLabel="Refreshing"
             >
-              Refresh readiness
+              Check status
             </Button>
           </div>
           <span className="text-2xs text-muted-foreground">

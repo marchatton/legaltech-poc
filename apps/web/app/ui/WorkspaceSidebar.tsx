@@ -18,11 +18,14 @@ type Destination = {
   icon: (props: { className?: string }) => ReactElement;
 };
 
-const DESTINATIONS: Destination[] = [
+type DestinationGroup = "main" | "system";
+
+const DESTINATIONS: (Destination & { group: DestinationGroup })[] = [
   {
     id: "matters",
     label: "Matters",
     href: "/matters",
+    group: "main",
     icon: (props) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -36,6 +39,7 @@ const DESTINATIONS: Destination[] = [
     id: "runs",
     label: "Runs",
     disabledHint: "Runs are coming soon",
+    group: "main",
     icon: (props) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
         <circle cx="9.5" cy="12" r="6.5" />
@@ -47,6 +51,7 @@ const DESTINATIONS: Destination[] = [
     id: "alerts",
     label: "Alerts",
     disabledHint: "Alerts are coming soon",
+    group: "system",
     icon: (props) => (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
         <path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5" />
@@ -58,10 +63,11 @@ const DESTINATIONS: Destination[] = [
     id: "settings",
     label: "Settings",
     disabledHint: "Settings are coming soon",
+    group: "system",
     icon: (props) => (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden="true">
-        <circle cx="12" cy="12" r="3.2" />
-        <path d="M19.4 15.2a1.5 1.5 0 0 0 .3 1.6l.1.1a1.8 1.8 0 1 1-2.5 2.5l-.1-.1a1.5 1.5 0 0 0-1.6-.3 1.5 1.5 0 0 0-.9 1.3v.2a1.8 1.8 0 1 1-3.6 0v-.2a1.5 1.5 0 0 0-.9-1.3 1.5 1.5 0 0 0-1.6.3l-.1.1a1.8 1.8 0 1 1-2.5-2.5l.1-.1a1.5 1.5 0 0 0 .3-1.6 1.5 1.5 0 0 0-1.3-.9h-.2a1.8 1.8 0 1 1 0-3.6h.2a1.5 1.5 0 0 0 1.3-.9 1.5 1.5 0 0 0-.3-1.6l-.1-.1a1.8 1.8 0 1 1 2.5-2.5l.1.1a1.5 1.5 0 0 0 1.6.3h.1a1.5 1.5 0 0 0 .8-1.3V3.7a1.8 1.8 0 1 1 3.6 0v.2a1.5 1.5 0 0 0 .8 1.3 1.5 1.5 0 0 0 1.6-.3l.1-.1a1.8 1.8 0 1 1 2.5 2.5l-.1.1a1.5 1.5 0 0 0-.3 1.6v.1a1.5 1.5 0 0 0 1.3.8h.2a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.3.9z" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={props.className} aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
       </svg>
     ),
   },
@@ -132,54 +138,66 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
       </div>
 
       {/* Navigation */}
-      <nav aria-label="Primary" className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
-        {DESTINATIONS.map((item) => {
-          const isActive = item.id === props.active;
-          const itemClass = cn(
-            "flex w-full items-center rounded-ui-md border-l-[3px] py-2.5 text-sm font-medium transition-colors duration-micro ease-brand-standard",
-            collapsed ? "justify-center px-2" : "gap-3 px-3",
-            isActive
-              ? "border-l-cyan-500 bg-cyan-50 text-cyan-800 shadow-ui-sm dark:bg-cyan-500/10 dark:text-cyan-300"
-              : "border-l-transparent text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
-          );
-          const iconClass = cn("size-5 shrink-0", isActive ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground");
-
-          if (item.href) {
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                title={collapsed ? item.label : undefined}
-                className={itemClass}
-              >
-                <item.icon className={iconClass} />
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </Link>
-            );
-          }
-
-          const disabledNode = (
-            <button
-              type="button"
-              aria-disabled="true"
-              onClick={(event) => event.preventDefault()}
-              title={collapsed ? item.label : undefined}
-              className={cn(
-                itemClass,
-                "cursor-not-allowed border-l-transparent text-muted-foreground/70 hover:bg-sidebar-accent/70 hover:text-muted-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar",
-              )}
-            >
-              <item.icon className={cn(iconClass, "text-muted-foreground/70")} />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-            </button>
-          );
-
+      <nav aria-label="Primary" className="flex-1 overflow-y-auto px-2 py-4">
+        {(["main", "system"] as const).map((group, groupIdx) => {
+          const items = DESTINATIONS.filter((d) => d.group === group);
           return (
-            <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right" className="block">
-              {disabledNode}
-            </Tooltip>
+            <div key={group}>
+              {groupIdx > 0 && (
+                <div className="my-2 border-t border-sidebar-border" />
+              )}
+              <div className="space-y-1">
+                {items.map((item) => {
+                  const isActive = item.id === props.active;
+                  const itemClass = cn(
+                    "flex w-full items-center rounded-ui-md border-l-[3px] py-2.5 text-sm font-medium transition-colors duration-micro ease-brand-standard",
+                    collapsed ? "justify-center px-2" : "gap-3 px-3",
+                    isActive
+                      ? "border-l-cyan-500 bg-cyan-50 text-cyan-800 shadow-ui-sm dark:bg-cyan-500/10 dark:text-cyan-300"
+                      : "border-l-transparent text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                  );
+                  const iconClass = cn("size-5 shrink-0", isActive ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground");
+
+                  if (item.href) {
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.href}
+                        aria-current={isActive ? "page" : undefined}
+                        title={collapsed ? item.label : undefined}
+                        className={itemClass}
+                      >
+                        <item.icon className={iconClass} />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </Link>
+                    );
+                  }
+
+                  const disabledNode = (
+                    <button
+                      type="button"
+                      aria-disabled="true"
+                      onClick={(event) => event.preventDefault()}
+                      title={collapsed ? item.label : undefined}
+                      className={cn(
+                        itemClass,
+                        "cursor-not-allowed border-l-transparent text-muted-foreground/70 hover:bg-sidebar-accent/70 hover:text-muted-foreground",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar",
+                      )}
+                    >
+                      <item.icon className={cn(iconClass, "text-muted-foreground/70")} />
+                      {!collapsed && <span className="truncate">{item.label}</span>}
+                    </button>
+                  );
+
+                  return (
+                    <Tooltip key={item.id} content={item.disabledHint ?? "Coming soon"} position="right" className="block">
+                      {disabledNode}
+                    </Tooltip>
+                  );
+                })}
+              </div>
+            </div>
           );
         })}
       </nav>

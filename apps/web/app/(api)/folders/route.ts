@@ -12,6 +12,7 @@ export const runtime = "nodejs";
 
 const CreateFolderSchema = z.object({
   name: z.string().trim().min(1),
+  jurisdiction_state: z.string().trim().max(2).optional(),
 });
 
 export async function GET(req: Request): Promise<Response> {
@@ -62,9 +63,10 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const folderId = newId("fld");
+  const jurisdictionState = parsed.data.jurisdiction_state ?? null;
   await sql`
-    INSERT INTO folders (id, name, state, latest_index_version, created_at, updated_at)
-    VALUES (${folderId}, ${parsed.data.name}, 'empty', 'v1', now(), now())
+    INSERT INTO folders (id, name, state, latest_index_version, jurisdiction_state, created_at, updated_at)
+    VALUES (${folderId}, ${parsed.data.name}, 'empty', 'v1', ${jurisdictionState}, now(), now())
   `;
 
   return Response.json(
@@ -74,6 +76,7 @@ export async function POST(req: Request): Promise<Response> {
         name: parsed.data.name,
         state: "empty",
         latest_index_version: "v1",
+        jurisdiction_state: jurisdictionState,
       },
     },
     { status: 200, headers },

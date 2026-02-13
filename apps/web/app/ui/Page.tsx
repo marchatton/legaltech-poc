@@ -47,7 +47,7 @@ export function PageHeader({
     <div className={cn("flex flex-wrap items-end justify-between gap-4", className)}>
       <div>
         <h1 className="font-serif text-heading-lg font-normal">{title}</h1>
-        {subtitle ? <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p> : null}
+        {subtitle ? <div className="mt-2 text-sm text-muted-foreground">{subtitle}</div> : null}
       </div>
       {right}
     </div>

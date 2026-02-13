@@ -310,23 +310,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
           <EmptyState
             title="Ask about this matter"
             description="Answers are grounded in indexed documents with sources."
-            action={
-              <div className="flex flex-col gap-2 max-w-sm mx-auto">
-                {SUGGESTED_PROMPTS.map((prompt) => (
-                  <Chip
-                    key={prompt}
-                    as="button"
-                    className="text-left text-xs leading-relaxed"
-                    onClick={() => {
-                      if (!props.contextReady) return;
-                      setInput(prompt);
-                    }}
-                  >
-                    {prompt}
-                  </Chip>
-                ))}
-              </div>
-            }
           />
         ) : null}
 
@@ -423,6 +406,25 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
         </div>
       </div>
 
+      {/* Suggested prompts */}
+      {messages.length === 0 && props.contextReady ? (
+        <div className="flex flex-wrap gap-2 border-t border-border px-4 py-3">
+          {SUGGESTED_PROMPTS.map((prompt) => (
+            <Chip
+              key={prompt}
+              as="button"
+              className="text-left text-xs leading-relaxed"
+              onClick={() => {
+                if (!props.contextReady) return;
+                setInput(prompt);
+              }}
+            >
+              {prompt}
+            </Chip>
+          ))}
+        </div>
+      ) : null}
+
       {/* Input area */}
       <div className="p-3 border-t border-border">
         {!props.contextReady ? (
@@ -430,17 +432,25 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
             {props.contextGuidance}
           </div>
         ) : null}
-        <form className="relative" onSubmit={onSubmit}>
+        <form className="flex items-end gap-2.5" onSubmit={onSubmit}>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={!props.contextReady ? "Chat is disabled until indexed context is available." : busy ? "Waiting for response..." : "Ask a question about this matter..."}
+            placeholder={!props.contextReady ? "Chat is disabled until indexed context is available." : busy ? "Waiting for response..." : "Ask about your documents..."}
             disabled={composerDisabled}
-            className="w-full bg-muted/30 pr-14"
+            className="w-full flex-1 bg-muted/30"
           />
-          <Button type="submit" disabled={!canSend} className="absolute right-1.5 top-1/2 -translate-y-1/2">
-            {props.contextReady ? "Send" : "Blocked"}
-          </Button>
+          <button
+            type="submit"
+            disabled={!canSend}
+            className="flex size-[38px] shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground transition-opacity duration-micro disabled:opacity-40"
+            aria-label="Send message"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
         </form>
       </div>
     </div>

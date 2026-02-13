@@ -23,6 +23,12 @@ const BodySchema = z.object({
   pack_id: z.enum(DEMO_PACK_ALLOWLIST),
 });
 
+const PACK_JURISDICTION: Record<string, string> = {
+  pack_01_clean: "NY",
+  pack_02_missing_rea: "TX",
+  pack_09_bad_citation: "NY",
+};
+
 const PDF_FILENAME_RE = /^[A-Za-z0-9_-]+\.pdf$/i;
 
 function packsRoot(): string {
@@ -126,9 +132,10 @@ export async function POST(req: Request): Promise<Response> {
   const folderName = demoFolderName(packId);
 
   try {
+    const jurisdictionState = PACK_JURISDICTION[packId] ?? null;
     await sql`
-      INSERT INTO folders (id, name, state, latest_index_version, created_at, updated_at)
-      VALUES (${folderId}, ${folderName}, 'empty', 'v1', now(), now())
+      INSERT INTO folders (id, name, state, latest_index_version, jurisdiction_state, created_at, updated_at)
+      VALUES (${folderId}, ${folderName}, 'empty', 'v1', ${jurisdictionState}, now(), now())
     `;
 
     const seededDocIds: string[] = [];

@@ -15,6 +15,9 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
     );
   `;
 
+  // Backfill jurisdiction_state for existing dev DBs.
+  await sql`ALTER TABLE folders ADD COLUMN IF NOT EXISTS jurisdiction_state TEXT NULL;`;
+
   // Documents
   await sql`
     CREATE TABLE IF NOT EXISTS documents (

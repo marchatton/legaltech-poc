@@ -7,8 +7,16 @@ import { useRouter } from "next/navigation";
 import { Alert } from "../../ui/Alert";
 import { Button } from "../../ui/Button";
 import { ErrorBanner } from "../../ui/ErrorBanner";
-import { Input } from "../../ui/Input";
+import { Input, Select } from "../../ui/Input";
 import { Modal, ModalActions, ModalBody, ModalTitle } from "../../ui/Modal";
+
+const US_STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL",
+  "GA","HI","ID","IL","IN","IA","KS","KY","LA","ME",
+  "MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
+  "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI",
+  "SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
+] as const;
 
 type StructuredError = {
   code: string;
@@ -38,6 +46,7 @@ export function CreateMatterForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [jurisdictionState, setJurisdictionState] = useState("");
   const [error, setError] = useState<StructuredError | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -59,7 +68,10 @@ export function CreateMatterForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: trimmedName }),
+        body: JSON.stringify({
+          name: trimmedName,
+          ...(jurisdictionState ? { jurisdiction_state: jurisdictionState } : {}),
+        }),
       });
 
       const payload = await response.json().catch(() => null);
@@ -77,6 +89,7 @@ export function CreateMatterForm() {
 
       setOpen(false);
       setName("");
+      setJurisdictionState("");
       router.push(`/matters/${encodeURIComponent(folderId)}`);
       router.refresh();
     } catch {
@@ -127,6 +140,21 @@ export function CreateMatterForm() {
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? "create-matter-error" : undefined}
             />
+          </label>
+
+          <label className="grid gap-1 text-sm">
+            <span className="text-muted-foreground">Jurisdiction State</span>
+            <Select
+              value={jurisdictionState}
+              onChange={(event) => setJurisdictionState(event.currentTarget.value)}
+              aria-label="Jurisdiction State"
+              uiSize="sm"
+            >
+              <option value="">None</option>
+              {US_STATES.map((st) => (
+                <option key={st} value={st}>{st}</option>
+              ))}
+            </Select>
           </label>
 
           {error && isValidationError ? (

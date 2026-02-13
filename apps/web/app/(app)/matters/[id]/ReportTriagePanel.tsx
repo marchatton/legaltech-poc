@@ -43,7 +43,7 @@ type ActionFeedback =
   | { kind: "idle" }
   | { kind: "success"; message: string }
   | { kind: "error"; error: SafeErrorDisplay };
-type CopyAction = "answer" | "payload";
+type CopyAction = "answer";
 
 type ViewerEvidenceData = {
   citationId: string;
@@ -66,13 +66,6 @@ type ViewerPanelState =
   | { kind: "error"; code: string; message: string }
   | { kind: "ready"; data: ViewerEvidenceData };
 
-type TrustMetadata = {
-  docVersion: string | null;
-  verifiedAt: string | null;
-  loadedState: string | null;
-};
-
-const TRUST_METADATA_FALLBACK = "Unavailable from payload";
 const REASON_CODE_PATTERN = /^[A-Z0-9_]{3,64}$/;
 const SOURCE_CHIP_DISABLED_REASON_CODES = new Set([
   "UNRESOLVED_ANCHOR",
@@ -146,36 +139,6 @@ function nonEmptyString(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function trustMetadataFromRecord(record: Record<string, unknown> | null): TrustMetadata {
-  if (!record) {
-    return {
-      docVersion: null,
-      verifiedAt: null,
-      loadedState: null,
-    };
-  }
-  return {
-    docVersion: nonEmptyString(record.doc_version),
-    verifiedAt: nonEmptyString(record.verified_at),
-    loadedState: nonEmptyString(record.loaded_state),
-  };
-}
-
-function trustMetadataFromProvenance(provenance: unknown): TrustMetadata {
-  return isRecord(provenance) ? trustMetadataFromRecord(provenance) : trustMetadataFromRecord(null);
-}
-
-function formatTrustTimestamp(raw: string | null): string | null {
-  if (!raw) return null;
-  const parsed = new Date(raw);
-  if (!Number.isFinite(parsed.getTime())) return raw;
-  return parsed.toISOString().slice(0, 16).replace("T", " ");
-}
-
-function trustValue(value: string | null): string {
-  return value ?? TRUST_METADATA_FALLBACK;
-}
-
 function formatTimestamp(raw: string): string {
   const parsed = new Date(raw);
   if (!Number.isFinite(parsed.getTime())) return raw;
@@ -186,30 +149,6 @@ function rowMatchesTab(args: { status: string; rowTab: ReportTriageTab }): boole
   if (args.rowTab === "all") return true;
   if (args.rowTab === "flagged") return FLAGGED_ROW_STATUSES.has(args.status);
   return args.status === args.rowTab;
-}
-
-function inferDataType(row: ReportRowForDrawer): string {
-  if (row.payload_schema_version) return row.payload_schema_version;
-  if (typeof row.payload_json === "string") return "string";
-  if (typeof row.payload_json === "number") return "number";
-  if (typeof row.payload_json === "boolean") return "boolean";
-  if (Array.isArray(row.payload_json)) return "array";
-  if (row.payload_json && typeof row.payload_json === "object") return "object";
-  return "text";
-}
-
-function payloadKind(payload: unknown): string | null {
-  if (!isRecord(payload)) return null;
-  const kind = payload.kind;
-  return typeof kind === "string" && kind.trim().length > 0 ? kind.trim() : null;
-}
-
-function stringifyJson(value: unknown): string {
-  try {
-    return JSON.stringify(value, null, 2) ?? "null";
-  } catch {
-    return String(value);
-  }
 }
 
 function toSafeError(err: unknown, fallbackMessage: string): SafeErrorDisplay {
@@ -348,10 +287,6 @@ export function ReportTriagePanel(props: Props) {
   const selectedRow = useMemo(
     () => rows.find((row) => row.id === selectedRowId) ?? null,
     [rows, selectedRowId],
-  );
-  const selectedRowTrustMetadata = useMemo(
-    () => trustMetadataFromProvenance(selectedRow?.provenance_json),
-    [selectedRow],
   );
   const selectedRowCitationGate = useMemo(
     () => (selectedRow ? citationChipGateForRow(selectedRow) : null),
@@ -688,37 +623,12 @@ export function ReportTriagePanel(props: Props) {
     [rows],
   );
 
-  const handleCopyStructuredPayload = useCallback(
-    async (rowId: string): Promise<void> => {
-      const existing = rows.find((row) => row.id === rowId);
-      if (!existing) return;
-
-      setPendingCopyAction("payload");
-      setFeedback({ kind: "idle" });
-      try {
-        await writeClipboardText(stringifyJson(existing.payload_json));
-        setFeedback({
-          kind: "success",
-          message: `Copied structured payload for ${existing.question_id}.`,
-        });
-      } catch (err) {
-        setFeedback({
-          kind: "error",
-          error: toSafeError(err, "Copy structured payload failed."),
-        });
-      } finally {
-        setPendingCopyAction(null);
-      }
-    },
-    [rows],
-  );
-
   return (
     <>
       <div
         className={cn(
           "mt-4",
-          showDesktopSplitViewer ? "pr-0 xl:pr-[70rem]" : selectedRow ? "pr-0 xl:pr-[34rem]" : null,
+          showDesktopSplitViewer ? "pr-0 xl:pr-[70rem]" : selectedRow ? "pr-0 xl:pr-[42rem]" : null,
         )}
       >
         <TableFrame className="max-h-[34rem] shadow-ui-sm">
@@ -801,7 +711,7 @@ export function ReportTriagePanel(props: Props) {
             aria-hidden="true"
             onClick={closeRowDrawer}
           />
-          <div className="fixed inset-y-0 right-0 z-40 flex max-w-full">
+          <div className="fixed right-0 bottom-0 top-[var(--app-topbar-height,3rem)] z-40 flex max-w-full">
           {showDesktopSplitViewer ? (
             <aside
               className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg"
@@ -824,7 +734,7 @@ export function ReportTriagePanel(props: Props) {
           ) : null}
 
           <aside
-            className="h-full w-full max-w-[34rem] border-l border-border bg-card shadow-ui-lg"
+            className="h-full w-full max-w-[42rem] border-l border-border bg-card shadow-ui-lg"
             role="dialog"
             aria-modal="true"
             aria-labelledby={`row-drawer-title-${selectedRow.id}`}
@@ -893,41 +803,6 @@ export function ReportTriagePanel(props: Props) {
                   </div>
                   <div className="mt-2 rounded-ui-md border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
                     {selectedRow.answer.trim().length > 0 ? selectedRow.answer : "Not provided."}
-                  </div>
-                </section>
-
-                <section>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Structured payload</h3>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => void handleCopyStructuredPayload(selectedRow.id)}
-                      loading={pendingCopyAction === "payload"}
-                      loadingLabel="Copying"
-                    >
-                      Copy payload
-                    </Button>
-                  </div>
-                  <div className="mt-2 space-y-2 rounded-ui-md border border-border bg-background p-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                      <span>schema</span>
-                      <span className="font-mono text-foreground">{selectedRow.payload_schema_version ?? "none"}</span>
-                    </div>
-                    {payloadKind(selectedRow.payload_json) ? (
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                        <span>kind</span>
-                        <span className="font-mono text-foreground">{payloadKind(selectedRow.payload_json)}</span>
-                      </div>
-                    ) : null}
-                    {selectedRow.payload_json !== null && selectedRow.payload_json !== undefined ? (
-                      <pre className="max-h-56 overflow-auto rounded-ui-sm bg-foreground p-3 font-mono text-2xs text-background">
-                        {stringifyJson(selectedRow.payload_json)}
-                      </pre>
-                    ) : (
-                      <div className="text-xs text-muted-foreground">No structured payload available for this row.</div>
-                    )}
                   </div>
                 </section>
 
@@ -1032,51 +907,6 @@ export function ReportTriagePanel(props: Props) {
                   </section>
                 ) : null}
 
-                <section>
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Metadata</h3>
-                  <div className="mt-2 space-y-3 rounded-ui-md border border-border bg-background p-3 text-xs">
-                    <div className="rounded-ui-sm border border-border/70 bg-muted/30 p-2.5">
-                      <div className="mb-2 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Row metadata</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">schema field</span>
-                          <span className="font-mono text-foreground">{selectedRow.question_id}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">data type</span>
-                          <span className="font-mono text-foreground">{inferDataType(selectedRow)}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">model/version</span>
-                          <span className="font-mono text-foreground">{props.modelVersion ?? "unknown"}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">updated</span>
-                          <span className="font-mono text-foreground">{formatTimestamp(selectedRow.updated_at)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="rounded-ui-sm border border-border/70 bg-muted/30 p-2.5">
-                      <div className="mb-2 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Trust metadata</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">doc_version</span>
-                          <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.docVersion)}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">verified_at</span>
-                          <span className="font-mono text-foreground">
-                            {trustValue(formatTrustTimestamp(selectedRowTrustMetadata.verifiedAt))}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground">loaded_state</span>
-                          <span className="font-mono text-foreground">{trustValue(selectedRowTrustMetadata.loadedState)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
               </div>
 
               <div className="border-t border-border bg-card px-5 py-4">
