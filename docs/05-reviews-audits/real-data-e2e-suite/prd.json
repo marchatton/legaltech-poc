@@ -364,7 +364,7 @@
     {
       "id": "US-011",
       "title": "Run-start idempotency and concurrency guardrails",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-010"
       ],
@@ -376,13 +376,13 @@
         "Negative: concurrent starts never create multiple active runs for the same context."
       ],
       "startedAt": "2026-02-13T03:18:01.052020+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-13T03:18:01.052058+00:00"
+      "completedAt": "2026-02-13T03:26:36.581782+00:00",
+      "updatedAt": "2026-02-13T03:26:36.581742+00:00"
     },
     {
       "id": "US-012",
       "title": "Cross-surface parity drift detection and telemetry taxonomy",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-011"
       ],
@@ -392,7 +392,10 @@
         "Telemetry tags use canonical fields stage, story_id, pack_id, and run_id across all loop surfaces.",
         "Example: readiness parity mismatch fails verification and identifies exact stage and story.",
         "Negative: smoke runs never pass when readiness_state_mismatch_detected is above zero."
-      ]
+      ],
+      "startedAt": "2026-02-13T03:26:38.812966+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-13T03:26:38.812983+00:00"
     }
   ],
   "executionMode": {

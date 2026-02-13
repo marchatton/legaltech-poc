@@ -258,6 +258,7 @@ describe("export csv", () => {
     const details = errorDetails(json);
     const reasonCodes = Array.isArray(details?.reason_codes) ? details.reason_codes : [];
     expect(reasonCodes).toContain("VALIDATION_ERROR");
+    expect(details?.run_id).toBe(runId);
     expect(details?.failed_question_ids).toEqual(["TS-03"]);
   });
 
@@ -342,6 +343,7 @@ describe("export csv", () => {
     const details = errorDetails(json);
     const reasonCodes = Array.isArray(details?.reason_codes) ? details.reason_codes : [];
     expect(reasonCodes).toContain("MISSING_LOCKED_CITATIONS");
+    expect(details?.run_id).toBe("run_missing_citations");
     expect(details?.missing_citation_ids).toEqual(["cit_missing_01"]);
   });
 

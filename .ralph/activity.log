@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-13 03:26:36 | run=20260213-005806-15124 | iter=11 | mode=build | story=US-011 | duration=516s | status=success
 - 2026-02-13 03:17:56 | run=20260213-005806-15124 | iter=10 | mode=build | story=US-010 | duration=651s | status=success
 - 2026-02-13 03:06:58 | run=20260213-005806-15124 | iter=9 | mode=build | story=US-009 | duration=684s | status=success
 - 2026-02-13 02:55:31 | run=20260213-005806-15124 | iter=8 | mode=build | story=US-008 | duration=606s | status=success
@@ -276,3 +277,8 @@
 [2026-02-13 03:22:53] US-011 major change: added run-start advisory lock transaction + concurrent start integration test
 [2026-02-13 03:24:52] US-011 verification complete: pnpm lint/typecheck/test/build passing
 [2026-02-13 03:25:57] US-011 progress entry appended to .ralph/progress.md
+[2026-02-13 03:26:36] ITERATION 11 end (duration=516s)
+[2026-02-13 03:26:39] ITERATION 12 start (mode=build story=US-012)
+[2026-02-13 03:26:56] Start US-012 work: parity drift detection and telemetry taxonomy
+[2026-02-13 03:32:47] US-012 major code changes: added cross-surface parity telemetry helper, smoke readiness mismatch gate, and export blocked run_id context
+[2026-02-13 03:35:54] US-012 verification complete: focused vitest, lint, typecheck, full test, build, and dev server probe passed

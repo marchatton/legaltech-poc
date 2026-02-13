@@ -231,6 +231,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const blockedMissingCitations = (missingCitationIds: string[]): Response =>
     blocked("Export blocked: locked citations are required before export.", {
+      run_id: runId,
       missing_citation_ids: missingCitationIds,
       reason_codes: ["MISSING_LOCKED_CITATIONS"],
     });
@@ -245,6 +246,7 @@ export async function POST(req: Request): Promise<Response> {
     ).sort();
 
     return blocked(`Export blocked: ${failedRows.length} row(s) failed verification.`, {
+      run_id: runId,
       citation_failed_count: failedRows.length,
       failed_question_ids: failedRows.map((row) => row.question_id).slice(0, 50),
       reason_codes: reasonCodes,
@@ -263,6 +265,7 @@ export async function POST(req: Request): Promise<Response> {
     ).sort();
 
     return blocked(`Export blocked: ${failedRows.length} row(s) failed verification.`, {
+      run_id: runId,
       citation_failed_count: failedRows.length,
       failed_question_ids: failedRows
         .map((row) => String(row.question_id ?? ""))

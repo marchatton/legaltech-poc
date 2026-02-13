@@ -10,7 +10,7 @@ import { hashSnippet } from "@orbital-poc/core/citations/snippet";
 
 import { POST as POST_DEMO_LOAD_PACK } from "../app/(api)/demo/load-pack/route";
 import { POST as POST_EXPORT_CSV } from "../app/(api)/export/csv/route";
-import { POST as POST_FOLDERS } from "../app/(api)/folders/route";
+import { GET as GET_FOLDERS, POST as POST_FOLDERS } from "../app/(api)/folders/route";
 import { POST as POST_FOLDER_DOCUMENTS, GET as GET_FOLDER_DOCUMENTS } from "../app/(api)/folders/[id]/documents/route";
 import { GET as GET_FOLDER } from "../app/(api)/folders/[id]/route";
 import { GET as GET_REPORT } from "../app/(api)/folders/[id]/report/route";
@@ -23,6 +23,7 @@ import { GET as GET_DOCUMENT_RENDER } from "../app/(api)/documents/[id]/render/r
 import { PUT as PUT_DOCUMENT_UPLOAD } from "../app/(api)/documents/[id]/upload/route";
 import { GET as GET_RUN } from "../app/(api)/runs/[id]/route";
 import { GET as GET_ARTEFACTS } from "../app/(api)/folders/[id]/artefacts/route";
+import { assertSmokeReadinessParity, evaluateCrossSurfaceParity } from "../lib/crossSurfaceParity.server";
 import { ensureAllSchemas } from "../lib/db/schema/index.server";
 import { drainWdkStepsOnce } from "../lib/wdk/wdkWorker.server";
 import { quickStartStepHandlers } from "../steps/quickStartStepHandlers.server";
@@ -75,6 +76,26 @@ type DemoLoadPackResponse = {
   folder: {
     id: string;
     name: string;
+  };
+};
+
+type FoldersListResponse = {
+  folders: Array<{
+    id: string;
+    readiness: {
+      state: string;
+      reason_code: string;
+    };
+  }>;
+};
+
+type FolderDetailResponse = {
+  folder: {
+    id: string;
+    readiness: {
+      state: string;
+      reason_code: string;
+    };
   };
 };
 
@@ -650,6 +671,22 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
         const finalRunJson = (await finalRunRes.json()) as RunResponse;
         expect(finalRunJson.run.state).toBe("completed");
 
+        const listRes = await GET_FOLDERS(
+          new Request(`http://localhost/folders?${new URLSearchParams({ q: folderId }).toString()}`),
+        );
+        expect(listRes.status).toBe(200);
+        const listJson = (await listRes.json()) as FoldersListResponse;
+        const listMatter = listJson.folders.find((folder) => folder.id === folderId);
+        if (!listMatter) {
+          throw new Error(`LIST_SURFACE_MISSING:${folderId}`);
+        }
+
+        const detailRes = await GET_FOLDER(new Request(`http://localhost/folders/${folderId}`), {
+          params: Promise.resolve({ id: folderId }),
+        });
+        expect(detailRes.status).toBe(200);
+        const detailJson = (await detailRes.json()) as FolderDetailResponse;
+
         const reportRes = await GET_REPORT(
           new Request(`http://localhost/folders/${folderId}/report?${new URLSearchParams({ run_id: runId }).toString()}`),
           { params: Promise.resolve({ id: folderId }) },
@@ -675,9 +712,53 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
         const blockedExportJson = (await blockedExportRes.json()) as SafeErrorResponse;
         expect(blockedExportJson.error.code).toBe("EXPORT_BLOCKED");
         expect(blockedExportJson.error.message ?? "").toContain("Export blocked");
-        expect((blockedExportJson.error.details?.reason_codes ?? []).length).toBeGreaterThan(0);
+        const blockedReasonCodes = Array.isArray(blockedExportJson.error.details?.reason_codes)
+          ? blockedExportJson.error.details.reason_codes
+          : [];
+        expect(blockedReasonCodes.length).toBeGreaterThan(0);
+        const blockedExportRunId =
+          typeof blockedExportJson.error.details?.run_id === "string" ? blockedExportJson.error.details.run_id : null;
+        expect(blockedExportRunId).toBe(runId);
         expect(blockedExportJson.artefact).toBeUndefined();
         expect(hasSignedDownloadLink(blockedExportJson)).toBe(false);
+
+        const parity = evaluateCrossSurfaceParity({
+          context: {
+            story_id: "US-012",
+            pack_id: "pack_09_bad_citation",
+            run_id: runId,
+          },
+          surfaces: {
+            list: {
+              readiness_state: listMatter.readiness.state,
+              readiness_reason_code: listMatter.readiness.reason_code,
+            },
+            detail: {
+              readiness_state: detailJson.folder.readiness.state,
+              readiness_reason_code: detailJson.folder.readiness.reason_code,
+            },
+            run: {
+              run_id: finalRunJson.run.id,
+            },
+            report: {
+              run_id: reportJson.run.id,
+            },
+            export: {
+              run_id: blockedExportRunId ?? runId,
+            },
+          },
+        });
+        expect(parity.metrics.run_context_mismatch_detected).toBe(0);
+        expect(parity.metrics.readiness_state_mismatch_detected).toBe(0);
+        expect(parity.mismatches).toEqual([]);
+        assertSmokeReadinessParity(parity);
+        expect(parity.telemetry).toEqual({
+          list: { stage: "list", story_id: "US-012", pack_id: "pack_09_bad_citation", run_id: runId },
+          detail: { stage: "detail", story_id: "US-012", pack_id: "pack_09_bad_citation", run_id: runId },
+          run: { stage: "run", story_id: "US-012", pack_id: "pack_09_bad_citation", run_id: runId },
+          report: { stage: "report", story_id: "US-012", pack_id: "pack_09_bad_citation", run_id: runId },
+          export: { stage: "export", story_id: "US-012", pack_id: "pack_09_bad_citation", run_id: runId },
+        });
       } finally {
         if (folderId) {
           await db`DELETE FROM folders WHERE id = ${folderId}`;
