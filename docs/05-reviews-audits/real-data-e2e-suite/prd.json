@@ -242,7 +242,7 @@
     {
       "id": "US-004",
       "title": "Run lifecycle state machine is deterministic",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-002",
         "US-003"
@@ -254,13 +254,13 @@
         "Negative: terminal runs never regress to non-terminal states."
       ],
       "startedAt": "2026-02-13T01:40:11.626005+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-13T01:40:11.626023+00:00"
+      "completedAt": "2026-02-13T01:55:51.521800+00:00",
+      "updatedAt": "2026-02-13T01:55:51.521760+00:00"
     },
     {
       "id": "US-005",
       "title": "Report rows are sourced from real step outcomes",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-004"
       ],
@@ -269,7 +269,10 @@
         "Report rows are generated from persisted run step outputs for the selected run.",
         "Example: pack_05_partial_release row statuses remain stable across reloads for the same run.",
         "Negative: seeded fallback rows are not emitted for successful real-data runs."
-      ]
+      ],
+      "startedAt": "2026-02-13T01:55:53.780177+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-13T01:55:53.780200+00:00"
     },
     {
       "id": "US-006",

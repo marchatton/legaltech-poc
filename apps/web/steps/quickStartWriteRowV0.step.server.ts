@@ -11,8 +11,6 @@ import {
 
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
-import { parseDemoMatterMetadata } from "../lib/demoMatterMetadata";
-import { loadSeedSnapshot, type ResolvedSeedSnapshot } from "../lib/fixtureSeed.server";
 import { newId } from "../lib/ids";
 import { loadQuestionSetV1 } from "../lib/questionSet.server";
 import { completeRunIfReady, transitionRunState } from "../lib/runLifecycle.server";
@@ -26,7 +24,6 @@ const InputSchema = z.object({
 type RunRow = {
   id: string;
   folder_id: string;
-  folder_name: string;
   state: string;
   question_set_version: string;
   trace_id: string | null;
@@ -35,8 +32,6 @@ type RunRow = {
 };
 
 type FolderDocumentRow = {
-  id: string;
-  filename: string;
   upload_completed_at: Date | null;
   parse_status: string;
   ocr_status: string;
@@ -67,10 +62,43 @@ type QuickStartLockedCitation = {
   polygons_json: unknown;
 };
 
+type PersistedStepReportRow = {
+  question_id: string;
+  question: string;
+  answer: string;
+  status: QuickStartRowStatus;
+  notes: string | null;
+  provenance_json: unknown;
+  payload_schema_version: string | null;
+  payload_json: unknown | null;
+  citations: QuickStartLockedCitation[];
+};
+
 type JsonArg = Parameters<typeof sql.json>[0];
 
 function withDb(db?: Sql): Sql {
   return db ?? sql;
+}
+
+function toPersistedStepReportRow(args: { row: QuickStartRow; citations: QuickStartLockedCitation[] }): PersistedStepReportRow {
+  return {
+    question_id: args.row.question_id,
+    question: args.row.question,
+    answer: args.row.answer,
+    status: args.row.status,
+    notes: args.row.notes,
+    provenance_json: args.row.provenance_json,
+    payload_schema_version: args.row.payload_schema_version,
+    payload_json: args.row.payload_json,
+    citations: args.citations.map((citation) => ({
+      id: citation.id,
+      document_id: citation.document_id,
+      page_number: citation.page_number,
+      snippet: citation.snippet,
+      snippet_hash: citation.snippet_hash,
+      polygons_json: citation.polygons_json,
+    })),
+  };
 }
 
 function missingInputRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }): QuickStartRow {
@@ -159,145 +187,6 @@ function attachListPayloadIfNeeded<
   } as T;
 }
 
-function normalizeFilename(filename: string): string {
-  return filename.trim().toLowerCase();
-}
-
-function asNullableString(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function collectPayloadCitationIds(args: {
-  payloadSchemaVersion: string | null;
-  payloadJson: unknown | null;
-}): string[] {
-  if (args.payloadSchemaVersion !== LIST_PAYLOAD_V0_SCHEMA_VERSION) return [];
-  const parsed = ListPayloadV0Schema.safeParse(args.payloadJson);
-  if (!parsed.success) return [];
-  const ids = parsed.data.items.flatMap((item) => item.citation_ids);
-  return Array.from(new Set(ids));
-}
-
-function remapPayloadCitationIds(args: {
-  payloadSchemaVersion: string | null;
-  payloadJson: unknown | null;
-  citationIdMap: ReadonlyMap<string, string>;
-}): unknown | null {
-  if (args.payloadSchemaVersion !== LIST_PAYLOAD_V0_SCHEMA_VERSION) return args.payloadJson ?? null;
-  const parsed = ListPayloadV0Schema.safeParse(args.payloadJson);
-  if (!parsed.success) return args.payloadJson ?? null;
-
-  return {
-    ...parsed.data,
-    items: parsed.data.items.map((item) => ({
-      ...item,
-      citation_ids: item.citation_ids.flatMap((citationId) => {
-        const mapped = args.citationIdMap.get(citationId);
-        return mapped ? [mapped] : [];
-      }),
-    })),
-  };
-}
-
-function resolveDemoSeedSnapshot(folderName: string): ResolvedSeedSnapshot | null {
-  const metadata = parseDemoMatterMetadata(folderName);
-  if (!metadata) return null;
-  try {
-    return loadSeedSnapshot(metadata.packId);
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("wdk.quick_start.write_row_v0.seed_snapshot_failed", {
-      pack_id: metadata.packId,
-      message: err instanceof Error ? err.message : String(err),
-    });
-    return null;
-  }
-}
-
-function seededRowFromSnapshot(args: {
-  snapshot: ResolvedSeedSnapshot;
-  folderId: string;
-  questionSetVersion: string;
-  question: {
-    question_id: string;
-    question: string;
-  };
-  docIdByFilename: ReadonlyMap<string, string>;
-}): { row: QuickStartRow; citations: QuickStartLockedCitation[] } | null {
-  const sourceRow = args.snapshot.rows.find((row) => row.question_id === args.question.question_id);
-  if (!sourceRow) return null;
-
-  const payloadSchemaVersion = asNullableString(
-    (sourceRow as {
-      payload_schema_version?: unknown;
-    }).payload_schema_version,
-  );
-  const payloadJson =
-    (sourceRow as {
-      payload_json?: unknown;
-    }).payload_json ?? null;
-  const sourceCitationIds = Array.from(
-    new Set([
-      ...sourceRow.citation_ids,
-      ...collectPayloadCitationIds({
-        payloadSchemaVersion,
-        payloadJson,
-      }),
-    ]),
-  );
-
-  const citationIdMap = new Map<string, string>();
-  const citations: QuickStartLockedCitation[] = [];
-  for (const sourceCitationId of sourceCitationIds) {
-    const sourceCitation = args.snapshot.citations?.[sourceCitationId];
-    if (!sourceCitation) continue;
-
-    const mappedId = newId("cit");
-    citationIdMap.set(sourceCitationId, mappedId);
-
-    const mappedDocumentId =
-      args.docIdByFilename.get(normalizeFilename(sourceCitation.document_filename)) ?? sourceCitation.document_id;
-
-    citations.push({
-      id: mappedId,
-      document_id: mappedDocumentId,
-      page_number: sourceCitation.page_number,
-      snippet: sourceCitation.snippet,
-      snippet_hash: sourceCitation.snippet_hash,
-      polygons_json: sourceCitation.polygons,
-    });
-  }
-
-  return {
-    row: {
-      folder_id: args.folderId,
-      question_set_version: args.questionSetVersion,
-      question_id: args.question.question_id,
-      question: args.question.question,
-      answer: sourceRow.answer,
-      status: sourceRow.status,
-      citation_ids: sourceRow.citation_ids.flatMap((citationId) => {
-        const mapped = citationIdMap.get(citationId);
-        return mapped ? [mapped] : [];
-      }),
-      notes: typeof sourceRow.notes === "string" ? sourceRow.notes : null,
-      provenance_json:
-        (sourceRow as {
-          provenance_json?: unknown;
-        }).provenance_json ?? {},
-      payload_schema_version: payloadSchemaVersion,
-      payload_json: remapPayloadCitationIds({
-        payloadSchemaVersion,
-        payloadJson,
-        citationIdMap,
-      }),
-    },
-    citations,
-  };
-}
-
 export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: string; db?: Sql }): Promise<{
   output: unknown;
   metrics?: unknown;
@@ -324,10 +213,9 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   const startedAt = Date.now();
 
   const runs = await s<RunRow[]>`
-    SELECT r.id, r.folder_id, f.name AS folder_name, r.state, r.question_set_version, r.trace_id, r.questions_total, r.questions_done
-    FROM runs r
-    JOIN folders f ON f.id = r.folder_id
-    WHERE r.id = ${args.step.run_id}
+    SELECT id, folder_id, state, question_set_version, trace_id, questions_total, questions_done
+    FROM runs
+    WHERE id = ${args.step.run_id}
     LIMIT 1
   `;
   const run = runs[0];
@@ -407,38 +295,14 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   }
 
   const documents = await s<FolderDocumentRow[]>`
-    SELECT id, filename, upload_completed_at, parse_status, ocr_status
+    SELECT upload_completed_at, parse_status, ocr_status
     FROM documents
     WHERE folder_id = ${run.folder_id}
   `;
   const hasDocs = documents.some(
     (doc) => doc.upload_completed_at !== null && doc.parse_status === "parsed" && doc.ocr_status === "done",
   );
-  const docIdByFilename = new Map<string, string>();
-  for (const doc of documents) {
-    const key = normalizeFilename(doc.filename);
-    if (!key || docIdByFilename.has(key)) continue;
-    docIdByFilename.set(key, doc.id);
-  }
-
-  const demoSeedSnapshot = hasDocs ? resolveDemoSeedSnapshot(run.folder_name) : null;
-  const seeded =
-    hasDocs && demoSeedSnapshot
-      ? seededRowFromSnapshot({
-          snapshot: demoSeedSnapshot,
-          folderId: run.folder_id,
-          questionSetVersion: run.question_set_version,
-          question: {
-            question_id: q.question_id,
-            question: q.question,
-          },
-          docIdByFilename,
-        })
-      : null;
-
-  const baseRow =
-    seeded?.row ??
-    (hasDocs
+  const baseRow = hasDocs
     ? citationFailedRow({
         folderId: run.folder_id,
         questionSetVersion: run.question_set_version,
@@ -450,8 +314,8 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
         questionSetVersion: run.question_set_version,
         questionId: q.question_id,
         question: q.question,
-      }));
-  let rowCitations = seeded?.citations ?? [];
+      });
+  let rowCitations: QuickStartLockedCitation[] = [];
 
   let rowWithPayload: QuickStartRow = baseRow;
   try {
@@ -588,12 +452,14 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   let wrote = false;
   let rowStatus = rowWithPayload.status;
   let finalReasonCode = reasonCode;
+  let persistedStepReportRow = toPersistedStepReportRow({ row: rowWithPayload, citations: rowCitations });
 
   try {
     const res = await attemptWrite(rowWithPayload, rowCitations);
     wrote = res.inserted;
     rowStatus = res.status;
     finalReasonCode = res.reason_code;
+    persistedStepReportRow = toPersistedStepReportRow({ row: rowWithPayload, citations: rowCitations });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("wdk.quick_start.write_row_v0.write_failed", {
@@ -631,6 +497,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
     wrote = fallbackRes.inserted;
     rowStatus = fallbackRes.status;
     finalReasonCode = fallbackRes.reason_code;
+    persistedStepReportRow = toPersistedStepReportRow({ row: fallbackWithPayload, citations: [] });
   }
 
   const completion = await completeRunIfReady({ runId: args.step.run_id, clearError: true, db: s });
@@ -667,6 +534,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
       wrote,
       row_status: rowStatus,
       reason_code: finalReasonCode,
+      report_row: persistedStepReportRow,
       duration_ms: durationMs,
     },
     metrics: { duration_ms: durationMs, wrote: wrote ? 1 : 0 },

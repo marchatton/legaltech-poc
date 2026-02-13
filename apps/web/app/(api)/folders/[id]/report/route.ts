@@ -4,6 +4,7 @@ import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope 
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
+import { materializeReportRowsFromStepOutputs } from "../../../../../lib/reportRowsFromStepOutputs.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -120,6 +121,25 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
       status: 404,
       headers,
     });
+  }
+
+  try {
+    await materializeReportRowsFromStepOutputs({
+      runId: run.id,
+      folderId,
+      questionSetVersion: run.question_set_version,
+      db: sql,
+    });
+  } catch (err) {
+    return Response.json(
+      safeErrorEnvelope({
+        code: "INTERNAL",
+        message: "Failed to materialize report rows from run step outputs.",
+        details: { run_id: run.id, message: err instanceof Error ? err.message : String(err) },
+        traceId,
+      }),
+      { status: 500, headers },
+    );
   }
 
   const rows = await sql<ReportRow[]>`
