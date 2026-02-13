@@ -1305,3 +1305,47 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - Seed snapshots live under `tmp/fixture-seed`; tests can create per-test pack snapshots to assert fallback behavior without shared-pack coupling.
 ---
+## [2026-02-13 02:28 UTC] - US-006: Run and report failure envelopes are explicit and safe
+Thread: 
+Run: 20260213-005806-15124 (iteration 6)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-6.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-6.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: e0eeb5f fix(report): add typed run failure envelopes
+- Post-commit status: `clean`
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> FAIL (flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts` read `running` instead of `completed`)
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm --filter @orbital-poc/web test test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm --filter @orbital-poc/web dev -p 3101 + dev-browser scripted smoke for failed-active-run fallback and explicit failed run stale-row suppression -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/folders/[id]/report/route.ts
+  - apps/web/app/(api)/runs/[id]/route.ts
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/lib/runFailureEnvelope.ts
+  - apps/web/lib/runFailureEnvelope.test.ts
+  - apps/web/test/foldersRunsRoute.wdk.int.test.ts
+  - apps/web/test/reportRowsFromStepOutputs.int.test.ts
+  - apps/web/test/runReportFailureEnvelopes.sync.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Added shared typed failure-envelope derivation in `apps/web/lib/runFailureEnvelope.ts` and used deterministic safe details (`run_id`, `run_state`) for non-completed runs.
+  - Extended `GET /runs/:id` to return `run.failure` from persisted `error_json`/`trace_id` so failed runs expose explicit typed recovery envelopes.
+  - Extended `GET /folders/:id/report` to return typed `run.failure` plus `active_run.failure`, defaulting rows to the latest completed run when the latest active run is non-completed.
+  - Updated the matters report UI to surface explicit recoverable failure banners, show completed-history fallback context, and avoid stale success rows when explicitly viewing a failed run.
+  - Added unit/sync/integration coverage for helper behavior, API envelope surfaces, and failed-active-run history fallback semantics.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Deriving failure envelopes in one helper keeps API and UI behavior deterministic and avoids duplicated state/error mapping logic.
+  - Gotchas encountered
+  - Full-suite `pnpm test` intermittently flakes on WDK completion timing; rerun until one clean pass and record repeated failures in `.ralph/errors.log` per guardrail.
+  - Useful context
+  - For report UX, treat the latest run as active status context while selecting the latest completed run as default report history source when active is non-completed.
+---
