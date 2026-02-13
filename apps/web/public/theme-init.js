@@ -1,12 +1,25 @@
 (() => {
   try {
     const t = localStorage.getItem("orbital-theme");
-    if (t === "dark") document.documentElement.classList.add("dark");
-    else if (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.documentElement.classList.add("dark");
+    const root = document.documentElement;
+    if (t === "dark") {
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+      root.dataset.theme = "dark";
+    } else if (t === "light") {
+      root.classList.remove("dark");
+      root.style.colorScheme = "light";
+      root.dataset.theme = "light";
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+      root.dataset.theme = "system";
+    } else {
+      root.classList.remove("dark");
+      root.style.colorScheme = "light";
+      root.dataset.theme = "system";
     }
   } catch (e) {
     // best-effort: avoid blocking first paint due to storage access issues
   }
 })();
-
