@@ -207,7 +207,7 @@
     {
       "id": "US-002",
       "title": "Quick Start readiness gate is deterministic",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -219,13 +219,13 @@
         "Negative: blocked start attempts cannot silently enqueue runs."
       ],
       "startedAt": "2026-02-13T01:16:51.168333+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-13T01:16:51.168382+00:00"
+      "completedAt": "2026-02-13T01:28:13.707135+00:00",
+      "updatedAt": "2026-02-13T01:28:13.707109+00:00"
     },
     {
       "id": "US-003",
       "title": "Setup and readiness failure UX is explicit",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-001"
       ],
@@ -234,7 +234,10 @@
         "Upload/init/complete and readiness recomputation failures render deterministic errors with recovery actions.",
         "Example: upload completion failure shows retry and does not mark readiness complete.",
         "Negative: setup failures are never hidden behind indefinite loading states."
-      ]
+      ],
+      "startedAt": "2026-02-13T01:28:15.981613+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-13T01:28:15.981642+00:00"
     },
     {
       "id": "US-004",

@@ -20,11 +20,43 @@ describe("US-003 setup documents upload flow", () => {
     expect(source).toContain('/folders/${encodeURIComponent(props.folderId)}/documents');
     expect(source).toContain("method: \"POST\"");
     expect(source).toContain("method: initJson.upload.method");
-    expect(source).toContain('/documents/${encodeURIComponent(initJson.document.id)}/complete');
+    expect(source).toContain('/documents/${encodeURIComponent(args.documentId)}/complete');
     expect(source).toContain('status === "indexed-ready"');
     expect(source).toContain("pollUntilTerminal");
     expect(source).toContain("useRouter");
     expect(source).toContain("router.refresh()");
+  });
+
+  it("maps setup failures to deterministic retry actions", () => {
+    const root = repoRootFromWebPackage();
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/SetupDocumentsPanel.tsx");
+    const source = readUtf8(panelPath);
+
+    expect(source).toContain('fallbackCode: "UPLOAD_INIT_FAILED"');
+    expect(source).toContain('fallbackCode: "UPLOAD_PUT_FAILED"');
+    expect(source).toContain('fallbackCode: "UPLOAD_COMPLETE_FAILED"');
+    expect(source).toContain('fallbackCode: "READINESS_RECOMPUTE_FAILED"');
+    expect(source).toContain('recoveryAction: "retry-upload"');
+    expect(source).toContain('recoveryAction: "retry-complete"');
+    expect(source).toContain('recoveryAction: "retry-refresh"');
+    expect(source).toContain('retryLabel: "Retry upload"');
+    expect(source).toContain('retryLabel: "Retry completion"');
+    expect(source).toContain('retryLabel: "Retry refresh"');
+    expect(source).toContain("if (error.recoveryAction === \"retry-complete\")");
+  });
+
+  it("keeps completion-failure state explicit and bounded", () => {
+    const root = repoRootFromWebPackage();
+    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/SetupDocumentsPanel.tsx");
+    const source = readUtf8(panelPath);
+
+    expect(source).toContain("if (!completeResult.ok) {");
+    expect(source).toContain("setCompleteRetryRequest({");
+    expect(source).toContain("applyCompletedUpload(completeResult.payload.document);");
+    expect(source).toContain("for (let i = 0; i < 8; i += 1)");
+    expect(source).toContain("setIsRefreshing(true);");
+    expect(source).toContain("setIsRefreshing(false);");
+    expect(source).toContain("loading={isRefreshing}");
   });
 
   it("renders setup panel on matter detail and only advertises supported upload capability signals", () => {

@@ -4,6 +4,8 @@ import { type ChangeEvent, useMemo, useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { parseSafeErrorLike } from "../../../../lib/safeErrorDisplay";
+
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { EmptyState } from "../../../ui/EmptyState";
@@ -69,6 +71,32 @@ type StructuredError = {
   code: string;
   message: string;
   retryable?: boolean;
+  retryLabel?: string;
+  recoveryAction?: RecoveryAction;
+};
+
+type ParsedServerError = {
+  code: string;
+  message: string;
+  retryable?: boolean;
+};
+
+type RecoveryAction = "retry-upload" | "retry-complete" | "retry-refresh" | "dismiss";
+
+type RefreshDocumentsResult =
+  | { ok: true; documents: SetupDocumentRow[] }
+  | { ok: false; status: number | null; parsed: ParsedServerError | null };
+
+type CompleteUploadResult =
+  | { ok: true; payload: UploadCompleteResponse }
+  | { ok: false; status: number; parsed: ParsedServerError | null };
+
+type PollResult = "terminal" | "timeout" | "refresh-failed" | "document-missing";
+
+type CompleteRetryRequest = {
+  documentId: string;
+  storageKey: string;
+  filename: string;
 };
 
 function isRecord(input: unknown): input is Record<string, unknown> {
@@ -95,17 +123,30 @@ const docStatusVariant: Record<DocumentStatus, BadgeVariant> = {
   queued: "muted",
 };
 
-function parseServerErrorCode(json: unknown): { code: string; message: string } | null {
-  if (!isRecord(json)) return null;
-  const error = json.error;
-  if (!isRecord(error)) return null;
+function parseServerError(json: unknown): ParsedServerError | null {
+  const parsed = parseSafeErrorLike(json);
+  if (!parsed) return null;
+  return {
+    code: parsed.code,
+    message: parsed.message,
+    retryable: parsed.retryable,
+  };
+}
 
-  const message = typeof error.message === "string" && error.message.trim().length > 0 ? error.message.trim() : null;
-  const code = typeof error.code === "string" && error.code.trim().length > 0 ? error.code.trim() : null;
-
-  if (message) return { code: code ?? "SERVER_ERROR", message };
-  if (code) return { code, message: `Request failed (${code}).` };
-  return null;
+function toRetryableSetupError(args: {
+  parsed: ParsedServerError | null;
+  fallbackCode: string;
+  fallbackMessage: string;
+  recoveryAction: RecoveryAction;
+  retryLabel: string;
+}): StructuredError {
+  return {
+    code: args.parsed?.code ?? args.fallbackCode,
+    message: args.parsed?.message ?? args.fallbackMessage,
+    retryable: args.parsed?.retryable ?? true,
+    recoveryAction: args.recoveryAction,
+    retryLabel: args.retryLabel,
+  };
 }
 
 function parseDocErrorJson(json: unknown): { code: string; message: string } | null {
@@ -156,55 +197,224 @@ export function SetupDocumentsPanel(props: {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<StructuredError | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [retryUploadFile, setRetryUploadFile] = useState<File | null>(null);
+  const [completeRetryRequest, setCompleteRetryRequest] = useState<CompleteRetryRequest | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const busy = isUploading || isRefreshing;
 
   const indexedReadyCount = useMemo(
     () => documents.filter((doc) => doc.status === "indexed-ready").length,
     [documents],
   );
 
-  async function refreshDocuments(): Promise<SetupDocumentRow[] | null> {
-    const res = await fetch(`/folders/${encodeURIComponent(props.folderId)}/documents`, {
-      method: "GET",
-      cache: "no-store",
-    });
-    const json = await parseJson<DocumentsReadinessResponse>(res);
-    if (!res.ok || !json) return null;
+  async function refreshDocuments(): Promise<RefreshDocumentsResult> {
+    try {
+      const res = await fetch(`/folders/${encodeURIComponent(props.folderId)}/documents`, {
+        method: "GET",
+        cache: "no-store",
+      });
+      const json = await parseJson<DocumentsReadinessResponse>(res);
+      if (!res.ok || !json) {
+        return {
+          ok: false,
+          status: res.status,
+          parsed: parseServerError(json),
+        };
+      }
 
-    setDocuments(json.documents);
-    setCapabilities(json.capabilities);
-    return json.documents;
+      setDocuments(json.documents);
+      setCapabilities(json.capabilities);
+      return { ok: true, documents: json.documents };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Network request failed while refreshing readiness.";
+      return {
+        ok: false,
+        status: null,
+        parsed: { code: "NETWORK_ERROR", message, retryable: true },
+      };
+    }
   }
 
-  async function pollUntilTerminal(documentId: string): Promise<void> {
+  async function pollUntilTerminal(documentId: string): Promise<PollResult> {
     for (let i = 0; i < 8; i += 1) {
       await sleep(1200);
       const next = await refreshDocuments();
-      if (!next) return;
+      if (!next.ok) return "refresh-failed";
 
-      const target = next.find((doc) => doc.id === documentId);
-      if (!target) return;
-      if (target.status === "indexed-ready" || target.status === "failed") return;
+      const target = next.documents.find((doc) => doc.id === documentId);
+      if (!target) return "document-missing";
+      if (target.status === "indexed-ready" || target.status === "failed") return "terminal";
+    }
+    return "timeout";
+  }
+
+  async function completeUpload(args: { documentId: string; storageKey: string }): Promise<CompleteUploadResult> {
+    const completeRes = await fetch(`/documents/${encodeURIComponent(args.documentId)}/complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ storage_key: args.storageKey }),
+    });
+    const completeJson = await parseJson<UploadCompleteResponse>(completeRes);
+    if (!completeRes.ok || !completeJson) {
+      return {
+        ok: false,
+        status: completeRes.status,
+        parsed: parseServerError(completeJson),
+      };
+    }
+
+    return {
+      ok: true,
+      payload: completeJson,
+    };
+  }
+
+  function applyCompletedUpload(document: UploadCompleteResponse["document"]): void {
+    setDocuments((prev) =>
+      prev.map((row) =>
+        row.id === document.id
+          ? {
+              ...row,
+              upload_completed_at: new Date().toISOString(),
+              parse_status: document.parse_status,
+              ocr_status: document.ocr_status,
+              status: document.status,
+            }
+          : row,
+      ),
+    );
+  }
+
+  async function finalizeUploadSuccess(args: { documentId: string; filename: string }): Promise<void> {
+    setNotice(`Upload complete. Indexing ${args.filename}...`);
+
+    const firstRefresh = await refreshDocuments();
+    if (!firstRefresh.ok) {
+      setError(
+        toRetryableSetupError({
+          parsed: firstRefresh.parsed,
+          fallbackCode: "READINESS_RECOMPUTE_FAILED",
+          fallbackMessage: "Could not recompute readiness after upload. Retry refresh readiness.",
+          recoveryAction: "retry-refresh",
+          retryLabel: "Retry refresh",
+        }),
+      );
+      setNotice(null);
+      return;
+    }
+
+    const pollResult = await pollUntilTerminal(args.documentId);
+    if (pollResult === "refresh-failed" || pollResult === "document-missing") {
+      setError({
+        code: "READINESS_RECOMPUTE_FAILED",
+        message: "Could not recompute readiness after upload. Retry refresh readiness.",
+        retryable: true,
+        recoveryAction: "retry-refresh",
+        retryLabel: "Retry refresh",
+      });
+      setNotice(null);
+      return;
+    }
+
+    if (pollResult === "timeout") {
+      router.refresh();
+      setNotice(`${args.filename} uploaded. Indexing is still in progress. Refresh readiness to check status.`);
+      return;
+    }
+
+    const finalRefresh = await refreshDocuments();
+    if (!finalRefresh.ok) {
+      setError(
+        toRetryableSetupError({
+          parsed: finalRefresh.parsed,
+          fallbackCode: "READINESS_RECOMPUTE_FAILED",
+          fallbackMessage: "Could not recompute readiness after upload. Retry refresh readiness.",
+          recoveryAction: "retry-refresh",
+          retryLabel: "Retry refresh",
+        }),
+      );
+      setNotice(null);
+      return;
+    }
+
+    router.refresh();
+    setNotice(`${args.filename} uploaded.`);
+  }
+
+  async function retryCompleteUpload(request: CompleteRetryRequest): Promise<void> {
+    if (busy) return;
+
+    setIsUploading(true);
+    setError(null);
+    setNotice(`Retrying completion for ${request.filename}...`);
+
+    try {
+      const completeResult = await completeUpload({
+        documentId: request.documentId,
+        storageKey: request.storageKey,
+      });
+      if (!completeResult.ok) {
+        setError(
+          toRetryableSetupError({
+            parsed: completeResult.parsed,
+            fallbackCode: "UPLOAD_COMPLETE_FAILED",
+            fallbackMessage: "Upload finished but completion failed. Retry completion to start indexing.",
+            recoveryAction: "retry-complete",
+            retryLabel: "Retry completion",
+          }),
+        );
+        setNotice(null);
+        return;
+      }
+
+      setCompleteRetryRequest(null);
+      applyCompletedUpload(completeResult.payload.document);
+      await finalizeUploadSuccess({
+        documentId: request.documentId,
+        filename: request.filename,
+      });
+    } catch {
+      setError({
+        code: "UPLOAD_COMPLETE_FAILED",
+        message: "Upload completion retry failed. Retry completion to start indexing.",
+        retryable: true,
+        recoveryAction: "retry-complete",
+        retryLabel: "Retry completion",
+      });
+      setNotice(null);
+    } finally {
+      setIsUploading(false);
     }
   }
 
   async function startUpload(file: File): Promise<void> {
-    if (isUploading) return;
+    if (busy) return;
 
     const fallbackMime = file.name.toLowerCase().endsWith(".pdf") ? "application/pdf" : "";
     const mime = (file.type || fallbackMime).trim();
     if (!capabilities.accepted_mime.includes(mime)) {
-      setError({ code: "UNSUPPORTED_MIME", message: `Unsupported file type. Accepted: ${capabilities.accepted_mime.join(", ")}.` });
+      setError({
+        code: "UNSUPPORTED_MIME",
+        message: `Unsupported file type. Accepted: ${capabilities.accepted_mime.join(", ")}.`,
+        recoveryAction: "dismiss",
+      });
       setNotice(null);
       return;
     }
 
     if (file.size > capabilities.max_bytes) {
-      setError({ code: "FILE_TOO_LARGE", message: `File is too large. Maximum size is ${formatBytes(capabilities.max_bytes)}.` });
+      setError({
+        code: "FILE_TOO_LARGE",
+        message: `File is too large. Maximum size is ${formatBytes(capabilities.max_bytes)}.`,
+        recoveryAction: "dismiss",
+      });
       setNotice(null);
       return;
     }
 
+    setRetryUploadFile(file);
+    setCompleteRetryRequest(null);
     setIsUploading(true);
     setError(null);
     setNotice(`Uploading ${file.name}...`);
@@ -221,12 +431,16 @@ export function SetupDocumentsPanel(props: {
       });
       const initJson = await parseJson<UploadInitResponse>(initRes);
       if (!initRes.ok || !initJson) {
-        const parsed = parseServerErrorCode(initJson);
-        setError({
-          code: parsed?.code ?? "UPLOAD_INIT_FAILED",
-          message: parsed?.message ?? "Failed to initialize upload.",
-          retryable: true,
-        });
+        const parsed = parseServerError(initJson);
+        setError(
+          toRetryableSetupError({
+            parsed,
+            fallbackCode: "UPLOAD_INIT_FAILED",
+            fallbackMessage: "Could not initialize upload. Retry upload.",
+            recoveryAction: "retry-upload",
+            retryLabel: "Retry upload",
+          }),
+        );
         setNotice(null);
         return;
       }
@@ -263,55 +477,57 @@ export function SetupDocumentsPanel(props: {
       });
       if (!uploadRes.ok) {
         const uploadJson = await parseJson<unknown>(uploadRes);
-        const parsed = parseServerErrorCode(uploadJson);
-        setError({
-          code: parsed?.code ?? "UPLOAD_PUT_FAILED",
-          message: parsed?.message ?? "Upload failed.",
-          retryable: true,
-        });
+        const parsed = parseServerError(uploadJson);
+        setError(
+          toRetryableSetupError({
+            parsed,
+            fallbackCode: "UPLOAD_PUT_FAILED",
+            fallbackMessage: "Could not transfer upload bytes. Retry upload.",
+            recoveryAction: "retry-upload",
+            retryLabel: "Retry upload",
+          }),
+        );
         setNotice(null);
         return;
       }
 
-      const completeRes = await fetch(`/documents/${encodeURIComponent(initJson.document.id)}/complete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storage_key: initJson.upload.storage_key }),
+      const completeResult = await completeUpload({
+        documentId: initJson.document.id,
+        storageKey: initJson.upload.storage_key,
       });
-      const completeJson = await parseJson<UploadCompleteResponse>(completeRes);
-      if (!completeRes.ok || !completeJson) {
-        const parsed = parseServerErrorCode(completeJson);
-        setError({
-          code: parsed?.code ?? "UPLOAD_COMPLETE_FAILED",
-          message: parsed?.message ?? "Failed to complete upload.",
-          retryable: true,
+      if (!completeResult.ok) {
+        setCompleteRetryRequest({
+          documentId: initJson.document.id,
+          storageKey: initJson.upload.storage_key,
+          filename: file.name,
         });
+        setError(
+          toRetryableSetupError({
+            parsed: completeResult.parsed,
+            fallbackCode: "UPLOAD_COMPLETE_FAILED",
+            fallbackMessage: "Upload finished but completion failed. Retry completion to start indexing.",
+            recoveryAction: "retry-complete",
+            retryLabel: "Retry completion",
+          }),
+        );
         setNotice(null);
         return;
       }
 
-      setDocuments((prev) =>
-        prev.map((row) =>
-          row.id === completeJson.document.id
-            ? {
-                ...row,
-                upload_completed_at: new Date().toISOString(),
-                parse_status: completeJson.document.parse_status,
-                ocr_status: completeJson.document.ocr_status,
-                status: completeJson.document.status,
-              }
-            : row,
-        ),
-      );
-
-      setNotice(`Upload complete. Indexing ${file.name}...`);
-      await refreshDocuments();
-      await pollUntilTerminal(initJson.document.id);
-      await refreshDocuments();
-      router.refresh();
-      setNotice(`${file.name} uploaded.`);
+      setCompleteRetryRequest(null);
+      applyCompletedUpload(completeResult.payload.document);
+      await finalizeUploadSuccess({
+        documentId: initJson.document.id,
+        filename: file.name,
+      });
     } catch {
-      setError({ code: "UNEXPECTED_ERROR", message: "Upload failed due to an unexpected error.", retryable: true });
+      setError({
+        code: "UNEXPECTED_ERROR",
+        message: "Upload failed due to an unexpected error. Retry upload.",
+        retryable: true,
+        recoveryAction: "retry-upload",
+        retryLabel: "Retry upload",
+      });
       setNotice(null);
     } finally {
       setIsUploading(false);
@@ -320,12 +536,67 @@ export function SetupDocumentsPanel(props: {
   }
 
   function handleRetry() {
+    if (!error?.retryable) return;
+
+    if (error.recoveryAction === "retry-upload") {
+      if (!retryUploadFile) {
+        setError({
+          code: "RETRY_CONTEXT_MISSING",
+          message: "Retry file is unavailable. Choose the file again and upload.",
+          recoveryAction: "dismiss",
+        });
+        return;
+      }
+      void startUpload(retryUploadFile);
+      return;
+    }
+
+    if (error.recoveryAction === "retry-complete") {
+      if (!completeRetryRequest) {
+        setError({
+          code: "RETRY_CONTEXT_MISSING",
+          message: "Retry context is unavailable. Select the file again and upload.",
+          recoveryAction: "dismiss",
+        });
+        return;
+      }
+      void retryCompleteUpload(completeRetryRequest);
+      return;
+    }
+
+    if (error.recoveryAction === "retry-refresh") {
+      void refreshReadiness();
+      return;
+    }
+
     setError(null);
   }
 
   async function refreshReadiness(): Promise<void> {
+    if (busy) return;
+    setIsRefreshing(true);
+    setError(null);
+    setNotice("Refreshing readiness...");
+
     const refreshed = await refreshDocuments();
-    if (refreshed) router.refresh();
+    if (!refreshed.ok) {
+      setError(
+        toRetryableSetupError({
+          parsed: refreshed.parsed,
+          fallbackCode: "READINESS_RECOMPUTE_FAILED",
+          fallbackMessage: "Could not recompute readiness. Retry refresh readiness.",
+          recoveryAction: "retry-refresh",
+          retryLabel: "Retry refresh",
+        }),
+      );
+      setNotice(null);
+      setIsRefreshing(false);
+      return;
+    }
+
+    router.refresh();
+    setNotice("Readiness refreshed.");
+    setIsRefreshing(false);
   }
 
   function onFileSelected(event: ChangeEvent<HTMLInputElement>) {
@@ -353,7 +624,7 @@ export function SetupDocumentsPanel(props: {
               accept={capabilities.accepted_mime.join(",")}
               className="sr-only"
               onChange={onFileSelected}
-              disabled={isUploading}
+              disabled={busy}
             />
             <Button
               type="button"
@@ -361,6 +632,7 @@ export function SetupDocumentsPanel(props: {
               onClick={() => fileRef.current?.click()}
               loading={isUploading}
               loadingLabel="Uploading"
+              disabled={isRefreshing}
             >
               Upload documents
             </Button>
@@ -370,6 +642,8 @@ export function SetupDocumentsPanel(props: {
               size="sm"
               onClick={() => void refreshReadiness()}
               disabled={isUploading}
+              loading={isRefreshing}
+              loadingLabel="Refreshing"
             >
               Refresh readiness
             </Button>
@@ -388,7 +662,8 @@ export function SetupDocumentsPanel(props: {
             message={error.message}
             retryable={error.retryable}
             onRetry={error.retryable ? handleRetry : undefined}
-            retryLabel="Dismiss"
+            retryLabel={error.retryLabel ?? "Retry"}
+            supportRoute={`/matters/${props.folderId}?tab=documents`}
           />
         </div>
       ) : null}
