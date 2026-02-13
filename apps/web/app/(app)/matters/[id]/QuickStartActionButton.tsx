@@ -43,7 +43,7 @@ export function QuickStartActionButton(props: Props) {
       if (!res.ok) {
         const env = parseSafeErrorEnvelope(json);
         const retryable = res.status >= 500 || res.status === 429;
-        setError(env ? { ...env, retryable: env.retryable ?? retryable } : { code: `HTTP_${res.status}`, message: `Quick Start failed (${res.status}).`, retryable });
+        setError(env ? { ...env, retryable: env.retryable ?? retryable } : { code: `HTTP_${res.status}`, message: `Run analysis failed (${res.status}).`, retryable });
         return;
       }
 
@@ -70,7 +70,7 @@ export function QuickStartActionButton(props: Props) {
         className="h-10 px-5 text-sm"
         title={disabledReason}
       >
-        Quick Start
+        Run analysis
       </Button>
       {error ? (
         <ErrorBanner

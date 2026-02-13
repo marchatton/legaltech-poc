@@ -435,7 +435,7 @@ describe("report rows from persisted step outputs", () => {
         ${failedTraceId},
         ${sql.json({
           code: "WORKFLOW_SCHEDULE_FAILED",
-          message: "Failed to schedule Quick Start workflow steps.",
+          message: "Failed to schedule analysis workflow steps.",
         })},
         1,
         0
@@ -453,7 +453,7 @@ describe("report rows from persisted step outputs", () => {
     expect(defaultJson.active_run?.id).toBe(failedRunId);
     expect(defaultJson.active_run?.failure).toMatchObject({
       code: "WORKFLOW_SCHEDULE_FAILED",
-      message: "Failed to schedule Quick Start workflow steps.",
+      message: "Failed to schedule analysis workflow steps.",
       retryable: false,
     });
 
@@ -466,7 +466,7 @@ describe("report rows from persisted step outputs", () => {
     expect(failedRunJson.run.id).toBe(failedRunId);
     expect(failedRunJson.run.failure).toMatchObject({
       code: "WORKFLOW_SCHEDULE_FAILED",
-      message: "Failed to schedule Quick Start workflow steps.",
+      message: "Failed to schedule analysis workflow steps.",
       retryable: false,
     });
     expect(failedRunJson.rows).toHaveLength(0);

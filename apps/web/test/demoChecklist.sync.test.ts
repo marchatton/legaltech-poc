@@ -50,8 +50,8 @@ describe("0007 demo checklist", () => {
 
     const quickStartPanelPath = path.join(root, "apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx");
     const quickStartPanel = readUtf8(quickStartPanelPath);
-    expect(quickStartPanel).toContain("Run Quick Start");
-    expect(checklist).toContain("Run Quick Start");
+    expect(quickStartPanel).toContain("Run analysis");
+    expect(checklist).toContain("Run analysis");
 
     // Checklist should match the matter gating semantics.
     expect(checklist).toContain("indexed");

@@ -611,7 +611,7 @@ export function SetupDocumentsPanel(props: {
         <div>
           <SectionTitle>Documents</SectionTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            Upload source PDFs, then run Quick Start once at least one is indexed-ready.
+            Upload source PDFs, then run analysis once at least one is indexed-ready.
           </p>
         </div>
 
@@ -676,7 +676,7 @@ export function SetupDocumentsPanel(props: {
         ) : (
           <span>
             Matter state is <span className="font-mono">{props.folderState}</span>. Upload at least one PDF before
-            starting Quick Start.
+            starting analysis.
           </span>
         )}
       </div>

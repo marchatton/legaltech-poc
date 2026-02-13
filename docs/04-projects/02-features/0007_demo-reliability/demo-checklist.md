@@ -25,9 +25,9 @@ DEMO_MODE=1 pnpm dev
 - [ ] In the toolbar: set Pack to `pack_01_clean` and click **Load demo pack**.
 - [ ] On the Matter page:
   - [ ] Confirm the matter name starts with `DEMO: pack_01_clean`.
-  - [ ] Refresh until the matter state is `indexed` or `ready` and **Run Quick Start** is enabled.
+  - [ ] Refresh until the matter state is `indexed` or `ready` and **Run analysis** is enabled.
   - [ ] Open at least one seeded PDF via **Open PDF** (sanity check: object storage + signed URLs).
-- [ ] Click **Run Quick Start**.
+- [ ] Click **Run analysis**.
 - [ ] Confirm a run is created and **Report JSON** opens.
 
 ## Demo: `pack_02_missing_rea` (missing-doc journey)
@@ -49,7 +49,7 @@ DEMO_MODE=1 pnpm dev
 
 - [ ] Load the same pack again from the toolbar.
 - [ ] Confirm you land on a different matter id (fresh matter, no delete/reset endpoint).
-- [ ] Note: **Quick Start only runs once per matter**. To rerun: **load the pack again to create a fresh matter**.
+- [ ] Note: **Analysis only runs once per matter**. To rerun: **load the pack again to create a fresh matter**.
 
 ## Fast Troubleshooting
 
@@ -57,5 +57,5 @@ DEMO_MODE=1 pnpm dev
   - Ensure `NODE_ENV=development` (use `pnpm dev`, not `pnpm start`) and `DEMO_MODE=1`.
 - `NOT_FOUND: Pack docs not found.` when loading:
   - Confirm PDFs exist under `docs/08-example-data/<pack_id>/docs/` (and are non-empty).
-- Quick Start disabled (`indexed/ready`):
+- Run analysis disabled (`indexed/ready`):
   - Refresh; ingest/index runs in the background.

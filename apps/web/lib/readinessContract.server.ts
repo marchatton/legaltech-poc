@@ -44,9 +44,9 @@ function findMissingPrerequisiteDocuments(args: {
 
 function runnableReason(indexedReadyCount: number | null): string {
   if (typeof indexedReadyCount === "number" && indexedReadyCount > 0) {
-    return `${indexedReadyCount} document${indexedReadyCount === 1 ? "" : "s"} ready. Run Quick Start now.`;
+    return `${indexedReadyCount} document${indexedReadyCount === 1 ? "" : "s"} ready. Run analysis now.`;
   }
-  return "Ready to run Quick Start.";
+  return "Ready to run analysis.";
 }
 
 export function resolveCanonicalReadiness(args: {

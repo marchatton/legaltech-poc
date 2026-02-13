@@ -465,7 +465,7 @@ export default async function MatterPage(props: {
           state: "blocked",
           reason:
             canonicalReadiness.reason_code === "NO_INDEXED_DOCUMENTS"
-              ? "Upload a PDF and refresh readiness before running Quick Start."
+              ? "Upload a PDF and refresh readiness before running analysis."
               : canonicalReadiness.reason,
         }
       : {
@@ -500,8 +500,8 @@ export default async function MatterPage(props: {
   const runProgress = runQuestionsTotal > 0 ? Math.round((runQuestionsDone / runQuestionsTotal) * 100) : 0;
   const reportEmptyStateTitle = reportRunFailure ? "Run report unavailable" : "No report rows yet";
   const reportEmptyStateDescription = reportRunFailure
-    ? "No report rows were produced for this run. Re-run Quick Start after fixing the failure."
-    : "Run Quick Start to generate report rows for triage.";
+    ? "No report rows were produced for this run. Re-run analysis after fixing the failure."
+    : "Run analysis to generate report rows for triage.";
 
   return (
     <div className="min-w-0">
@@ -613,7 +613,7 @@ export default async function MatterPage(props: {
                       </div>
                     ) : (
                       <div className="text-2xs text-muted-foreground">
-                        Select a completed run history or re-run Quick Start after the failure is resolved.
+                        Select a completed run history or re-run analysis after the failure is resolved.
                       </div>
                     )}
                   </ErrorBanner>
@@ -677,7 +677,7 @@ export default async function MatterPage(props: {
               <EmptyState
                 icon={<DocumentIcon />}
                 title="No runs to review"
-                description="Start Quick Start first, then triage report rows here."
+                description="Start analysis first, then triage report rows here."
               />
             )}
           </section>

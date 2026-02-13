@@ -25,17 +25,17 @@ const DEFAULT_FAILURE_BY_STATE: Readonly<Record<string, RunFailureDefault>> = {
   },
   partial: {
     code: "RUN_PARTIAL",
-    message: "Run completed with missing report rows. Re-run Quick Start.",
+    message: "Run completed with missing report rows. Re-run analysis.",
     retryable: false,
   },
   failed: {
     code: "RUN_FAILED",
-    message: "Run failed before report rows were finalized. Re-run Quick Start.",
+    message: "Run failed before report rows were finalized. Re-run analysis.",
     retryable: false,
   },
   cancelled: {
     code: "RUN_CANCELLED",
-    message: "Run was cancelled before report rows were finalized. Re-run Quick Start.",
+    message: "Run was cancelled before report rows were finalized. Re-run analysis.",
     retryable: false,
   },
 };

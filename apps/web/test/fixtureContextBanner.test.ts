@@ -8,7 +8,7 @@ describe("fixture context banner mapping", () => {
       matterName: "DEMO: pack_01_clean 2026-02-11T170000Z",
       readiness: {
         state: "ready",
-        reason: "1 indexed-ready document available. Run Quick Start now.",
+        reason: "1 indexed-ready document available. Run analysis now.",
       },
     });
 
@@ -16,7 +16,7 @@ describe("fixture context banner mapping", () => {
       activePack: "pack_01_clean",
       loadedAt: "2026-02-11T170000Z",
       loadState: "ready",
-      nextStep: "1 indexed-ready document available. Run Quick Start now.",
+      nextStep: "1 indexed-ready document available. Run analysis now.",
       variant: "success",
     });
   });
@@ -40,7 +40,7 @@ describe("fixture context banner mapping", () => {
       matterName: "Acme Matter",
       readiness: {
         state: "already-complete",
-        reason: "Latest Quick Start already completed.",
+        reason: "Latest analysis run already completed.",
       },
     });
 

@@ -25,7 +25,7 @@ describe("US-002 quick start readiness gate", () => {
     expect(pageSource).toContain('state: "blocked"');
     expect(pageSource).toContain('state: "ready"');
     expect(pageSource).not.toContain('state: "already-complete"');
-    expect(pageSource).toContain("Upload a PDF and refresh readiness before running Quick Start.");
+    expect(pageSource).toContain("Upload a PDF and refresh readiness before running analysis.");
 
     expect(actionSource).toContain('const blocked = props.readiness.state !== "ready"');
     expect(actionSource).toContain("disabled={blocked}");

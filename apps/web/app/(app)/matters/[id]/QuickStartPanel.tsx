@@ -97,7 +97,7 @@ export function QuickStartPanel(props: Props) {
       </Alert>
 
       <Button size="sm" onClick={start} disabled={props.readiness.state !== "ready"} loading={state.kind === "loading"}>
-        Run Quick Start
+        Run analysis
       </Button>
 
       {state.kind === "error" ? (

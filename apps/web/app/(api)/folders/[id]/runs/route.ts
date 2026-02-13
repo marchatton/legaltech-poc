@@ -116,9 +116,9 @@ function runResponse(row: RunRow) {
 
 function runStartConflictForLatestRun(state: string): string {
   if (state === "completed") {
-    return "Latest Quick Start already completed. Review the outputs below, or load the pack again to create a fresh matter.";
+    return "Latest analysis run already completed. Review the outputs below, or load the pack again to create a fresh matter.";
   }
-  return `Quick Start already ${state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`;
+  return `Analysis already ${state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`;
 }
 
 function runStartLockScope(args: { folderId: string; runType: string }): string {
@@ -503,7 +503,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       to: "failed",
       errorJson: {
         code: "WORKFLOW_SCHEDULE_FAILED",
-        message: "Failed to schedule Quick Start workflow steps.",
+        message: "Failed to schedule analysis workflow steps.",
       },
       db: sql,
     });

@@ -322,7 +322,7 @@ describe("POST /folders/:id/runs (quick start)", () => {
       const duplicateJson = (await duplicateRes.json()) as unknown;
       const duplicate = readConflict(duplicateJson);
       expect(duplicate?.code).toBe("CONFLICT");
-      expect(duplicate?.message).toContain("Quick Start already");
+      expect(duplicate?.message).toContain("Analysis already");
 
       const afterRows = await sql<Array<{ n: number }>>`
         SELECT COUNT(*)::int as n
@@ -386,7 +386,7 @@ describe("POST /folders/:id/runs (quick start)", () => {
       const duplicateJson = (await duplicates[0].json()) as unknown;
       const duplicate = readConflict(duplicateJson);
       expect(duplicate?.code).toBe("CONFLICT");
-      expect(duplicate?.message).toContain("Quick Start already");
+      expect(duplicate?.message).toContain("Analysis already");
       expect(duplicate?.details?.run_id).toBe(runId);
 
       const runRows = await sql<Array<{ id: string; state: string }>>`
@@ -446,7 +446,7 @@ describe("POST /folders/:id/runs (quick start)", () => {
         ${traceId},
         ${sql.json({
           code: "WORKFLOW_SCHEDULE_FAILED",
-          message: "Failed to schedule Quick Start workflow steps.",
+          message: "Failed to schedule analysis workflow steps.",
         })},
         3,
         0
@@ -461,7 +461,7 @@ describe("POST /folders/:id/runs (quick start)", () => {
     expect(body?.run?.state).toBe("failed");
     expect(body?.run?.failure).toMatchObject({
       code: "WORKFLOW_SCHEDULE_FAILED",
-      message: "Failed to schedule Quick Start workflow steps.",
+      message: "Failed to schedule analysis workflow steps.",
       trace_id: traceId,
       retryable: false,
     });
