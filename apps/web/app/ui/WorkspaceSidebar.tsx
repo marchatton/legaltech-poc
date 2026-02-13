@@ -223,13 +223,13 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
       <div className="border-t border-sidebar-border p-3">
         <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3 px-1 py-1")}>
           <div className="flex size-8 shrink-0 items-center justify-center rounded-pill bg-secondary text-xs font-semibold text-secondary-foreground">
-            RG
+            DD
           </div>
           {!collapsed && (
             <>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-sidebar-foreground">Ruth Bader Ginsburg</p>
-                <p className="truncate text-2xs text-muted-foreground">Operator</p>
+                <p className="truncate text-sm font-medium text-sidebar-foreground">Donna Deed</p>
+                <p className="truncate text-2xs text-muted-foreground">Director</p>
               </div>
               <button
                 type="button"

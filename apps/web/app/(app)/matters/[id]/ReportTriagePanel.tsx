@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { NormPolygons } from "@orbital-poc/core";
 import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
@@ -266,6 +267,7 @@ function viewerErrorCodeFromEvidence(args: {
 }
 
 export function ReportTriagePanel(props: Props) {
+  const router = useRouter();
   const [rows, setRows] = useState<ReportRowForDrawer[]>(props.rows);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [pendingRowId, setPendingRowId] = useState<string | null>(null);
@@ -587,6 +589,8 @@ export function ReportTriagePanel(props: Props) {
         kind: "success",
         message: `Marked ${existing.question_id} reviewed.`,
       });
+      // Keep server-rendered tab chips/counts in sync with the persisted row status.
+      router.refresh();
     } catch (err) {
       setRows((prev) => prev.map((row) => (row.id === rowId ? existing : row)));
       setFeedback({

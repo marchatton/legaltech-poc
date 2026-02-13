@@ -555,21 +555,19 @@ export default async function MatterPage(props: {
         {activeTab === "report" ? (
           <section className="space-y-4">
             <div className="max-w-lg rounded-ui-lg border border-border/70 bg-muted/20 p-4">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="mb-4">
                 <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
-                <span className="text-2xs text-muted-foreground">{operatorChecklistSummary} · {operatorElapsedLabel}</span>
               </div>
 
-              <ol className="relative ml-3 space-y-4">
+              <ol className="relative space-y-4">
                 {operatorChecklistSteps.map((step, i) => {
-                  const isFirst = i === 0;
                   const isLast = i === operatorChecklistSteps.length - 1;
                   return (
                     <li key={step.id} className="relative pl-6">
                       {!isLast && (
-                        <span className="absolute -left-[1px] top-4 h-[calc(100%+0.5rem)] w-0.5 bg-border" aria-hidden="true" />
+                        <span className="absolute left-[7px] top-4 h-[calc(100%+0.5rem)] w-0.5 bg-border" aria-hidden="true" />
                       )}
-                      <span className={`absolute -left-[9px] top-0.5 flex size-4 items-center justify-center rounded-full ${
+                      <span className={`absolute left-0 top-0.5 flex size-4 items-center justify-center rounded-full ${
                         step.state === "done"
                           ? "bg-success text-white"
                           : step.state === "in_progress"

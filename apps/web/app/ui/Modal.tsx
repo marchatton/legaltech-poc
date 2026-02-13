@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type HTMLAttributes, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 import { cn } from "./cn";
 
@@ -114,12 +115,13 @@ export function Modal({ open, onClose, size, children, className }: ModalProps) 
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <>
       <ModalOverlay onClose={onClose} />
       <ModalContent size={size} className={className}>
         {children}
       </ModalContent>
-    </>
+    </>,
+    document.body,
   );
 }
