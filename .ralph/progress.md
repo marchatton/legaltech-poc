@@ -1510,3 +1510,39 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - `blocked_by_existing_failure` is an effective guardrail state to prevent accidental downstream execution until an explicit resume decision is made.
 ---
+## [2026-02-13 03:25 UTC] - US-011: Run-start idempotency and concurrency guardrails
+Thread: 
+Run: 20260213-005806-15124 (iteration 11)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-11.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-11.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: f61784c fix(runs-api): serialize run-start for dedupe
+- Post-commit status: `clean`
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm --filter @orbital-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/test/foldersRunsRoute.wdk.int.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Wrapped run-start critical path in a Postgres advisory lock transaction scoped to matter context (`folderId + runType`) so concurrent starts serialize before duplicate checks and insert.
+  - Kept idempotency-key replay behavior deterministic by returning the canonical existing run for duplicate keys, including insert-race handling.
+  - Preserved explicit duplicate conflict behavior with run metadata (`run_id`, `run_state`) for non-idempotent concurrent retries.
+  - Added integration coverage proving parallel Quick Start triggers produce one canonical run and one informative duplicate response, with no extra active runs created.
+  - Security/performance/regression audit: lock scope is narrow and parameterized (no injection surface), serialization is bounded to run-start operations, and full lint/typecheck/test/build gates passed.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - A DB advisory lock around check+insert is a low-friction way to harden API-level idempotency without schema migrations.
+  - Gotchas encountered
+  - In this workspace, `pnpm --filter @orbital-poc/web test -- <file>` still executes the full suite, so plan runtime accordingly.
+  - Useful context
+  - Returning conflict details with canonical `run_id` makes duplicate responses actionable for operator UX and client retries.
+---

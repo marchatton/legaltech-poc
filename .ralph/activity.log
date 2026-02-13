@@ -275,3 +275,4 @@
 [2026-02-13 03:18:19] US-011 start: reviewed guardrails/errors/PRD and beginning run-start idempotency audit
 [2026-02-13 03:22:53] US-011 major change: added run-start advisory lock transaction + concurrent start integration test
 [2026-02-13 03:24:52] US-011 verification complete: pnpm lint/typecheck/test/build passing
+[2026-02-13 03:25:57] US-011 progress entry appended to .ralph/progress.md
