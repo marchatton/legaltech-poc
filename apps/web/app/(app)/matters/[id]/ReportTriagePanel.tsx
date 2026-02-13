@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 
 import type { NormPolygons } from "@orbital-poc/core";
 import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
+import {
+  type QuickStartFailureReasonCode,
+  type QuickStartNoEvidenceReasonCode,
+  isQuickStartFailureReasonCode,
+  isQuickStartNoEvidenceReasonCode,
+} from "../../../../lib/quickStartReasonCodes";
 
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
@@ -75,6 +81,19 @@ const SOURCE_CHIP_DISABLED_REASON_CODES = new Set([
   "MISSING_ANCHOR",
   "NO_CITATIONS",
 ]);
+const MISSING_INPUT_REASON_COPY: Record<QuickStartNoEvidenceReasonCode, string> = {
+  NO_EVIDENCE_NO_READY_DOCUMENTS: "No ready documents are available yet. Upload/parse source files, then re-run this question.",
+  NO_EVIDENCE_RETRIEVAL_EMPTY: "No relevant evidence chunks were retrieved for this question from the indexed documents.",
+  NO_EVIDENCE_ANCHOR_UNRESOLVED: "Evidence was found but no lockable page anchor was available, so no citation could be locked.",
+  NO_EVIDENCE_DRAFT_UNSUPPORTED: "Evidence was retrieved but did not support a grounded answer for this question.",
+};
+const CITATION_FAILED_REASON_COPY: Record<QuickStartFailureReasonCode, string> = {
+  VALIDATION_ERROR: "The row payload failed validation. Re-run this question; if it repeats, treat it as a bug.",
+  RETRIEVAL_FAILED: "Retrieval failed while collecting evidence. Re-run this question after indexing is healthy.",
+  DRAFT_FAILED: "Drafting failed while producing an evidence-bound answer. Re-run this question.",
+  ROW_WRITE_FAILED: "Row persistence failed. Re-run the workflow and check worker/database health.",
+  PROGRESS_UPDATE_FAILED: "Row progress update failed. Re-run the workflow and confirm run progress advances.",
+};
 
 function isRecord(input: unknown): input is Record<string, unknown> {
   return !!input && typeof input === "object" && !Array.isArray(input);
@@ -132,6 +151,32 @@ function citationChipGateForRow(row: ReportRowForDrawer): {
     helperText: "Source chip opens in fail-closed mode for this citation_failed row.",
     viewerErrorCode: reasonCode,
   };
+}
+
+function reasonCodePanelForRow(args: {
+  row: ReportRowForDrawer;
+  citationGateReasonCode: string | null;
+}): { reasonCode: string; helperText: string } | null {
+  const fallback = args.row.status === "citation_failed" ? "VALIDATION_ERROR" : null;
+  const rawReasonCode = args.citationGateReasonCode ?? reasonCodeFromProvenance(args.row.provenance_json);
+  const reasonCode = deterministicReasonCode(rawReasonCode, fallback);
+  if (!reasonCode) return null;
+
+  if (args.row.status === "missing_input") {
+    if (isQuickStartNoEvidenceReasonCode(reasonCode)) {
+      return { reasonCode, helperText: MISSING_INPUT_REASON_COPY[reasonCode] };
+    }
+    return { reasonCode, helperText: "No grounded evidence was available for this answer." };
+  }
+
+  if (args.row.status === "citation_failed") {
+    if (isQuickStartFailureReasonCode(reasonCode)) {
+      return { reasonCode, helperText: CITATION_FAILED_REASON_COPY[reasonCode] };
+    }
+    return { reasonCode, helperText: "A fail-closed error occurred while writing this row." };
+  }
+
+  return null;
 }
 
 function nonEmptyString(value: unknown): string | null {
@@ -293,6 +338,16 @@ export function ReportTriagePanel(props: Props) {
   const selectedRowCitationGate = useMemo(
     () => (selectedRow ? citationChipGateForRow(selectedRow) : null),
     [selectedRow],
+  );
+  const selectedRowReasonPanel = useMemo(
+    () =>
+      selectedRow
+        ? reasonCodePanelForRow({
+            row: selectedRow,
+            citationGateReasonCode: selectedRowCitationGate?.reasonCode ?? null,
+          })
+        : null,
+    [selectedRow, selectedRowCitationGate],
   );
 
   useEffect(() => {
@@ -711,11 +766,11 @@ export function ReportTriagePanel(props: Props) {
       {selectedRow ? (
         <>
           <div
-            className="fixed inset-0 z-30 bg-background/45 backdrop-blur-[1px]"
+            className="fixed inset-0 z-[60] bg-background/45 backdrop-blur-[1px]"
             aria-hidden="true"
             onClick={closeRowDrawer}
           />
-          <div className="fixed right-0 bottom-0 top-0 z-40 flex max-w-full">
+          <div className="fixed right-0 bottom-0 top-0 z-[70] flex max-w-full">
           {showDesktopSplitViewer ? (
             <aside
               className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg"
@@ -738,7 +793,7 @@ export function ReportTriagePanel(props: Props) {
           ) : null}
 
           <aside
-            className="h-full w-full max-w-[63rem] border-l border-border bg-card shadow-ui-lg"
+            className="h-full w-full max-w-[94.5rem] border-l border-border bg-card shadow-ui-lg"
             role="dialog"
             aria-modal="true"
             aria-labelledby={`row-drawer-title-${selectedRow.id}`}
@@ -751,9 +806,9 @@ export function ReportTriagePanel(props: Props) {
                       <span className="rounded-ui-sm bg-card px-2 py-0.5 font-mono text-2xs text-muted-foreground ring-1 ring-inset ring-border/70">
                         {selectedRow.question_id}
                       </span>
-                      <Badge variant={statusPresentation(selectedRow.status).variant} size="sm">
+                      <span className="text-2xs font-medium text-muted-foreground">
                         {statusPresentation(selectedRow.status).label}
-                      </Badge>
+                      </span>
                     </div>
                     <h2 id={`row-drawer-title-${selectedRow.id}`} className="font-serif text-lg font-medium leading-tight text-foreground line-clamp-2">
                       {selectedRow.question}
@@ -886,10 +941,15 @@ export function ReportTriagePanel(props: Props) {
                     ) : (
                       <div>No locked citation ids linked to this row.</div>
                     )}
-                    {selectedRowCitationGate?.reasonCode ? (
-                      <div className="flex items-center justify-between gap-2">
-                        <span>reason_code</span>
-                        <span className="font-mono text-foreground">{selectedRowCitationGate.reasonCode}</span>
+                    {selectedRowReasonPanel ? (
+                      <div className="grid gap-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span>reason_code</span>
+                          <span className="font-mono text-foreground">{selectedRowReasonPanel.reasonCode}</span>
+                        </div>
+                        <div className="rounded-ui-sm border border-border/70 bg-muted/40 px-2 py-1 text-2xs text-muted-foreground">
+                          {selectedRowReasonPanel.helperText}
+                        </div>
                       </div>
                     ) : null}
                   </div>
@@ -927,7 +987,7 @@ export function ReportTriagePanel(props: Props) {
                     Mark reviewed
                   </Button>
                   <Button type="button" variant="secondary" size="sm" onClick={closeRowDrawer}>
-                    Back to table
+                    Back
                   </Button>
                 </div>
               </div>

@@ -327,15 +327,18 @@ describe("report rows from persisted step outputs", () => {
       `;
       expect(runRows[0]?.state).toBe("completed");
 
-      const reportRows = await sql<Array<{ status: string; answer: string }>>`
-        SELECT status, answer
+      const reportRows = await sql<Array<{ status: string; answer: string; provenance_json: unknown }>>`
+        SELECT status, answer, provenance_json
         FROM report_rows
         WHERE run_id = ${runId}
           AND question_id = 'TS-01'
         LIMIT 1
       `;
-      expect(reportRows[0]?.status).toBe("needs_review");
-      expect(reportRows[0]?.answer).toBe("Unable to produce citations.");
+      expect(reportRows[0]?.status).toBe("missing_input");
+      expect(reportRows[0]?.answer).toBe("Not found in provided documents.");
+      expect((reportRows[0]?.provenance_json as { reason_code?: string } | undefined)?.reason_code).toBe(
+        "NO_EVIDENCE_RETRIEVAL_EMPTY",
+      );
     } finally {
       await sql`DELETE FROM folders WHERE id = ${folderId}`;
       await fs.rm(snapshotDir, { recursive: true, force: true });

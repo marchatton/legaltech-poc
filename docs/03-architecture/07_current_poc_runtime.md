@@ -79,8 +79,10 @@ Code:
 ## What “Quick Start run” means today
 - Runs are executed via WDK steps (`run_steps`) processed by the WDK worker.
 - `POST /folders/:id/runs` schedules one queued per-question step (`step_type='quick_start_title_survey.write_row_v0'`) and logs `orchestration: \"wdk\"`.
-- Current run implementation writes placeholder terminal `report_rows` for each question.
-- It does not do retrieval, drafting, locking citations, or verification against real data.
+- Current run implementation performs row-level `retrieve -> draft -> lock` for each question.
+- Evidence-backed rows lock exactly one citation (`citation_ids.length = 1`) when anchors resolve.
+- No-evidence rows are persisted as `missing_input` with canonical answer text and deterministic reason codes.
+- Unexpected retrieval/drafting/validation failures remain fail-closed via `citation_failed` safe reason codes.
 
 Code:
 - `apps/web/app/(api)/folders/[id]/runs/route.ts` (run creation + step scheduling)

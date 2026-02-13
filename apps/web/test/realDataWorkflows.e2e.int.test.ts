@@ -6,8 +6,6 @@ import { randomUUID } from "node:crypto";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-
 import { POST as POST_DEMO_LOAD_PACK } from "../app/(api)/demo/load-pack/route";
 import { POST as POST_EXPORT_CSV } from "../app/(api)/export/csv/route";
 import { GET as GET_FOLDERS, POST as POST_FOLDERS } from "../app/(api)/folders/route";
@@ -58,6 +56,14 @@ function resolvePackPdfPath(filename: string): string {
     }
   }
   throw new Error(`PACK_PDF_NOT_FOUND:${filename}`);
+}
+
+function reasonCodeFromProvenance(value: unknown): string | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const reasonCode = (value as { reason_code?: unknown }).reason_code;
+  if (typeof reasonCode !== "string") return null;
+  const trimmed = reasonCode.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 type CreateFolderResponse = {
@@ -139,6 +145,9 @@ type ReportResponse = {
     id: string;
     question_id: string;
     status: string;
+    answer: string;
+    citation_ids: string[];
+    provenance_json: unknown;
     payload_schema_version: string | null;
   }>;
 };
@@ -369,94 +378,32 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
       const reportJson = (await reportRes.json()) as ReportResponse;
       expect(reportJson.run.id).toBe(runId);
       expect(reportJson.rows.length).toBeGreaterThan(0);
-      expect(reportJson.rows.some((r) => r.status === "needs_review")).toBe(true);
       expect(reportJson.rows.some((r) => r.status === "citation_failed")).toBe(false);
       expect(reportJson.rows.some((r) => r.payload_schema_version === "list_payload_v0")).toBe(true);
+      expect(reportJson.rows.some((row) => row.answer === "Unable to produce citations.")).toBe(false);
 
-      const chunkRows = await db<Array<{ document_id: string; page_start: number | null; text: string }>>`
-        SELECT document_id, page_start, text
-        FROM chunks
-        WHERE document_id = ${documentId}
-          AND length(text) > 0
-        ORDER BY chunk_index ASC
-        LIMIT 1
-      `;
-      const chunk = chunkRows[0];
-      expect(chunk).toBeTruthy();
+      const needsReviewRows = reportJson.rows.filter((row) => row.status === "needs_review");
+      expect(needsReviewRows.length).toBeGreaterThan(0);
+      for (const row of needsReviewRows) {
+        expect(row.citation_ids).toHaveLength(1);
+      }
 
-      const questionSetRows = await db<Array<{ question_set_version: string }>>`
-        SELECT question_set_version
-        FROM runs
-        WHERE id = ${runId}
-        LIMIT 1
-      `;
-      const questionSetVersion = questionSetRows[0]?.question_set_version;
-      expect(questionSetVersion).toBeTruthy();
+      const expectedNoEvidenceReasonCodes = new Set([
+        "NO_EVIDENCE_NO_READY_DOCUMENTS",
+        "NO_EVIDENCE_RETRIEVAL_EMPTY",
+        "NO_EVIDENCE_ANCHOR_UNRESOLVED",
+        "NO_EVIDENCE_DRAFT_UNSUPPORTED",
+      ]);
+      const missingInputRows = reportJson.rows.filter((row) => row.status === "missing_input");
+      for (const row of missingInputRows) {
+        expect(row.answer).toBe("Not found in provided documents.");
+        expect(expectedNoEvidenceReasonCodes.has(reasonCodeFromProvenance(row.provenance_json) ?? "")).toBe(true);
+      }
 
-      const citationRowId = `row_${randomUUID()}`;
-      const citationId = `cit_${randomUUID().replace(/-/g, "_")}`;
-      const snippet = chunk!.text.slice(0, 180).trim();
-      const snippetHash = hashSnippet(snippet);
-      const polygons = [[[0, 0], [1, 0], [1, 1], [0, 1]]];
-
-      await db`
-        INSERT INTO report_rows (
-          id,
-          run_id,
-          folder_id,
-          question_set_version,
-          question_id,
-          question,
-          answer,
-          status,
-          notes,
-          provenance_json,
-          payload_schema_version,
-          payload_json,
-          created_at,
-          updated_at
-        )
-        VALUES (
-          ${citationRowId},
-          ${runId},
-          ${folderId},
-          ${questionSetVersion!},
-          ${"TS-E2E-CIT"},
-          ${"Real-data citation smoke question"},
-          ${"Evidence exists"},
-          ${"needs_review"},
-          NULL,
-          ${db.json({})},
-          NULL,
-          NULL,
-          now(),
-          now()
-        )
-      `;
-      await db`
-        INSERT INTO citations (
-          id,
-          report_row_id,
-          document_id,
-          page_number,
-          snippet,
-          snippet_hash,
-          polygons_json,
-          locked_at,
-          created_at
-        )
-        VALUES (
-          ${citationId},
-          ${citationRowId},
-          ${chunk!.document_id},
-          ${chunk!.page_start ?? 1},
-          ${snippet},
-          ${snippetHash},
-          ${db.json(polygons)},
-          now(),
-          now()
-        )
-      `;
+      const evidenceRow = needsReviewRows.find((row) => row.citation_ids.length === 1) ?? null;
+      expect(evidenceRow).toBeTruthy();
+      const citationId = evidenceRow?.citation_ids[0] ?? "";
+      expect(citationId).toMatch(/^cit_/);
 
       const citationRes = await GET_CITATION(new Request(`http://localhost/citations/${citationId}`), {
         params: Promise.resolve({ id: citationId }),
@@ -464,21 +411,25 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
       expect(citationRes.status).toBe(200);
       const citationJson = (await citationRes.json()) as CitationResponse;
       expect(citationJson.citation.id).toBe(citationId);
-      expect(citationJson.citation.document_id).toBe(chunk!.document_id);
-      expect(citationJson.citation.snippet_hash).toBe(snippetHash);
+      expect(citationJson.citation.snippet_hash).toMatch(/^sha256:/);
+      expect(citationJson.citation.page_number).toBeGreaterThan(0);
 
       const renderRes = await GET_DOCUMENT_RENDER(
-        new Request(`http://localhost/documents/${documentId}/render?${new URLSearchParams({ page: String(chunk!.page_start ?? 1) })}`),
-        { params: Promise.resolve({ id: documentId }) },
+        new Request(
+          `http://localhost/documents/${citationJson.citation.document_id}/render?${new URLSearchParams({
+            page: String(citationJson.citation.page_number),
+          })}`,
+        ),
+        { params: Promise.resolve({ id: citationJson.citation.document_id }) },
       );
       expect(renderRes.status).toBe(200);
       const renderJson = (await renderRes.json()) as RenderResponse;
-      expect(renderJson.document_id).toBe(documentId);
-      expect(renderJson.render_url).toContain(`/documents/${documentId}/pdf?`);
+      expect(renderJson.document_id).toBe(citationJson.citation.document_id);
+      expect(renderJson.render_url).toContain(`/documents/${citationJson.citation.document_id}/pdf?`);
 
       const pdfRes = await GET_DOCUMENT_PDF(
         new Request(`http://localhost${renderJson.render_url}`),
-        { params: Promise.resolve({ id: documentId }) },
+        { params: Promise.resolve({ id: citationJson.citation.document_id }) },
       );
       expect(pdfRes.status).toBe(200);
       expect(pdfRes.headers.get("content-type")).toContain("application/pdf");

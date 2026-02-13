@@ -9,17 +9,24 @@ Constraints:
 
 ## Reason code -> guidance (draft)
 
+### No-evidence (`missing_input`)
+
 | Reason code | What it means | What to do next (user-facing) |
 | --- | --- | --- |
-| `RETRIEVAL_MISS` | We could not retrieve relevant evidence chunks for this question. | Confirm the relevant document is present in the pack, then retry. If it is present, re-run indexing or adjust retrieval settings. |
-| `LOW_EXTRACTION_QUALITY` | The document scan/OCR quality is too low to extract evidence safely. | Provide a higher-quality scan (higher DPI, less skew), rotate if needed, or supply a text-native PDF. Then retry. |
-| `NO_CITATIONS` | A non-missing answer was produced without any locked citations. | Re-run the question and confirm evidence is being retrieved and locked. If it persists, treat as a bug (the system must fail closed). |
-| `CITATION_MISMATCH` | Evidence integrity failed (e.g. snippet hash mismatch, missing/invalid geometry). | Open the citation and confirm what it actually says. Re-run; if it persists, treat as a bug in citation locking. |
-| `MISSING_INPUT_INVARIANT` | The row violated missing-input invariants (e.g. missing_input answer with citations). | Retry. If it persists, treat as a bug and include the reason code + trace_id. |
-| `VALIDATION_ERROR` | The row failed schema validation (malformed output). | Retry. If it persists, treat as a bug and include the reason code + trace_id. |
-| `REFERENCE_CYCLE` | A cross-reference chain contained a cycle (non-terminating). | Review the referenced docs manually; consider bounding the chase depth or adding a specific doc to break the cycle. |
-| `MISSING_DOC` | A referenced instrument document is not present in the pack. | Request/upload the missing document (the drawer should name the expected filename). Then retry. |
-| `MISSING_ATTACHMENT` | An exhibit/attachment is referenced but not included in the provided instrument PDF(s). | Request/upload the missing exhibit/attachment. Do not infer its contents from context. |
+| `NO_EVIDENCE_NO_READY_DOCUMENTS` | No upload+parse+OCR-ready documents were available for retrieval. | Upload/parse the relevant document(s), then re-run the question. |
+| `NO_EVIDENCE_RETRIEVAL_EMPTY` | Retrieval returned no relevant chunks for this question. | Confirm the content exists in the uploaded docs, then retry after indexing is healthy. |
+| `NO_EVIDENCE_ANCHOR_UNRESOLVED` | Retrieval found chunks, but no lockable page anchor was available. | Re-run after re-indexing; if repeated, treat as an anchor/ingest bug. |
+| `NO_EVIDENCE_DRAFT_UNSUPPORTED` | Evidence was present, but drafting could not support a grounded answer. | Review source docs manually and re-run if additional docs are added. |
+
+### System failures (`citation_failed`)
+
+| Reason code | What it means | What to do next (user-facing) |
+| --- | --- | --- |
+| `VALIDATION_ERROR` | Row payload/contract validation failed. | Retry; if it persists, include reason code + trace_id in a bug report. |
+| `RETRIEVAL_FAILED` | Retrieval failed unexpectedly. | Retry after checking indexing/database health. |
+| `DRAFT_FAILED` | Draft generation failed unexpectedly. | Retry; if repeated, check model gateway/runtime health. |
+| `ROW_WRITE_FAILED` | Row/citation persistence failed. | Retry and check DB/worker health. |
+| `PROGRESS_UPDATE_FAILED` | Run progress update failed after row processing. | Retry and verify run progress advances correctly. |
 
 ## Drawer affordances (draft)
 

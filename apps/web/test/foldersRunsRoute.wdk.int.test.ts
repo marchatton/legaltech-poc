@@ -203,6 +203,31 @@ describe("POST /folders/:id/runs (quick start)", () => {
       new Date(finalRunBody.run.transitions.started_at).getTime(),
     );
 
+    const rowCounts = await sql<Array<{ question_id: string; n: number }>>`
+      SELECT question_id, COUNT(*)::int AS n
+      FROM report_rows
+      WHERE run_id = ${runId}
+      GROUP BY question_id
+      ORDER BY question_id ASC
+    `;
+    expect(rowCounts.length).toBe(questionSet.questions.length);
+    for (const rowCount of rowCounts) {
+      expect(rowCount.n).toBe(1);
+    }
+
+    const citationCounts = await sql<Array<{ question_id: string; n: number }>>`
+      SELECT rr.question_id, COUNT(c.id)::int AS n
+      FROM report_rows rr
+      LEFT JOIN citations c ON c.report_row_id = rr.id
+      WHERE rr.run_id = ${runId}
+      GROUP BY rr.question_id
+      ORDER BY rr.question_id ASC
+    `;
+    expect(citationCounts.length).toBe(questionSet.questions.length);
+    for (const citationCount of citationCounts) {
+      expect(citationCount.n).toBeLessThanOrEqual(1);
+    }
+
       await sql`DELETE FROM folders WHERE id = ${folderId}`;
     },
     20_000,
