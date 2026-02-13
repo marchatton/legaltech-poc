@@ -11,25 +11,23 @@ function readUtf8(filePath: string): string {
   return fs.readFileSync(filePath, "utf8");
 }
 
-describe("US-004 quick start readiness reasons", () => {
-  it("publishes explicit ready/blocked/already-complete copy states", () => {
+describe("US-002 quick start readiness gate", () => {
+  it("derives quick start enablement from canonical readiness only", () => {
     const root = repoRootFromWebPackage();
     const pagePath = path.join(root, "apps/web/app/(app)/matters/[id]/page.tsx");
-    const quickStartPath = path.join(root, "apps/web/app/(app)/matters/[id]/QuickStartPanel.tsx");
+    const actionPath = path.join(root, "apps/web/app/(app)/matters/[id]/QuickStartActionButton.tsx");
 
     const pageSource = readUtf8(pagePath);
-    const quickStartSource = readUtf8(quickStartPath);
+    const actionSource = readUtf8(actionPath);
 
-    expect(quickStartSource).toContain('type QuickStartReadinessState = "ready" | "blocked" | "already-complete"');
-    expect(quickStartSource).toContain('disabled={props.readiness.state !== "ready"}');
-    expect(quickStartSource).toContain("Ready");
-    expect(quickStartSource).toContain("Blocked");
-    expect(quickStartSource).toContain("Already complete");
-
-    expect(pageSource).toContain('state: "ready"');
+    expect(pageSource).toContain("const canonicalReadiness = resolveCanonicalReadiness({");
+    expect(pageSource).toContain('canonicalReadiness.state !== "runnable"');
     expect(pageSource).toContain('state: "blocked"');
-    expect(pageSource).toContain('state: "already-complete"');
+    expect(pageSource).toContain('state: "ready"');
+    expect(pageSource).not.toContain('state: "already-complete"');
     expect(pageSource).toContain("Upload a PDF and refresh readiness before running Quick Start.");
-    expect(pageSource).toContain("Quick Start completed. Review outputs below.");
+
+    expect(actionSource).toContain('const blocked = props.readiness.state !== "ready"');
+    expect(actionSource).toContain("disabled={blocked}");
   });
 });

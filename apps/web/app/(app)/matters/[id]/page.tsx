@@ -407,31 +407,19 @@ export default async function MatterPage(props: {
     indexedReadyCount === 0
       ? "Upload a PDF and refresh readiness to enable chat."
       : "Waiting for matter to reach ready state.";
-  let quickStartReadiness: QuickStartReadiness;
-  if (latestRun?.state === "completed") {
-    quickStartReadiness = {
-      state: "already-complete",
-      reason: "Quick Start completed. Review outputs below.",
-    };
-  } else if (latestRun) {
-    quickStartReadiness = {
-      state: "blocked",
-      reason: `Quick Start is ${latestRun.state}. Wait for it to finish.`,
-    };
-  } else if (canonicalReadiness.state !== "runnable") {
-    quickStartReadiness = {
-      state: "blocked",
-      reason:
-        canonicalReadiness.reason_code === "NO_INDEXED_DOCUMENTS"
-          ? "Upload a PDF and refresh readiness before running Quick Start."
-          : canonicalReadiness.reason,
-    };
-  } else {
-    quickStartReadiness = {
-      state: "ready",
-      reason: canonicalReadiness.reason,
-    };
-  }
+  const quickStartReadiness: QuickStartReadiness =
+    canonicalReadiness.state !== "runnable"
+      ? {
+          state: "blocked",
+          reason:
+            canonicalReadiness.reason_code === "NO_INDEXED_DOCUMENTS"
+              ? "Upload a PDF and refresh readiness before running Quick Start."
+              : canonicalReadiness.reason,
+        }
+      : {
+          state: "ready",
+          reason: canonicalReadiness.reason,
+        };
   const unsafeOverrideEnabled =
     process.env.DEMO_MODE === "1" &&
     process.env.ALLOW_UNSAFE_EXPORTS === "1" &&

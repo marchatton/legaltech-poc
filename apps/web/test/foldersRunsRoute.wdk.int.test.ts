@@ -25,14 +25,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
-function readConflict(json: unknown): { code: string; message: string } | null {
+function readConflict(json: unknown): { code: string; message: string; details: Record<string, unknown> | null } | null {
   if (!isRecord(json)) return null;
   const error = isRecord(json.error) ? json.error : null;
   if (!error) return null;
   const code = typeof error.code === "string" ? error.code : null;
   const message = typeof error.message === "string" ? error.message : null;
   if (!code || !message) return null;
-  return { code, message };
+  return {
+    code,
+    message,
+    details: isRecord(error.details) ? error.details : null,
+  };
 }
 
 describe("POST /folders/:id/runs (quick start)", () => {
@@ -187,13 +191,28 @@ describe("POST /folders/:id/runs (quick start)", () => {
   );
 
   it(
-    "returns explicit conflicts for blocked starts and allows blocked-to-ready transition",
+    "returns explicit conflicts for missing prerequisites and allows blocked-to-ready transition",
     async () => {
       const folderId = `fld_${randomUUID()}`;
-      const docId = `doc_${randomUUID()}`;
-      const chunkId = `chk_${randomUUID()}`;
+      const docIdMissingRea = `doc_${randomUUID()}`;
+      const chunkIdMissingRea = `chk_${randomUUID()}`;
+      const docIdRea = `doc_${randomUUID()}`;
+      const chunkIdRea = `chk_${randomUUID()}`;
+      const seedTag = randomUUID().replaceAll("-", "").slice(0, 10);
+      const folderName = `DEMO: pack_02_missing_rea 2026-02-13T00:00:00Z ${seedTag}`;
 
-      await sql`INSERT INTO folders (id, name, state) VALUES (${folderId}, 'readiness gate test', 'empty')`;
+      await sql`
+        INSERT INTO folders (id, name, state, latest_index_version)
+        VALUES (${folderId}, ${folderName}, 'ready', 'v1')
+      `;
+      await sql`
+        INSERT INTO documents (id, folder_id, filename, mime, bytes, parse_status, ocr_status)
+        VALUES (${docIdMissingRea}, ${folderId}, 'TitleCommitment.pdf', 'application/pdf', 1, 'parsed', 'done')
+      `;
+      await sql`
+        INSERT INTO chunks (id, document_id, index_version, chunk_index, text, text_hash)
+        VALUES (${chunkIdMissingRea}, ${docIdMissingRea}, 'v1', 0, 'seed', ${`hash_${randomUUID()}`})
+      `;
 
       const blockedRes = await POST(
         new Request(`http://localhost/folders/${folderId}/runs`, {
@@ -207,7 +226,9 @@ describe("POST /folders/:id/runs (quick start)", () => {
       const blockedJson = (await blockedRes.json()) as unknown;
       const blocked = readConflict(blockedJson);
       expect(blocked?.code).toBe("CONFLICT");
-      expect(blocked?.message).toContain("No indexed documents yet");
+      expect(blocked?.message).toContain("REA.pdf");
+      expect(blocked?.details?.readiness_reason_code).toBe("MISSING_PREREQUISITE_DOCUMENT");
+      expect(blocked?.details?.missing_documents).toEqual(["REA.pdf"]);
 
       const beforeRows = await sql<Array<{ n: number }>>`
         SELECT COUNT(*)::int as n
@@ -219,11 +240,11 @@ describe("POST /folders/:id/runs (quick start)", () => {
 
       await sql`
         INSERT INTO documents (id, folder_id, filename, mime, bytes, parse_status, ocr_status)
-        VALUES (${docId}, ${folderId}, 'ready.pdf', 'application/pdf', 1, 'parsed', 'done')
+        VALUES (${docIdRea}, ${folderId}, 'REA.pdf', 'application/pdf', 1, 'parsed', 'done')
       `;
       await sql`
         INSERT INTO chunks (id, document_id, index_version, chunk_index, text, text_hash)
-        VALUES (${chunkId}, ${docId}, 'v1', 0, 'ready', ${`hash_${randomUUID()}`})
+        VALUES (${chunkIdRea}, ${docIdRea}, 'v1', 0, 'ready', ${`hash_${randomUUID()}`})
       `;
 
       const startedRes = await POST(
