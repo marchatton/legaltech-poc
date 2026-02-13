@@ -3,13 +3,11 @@ import { timingSafeEqual } from "node:crypto";
 import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
 import { z } from "zod";
 
-import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { newId } from "../../../../lib/ids";
 import { assertJsonContentType } from "../../../../lib/jsonContentType";
-import { isDbOnlyEvidenceMode } from "../../../../lib/runtimeMode";
 import {
   createSignedGetHeaders,
   putObject,
@@ -52,10 +50,6 @@ type DbReportRow = {
 type DbFailedRow = { question_id: string; provenance_json: unknown };
 
 type DbCitationRow = { id: string; filename: string; page_number: number };
-
-function isRecord(val: unknown): val is Record<string, unknown> {
-  return !!val && typeof val === "object" && !Array.isArray(val);
-}
 
 function safeEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);
@@ -102,42 +96,9 @@ function collectCitationIdsFromPayload(payloadSchemaVersion: string | null, payl
   return Array.from(new Set(ids));
 }
 
-function snapshotRowForKind(snapshot: NonNullable<ReturnType<typeof loadSeedSnapshot>>, kind: string): DbReportRow | null {
-  const candidates: DbReportRow[] = [];
-
-  for (const r of snapshot.rows ?? []) {
-    const hasSchema = r.payload_schema_version !== null && String(r.payload_schema_version ?? "").trim() !== "";
-    const hasPayload = r.payload_json !== null && r.payload_json !== undefined;
-    if (hasSchema !== hasPayload) continue;
-    if (!hasSchema) continue;
-
-    if (r.payload_schema_version !== LIST_PAYLOAD_V0_SCHEMA_VERSION) continue;
-
-    const parsed = ListPayloadV0Schema.safeParse(r.payload_json);
-    if (!parsed.success) continue;
-    if (parsed.data.kind !== kind) continue;
-
-    candidates.push({
-      id: `seed_row:${r.question_id}`,
-      question_id: r.question_id,
-      answer: r.answer,
-      status: r.status,
-      notes: typeof r.notes === "string" ? r.notes : null,
-      provenance_json: (r as { provenance_json?: unknown }).provenance_json ?? {},
-      payload_schema_version: r.payload_schema_version,
-      payload_json: r.payload_json,
-    });
-  }
-
-  candidates.sort((a, b) => a.question_id.localeCompare(b.question_id));
-  return candidates[0] ?? null;
-}
-
 // Implements the target export contract (see docs/03-architecture/50_api_surface.md).
-// In dev, we also support fixture-backed runs from tmp/fixture-seed for tracer bullets.
 export async function POST(req: Request): Promise<Response> {
   const { traceId, headers } = createTraceContext();
-  const dbOnlyEvidenceMode = isDbOnlyEvidenceMode();
   const devGate = assertDevOrDemoProdApi(traceId, headers);
   if (devGate) return devGate;
 
@@ -253,28 +214,6 @@ export async function POST(req: Request): Promise<Response> {
     });
   };
 
-  const blockedSnapshotCitationFailures = (
-    failedRows: Array<{ question_id?: unknown; provenance_json?: unknown }>,
-  ): Response => {
-    const reasonCodes = Array.from(
-      new Set(
-        failedRows
-          .map((row) => reasonCodeFromProvenance(row.provenance_json) ?? "VALIDATION_ERROR")
-          .filter((code) => typeof code === "string" && code.trim()),
-      ),
-    ).sort();
-
-    return blocked(`Export blocked: ${failedRows.length} row(s) failed verification.`, {
-      run_id: runId,
-      citation_failed_count: failedRows.length,
-      failed_question_ids: failedRows
-        .map((row) => String(row.question_id ?? ""))
-        .filter((questionId) => questionId.trim())
-        .slice(0, 50),
-      reason_codes: reasonCodes,
-    });
-  };
-
   let sourceRow: DbReportRow | null = null;
   let citationById = new Map<string, { filename: string; page: number }>();
 
@@ -336,55 +275,10 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
   } else {
-    if (dbOnlyEvidenceMode) {
-      return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
-        status: 404,
-        headers,
-      });
-    }
-
-    // Fixture-backed tracer bullets: folder_id maps to pack_id.
-    const snapshot = /^pack_\d{2}_[a-z0-9_]+$/i.test(folderId) ? loadSeedSnapshot(folderId) : null;
-    if (!snapshot) {
-      return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
-        status: 404,
-        headers,
-      });
-    }
-
-    const metaRunId = isRecord(snapshot.meta) && typeof snapshot.meta.run_id === "string" ? snapshot.meta.run_id : null;
-    if (metaRunId && metaRunId !== runId) {
-      return Response.json(
-        exportErrorEnvelope({
-          code: "CONFLICT",
-          message: "run_id did not match seeded snapshot.",
-          details: { expected: metaRunId },
-          traceId,
-        }),
-        { status: 409, headers },
-      );
-    }
-
-    sourceRow = snapshotRowForKind(snapshot, kind);
-    if (!sourceRow) {
-      return blockedRowNotFound();
-    }
-
-    if (!unsafeOverride) {
-      const failed = (snapshot.rows ?? []).filter((row) => row?.status === "citation_failed");
-      if (failed.length > 0) {
-        return blockedSnapshotCitationFailures(failed);
-      }
-    }
-
-    for (const [citationId, cit] of Object.entries(snapshot.citations ?? {})) {
-      if (!cit || typeof cit !== "object") continue;
-      const filename = (cit as { document_filename?: unknown }).document_filename;
-      const page = (cit as { page_number?: unknown }).page_number;
-      if (typeof filename !== "string" || !filename.trim()) continue;
-      if (typeof page !== "number" || !Number.isFinite(page) || page <= 0) continue;
-      citationById.set(citationId, { filename: filename.trim(), page: Math.trunc(page) });
-    }
+    return Response.json(exportErrorEnvelope({ code: "NOT_FOUND", message: "Run not found.", traceId }), {
+      status: 404,
+      headers,
+    });
   }
 
   if (!sourceRow) {
@@ -439,13 +333,6 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   await putObject({ storageKey, bytes: Buffer.from(csv, "utf8") });
-
-  // Ensure the folder exists so artefacts list/download works for fixture-backed exports.
-  await sql`
-    INSERT INTO folders (id, name, state, latest_index_version, created_at, updated_at)
-    VALUES (${folderId}, ${folderId}, 'ready', 'v1', now(), now())
-    ON CONFLICT (id) DO NOTHING
-  `;
 
   await sql`
     INSERT INTO artefacts (

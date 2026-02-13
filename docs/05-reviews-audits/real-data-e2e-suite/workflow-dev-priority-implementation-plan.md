@@ -1,7 +1,21 @@
 # Real-Data E2E: Dev-Priority Implementation Plan
 
-Date: 2026-02-12  
+Date: 2026-02-13  
 Scope: deliver real-data workflow reliability with `dev` as the primary implementation mode, while landing fast demo-prod operator wins.
+
+## Status Update (2026-02-13)
+
+Completed:
+1. Phase 0 quick wins are shipped: `pack_09_bad_citation` is in the shared allowlist (`apps/web/lib/demoPackAllowlist.ts`), reachable in toolbar (`apps/web/app/DemoToolbar.tsx`), and covered by smoke flow checks (`apps/web/test/realDataWorkflows.e2e.int.test.ts`, `.github/workflows/real-data-smoke.yml`).
+2. Phase 1 `P0` closure loops landed (US-001..US-012): readiness/run/report/trust contracts are implemented and passing full verification gates.
+3. Priority #1 trust-path hardening is executed:
+   1. `apps/web/steps/quickStartWriteRowV0.step.server.ts`: removed write fallback branch; row-write failures now transition run to explicit `failed` with `ROW_WRITE_FAILED`.
+   2. `apps/web/app/(api)/citations/[id]/route.ts`: removed seed snapshot fallback; DB miss is fail-closed `NOT_FOUND`.
+   3. `apps/web/app/(api)/export/csv/route.ts`: removed fixture-backed export fallback; unknown run is fail-closed `NOT_FOUND`.
+
+Remaining:
+1. Phase 2 (`Loop D`) stabilization: chat persistence contract + resilience matrix expansion + operator/review polish.
+2. Phase 3 cadence hardening: broaden nightly coverage and add weekly full resilience/fault matrix with clear triage ownership.
 
 ## Inputs
 
@@ -37,7 +51,7 @@ Scope: deliver real-data workflow reliability with `dev` as the primary implemen
 
 ## Phase Plan
 
-### Phase 0: One-shot quick wins for demo-prod allowlist
+### Phase 0: One-shot quick wins for demo-prod allowlist (Completed)
 
 Primary objective: improve operator utility immediately without broad scope expansion.
 
@@ -52,7 +66,7 @@ Acceptance criteria:
 2. No regression for `pack_01_clean` and `pack_02_missing_rea`.
 3. Trust/fail-closed path remains enforced (`EXPORT_BLOCKED` behavior unchanged).
 
-### Phase 1: Dev `P0` contract closure (parallel loops A/B/C)
+### Phase 1: Dev `P0` contract closure (parallel loops A/B/C) (Completed)
 
 Primary objective: make `P0` workflow behavior in dev consistently reflect real execution data.
 
@@ -86,7 +100,7 @@ Exit criteria:
 1. `pack_09_bad_citation` consistently drives blocked export behavior.
 2. Citation evidence requests return explicit, stable outcomes (success or typed failure), without hidden fallback masking.
 
-### Phase 2: Dev `P1/P2` stabilization (parallel loop D plus spillover)
+### Phase 2: Dev `P1/P2` stabilization (parallel loop D plus spillover) (Open)
 
 Primary objective: tighten secondary workflows after `P0` closes.
 
@@ -102,7 +116,7 @@ Exit criteria:
 1. Review and chat behavior are consistent across pack scenarios used in smoke/nightly tiers.
 2. Resilience failures surface coherent, non-contradictory UX and API envelopes.
 
-### Phase 3: Full suite breadth and cadence hardening
+### Phase 3: Full suite breadth and cadence hardening (Open)
 
 Primary objective: stabilize maintenance cost and prevent regressions.
 

@@ -473,31 +473,45 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
       message: err instanceof Error ? err.message : String(err),
     });
 
-    const fallback = citationFailedRow({
-      folderId: run.folder_id,
-      questionSetVersion: run.question_set_version,
-      questionId: q.question_id,
-      question: q.question,
+    const transition = await transitionRunState({
+      runId: args.step.run_id,
+      to: "failed",
+      errorJson: {
+        code: "ROW_WRITE_FAILED",
+        message: "Failed to persist report row.",
+        trace_id: traceId,
+        retryable: false,
+        details: {
+          question_id: input.question_id,
+          step_key: args.step.step_key,
+        },
+      },
+      db: s,
     });
-    fallback.provenance_json = {
-      reason_code: "VALIDATION_ERROR",
-      checklist: [
-        "Retry the run (step idempotency should avoid duplicates).",
-        "Inspect server logs using the run_id and trace_id for correlation.",
-      ],
-    };
-    let fallbackWithPayload: typeof fallback = fallback;
-    try {
-      fallbackWithPayload = attachListPayloadIfNeeded(fallback, q);
-    } catch {
-      // Keep the fallback row writable even if question metadata is malformed.
+    if (!transition.ok && transition.reason !== "TERMINAL_IMMUTABLE") {
+      // eslint-disable-next-line no-console
+      console.warn("run.transition_failed", {
+        run_id: args.step.run_id,
+        to: "failed",
+        reason: transition.reason,
+        current_state: transition.currentState,
+      });
     }
 
-    const fallbackRes = await attemptWrite(fallbackWithPayload, []);
-    wrote = fallbackRes.inserted;
-    rowStatus = fallbackRes.status;
-    finalReasonCode = fallbackRes.reason_code;
-    persistedStepReportRow = toPersistedStepReportRow({ row: fallbackWithPayload, citations: [] });
+    const durationMs = Date.now() - startedAt;
+    return {
+      output: {
+        ok: false,
+        run_id: args.step.run_id,
+        trace_id: traceId,
+        question_id: input.question_id,
+        wrote: false,
+        row_status: "citation_failed",
+        reason_code: "ROW_WRITE_FAILED",
+        duration_ms: durationMs,
+      },
+      metrics: { duration_ms: durationMs, wrote: 0 },
+    };
   }
 
   const completion = await completeRunIfReady({ runId: args.step.run_id, clearError: true, db: s });

@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const ensureSchemaMock = vi.fn();
 const sqlMock = vi.fn();
-const loadSeedSnapshotMock = vi.fn();
 
 vi.mock("./db.server", () => {
   const fn = sqlMock as unknown as typeof sqlMock & { json: (value: unknown) => unknown };
@@ -19,10 +18,6 @@ vi.mock("./db.server", () => {
 vi.mock("./devOnlyApi.server", () => ({
   assertDevOnlyApi: () => null,
   assertDevOrDemoProdApi: () => null,
-}));
-
-vi.mock("./fixtureSeed.server", () => ({
-  loadSeedSnapshot: loadSeedSnapshotMock,
 }));
 
 function queueSqlResults(results: unknown[]) {
@@ -90,7 +85,6 @@ describe("export csv", () => {
     delete process.env.ORBITAL_ADMIN_TOKEN;
     ensureSchemaMock.mockReset();
     sqlMock.mockReset();
-    loadSeedSnapshotMock.mockReset();
   });
 
   it("returns 415 when Content-Type is not application/json", async () => {
@@ -109,17 +103,10 @@ describe("export csv", () => {
     expect(errorCode(json)).toBe("UNSUPPORTED_MEDIA_TYPE");
   });
 
-  it("returns 404 on DB run miss when EVIDENCE_BACKEND=db_only (no fixture fallback)", async () => {
-    process.env.EVIDENCE_BACKEND = "db_only";
-
+  it("returns 404 on DB run miss (no fixture fallback)", async () => {
     const { POST } = await import("../app/(api)/export/csv/route");
 
     queueSqlResults([[]]);
-    loadSeedSnapshotMock.mockReturnValue({
-      meta: { pack_id: "pack_01_clean", run_id: "run_missing" },
-      rows: [],
-      citations: {},
-    });
 
     const res = await POST(
       new Request("http://localhost:3000/export/csv", {
@@ -138,7 +125,6 @@ describe("export csv", () => {
     expect(errorCode(json)).toBe("NOT_FOUND");
     expect(ensureSchemaMock).toHaveBeenCalledTimes(1);
     expect(sqlMock).toHaveBeenCalledTimes(1);
-    expect(loadSeedSnapshotMock).not.toHaveBeenCalled();
   });
 
   it("writes a downloadable csv artefact for a completed run", async () => {
