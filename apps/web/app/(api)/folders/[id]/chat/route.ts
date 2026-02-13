@@ -8,6 +8,7 @@ import { chatModel } from "../../../../../lib/ai/gateway.server";
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
 import { hybridSearch } from "../../../../../lib/retrieval/types";
+import { isDevOrDemoProd } from "../../../../../lib/runtimeMode";
 import { createTraceContext } from "../../../../../lib/trace.server";
 import { MISSING_EVIDENCE_TEXT, type ChatSource } from "../../../../../lib/chat/protocol";
 
@@ -54,12 +55,18 @@ function chatErrorEnvelope(opts: {
   });
 }
 
+function shouldUseDemoFallback(): boolean {
+  if (!isDevOrDemoProd()) return false;
+  return !process.env.AI_GATEWAY_API_KEY?.trim();
+}
+
 function ndjsonStream(args: {
   traceId: string;
   folderId: string;
   message: string;
   indexVersion: string;
   abortSignal: AbortSignal;
+  fallbackToMissingEvidence: boolean;
 }): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
 
@@ -91,6 +98,14 @@ function ndjsonStream(args: {
       try {
         if (args.abortSignal.aborted) {
           fail({ code: "ABORTED", message: "Chat request was cancelled.", retryable: true });
+          return;
+        }
+
+        if (args.fallbackToMissingEvidence) {
+          send({ type: "token", token: MISSING_EVIDENCE_TEXT });
+          send({ type: "sources", sources: [] satisfies ChatSource[] });
+          send({ type: "done", status: "complete" });
+          controller.close();
           return;
         }
 
@@ -246,6 +261,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
       message: parsedBody.data.message,
       indexVersion: folder.latest_index_version,
       abortSignal: req.signal,
+      fallbackToMissingEvidence: shouldUseDemoFallback(),
     }),
     {
     status: 200,

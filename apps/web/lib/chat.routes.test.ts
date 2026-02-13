@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MISSING_EVIDENCE_TEXT } from "./chat/protocol";
+
 const ensureSchemaMock = vi.fn();
 const sqlMock = vi.fn();
 const hybridSearchMock = vi.fn();
@@ -40,6 +42,8 @@ describe("POST /folders/:id/chat", () => {
     hybridSearchMock.mockReset();
     streamTextMock.mockReset();
     process.env.CHAT_ENABLED = "1";
+    process.env.ORBITAL_MODE = "prod";
+    process.env.AI_GATEWAY_API_KEY = "test-gateway-key";
   });
 
   it("returns deterministic envelope fields on folder-not-found", async () => {
@@ -101,6 +105,39 @@ describe("POST /folders/:id/chat", () => {
     });
     expect(error?.trace_id).toBe(meta?.trace_id);
     expect(body).not.toContain("provider timeout payload=raw_internal_blob");
+  });
+
+  it("falls back to deterministic missing-evidence answer when gateway key is absent in demo mode", async () => {
+    process.env.ORBITAL_MODE = "demo-prod";
+    delete process.env.AI_GATEWAY_API_KEY;
+    queueSqlResults([[{ latest_index_version: "v1" }]]);
+
+    const { POST } = await import("../app/(api)/folders/[id]/chat/route");
+    const res = await POST(
+      new Request("http://localhost:3000/folders/fld_123/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "test question" }),
+      }),
+      { params: Promise.resolve({ id: "fld_123" }) },
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    const events = body
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    const meta = events.find((evt) => evt.type === "meta");
+
+    expect(meta?.trace_id).toMatch(/^trc_/);
+    expect(events).toContainEqual({ type: "token", token: MISSING_EVIDENCE_TEXT });
+    expect(events).toContainEqual({ type: "sources", sources: [] });
+    expect(events).toContainEqual({ type: "done", status: "complete" });
+    expect(events.find((evt) => evt.type === "error")).toBeUndefined();
+    expect(hybridSearchMock).not.toHaveBeenCalled();
+    expect(streamTextMock).not.toHaveBeenCalled();
   });
 
   it("emits anchor-gated sources and marks missing anchors unavailable", async () => {
