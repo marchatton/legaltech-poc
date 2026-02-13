@@ -261,3 +261,4 @@
 [2026-02-13 02:56:29] US-009 iteration 9 start: auditing allowlist and PR/nightly smoke coverage
 [2026-02-13 03:00:51] US-009 major code updates: shared demo allowlist, pack regression tests, PR/nightly smoke workflow+scripts
 [2026-02-13 03:05:21] US-009 verification complete: smoke tiers, lint/typecheck/test/build, dev server and browser toolbar flow check passed
+[2026-02-13 03:06:34] US-009 progress log updated with commit, verification, and learnings

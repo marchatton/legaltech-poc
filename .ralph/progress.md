@@ -1430,3 +1430,48 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - Global test gate passed on first run in this iteration; no flaky `foldersRunsRoute.wdk.int.test.ts` rerun was required.
 ---
+## [2026-02-13 03:06:06 UTC] - US-009: Demo-prod pack_09 allowlist and PR/nightly smoke
+Thread: 
+Run: 20260213-005806-15124 (iteration 9)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-9.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-9.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 5b2ffb2 feat(demo-pack): wire pack_09 smoke tiers
+- Post-commit status: clean
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm smoke:pr -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm smoke:nightly -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> FAIL (first run: one new checklist regression + known flaky `foldersRunsRoute.wdk.int.test.ts` state timing)
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
+  - Command: DEMO_MODE=1 pnpm --filter @orbital-poc/web dev -p 3101 + dev-browser toolbar/load-pack smoke -> PASS
+- Files changed:
+  - .github/workflows/real-data-smoke.yml
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/progress.md
+  - apps/web/app/(api)/demo/load-pack/route.ts
+  - apps/web/app/DemoToolbar.tsx
+  - apps/web/lib/demoPackAllowlist.ts
+  - apps/web/package.json
+  - apps/web/test/demoChecklist.sync.test.ts
+  - apps/web/test/demoLoadPack.validation.test.ts
+  - apps/web/test/demoPackAllowlist.sync.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - package.json
+- What was implemented
+  - Centralized the demo pack allowlist in `apps/web/lib/demoPackAllowlist.ts` and reused it in both the load-pack API schema and toolbar dropdown so pack coverage cannot drift.
+  - Added allowlist regression coverage to prove packs 01/02/09 are accepted at the API boundary and arbitrary pack IDs remain validation-rejected.
+  - Added explicit PR/nightly smoke tier scripts (`smoke:pr`, `smoke:nightly`) and a CI workflow (`.github/workflows/real-data-smoke.yml`) that includes the pack 09 operator load->run->blocked-export path check.
+  - Updated checklist sync guard to parse the shared allowlist source after the toolbar refactor.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Shared allowlist constants are a low-cost way to lock API/UI parity while still allowing strict schema validation in route handlers.
+  - Gotchas encountered
+  - Source-structure-dependent sync tests (like regex over `PACK_OPTIONS`) can break on harmless refactors; anchoring to shared contract files is more robust.
+  - Useful context
+  - `smoke:nightly` now combines `fixture:eval:all` with the pack 09 operator path test, covering both data-pack gates and demo operator contract in one tier entrypoint.
+---
