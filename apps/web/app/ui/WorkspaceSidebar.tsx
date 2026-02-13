@@ -175,6 +175,17 @@ function SidebarNav(props: { active: DestinationId; collapsed: boolean; onNaviga
   );
 }
 
+function BrandMark() {
+  return (
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground shadow-ui-sm ring-2 ring-accent/30 ring-offset-1 ring-offset-sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+        <circle cx="12" cy="12" r="8" />
+        <path d="M10 9v6l5-3-5-3z" fill="currentColor" stroke="none" />
+      </svg>
+    </div>
+  );
+}
+
 export function WorkspaceSidebar(props: { active: DestinationId }) {
   const collapsed = useSyncExternalStore(subscribeCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -210,9 +221,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
           <aside className="relative flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar shadow-ui-lg animate-fade-in">
             <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
               <div className="flex min-w-0 items-center">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground shadow-ui-sm ring-2 ring-accent/30 ring-offset-1 ring-offset-sidebar">
-                  <span className="text-sm font-semibold">O</span>
-                </div>
+                <BrandMark />
                 <span className="ml-3 truncate font-serif text-xl font-semibold tracking-tight text-sidebar-foreground">
                   Orbital
                 </span>
@@ -262,9 +271,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
           )}
         >
           <div className={cn("flex min-w-0 items-center", collapsed && "justify-center")}>
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground shadow-ui-sm ring-2 ring-accent/30 ring-offset-1 ring-offset-sidebar">
-              <span className="text-sm font-semibold">O</span>
-            </div>
+            <BrandMark />
             {!collapsed && (
               <span className="ml-3 truncate font-serif text-xl font-semibold tracking-tight text-sidebar-foreground">
                 Orbital

@@ -50,6 +50,9 @@ describe("US-005 citation failure recovery and acknowledgement", () => {
     const source = readUtf8(viewerPath);
 
     expect(source).toContain("deterministicReasonCode");
+    expect(source).toContain("Evidence unavailable");
+    expect(source).toContain("Show technical details");
+    expect(source).toContain("Failed citation state. Technical metadata is hidden by default.");
     expect(source).toContain("Recovery checklist");
     expect(source).toContain("reason_code:");
     expect(source).toContain("Review citation_failed rows in report triage before continuing.");

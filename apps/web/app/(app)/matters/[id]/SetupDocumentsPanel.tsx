@@ -694,12 +694,8 @@ export function SetupDocumentsPanel(props: {
           {documents.map((doc, i) => {
             const delay = Math.min(i * 30, 300);
             const docError = parseDocErrorJson(doc.error_json);
-            return (
-              <article
-                key={doc.id}
-                className="animate-fade-in rounded-ui-md border border-border bg-card p-3"
-                style={{ animationDelay: `${delay}ms` }}
-              >
+            const rowContent = (
+              <>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -718,14 +714,15 @@ export function SetupDocumentsPanel(props: {
                   </div>
 
                   {doc.open_pdf_url ? (
-                    <a
-                      className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
-                      href={doc.open_pdf_url}
-                      target="_blank"
-                      rel="noreferrer"
+                    <span
+                      className="rounded-ui-sm p-1 text-muted-foreground opacity-100 transition-opacity group-hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100"
+                      aria-hidden="true"
                     >
-                      Open document
-                    </a>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4">
+                        <path d="M7 17 17 7" />
+                        <path d="M7 7h10v10" />
+                      </svg>
+                    </span>
                   ) : (
                     <span className="text-xs text-muted-foreground">Processing</span>
                   )}
@@ -736,6 +733,33 @@ export function SetupDocumentsPanel(props: {
                     <ErrorBanner code={docError.code} message={docError.message} />
                   </div>
                 ) : null}
+              </>
+            );
+
+            if (doc.open_pdf_url) {
+              return (
+                <a
+                  key={doc.id}
+                  href={doc.open_pdf_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Open ${doc.filename} in a new tab`}
+                  title="Open document"
+                  className="group block animate-fade-in rounded-ui-md border border-border bg-card p-3 transition-colors hover:border-foreground/30 hover:bg-secondary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  style={{ animationDelay: `${delay}ms` }}
+                >
+                  {rowContent}
+                </a>
+              );
+            }
+
+            return (
+              <article
+                key={doc.id}
+                className="animate-fade-in rounded-ui-md border border-border bg-card p-3"
+                style={{ animationDelay: `${delay}ms` }}
+              >
+                {rowContent}
               </article>
             );
           })}

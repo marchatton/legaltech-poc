@@ -12,28 +12,25 @@ import {
 } from "../../../../lib/reportTriage.server";
 import { deriveRunFailureEnvelope } from "../../../../lib/runFailureEnvelope";
 import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.server";
-import { Alert } from "../../../ui/Alert";
 import { Badge } from "../../../ui/Badge";
 import { Card } from "../../../ui/Card";
 import { EmptyState } from "../../../ui/EmptyState";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
+import { OrbitalLoader } from "../../../ui/OrbitalLoader";
+import { SectionTitle } from "../../../ui/Page";
 import { ProgressBar } from "../../../ui/ProgressBar";
 import { SegmentedControl } from "../../../ui/SegmentedControl";
-import { Spinner } from "../../../ui/Spinner";
 import { StatePage } from "../../../ui/StatePage";
 import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
 import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
 
 import { ExportsPanel } from "./ExportsPanel";
+import { MatterAutoRefresh } from "./MatterAutoRefresh";
 import { SetupDocumentsPanel } from "./SetupDocumentsPanel";
 import { type QuickStartReadiness } from "./QuickStartPanel";
 import { QuickStartActionButton } from "./QuickStartActionButton";
 import { ChatPanel } from "./ChatPanel";
-import {
-  deriveOperatorChecklistSteps,
-  formatOperatorElapsedLabel,
-  summarizeOperatorChecklist,
-} from "./operatorChecklist";
+import { deriveOperatorChecklistSteps } from "./operatorChecklist";
 import { ReportTriagePanel } from "./ReportTriagePanel";
 import {
   ensureDbSchema,
@@ -161,8 +158,6 @@ export default async function MatterPage(props: {
       }
     : null;
   const operatorChecklistSteps = deriveOperatorChecklistSteps(checklistSignal);
-  const operatorElapsedLabel = formatOperatorElapsedLabel(checklistSignal);
-  const operatorChecklistSummary = summarizeOperatorChecklist(operatorChecklistSteps);
   const requestedRunId = firstSearchParamValue(rawSearchParams.run_id);
   const triageFilters = parseReportTriageFilters(rawSearchParams);
   const reportRequestedRunId = parseRunIdFilter(rawSearchParams);
@@ -304,6 +299,7 @@ export default async function MatterPage(props: {
   const runQuestionsDone = latestRun?.questions_done ?? 0;
   const runQuestionsTotal = latestRun?.questions_total ?? 0;
   const runProgress = runQuestionsTotal > 0 ? Math.round((runQuestionsDone / runQuestionsTotal) * 100) : 0;
+  const showRunQuestionsProgress = runQuestionsDone > 0 || runQuestionsTotal > 0;
   const reportEmptyStateTitle = reportRunBlockingFailure
     ? "Run report unavailable"
     : reportRunProgress
@@ -315,9 +311,11 @@ export default async function MatterPage(props: {
       ? "Report rows will appear after processing completes. Refresh in a moment."
       : "Run analysis to generate report rows for triage.";
   const showIngestingCenterState = !reportRun && canonicalReadiness.reason_code === "INGEST_IN_PROGRESS";
+  const autoRefreshEnabled = canonicalReadiness.reason_code === "INGEST_IN_PROGRESS";
 
   return (
     <div className="min-w-0">
+      <MatterAutoRefresh enabled={autoRefreshEnabled} />
       <section className="sticky top-0 z-10 border-b border-border bg-card">
         <div className="px-6 pt-4 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
@@ -343,15 +341,17 @@ export default async function MatterPage(props: {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <div className="flex items-center gap-3 rounded-ui-md border border-border bg-muted/30 px-3 py-2">
-                <ProgressIcon />
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {runQuestionsDone}/{runQuestionsTotal} questions
-                  </span>
-                  <ProgressBar value={runProgress} className="mt-1 w-28" />
+              {showRunQuestionsProgress ? (
+                <div className="flex items-center gap-3 rounded-ui-md border border-border bg-muted/30 px-3 py-2">
+                  <ProgressIcon />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {runQuestionsDone}/{runQuestionsTotal} questions
+                    </span>
+                    <ProgressBar value={runProgress} className="mt-1 w-28" />
+                  </div>
                 </div>
-              </div>
+              ) : null}
               <QuickStartActionButton folderId={folderId} readiness={quickStartReadiness} />
             </div>
           </div>
@@ -402,12 +402,6 @@ export default async function MatterPage(props: {
                   );
                 })}
               </ol>
-
-              {quickStartReadiness.state === "blocked" ? (
-                <Alert variant="warning" title="Action required" className="mt-4">
-                  {quickStartReadiness.reason}
-                </Alert>
-              ) : null}
             </div>
 
             {reportRun ? (
@@ -468,7 +462,14 @@ export default async function MatterPage(props: {
 
                 {reportRowsWithCounts.length === 0 ? (
                   <EmptyState
-                    icon={<DocumentIcon />}
+                    icon={
+                      reportRunProgress ? (
+                        <OrbitalLoader size="lg" aria-label="Analysis in progress" />
+                      ) : (
+                        <DocumentIcon />
+                      )
+                    }
+                    iconContainerClassName={reportRunProgress ? "bg-transparent text-foreground" : undefined}
                     title={reportEmptyStateTitle}
                     description={reportEmptyStateDescription}
                   />
@@ -489,8 +490,8 @@ export default async function MatterPage(props: {
             ) : showIngestingCenterState ? (
               <Card className="mx-auto max-w-2xl">
                 <div className="px-6 py-10 text-center animate-fade-in-up sm:px-8">
-                  <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-ui-lg bg-warning/10 text-warning">
-                    <Spinner size="md" variant="current" aria-label="Ingesting folder" />
+                  <div className="mx-auto mb-4 flex size-14 items-center justify-center text-warning">
+                    <OrbitalLoader size="lg" aria-label="Ingesting folder" />
                   </div>
                   <h2 className="font-serif text-heading-sm font-medium text-foreground">Folder is ingesting</h2>
                   <p className="mx-auto mt-1.5 max-w-xl text-sm text-muted-foreground">
@@ -502,23 +503,36 @@ export default async function MatterPage(props: {
                       {indexedReadyCount}/{setupDocuments.length} documents ready
                     </Badge>
                   </div>
-                  <Alert variant="warning" title="Action required" className="mx-auto mt-5 max-w-xl text-left">
-                    {canonicalReadiness.reason}
-                  </Alert>
+                  <div className="mt-6">
+                    <QuickStartActionButton
+                      folderId={folderId}
+                      readiness={quickStartReadiness}
+                      appearance="button"
+                      align="center"
+                    />
+                  </div>
                 </div>
               </Card>
             ) : (
               <EmptyState
                 icon={<DocumentIcon />}
-                title="No runs to review"
-                description="Start analysis first, then triage report rows here."
+                title="Click run analysis"
+                description="We will process all uploaded documents, extract evidence, and generate citation-backed report rows."
+                action={
+                  <QuickStartActionButton
+                    folderId={folderId}
+                    readiness={quickStartReadiness}
+                    appearance="button"
+                    align="center"
+                  />
+                }
               />
             )}
           </section>
         ) : null}
 
         {activeTab === "documents" ? (
-          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <section className="max-w-3xl rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
             <SetupDocumentsPanel
               folderId={folderId}
               folderState={folder.state}
@@ -535,9 +549,9 @@ export default async function MatterPage(props: {
         ) : null}
 
         {activeTab === "exports" ? (
-          <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <section className="max-w-2xl rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
             <div className="mb-3">
-              <h2 className="font-serif text-heading-sm font-medium">Reports</h2>
+              <SectionTitle>Reports</SectionTitle>
               <p className="mt-1 text-xs text-muted-foreground">
                 Export a Word memo, CSV artefacts, and report files for a selected completed run.
               </p>

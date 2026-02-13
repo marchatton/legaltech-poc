@@ -31,6 +31,8 @@ describe("US-006 run/report failure envelopes", () => {
 
     expect(matterPageSource).toContain("title=\"Latest run needs attention\"");
     expect(matterPageSource).toContain("Showing report history from completed run");
+    expect(matterPageSource).toContain("Analysis is still running. Report rows will appear when processing finishes.");
+    expect(matterPageSource).toContain("Analysis in progress");
     expect(matterPageSource).toContain("Run report unavailable");
   });
 });

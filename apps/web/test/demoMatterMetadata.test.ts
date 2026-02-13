@@ -8,6 +8,10 @@ describe("demo matter metadata", () => {
       packId: "pack_01_clean",
       loadedAt: "2026-02-11T170000Z",
     });
+    expect(parseDemoMatterMetadata("DEMO: pack_01_clean 2026-Feb-11 17:00")).toEqual({
+      packId: "pack_01_clean",
+      loadedAt: "2026-Feb-11 17:00",
+    });
   });
 
   it("returns null when the matter is not demo-formatted", () => {

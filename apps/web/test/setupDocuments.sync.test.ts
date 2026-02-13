@@ -73,14 +73,15 @@ describe("US-003 setup documents upload flow", () => {
     expect(panelSource).not.toContain("docx");
   });
 
-  it("keeps readiness guidance visible in the quick start header", () => {
+  it("keeps quick start header focused on action-only control", () => {
     const root = repoRootFromWebPackage();
     const actionPath = path.join(root, "apps/web/app/(app)/matters/[id]/QuickStartActionButton.tsx");
     const actionSource = readUtf8(actionPath);
 
-    expect(actionSource).toContain("function readinessReasonClass");
-    expect(actionSource).toContain('state === "ready"');
-    expect(actionSource).toContain('state === "already-complete"');
-    expect(actionSource).toContain("{props.readiness.reason}");
+    expect(actionSource).toContain("Tooltip");
+    expect(actionSource).toContain('content="Run analysis"');
+    expect(actionSource).toContain('aria-label="Run analysis"');
+    expect(actionSource).not.toContain("function readinessReasonClass");
+    expect(actionSource).not.toContain("{props.readiness.reason}");
   });
 });

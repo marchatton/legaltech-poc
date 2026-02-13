@@ -3,9 +3,11 @@
 import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
+import { cn } from "../../../ui/cn";
 import { useReportTriage, statusPresentation } from "./ReportTriageContext";
 import { CitationChipList } from "./CitationChipList";
 import { DesktopEvidenceViewer, MobileEvidenceViewer } from "./EvidenceViewerSplit";
+import { formatAnswerForDisplay } from "./matterDetailHelpers";
 
 export function RowDetailDrawer() {
   const {
@@ -23,6 +25,7 @@ export function RowDetailDrawer() {
   } = useReportTriage();
 
   if (!selectedRow) return null;
+  const displayAnswer = formatAnswerForDisplay(selectedRow.answer);
 
   return (
     <>
@@ -31,12 +34,14 @@ export function RowDetailDrawer() {
         aria-hidden="true"
         onClick={closeRowDrawer}
       />
-      <div className="fixed right-0 bottom-0 top-0 z-[70] flex">
+      <div className="fixed inset-0 z-[70] flex justify-end">
         {showDesktopSplitViewer ? <DesktopEvidenceViewer /> : null}
 
         <aside
-          className="h-full shrink-0 border-l border-border bg-card shadow-ui-lg"
-          style={{ width: "min(40rem, 100vw)" }}
+          className={cn(
+            "h-full shrink-0 border-l border-border bg-card shadow-ui-lg",
+            showDesktopSplitViewer ? "w-[min(34rem,42vw)] min-w-[30rem]" : "w-[min(40rem,100vw)]",
+          )}
           role="dialog"
           aria-modal="true"
           aria-labelledby={`row-drawer-title-${selectedRow.id}`}
@@ -93,10 +98,10 @@ export function RowDetailDrawer() {
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Extracted answer</h3>
                 <div className="group/answer relative mt-2 rounded-ui-md border border-border bg-background p-3 text-sm leading-relaxed text-foreground">
                   <div className={answerExpanded ? undefined : "line-clamp-2"}>
-                    {selectedRow.answer.trim().length > 0 ? selectedRow.answer : "Not provided."}
+                    {displayAnswer.trim().length > 0 ? displayAnswer : "Not provided."}
                   </div>
                   <div className="mt-1.5 flex items-center justify-between gap-2">
-                    {selectedRow.answer.trim().length > 120 ? (
+                    {displayAnswer.trim().length > 120 ? (
                       <button
                         type="button"
                         className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"

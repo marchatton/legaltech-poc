@@ -10,7 +10,11 @@ import {
   type PdfJsViewportLike,
   type ViewBox,
 } from "@orbital-poc/core";
-import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
+import {
+  deriveTextOverlayFromSnippet,
+  isFullPageFallbackPolygons,
+  overlayHighlightPolygonProps,
+} from "../../../../lib/overlayHighlight";
 import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 
 import { Input, Select } from "../../../ui/Input";
@@ -43,6 +47,7 @@ type PdfPageLike = {
   rotate?: number;
   view?: unknown;
   getViewport: (args: { scale: number; rotation: number }) => PdfJsViewportLike;
+  getTextContent?: () => Promise<{ items?: unknown[] }>;
   render: (args: {
     canvasContext: CanvasRenderingContext2D;
     viewport: PdfJsViewportLike;
@@ -193,6 +198,7 @@ export function CitationViewerClient(props: Props) {
   const trustVerifiedAt = trustValue(formatTrustTimestamp(props.verifiedAt));
   const trustLoadedState = trustValue(nonEmptyString(props.loadedState));
   const failureReasonCode = hud.errorCode;
+  const hasCitationFailure = failureReasonCode !== null;
   const failureChecklist = useMemo(
     () => (failureReasonCode ? recoveryChecklistForReason(failureReasonCode) : []),
     [failureReasonCode],
@@ -413,22 +419,46 @@ export function CitationViewerClient(props: Props) {
         return;
       }
 
-      const mapped = mapNormPolygonsToViewportCss({ polygons: props.polygons, viewBox, viewport });
-      const bbox = bboxFromCssPolygons(mapped);
+      let resolvedOverlay = mapNormPolygonsToViewportCss({ polygons: props.polygons, viewBox, viewport });
+      let resolvedErrorCode: string | null = null;
+
+      if (isFullPageFallbackPolygons(props.polygons)) {
+        const textContent =
+          typeof page.getTextContent === "function"
+            ? await page.getTextContent().catch(() => null)
+            : null;
+        const fallbackOverlay =
+          textContent && Array.isArray(textContent.items)
+            ? deriveTextOverlayFromSnippet({
+                items: textContent.items,
+                snippet: props.snippet,
+                viewport,
+              })
+            : null;
+
+        if (fallbackOverlay && fallbackOverlay.length > 0) {
+          resolvedOverlay = fallbackOverlay;
+        } else {
+          resolvedOverlay = [];
+          resolvedErrorCode = "NO_EVIDENCE_ANCHOR_UNRESOLVED";
+        }
+      }
+
+      const bbox = bboxFromCssPolygons(resolvedOverlay);
       const overlayBbox =
         bbox && Number.isFinite(bbox.minX)
           ? { minX: bbox.minX, minY: bbox.minY, maxX: bbox.maxX, maxY: bbox.maxY }
           : null;
 
       if (!cancelled) {
-        setOverlay(mapped);
+        setOverlay(resolvedOverlay);
         setHud((h) => ({
           ...h,
           pageRotate,
           totalRotation,
           viewport: { width: viewport.width, height: viewport.height },
           overlayBbox,
-          errorCode: null,
+          errorCode: resolvedErrorCode,
         }));
         setIsPageLoading(false);
       }
@@ -451,6 +481,7 @@ export function CitationViewerClient(props: Props) {
     polygonError,
     props.errorCode,
     props.polygons,
+    props.snippet,
     verificationZoom,
     userRotation,
     zoomPercent,
@@ -618,11 +649,11 @@ export function CitationViewerClient(props: Props) {
                 </div>
               ) : null}
 
-              {hud.errorCode ? (
+              {hasCitationFailure ? (
                 <div className="absolute inset-0 grid place-items-center bg-background/80 p-6 text-center rounded-ui-sm">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">citation_failed</div>
-                    <div className="mt-1 text-xs text-muted-foreground">reason_code: {hud.errorCode}</div>
+                  <div className="max-w-xs rounded-ui-md border border-destructive/20 bg-background/90 px-4 py-3">
+                    <div className="text-sm font-semibold text-destructive">Evidence unavailable</div>
+                    <div className="mt-1 text-xs text-muted-foreground">Citation verification failed for this source.</div>
                   </div>
                 </div>
               ) : (
@@ -648,21 +679,25 @@ export function CitationViewerClient(props: Props) {
 
         {/* Footer */}
         <div className="border-t border-border bg-card px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success" />
-              <span className="font-medium">loaded_state:</span>
-              <span className="font-mono">{trustLoadedState}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="font-medium">doc_version:</span>
-              <span className="font-mono">{trustDocVersion}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="font-medium">verified_at:</span>
-              <span className="font-mono">{trustVerifiedAt}</span>
-            </span>
-          </div>
+          {hasCitationFailure ? (
+            <div className="text-xs text-muted-foreground">Failed citation state. Technical metadata is hidden by default.</div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                <span className="font-medium">loaded_state:</span>
+                <span className="font-mono">{trustLoadedState}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="font-medium">doc_version:</span>
+                <span className="font-mono">{trustDocVersion}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="font-medium">verified_at:</span>
+                <span className="font-mono">{trustVerifiedAt}</span>
+              </span>
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             {flagCitationState === "acknowledged" ? (
@@ -714,61 +749,115 @@ export function CitationViewerClient(props: Props) {
 
       {/* Diagnostics: snippet verification + error recovery */}
       <section className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
-        <SectionLabel>Snippet Verification</SectionLabel>
+        <SectionLabel>{hasCitationFailure ? "Citation Failure" : "Snippet Verification"}</SectionLabel>
         <div className="mt-3 grid gap-2">
-          <pre className="overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
-            {props.snippet}
-          </pre>
-
-          <div className="grid gap-1 text-xs text-muted-foreground">
-            <div>
-              <span className="font-medium text-foreground">snippet_hash:</span>{" "}
-              <span className="font-mono">{props.snippetHash}</span>
-            </div>
-            <div>
-              <span className="font-medium text-foreground">computed:</span>{" "}
-              <span className="font-mono">{props.computedSnippetHash}</span>
-            </div>
-          </div>
-          <div
-            className={cn(
-              "rounded-ui-md border px-3 py-2 text-xs",
-              snippetHashMatches ? "border-success/40 bg-success/10 text-success" : "border-destructive/40 bg-destructive/10 text-destructive",
-            )}
-          >
-            <div className="font-semibold">{snippetHashMatches ? "Snippet hash verified" : "Snippet hash mismatch"}</div>
-            <div className="mt-1 text-2xs">
-              {snippetHashMatches
-                ? "Computed snippet hash matches citation payload."
-                : "Computed snippet hash differs from citation payload. Keep this row in needs-review until corrected."}
-            </div>
-          </div>
-
-          {hud.errorCode ? (
-            <div className="rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-              <div className="font-semibold">citation_failed</div>
-              <div className="mt-1 text-xs">reason_code: {hud.errorCode}</div>
-              <div className="mt-3 border-t border-destructive/20 pt-3">
-                <div className="text-2xs font-semibold uppercase tracking-wide">Recovery checklist</div>
-                <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs">
-                  {failureChecklist.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
+          {hasCitationFailure ? (
+            <>
+              <div className="rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="font-semibold">Citation could not be verified.</div>
+                <div className="mt-1 text-xs text-destructive/90">
+                  Keep this row in needs-review or use &quot;Flag citation as wrong&quot;.
+                </div>
               </div>
-            </div>
-          ) : null}
 
-          {hud.overlayBbox ? (
-            <div className="text-xs text-muted-foreground">
-              overlay bbox:{" "}
-              <span className="font-mono">
-                {`{minX:${Math.round(hud.overlayBbox.minX)}, minY:${Math.round(hud.overlayBbox.minY)}, maxX:${Math.round(
-                  hud.overlayBbox.maxX,
-                )}, maxY:${Math.round(hud.overlayBbox.maxY)}}`}
-              </span>
-            </div>
-          ) : null}
+              <details className="rounded-ui-md border border-border bg-background/80 p-3 text-xs">
+                <summary className="cursor-pointer font-medium text-foreground">Show technical details</summary>
+                <div className="mt-3 grid gap-2">
+                  <div className="rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                    <div className="font-semibold">citation_failed</div>
+                    <div className="mt-1 text-xs">reason_code: {failureReasonCode}</div>
+                    <div className="mt-3 border-t border-destructive/20 pt-3">
+                      <div className="text-2xs font-semibold uppercase tracking-wide">Recovery checklist</div>
+                      <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs">
+                        {failureChecklist.map((step) => (
+                          <li key={step}>{step}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  </div>
+
+                  <pre className="overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
+                    {props.snippet}
+                  </pre>
+
+                  <div className="grid gap-1 text-xs text-muted-foreground">
+                    <div>
+                      <span className="font-medium text-foreground">snippet_hash:</span>{" "}
+                      <span className="font-mono">{props.snippetHash}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">computed:</span>{" "}
+                      <span className="font-mono">{props.computedSnippetHash}</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className={cn(
+                      "rounded-ui-md border px-3 py-2 text-xs",
+                      snippetHashMatches
+                        ? "border-success/40 bg-success/10 text-success"
+                        : "border-destructive/40 bg-destructive/10 text-destructive",
+                    )}
+                  >
+                    <div className="font-semibold">{snippetHashMatches ? "Snippet hash verified" : "Snippet hash mismatch"}</div>
+                    <div className="mt-1 text-2xs">
+                      {snippetHashMatches
+                        ? "Computed snippet hash matches citation payload."
+                        : "Computed snippet hash differs from citation payload. Keep this row in needs-review until corrected."}
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </>
+          ) : (
+            <>
+              <pre className="overflow-auto rounded-ui-md bg-foreground p-3 font-mono text-xs text-background">
+                {props.snippet}
+              </pre>
+
+              <div className="grid gap-1 text-xs text-muted-foreground">
+                <div>
+                  <span className="font-medium text-foreground">snippet_hash:</span>{" "}
+                  <span className="font-mono">{props.snippetHash}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-foreground">computed:</span>{" "}
+                  <span className="font-mono">{props.computedSnippetHash}</span>
+                </div>
+              </div>
+
+              <div
+                className={cn(
+                  "rounded-ui-md border px-3 py-2 text-xs",
+                  snippetHashMatches ? "border-success/40 bg-success/10 text-success" : "border-destructive/40 bg-destructive/10 text-destructive",
+                )}
+              >
+                <div className="font-semibold">{snippetHashMatches ? "Snippet hash verified" : "Snippet hash mismatch"}</div>
+                <div className="mt-1 text-2xs">
+                  {snippetHashMatches
+                    ? "Computed snippet hash matches citation payload."
+                    : "Computed snippet hash differs from citation payload. Keep this row in needs-review until corrected."}
+                </div>
+              </div>
+
+              {hud.overlayBbox ? (
+                <div className="grid gap-1 text-xs text-muted-foreground">
+                  <div>
+                    Highlight regions: <span className="font-mono">{overlay.length}</span>
+                    {overlay.length > 1 ? " (one citation can span multiple lines)" : ""}
+                  </div>
+                  <div>
+                    overlay bbox:{" "}
+                    <span className="font-mono">
+                      {`{minX:${Math.round(hud.overlayBbox.minX)}, minY:${Math.round(hud.overlayBbox.minY)}, maxX:${Math.round(
+                        hud.overlayBbox.maxX,
+                      )}, maxY:${Math.round(hud.overlayBbox.maxY)}}`}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       </section>
     </div>

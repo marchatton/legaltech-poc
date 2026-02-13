@@ -4,23 +4,18 @@ import { Badge } from "../../../ui/Badge";
 import { TableFrame, Table, TH } from "../../../ui/Table";
 import { cn } from "../../../ui/cn";
 import { useReportTriage, statusPresentation } from "./ReportTriageContext";
+import { formatAnswerForDisplay } from "./matterDetailHelpers";
 
 export function ReportTriageTable() {
   const {
     rowTab,
     visibleRows,
     selectedRow,
-    showDesktopSplitViewer,
     openRowDrawer,
   } = useReportTriage();
 
   return (
-    <div
-      className={cn(
-        "mt-4",
-        showDesktopSplitViewer ? "pr-0 xl:pr-[70rem]" : selectedRow ? "pr-0 xl:pr-[42rem]" : null,
-      )}
-    >
+    <div className="mt-4">
       <TableFrame className="max-h-[34rem] shadow-ui-sm">
         <Table className="min-w-[640px] text-xs">
           <thead>
@@ -43,6 +38,7 @@ export function ReportTriageTable() {
               visibleRows.map((row) => {
                 const status = statusPresentation(row.status);
                 const selected = selectedRow?.id === row.id;
+                const displayAnswer = formatAnswerForDisplay(row.answer);
                 return (
                   <tr
                     key={row.id}
@@ -64,7 +60,7 @@ export function ReportTriageTable() {
                     </td>
                     <td className="px-3 py-2">
                       <p className="text-sm leading-relaxed text-muted-foreground line-clamp-2">
-                        {row.answer.trim().length > 0 ? row.answer : "\u2014"}
+                        {displayAnswer.trim().length > 0 ? displayAnswer : "\u2014"}
                       </p>
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">

@@ -12,6 +12,7 @@ type EmptyStateProps = {
   variant?: EmptyStateVariant;
   animate?: boolean;
   className?: string;
+  iconContainerClassName?: string;
 };
 
 const variantClasses: Record<EmptyStateVariant, { wrapper: string; icon: string; title: string; description: string }> = {
@@ -49,12 +50,13 @@ export function EmptyState({
   variant = "default",
   animate = true,
   className,
+  iconContainerClassName,
 }: EmptyStateProps) {
   const v = variantClasses[variant];
   return (
     <div className={emptyStateClassName({ variant, animate, className })}>
       {icon ? (
-        <div className={cn("mx-auto mb-4 flex items-center justify-center bg-muted text-muted-foreground", v.icon)}>
+        <div className={cn("mx-auto mb-4 flex items-center justify-center bg-muted text-muted-foreground", v.icon, iconContainerClassName)}>
           {icon}
         </div>
       ) : null}

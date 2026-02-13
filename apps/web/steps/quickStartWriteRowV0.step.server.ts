@@ -289,7 +289,7 @@ function resolveAnchorPage(args: { pageStart: number | null; pageEnd: number | n
   return null;
 }
 
-const FULL_PAGE_BBOX = [0, 0, 1, 1] as const;
+const FULL_PAGE_BBOX: [number, number, number, number] = [0, 0, 1, 1];
 
 function fallbackPagePolygons(pageNumber: number): unknown {
   // Current ingest stores text chunks without per-snippet geometry, so we persist

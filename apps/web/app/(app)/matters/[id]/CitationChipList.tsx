@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "../../../ui/Button";
 import { cn } from "../../../ui/cn";
 import { useReportTriage } from "./ReportTriageContext";
 
@@ -12,27 +11,28 @@ export function CitationChipList() {
     viewerCitationId,
     returnFocusRef,
     setViewerCitationId,
-    closeEvidenceViewer,
   } = useReportTriage();
 
   if (!selectedRow) return null;
+  const visibleCitationIds = selectedRow.citation_ids.slice(0, 6);
+  const citationCountLabel = selectedRow.citation_count === 1 ? "1 linked citation" : `${selectedRow.citation_count} linked citations`;
+  const hasLinkedCitations = selectedRow.citation_ids.length > 0;
 
   return (
     <section>
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Citation summary</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Evidence</h3>
       <div className="mt-2 space-y-2 rounded-ui-md border border-border bg-background p-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>locked citations</span>
-          <span className="font-mono text-foreground">{selectedRow.citation_count}</span>
+          <span>{citationCountLabel}</span>
         </div>
-        {selectedRow.citation_ids.length ? (
+        {hasLinkedCitations ? (
           <div className="grid gap-1">
-            <div className="text-muted-foreground">citation ids</div>
             <div className="flex flex-wrap gap-1">
-              {selectedRow.citation_ids.slice(0, 8).map((citationId) => {
+              {visibleCitationIds.map((citationId, idx) => {
                 const isViewerOpen = viewerCitationId === citationId;
                 const isCitationChipDisabled = selectedRowCitationGate?.disabled ?? false;
                 const disabledTitle = isCitationChipDisabled ? selectedRowCitationGate?.helperText ?? undefined : undefined;
+                const buttonLabel = visibleCitationIds.length === 1 ? "View citation" : `View citation ${idx + 1}`;
                 return (
                   <button
                     key={citationId}
@@ -47,22 +47,27 @@ export function CitationChipList() {
                     }}
                     aria-pressed={isViewerOpen}
                     aria-disabled={isCitationChipDisabled ? "true" : undefined}
-                    aria-label={isCitationChipDisabled ? `Evidence unavailable for ${citationId}` : `Open evidence for ${citationId}`}
+                    aria-label={
+                      isCitationChipDisabled
+                        ? `Evidence unavailable for ${buttonLabel.toLowerCase()}`
+                        : `${buttonLabel}${isViewerOpen ? " (open)" : ""}`
+                    }
                     className={cn(
-                      "rounded-ui-sm px-1.5 py-0.5 font-mono text-2xs ring-1 ring-inset transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                      isCitationChipDisabled ? "cursor-not-allowed bg-muted/60 text-muted-foreground ring-border/50 opacity-70" : null,
-                      isViewerOpen
-                        ? "bg-primary text-primary-foreground ring-primary/50"
-                        : "bg-muted text-muted-foreground ring-border/60 hover:bg-muted/80",
+                      "rounded-full px-2.5 py-1 text-2xs font-medium ring-1 ring-inset transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                      isCitationChipDisabled
+                        ? "cursor-not-allowed bg-muted/60 text-muted-foreground ring-border/50 opacity-70"
+                        : isViewerOpen
+                          ? "bg-primary text-primary-foreground ring-primary/60 shadow-ui-sm"
+                          : "bg-primary text-primary-foreground ring-primary/50 hover:bg-primary/90",
                     )}
                   >
-                    {citationId}
+                    {buttonLabel}
                   </button>
                 );
               })}
-              {selectedRow.citation_ids.length > 8 ? (
-                <span className="rounded-ui-sm bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground ring-1 ring-inset ring-border/60">
-                  +{selectedRow.citation_ids.length - 8} more
+              {selectedRow.citation_ids.length > visibleCitationIds.length ? (
+                <span className="rounded-full bg-muted px-2.5 py-1 text-2xs text-muted-foreground ring-1 ring-inset ring-border/60">
+                  +{selectedRow.citation_ids.length - visibleCitationIds.length} more
                 </span>
               ) : null}
             </div>
@@ -71,18 +76,11 @@ export function CitationChipList() {
                 {selectedRowCitationGate.helperText}
               </div>
             ) : null}
-            {viewerCitationId ? (
-              <div className="pt-1">
-                <Button type="button" variant="secondary" size="sm" onClick={closeEvidenceViewer}>
-                  Close viewer
-                </Button>
-              </div>
-            ) : null}
           </div>
         ) : (
-          <div>No locked citation ids linked to this row.</div>
+          <div>No evidence found.</div>
         )}
-        {selectedRowReasonPanel ? (
+        {hasLinkedCitations && selectedRowReasonPanel ? (
           <div className="grid gap-1">
             <div className="flex items-center justify-between gap-2">
               <span>reason_code</span>

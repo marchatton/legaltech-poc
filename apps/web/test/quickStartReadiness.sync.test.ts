@@ -28,6 +28,7 @@ describe("US-002 quick start readiness gate", () => {
     expect(pageSource).toContain("Upload a PDF and refresh readiness before running analysis.");
 
     expect(actionSource).toContain('const blocked = props.readiness.state !== "ready"');
-    expect(actionSource).toContain("disabled={blocked}");
+    expect(actionSource).toContain("const disabled = blocked || pending");
+    expect(actionSource).toContain("disabled={disabled}");
   });
 });

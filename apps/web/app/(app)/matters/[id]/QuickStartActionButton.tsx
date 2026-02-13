@@ -9,17 +9,26 @@ import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/s
 import { QUICK_START_IDEMPOTENCY_KEY, type QuickStartReadiness } from "./QuickStartPanel";
 import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
+import { Tooltip } from "../../../ui/Tooltip";
+import { cn } from "../../../ui/cn";
+
+export type QuickStartActionButtonAppearance = "icon" | "button";
 
 type Props = {
   folderId: string;
   readiness: QuickStartReadiness;
+  appearance?: QuickStartActionButtonAppearance;
+  align?: "end" | "center";
 };
 
-function readinessReasonClass(state: QuickStartReadiness["state"]): string {
-  if (state === "ready") return "max-w-64 text-right text-2xs text-success";
-  if (state === "already-complete") return "max-w-64 text-right text-2xs text-primary";
-  return "max-w-64 text-right text-2xs text-warning";
+function RunAnalysisIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
 }
+
 export function QuickStartActionButton(props: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -58,20 +67,45 @@ export function QuickStartActionButton(props: Props) {
 
   const blocked = props.readiness.state !== "ready";
   const disabledReason = blocked ? props.readiness.reason : undefined;
-  const showInlineReason = blocked && props.readiness.state !== "already-complete";
+  const appearance = props.appearance ?? "icon";
+  const align = props.align ?? "end";
+  const iconOnly = appearance === "icon";
+  const disabled = blocked || pending;
 
   return (
-    <div className="grid justify-items-end gap-1">
-      <Button
-        type="button"
-        onClick={start}
-        loading={pending}
-        disabled={blocked}
-        className="h-10 px-5 text-sm"
-        title={disabledReason}
-      >
-        Run analysis
-      </Button>
+    <div
+      className={cn(
+        "grid gap-2",
+        align === "center" ? "justify-items-center" : "justify-items-end",
+      )}
+    >
+      {iconOnly ? (
+        <Tooltip content="Run analysis" position="bottom" className="inline-flex">
+          <span className="inline-flex">
+            <Button
+              type="button"
+              onClick={start}
+              disabled={disabled}
+              className="size-10 p-0"
+              title={disabledReason}
+              aria-label="Run analysis"
+            >
+              <RunAnalysisIcon />
+            </Button>
+          </span>
+        </Tooltip>
+      ) : (
+        <Button
+          type="button"
+          onClick={start}
+          loading={pending}
+          disabled={disabled}
+          className="h-10 px-5 text-sm"
+          title={disabledReason}
+        >
+          Run analysis
+        </Button>
+      )}
       {error ? (
         <ErrorBanner
           code={error.code}
@@ -82,8 +116,6 @@ export function QuickStartActionButton(props: Props) {
           onRetry={error.retryable === true ? start : undefined}
           className="w-full max-w-md text-left"
         />
-      ) : showInlineReason ? (
-        <div className={readinessReasonClass(props.readiness.state)}>{props.readiness.reason}</div>
       ) : null}
     </div>
   );

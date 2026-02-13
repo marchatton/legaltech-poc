@@ -106,6 +106,7 @@ import {
   isQuickStartFailureReasonCode,
   isQuickStartNoEvidenceReasonCode,
 } from "../../../../lib/quickStartReasonCodes";
+import { formatAnswerForDisplay } from "./matterDetailHelpers";
 
 const REASON_CODE_PATTERN = /^[A-Z0-9_]{3,64}$/;
 const SOURCE_CHIP_DISABLED_REASON_CODES = new Set([
@@ -660,7 +661,7 @@ export function ReportTriageProvider(props: ProviderProps) {
       setPendingCopyAction("answer");
       setFeedback({ kind: "idle" });
       try {
-        await writeClipboardText(existing.answer);
+        await writeClipboardText(formatAnswerForDisplay(existing.answer));
         setFeedback({
           kind: "success",
           message: `Copied extracted answer for ${existing.question_id}.`,

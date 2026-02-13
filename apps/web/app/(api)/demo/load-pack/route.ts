@@ -61,7 +61,13 @@ function listPackPdfFiles(packId: string): Array<{ filename: string; absPath: st
 }
 
 function demoFolderName(packId: string): string {
-  const ts = new Date().toISOString().replace(/:/g, "").replace(/\..*$/, "Z");
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = now.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+  const day = String(now.getUTCDate()).padStart(2, "0");
+  const hour = String(now.getUTCHours()).padStart(2, "0");
+  const minute = String(now.getUTCMinutes()).padStart(2, "0");
+  const ts = `${year}-${month}-${day} ${hour}:${minute}`;
   return `DEMO: ${packId} ${ts}`;
 }
 

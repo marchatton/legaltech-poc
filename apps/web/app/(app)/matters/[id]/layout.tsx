@@ -5,10 +5,6 @@ import { z } from "zod";
 import Link from "next/link";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
-import { isDemoModeEnabled } from "../../../../lib/demoMode.server";
-import { orbitalMode } from "../../../../lib/runtimeMode";
-import { Badge } from "../../../ui/Badge";
-import { resolveShellEnvironment } from "../shellEnvironment";
 
 const ParamsSchema = z.object({
   id: z.string().min(1),
@@ -42,11 +38,10 @@ export default async function MatterDetailLayout(props: {
   const folderId = parsed.success ? parsed.data.id : "unknown";
   const folder = parsed.success ? await loadFolderShellContext(parsed.data.id) : null;
   const folderName = folder?.name ?? "Unknown matter";
-  const shellEnvironment = resolveShellEnvironment(orbitalMode(), isDemoModeEnabled());
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-border bg-card/95 px-6 py-2 backdrop-blur">
+      <div className="flex items-center border-b border-border bg-card/95 px-6 py-2 backdrop-blur">
         <div className="flex min-w-0 items-center text-sm text-muted-foreground">
           <Link
             href="/matters"
@@ -62,12 +57,6 @@ export default async function MatterDetailLayout(props: {
             <polyline points="9 18 15 12 9 6" />
           </svg>
           <span className="truncate font-medium text-foreground">{folderName}</span>
-        </div>
-
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          <Badge variant={shellEnvironment.badgeVariant} size="sm">
-            {shellEnvironment.label}
-          </Badge>
         </div>
       </div>
 

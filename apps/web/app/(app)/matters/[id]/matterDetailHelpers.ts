@@ -90,3 +90,7 @@ export function matterStatusLabel(args: {
   if (args.folderState === "ingesting") return "Processing";
   return "Blocked";
 }
+
+export function formatAnswerForDisplay(answer: string): string {
+  return answer.replace(/\*\*/g, "");
+}

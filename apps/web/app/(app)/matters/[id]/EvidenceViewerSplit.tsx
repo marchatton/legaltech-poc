@@ -64,11 +64,11 @@ function EvidenceViewerPanelContent() {
 }
 
 export function DesktopEvidenceViewer() {
-  const { viewerCitationId, closeEvidenceViewer } = useReportTriage();
+  const { closeEvidenceViewer } = useReportTriage();
 
   return (
     <aside
-      className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg"
+      className="hidden xl:flex h-full min-w-0 flex-1 bg-background"
       role="region"
       aria-label="Evidence viewer panel"
     >
@@ -76,10 +76,10 @@ export function DesktopEvidenceViewer() {
         <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-5 py-4">
           <div className="min-w-0">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Evidence viewer</div>
-            <div className="truncate font-mono text-sm text-foreground">{viewerCitationId}</div>
+            <div className="text-sm text-foreground">Linked citation</div>
           </div>
-          <Button type="button" variant="ghost" size="sm" onClick={closeEvidenceViewer}>
-            Close viewer
+          <Button type="button" variant="secondary" size="sm" onClick={closeEvidenceViewer}>
+            Close evidence
           </Button>
         </div>
         <div className="flex-1 bg-background">
@@ -98,7 +98,7 @@ export function MobileEvidenceViewer() {
       <div className="rounded-ui-md border border-border bg-background p-3">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Evidence viewer</h3>
-          <Button type="button" variant="ghost" size="sm" onClick={closeEvidenceViewer}>
+          <Button type="button" variant="secondary" size="sm" onClick={closeEvidenceViewer}>
             Close
           </Button>
         </div>

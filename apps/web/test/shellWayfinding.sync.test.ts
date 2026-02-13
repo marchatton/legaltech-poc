@@ -32,20 +32,14 @@ describe("US-001 shell wayfinding baseline", () => {
   it("renders detail breadcrumb and sticky identifier context", () => {
     const root = repoRootFromWebPackage();
     const detailLayoutPath = path.join(root, "apps/web/app/(app)/matters/[id]/layout.tsx");
-    const shellEnvironmentPath = path.join(root, "apps/web/app/(app)/matters/shellEnvironment.ts");
     const shellPrimitivesPath = path.join(root, "apps/web/app/ui/WorkspaceShell.tsx");
     const source = readUtf8(detailLayoutPath);
-    const shellEnvironmentSource = readUtf8(shellEnvironmentPath);
     const shellPrimitives = readUtf8(shellPrimitivesPath);
 
     expect(source).toContain("Matters");
     expect(source).toContain('<polyline points="9 18 15 12 9 6" />');
     expect(source).toContain("folderName");
-    expect(source).toContain("resolveShellEnvironment");
     expect(source).toContain('truncate font-medium text-foreground');
-    expect(source).toContain("{shellEnvironment.label}");
-    expect(shellEnvironmentSource).toContain('label: "demo-dev"');
-    expect(shellEnvironmentSource).toContain('label: "demo-prod"');
     expect(shellPrimitives).toContain("sticky top-[var(--app-topbar-height,3rem)]");
   });
 });

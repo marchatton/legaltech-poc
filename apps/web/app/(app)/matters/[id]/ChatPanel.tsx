@@ -14,7 +14,6 @@ import { Spinner } from "../../../ui/Spinner";
 import { parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
 
 type MessageStatus = "sending" | "streaming" | "complete" | "citation_failed";
-type ComposerState = "idle" | "sending" | "streaming" | "final" | "failed";
 
 type ChatMessage = {
   id: string;
@@ -47,14 +46,6 @@ function parseRenderUrl(json: unknown): string | null {
   if (!json || typeof json !== "object" || Array.isArray(json)) return null;
   const url = (json as { render_url?: unknown }).render_url;
   return typeof url === "string" && url.trim().length > 0 ? url : null;
-}
-
-function composerStateLabel(state: ComposerState): string {
-  if (state === "sending") return "Sending question";
-  if (state === "streaming") return "Streaming response";
-  if (state === "final") return "Final response ready";
-  if (state === "failed") return "Response failed";
-  return "Ready";
 }
 
 async function readNdjsonStream(args: {
@@ -99,7 +90,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [composerState, setComposerState] = useState<ComposerState>("idle");
   const [sourceOpenError, setSourceOpenError] = useState<string | null>(null);
   const [openingSourceKey, setOpeningSourceKey] = useState<string | null>(null);
   const lastUserMessageRef = useRef<string | null>(null);
@@ -156,7 +146,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
 
       lastUserMessageRef.current = trimmed;
       setBusy(true);
-      setComposerState("sending");
       setSourceOpenError(null);
       setMessages((prev) => [
         ...prev,
@@ -198,7 +187,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
             status: "citation_failed",
             error: { code, message, traceId, retryable },
           }));
-          setComposerState("failed");
           return;
         }
 
@@ -209,18 +197,14 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
             status: "citation_failed",
             error: { code: "NO_STREAM", message: "Chat response stream is missing. Please retry.", retryable: true },
           }));
-          setComposerState("failed");
           return;
         }
 
         let terminalSeen = false;
-        let streamedToken = false;
         await readNdjsonStream({
           body,
           onEvent: (evt) => {
             if (evt.type === "token") {
-              streamedToken = true;
-              setComposerState("streaming");
               updateMessage(assistantId, (m) => ({ ...m, status: "streaming", content: m.content + evt.token }));
               return;
             }
@@ -232,14 +216,12 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
 
             if (evt.type === "done") {
               terminalSeen = true;
-              setComposerState("final");
               updateMessage(assistantId, (m) => ({ ...m, status: "complete" }));
               return;
             }
 
             if (evt.type === "error") {
               terminalSeen = true;
-              setComposerState("failed");
               updateMessage(assistantId, (m) => ({
                 ...m,
                 status: "citation_failed",
@@ -253,7 +235,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
         });
 
         if (!terminalSeen) {
-          setComposerState("failed");
           updateMessage(assistantId, (m) => ({
             ...m,
             status: "citation_failed",
@@ -261,10 +242,16 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
           }));
           return;
         }
-
-        if (!streamedToken) {
-          setComposerState("final");
-        }
+      } catch (err) {
+        const message =
+          err instanceof Error && err.message === "Failed to fetch"
+            ? "Unable to reach chat service. Check your connection and retry."
+            : "Chat request failed unexpectedly. Please retry.";
+        updateMessage(assistantId, (m) => ({
+          ...m,
+          status: "citation_failed",
+          error: { code: "CHAT_REQUEST_FAILED", message, retryable: true },
+        }));
       } finally {
         setBusy(false);
       }
@@ -297,11 +284,6 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
           </svg>
         </div>
         <span className="text-sm font-medium text-foreground">Matter Assistant</span>
-        {composerState !== "idle" ? (
-          <span className="ml-auto text-2xs text-muted-foreground" aria-live="polite">
-            {composerStateLabel(composerState)}
-          </span>
-        ) : null}
       </div>
 
       {/* Messages area */}
@@ -324,11 +306,20 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
               <div key={m.id} className="grid gap-2 animate-fade-in">
                 <div className={`max-w-[80%] rounded-ui-2xl border border-border px-4 py-3 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {m.content || (m.status === "sending" || m.status === "streaming" ? (
+                    {m.content ? (
+                      <>
+                        {m.content}
+                        {m.status === "streaming" ? (
+                          <span className="ml-0.5 inline-block animate-pulse text-muted-foreground" aria-hidden="true">
+                            |
+                          </span>
+                        ) : null}
+                      </>
+                    ) : m.status === "sending" || m.status === "streaming" ? (
                       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                        <Spinner size="xs" /> {m.status === "sending" ? "Sending&hellip;" : "Streaming&hellip;"}
+                        <Spinner size="xs" /> {m.status === "sending" ? "Sending..." : "Streaming..."}
                       </span>
-                    ) : null)}
+                    ) : null}
                   </div>
                 </div>
 
@@ -440,17 +431,19 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
             disabled={composerDisabled}
             className="w-full flex-1 bg-muted/30"
           />
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
             disabled={!canSend}
-            className="flex size-9 shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground transition-opacity duration-micro disabled:opacity-40"
+            className="size-9 shrink-0 p-0 disabled:opacity-40"
             aria-label="Send message"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
               <path d="M5 12h14" />
               <path d="m12 5 7 7-7 7" />
             </svg>
-          </button>
+          </Button>
         </form>
       </div>
     </div>
