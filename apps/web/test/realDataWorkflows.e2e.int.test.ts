@@ -43,6 +43,11 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
+function hasSignedDownloadLink(payload: unknown): boolean {
+  if (payload === null || payload === undefined) return false;
+  return /\/artefacts\/[^"\s]+\/download\?/.test(JSON.stringify(payload));
+}
+
 function resolvePackPdfPath(filename: string): string {
   const candidates = [
     path.resolve(process.cwd(), "../../docs/08-example-data/pack_01_clean/docs", filename),
@@ -153,7 +158,13 @@ type ArtefactsResponse = {
 type SafeErrorResponse = {
   error: {
     code: string;
+    message?: string;
+    details?: {
+      reason_codes?: string[];
+      [key: string]: unknown;
+    };
   };
+  artefact?: unknown;
 };
 
 describe("real-data backend e2e workflows (docs/08-example-data)", () => {
@@ -482,6 +493,10 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
       expect(blockedExportRes.status).toBe(409);
       const blockedExportJson = (await blockedExportRes.json()) as SafeErrorResponse;
       expect(blockedExportJson.error.code).toBe("EXPORT_BLOCKED");
+      expect(blockedExportJson.error.message ?? "").toContain("Export blocked");
+      expect(blockedExportJson.error.details?.reason_codes ?? []).toContain("NO_CITATIONS");
+      expect(blockedExportJson.artefact).toBeUndefined();
+      expect(hasSignedDownloadLink(blockedExportJson)).toBe(false);
 
       env.DEMO_MODE = "1";
       env.ALLOW_UNSAFE_EXPORTS = "1";
@@ -659,6 +674,10 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
         expect(blockedExportRes.status).toBe(409);
         const blockedExportJson = (await blockedExportRes.json()) as SafeErrorResponse;
         expect(blockedExportJson.error.code).toBe("EXPORT_BLOCKED");
+        expect(blockedExportJson.error.message ?? "").toContain("Export blocked");
+        expect((blockedExportJson.error.details?.reason_codes ?? []).length).toBeGreaterThan(0);
+        expect(blockedExportJson.artefact).toBeUndefined();
+        expect(hasSignedDownloadLink(blockedExportJson)).toBe(false);
       } finally {
         if (folderId) {
           await db`DELETE FROM folders WHERE id = ${folderId}`;

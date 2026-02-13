@@ -185,6 +185,17 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
+  const blocked = (message: string, details?: unknown): Response =>
+    Response.json(
+      exportErrorEnvelope({
+        code: "EXPORT_BLOCKED",
+        message,
+        details,
+        traceId,
+      }),
+      { status: 409, headers },
+    );
+
   // If the run exists in the DB, enforce run completion gating.
   const runs = await sql<DbRunRow[]>`
     SELECT id, state
@@ -195,16 +206,71 @@ export async function POST(req: Request): Promise<Response> {
   `;
   const run = runs[0] ?? null;
   if (run && run.state !== "completed") {
-    return Response.json(
-      exportErrorEnvelope({
-        code: "CONFLICT",
-        message: "Run is not completed yet.",
-        details: { run_id: runId, state: run.state },
-        traceId,
-      }),
-      { status: 409, headers },
-    );
+    return blocked("Export blocked: run is not completed yet.", {
+      run_id: runId,
+      state: run.state,
+      reason_codes: ["RUN_NOT_COMPLETED"],
+    });
   }
+
+  const blockedRowNotFound = (): Response =>
+    blocked("Export blocked: structured report payload was not found.", {
+      run_id: runId,
+      kind,
+      dependency: "Initiative 002",
+      reason_codes: ["REPORT_ROW_MISSING"],
+    });
+
+  const blockedRowAmbiguous = (rowIds: string[]): Response =>
+    blocked("Export blocked: multiple structured report payload rows were found.", {
+      run_id: runId,
+      kind,
+      row_ids: rowIds,
+      reason_codes: ["REPORT_ROW_AMBIGUOUS"],
+    });
+
+  const blockedMissingCitations = (missingCitationIds: string[]): Response =>
+    blocked("Export blocked: locked citations are required before export.", {
+      missing_citation_ids: missingCitationIds,
+      reason_codes: ["MISSING_LOCKED_CITATIONS"],
+    });
+
+  const blockedCitationFailures = (failedRows: DbFailedRow[]): Response => {
+    const reasonCodes = Array.from(
+      new Set(
+        failedRows
+          .map((row) => reasonCodeFromProvenance(row.provenance_json) ?? "VALIDATION_ERROR")
+          .filter((code) => typeof code === "string" && code.trim()),
+      ),
+    ).sort();
+
+    return blocked(`Export blocked: ${failedRows.length} row(s) failed verification.`, {
+      citation_failed_count: failedRows.length,
+      failed_question_ids: failedRows.map((row) => row.question_id).slice(0, 50),
+      reason_codes: reasonCodes,
+    });
+  };
+
+  const blockedSnapshotCitationFailures = (
+    failedRows: Array<{ question_id?: unknown; provenance_json?: unknown }>,
+  ): Response => {
+    const reasonCodes = Array.from(
+      new Set(
+        failedRows
+          .map((row) => reasonCodeFromProvenance(row.provenance_json) ?? "VALIDATION_ERROR")
+          .filter((code) => typeof code === "string" && code.trim()),
+      ),
+    ).sort();
+
+    return blocked(`Export blocked: ${failedRows.length} row(s) failed verification.`, {
+      citation_failed_count: failedRows.length,
+      failed_question_ids: failedRows
+        .map((row) => String(row.question_id ?? ""))
+        .filter((questionId) => questionId.trim())
+        .slice(0, 50),
+      reason_codes: reasonCodes,
+    });
+  };
 
   let sourceRow: DbReportRow | null = null;
   let citationById = new Map<string, { filename: string; page: number }>();
@@ -222,27 +288,7 @@ export async function POST(req: Request): Promise<Response> {
       `;
 
       if (failed.length > 0) {
-        const reasonCodes = Array.from(
-          new Set(
-            failed
-              .map((r) => reasonCodeFromProvenance(r.provenance_json) ?? "VALIDATION_ERROR")
-              .filter((c) => typeof c === "string" && c.trim()),
-          ),
-        ).sort();
-
-        return Response.json(
-          exportErrorEnvelope({
-            code: "EXPORT_BLOCKED",
-            message: `Export blocked: ${failed.length} row(s) failed verification.`,
-            details: {
-              citation_failed_count: failed.length,
-              failed_question_ids: failed.map((r) => r.question_id).slice(0, 50),
-              reason_codes: reasonCodes,
-            },
-            traceId,
-          }),
-          { status: 409, headers },
-        );
+        return blockedCitationFailures(failed);
       }
     }
 
@@ -257,26 +303,10 @@ export async function POST(req: Request): Promise<Response> {
       LIMIT 2
     `;
     if (rows.length === 0) {
-      return Response.json(
-        exportErrorEnvelope({
-          code: "CONFLICT",
-          message: "Export requires structured payload_json, but no matching row was found.",
-          details: { run_id: runId, kind, dependency: "Initiative 002" },
-          traceId,
-        }),
-        { status: 409, headers },
-      );
+      return blockedRowNotFound();
     }
     if (rows.length > 1) {
-      return Response.json(
-        exportErrorEnvelope({
-          code: "CONFLICT",
-          message: "Export found multiple structured payload rows for this kind.",
-          details: { run_id: runId, kind, row_ids: rows.map((r) => r.id) },
-          traceId,
-        }),
-        { status: 409, headers },
-      );
+      return blockedRowAmbiguous(rows.map((row) => row.id));
     }
 
     sourceRow = rows[0] ?? null;
@@ -299,15 +329,7 @@ export async function POST(req: Request): Promise<Response> {
 
       const missing = citationIds.filter((id) => !citationById.has(id));
       if (missing.length) {
-        return Response.json(
-          exportErrorEnvelope({
-            code: "CONFLICT",
-            message: "Export requires locked citations, but some citation_ids were missing.",
-            details: { missing_citation_ids: missing.slice(0, 25) },
-            traceId,
-          }),
-          { status: 409, headers },
-        );
+        return blockedMissingCitations(missing.slice(0, 25));
       }
     }
   } else {
@@ -342,35 +364,13 @@ export async function POST(req: Request): Promise<Response> {
 
     sourceRow = snapshotRowForKind(snapshot, kind);
     if (!sourceRow) {
-      return Response.json(
-        exportErrorEnvelope({
-          code: "CONFLICT",
-          message: "Export requires structured payload_json, but no matching row was found.",
-          details: { run_id: runId, kind, dependency: "Initiative 002" },
-          traceId,
-        }),
-        { status: 409, headers },
-      );
+      return blockedRowNotFound();
     }
 
     if (!unsafeOverride) {
-      const failed = (snapshot.rows ?? []).filter((r) => r?.status === "citation_failed");
+      const failed = (snapshot.rows ?? []).filter((row) => row?.status === "citation_failed");
       if (failed.length > 0) {
-        return Response.json(
-          exportErrorEnvelope({
-            code: "EXPORT_BLOCKED",
-            message: `Export blocked: ${failed.length} row(s) failed verification.`,
-            details: {
-              citation_failed_count: failed.length,
-              failed_question_ids: failed
-                .map((r) => String((r as { question_id?: unknown }).question_id ?? ""))
-                .filter((s) => s.trim())
-                .slice(0, 50),
-            },
-            traceId,
-          }),
-          { status: 409, headers },
-        );
+        return blockedSnapshotCitationFailures(failed);
       }
     }
 

@@ -62,11 +62,23 @@ function errorRetryable(json: unknown): boolean | null {
   return typeof env.retryable === "boolean" ? env.retryable : null;
 }
 
+function errorDetails(json: unknown): Record<string, unknown> | null {
+  if (!isRecord(json)) return null;
+  const env = json.error;
+  if (!isRecord(env)) return null;
+  return isRecord(env.details) ? env.details : null;
+}
+
 function artefactFrom(json: unknown): Record<string, unknown> | null {
   if (!isRecord(json)) return null;
   const artefact = json.artefact;
   if (!isRecord(artefact)) return null;
   return artefact;
+}
+
+function hasSignedDownloadLink(json: unknown): boolean {
+  if (json === null || json === undefined) return false;
+  return /\/artefacts\/[^"\s]+\/download\?/.test(JSON.stringify(json));
 }
 
 describe("export csv", () => {
@@ -240,10 +252,101 @@ describe("export csv", () => {
     expect(errorCode(json)).toBe("EXPORT_BLOCKED");
     expect(errorTraceId(json)).toMatch(/^trc_/);
     expect(errorRetryable(json)).toBe(false);
+    expect(artefactFrom(json)).toBeNull();
+    expect(hasSignedDownloadLink(json)).toBe(false);
+
+    const details = errorDetails(json);
+    const reasonCodes = Array.isArray(details?.reason_codes) ? details.reason_codes : [];
+    expect(reasonCodes).toContain("VALIDATION_ERROR");
+    expect(details?.failed_question_ids).toEqual(["TS-03"]);
+  });
+
+  it("returns EXPORT_BLOCKED when structured report payload is missing", async () => {
+    const { POST } = await import("../app/(api)/export/csv/route");
+
+    queueSqlResults([[{ id: "run_missing_row", state: "completed" }], [], []]);
+
+    const res = await POST(
+      new Request("http://localhost:3000/export/csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder_id: "fld_missing_row",
+          run_id: "run_missing_row",
+          kind: "requirements_tracker",
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("EXPORT_BLOCKED");
+    expect(artefactFrom(json)).toBeNull();
+    expect(hasSignedDownloadLink(json)).toBe(false);
+    const details = errorDetails(json);
+    const reasonCodes = Array.isArray(details?.reason_codes) ? details.reason_codes : [];
+    expect(reasonCodes).toContain("REPORT_ROW_MISSING");
+  });
+
+  it("returns EXPORT_BLOCKED when locked citations are missing", async () => {
+    const { POST } = await import("../app/(api)/export/csv/route");
+
+    queueSqlResults([
+      [{ id: "run_missing_citations", state: "completed" }],
+      [],
+      [
+        {
+          id: "row_ts03",
+          question_id: "TS-03",
+          answer: "requirements payload",
+          status: "needs_review",
+          notes: null,
+          provenance_json: {},
+          payload_schema_version: "list_payload_v0",
+          payload_json: {
+            kind: "requirements_tracker",
+            items: [
+              {
+                kind: "requirements_tracker_item",
+                item_id: "bi:1",
+                citation_ids: ["cit_missing_01"],
+                bi_item: 1,
+                requirement: "R1",
+                owner: "Seller",
+                item_status: "open",
+              },
+            ],
+          },
+        },
+      ],
+      [],
+    ]);
+
+    const res = await POST(
+      new Request("http://localhost:3000/export/csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder_id: "fld_missing_citations",
+          run_id: "run_missing_citations",
+          kind: "requirements_tracker",
+        }),
+      }),
+    );
+
+    expect(res.status).toBe(409);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("EXPORT_BLOCKED");
+    expect(artefactFrom(json)).toBeNull();
+    expect(hasSignedDownloadLink(json)).toBe(false);
+    const details = errorDetails(json);
+    const reasonCodes = Array.isArray(details?.reason_codes) ? details.reason_codes : [];
+    expect(reasonCodes).toContain("MISSING_LOCKED_CITATIONS");
+    expect(details?.missing_citation_ids).toEqual(["cit_missing_01"]);
   });
 
   it.each(["running", "failed", "partial"] as const)(
-    "returns CONFLICT and no artefact when run state is %s",
+    "returns EXPORT_BLOCKED and no artefact when run state is %s",
     async (runState) => {
       const { POST } = await import("../app/(api)/export/csv/route");
 
@@ -266,8 +369,12 @@ describe("export csv", () => {
 
       expect(res.status).toBe(409);
       const json: unknown = await res.json().catch(() => null);
-      expect(errorCode(json)).toBe("CONFLICT");
+      expect(errorCode(json)).toBe("EXPORT_BLOCKED");
       expect(artefactFrom(json)).toBeNull();
+      expect(hasSignedDownloadLink(json)).toBe(false);
+      const details = errorDetails(json);
+      const reasonCodes = Array.isArray(details?.reason_codes) ? details.reason_codes : [];
+      expect(reasonCodes).toContain("RUN_NOT_COMPLETED");
     },
   );
 
