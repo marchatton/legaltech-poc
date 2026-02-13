@@ -7,6 +7,64 @@ This runbook is written for the simplest path:
 
 If you later want HTTPS, add a domain + reverse proxy (Caddy/Traefik) and move Basic Auth there or keep it in middleware.
 
+## Operator Quick Checklist (Phase 4)
+Use this when you need to run the demo with minimal setup drift.
+
+### 1) Startup steps (local demo path)
+1. From repo root, start Postgres:
+```bash
+docker compose up -d db
+```
+2. From repo root, start the app:
+```bash
+pnpm dev
+```
+3. Wait for Next dev to report ready, then open `http://localhost:3000/matters`.
+4. If using the demo toolbar path, set `DEMO_MODE=1` before startup.
+
+### 2) Env preflight
+Check these before a live demo.
+
+Local dev:
+- `AI_GATEWAY_API_KEY` (required for live chat model responses)
+- `DATABASE_URL` (optional in dev; defaults to `postgresql://orbital:orbital@127.0.0.1:5432/orbital`)
+- `OBJECT_STORE_SIGNING_SECRET` (or set `ALLOW_DEV_OBJECT_STORE_SECRET=1` for local-only fallback)
+- `EVIDENCE_BACKEND=db_only` (recommended)
+
+Demo-prod (VM):
+- `BASIC_AUTH_USER`
+- `BASIC_AUTH_PASS`
+- `OBJECT_STORE_SIGNING_SECRET`
+- `AI_GATEWAY_API_KEY` (only if runtime is wired to pass it to `web`; otherwise chat stays in deterministic fallback mode)
+- `EVIDENCE_BACKEND=db_only` (recommended)
+
+### 3) Fallback path if chat degrades
+If chat is failing or unstable during demo time:
+1. Switch to deterministic fallback by running without `AI_GATEWAY_API_KEY` and restarting the web app.
+2. Continue the demo through upload/process/citations/review/export.
+3. In the chat tab, use a prompt and narrate the fallback behavior (`Not found in provided documents.`) as expected degraded mode.
+4. Capture trace IDs from any chat error banner/log for follow-up after the demo.
+
+### 4) Recovery for missing Next vendor chunk (`@opentelemetry`)
+Symptom:
+- `Cannot find module './vendor-chunks/@opentelemetry+api@1.9.0.js'`
+- 500s on core routes in dev.
+
+Recovery (from repo root):
+```bash
+pkill -f "next dev" || true
+rm -f apps/web/.next-dev.lock
+rm -rf apps/web/.next
+pnpm dev
+```
+
+Post-recovery smoke check:
+- `http://localhost:3000/matters`
+- `http://localhost:3000/api/folders`
+- one known matter for:
+  - `/api/folders/<id>/documents`
+  - `/api/folders/<id>/report`
+
 ## Phase A: Continue Local Dev (Sprite)
 Goal: keep moving fast without needing the VM yet.
 
@@ -45,19 +103,22 @@ Goal: a private demo-prod instance that behaves like a production build.
 - VM public IP (Hetzner shows this in the VM details)
 - SSH access to the VM
 - Docker Engine + Docker Compose plugin installed on the VM
-- 3 secrets:
+- 3 required secrets:
   - `BASIC_AUTH_USER`
   - `BASIC_AUTH_PASS`
   - `OBJECT_STORE_SIGNING_SECRET` (any long random string)
+- 1 optional secret (only if live chat model is in scope):
+  - `AI_GATEWAY_API_KEY` (and verify it is passed into the `web` runtime)
 - 1 runtime-mode setting:
   - `EVIDENCE_BACKEND=db_only` (recommended to disable fixture fallback and use DB/object-store evidence only)
 
-## 2) Configure Secrets
+### B0.1) Configure secrets
 1. Copy `.env.demo-prod.example` to `.env.demo-prod`.
 2. Set:
    - `BASIC_AUTH_USER`
    - `BASIC_AUTH_PASS`
    - `OBJECT_STORE_SIGNING_SECRET` (any long random string)
+   - `AI_GATEWAY_API_KEY` (if live chat model responses are required and wired into `web`)
    - `EVIDENCE_BACKEND=db_only` (recommended for demo-prod)
 
 ### B1) Get the repo onto the VM
