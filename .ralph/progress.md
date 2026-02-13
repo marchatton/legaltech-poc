@@ -1142,3 +1142,42 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - `vitest run -- <file>` still executes the full configured suite in this repo; plan verification runtime accordingly.
 ---
+## [2026-02-13 01:27:12 UTC] - US-002: Quick Start readiness gate is deterministic
+Thread: 
+Run: 20260213-005806-15124 (iteration 2)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-2.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: d2249fd fix(quick-start): gate enablement on readiness
+- Post-commit status: clean
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/quickStartReadiness.sync.test.ts test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -p 3101 -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (blocked quick-start browser check; screenshot tmp/us002-blocked.png) -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (post-fix runnable quick-start browser check; screenshot tmp/us002-runnable.png) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/test/foldersRunsRoute.wdk.int.test.ts
+  - apps/web/test/quickStartReadiness.sync.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Matter detail quick-start readiness is now derived only from canonical readiness (`resolveCanonicalReadiness`), removing latest-run-state gating from button enablement.
+  - Added deterministic sync coverage proving quick-start enablement comes from canonical readiness and that the page no longer emits `already-complete` quick-start state.
+  - Strengthened run-start integration coverage for pack_02 missing prerequisites: blocked attempts return actionable `REA.pdf` conflicts with `MISSING_PREREQUISITE_DOCUMENT`, create zero runs, then transition to runnable and start after prerequisites are fixed.
+  - Browser validation confirmed blocked-to-runnable transition on the same matter (disabled button + missing-doc reason before fix, enabled button after adding missing prerequisite).
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Keeping quick-start enablement tied to canonical readiness eliminates UI/API drift while preserving explicit API conflict behavior.
+  - Gotchas encountered
+  - Initial `dev-browser` navigation can time out during first Next.js dev compilation; use longer `goto` timeout and `domcontentloaded`.
+  - Useful context
+  - `dev-browser` must be launched with `./server.sh --headless` in this Sprite VM (no X server).
+---
