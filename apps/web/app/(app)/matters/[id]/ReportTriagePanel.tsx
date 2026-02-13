@@ -384,7 +384,7 @@ export function ReportTriagePanel(props: Props) {
   useEffect(() => {
     const activeCitationId = viewerCitationId;
     const activeRow = selectedRow;
-    if (!activeCitationId || !splitViewLocked || !activeRow) {
+    if (!activeCitationId || !activeRow) {
       setViewerState({ kind: "idle" });
       return;
     }
@@ -471,9 +471,9 @@ export function ReportTriagePanel(props: Props) {
       cancelled = true;
       controller.abort();
     };
-  }, [selectedRow, splitViewLocked, viewerCitationId]);
+  }, [selectedRow, viewerCitationId]);
 
-  const splitViewerVisible = Boolean(selectedRow && splitViewLocked && viewerCitationId);
+  const splitViewerVisible = Boolean(selectedRow && viewerCitationId);
   const showDesktopSplitViewer = splitViewerVisible && isDesktopSplit;
   const showMobileSplitViewer = splitViewerVisible && !isDesktopSplit;
 
@@ -711,7 +711,7 @@ export function ReportTriagePanel(props: Props) {
             aria-hidden="true"
             onClick={closeRowDrawer}
           />
-          <div className="fixed right-0 bottom-0 top-[var(--app-topbar-height,3rem)] z-40 flex max-w-full">
+          <div className="fixed right-0 bottom-0 top-0 z-40 flex max-w-full">
           {showDesktopSplitViewer ? (
             <aside
               className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg"
@@ -734,7 +734,7 @@ export function ReportTriagePanel(props: Props) {
           ) : null}
 
           <aside
-            className="h-full w-full max-w-[42rem] border-l border-border bg-card shadow-ui-lg"
+            className="h-full w-full max-w-[63rem] border-l border-border bg-card shadow-ui-lg"
             role="dialog"
             aria-modal="true"
             aria-labelledby={`row-drawer-title-${selectedRow.id}`}
