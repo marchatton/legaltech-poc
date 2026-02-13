@@ -29,7 +29,7 @@ export const UploadZone = forwardRef<HTMLDivElement, UploadZoneProps>(
           <div className="mx-auto mb-3 text-muted-foreground">{icon}</div>
         )}
         {title && (
-          <div className="text-[15px] font-semibold">{title}</div>
+          <div className="text-base font-semibold">{title}</div>
         )}
         {description && (
           <div className="mt-1 text-sm text-muted-foreground">{description}</div>

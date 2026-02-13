@@ -1,5 +1,7 @@
 import type { HTMLAttributes } from "react";
 
+import Link from "next/link";
+
 import { cn } from "./cn";
 
 /* ── Breadcrumb (wrapper nav) ── */
@@ -29,12 +31,12 @@ export function BreadcrumbItem({
   ...props
 }: BreadcrumbItemProps) {
   const inner = href && !current ? (
-    <a
+    <Link
       href={href}
       className="text-muted-foreground hover:text-primary transition-colors duration-micro"
     >
       {children}
-    </a>
+    </Link>
   ) : (
     <span className={current ? "text-foreground font-medium" : undefined}>
       {children}

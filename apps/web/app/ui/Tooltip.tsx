@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type HTMLAttributes, type ReactNode } from "react";
+import { useId, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "./cn";
+import { useAnimatedPresence } from "./useAnimatedPresence";
 
 export type TooltipPosition = "top" | "bottom" | "left" | "right";
 
@@ -35,15 +36,16 @@ export function Tooltip({
   ...props
 }: TooltipProps) {
   const [open, setOpen] = useState(false);
-  const [timeoutId, setTimeoutId] = useState<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const { shouldRender, isAnimating } = useAnimatedPresence(open);
+  const tooltipId = useId();
 
   function handleEnter() {
-    const id = setTimeout(() => setOpen(true), delayMs);
-    setTimeoutId(id);
+    timeoutRef.current = setTimeout(() => setOpen(true), delayMs);
   }
 
   function handleLeave() {
-    clearTimeout(timeoutId);
+    clearTimeout(timeoutRef.current);
     setOpen(false);
   }
 
@@ -54,15 +56,18 @@ export function Tooltip({
       onMouseLeave={handleLeave}
       onFocus={handleEnter}
       onBlur={handleLeave}
+      aria-describedby={shouldRender ? tooltipId : undefined}
       {...props}
     >
       {children}
-      {open && (
+      {shouldRender && (
         <div
+          id={tooltipId}
           role="tooltip"
           className={cn(
             "absolute z-50 px-3 py-1.5 bg-foreground text-background text-xs font-medium rounded-ui-md whitespace-nowrap shadow-ui-md",
-            "animate-fade-in pointer-events-none",
+            "pointer-events-none",
+            isAnimating ? "animate-fade-in" : "animate-fade-out",
             positionClasses[position],
           )}
         >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -10,6 +10,20 @@ import { ExportCsvButton } from "../ExportCsvButton";
 import type { RunSelectorOption } from "../runScope";
 
 import { ExportMemoButton } from "./ExportMemoButton";
+
+function ExportRow({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center gap-3">
+        <div className="flex size-8 items-center justify-center rounded-ui-md bg-secondary/10 text-secondary-foreground">
+          {icon}
+        </div>
+        <span className="text-sm font-medium text-foreground">{label}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 type Props = {
   folderId: string;
@@ -63,7 +77,7 @@ export function ExportsPanel(props: Props) {
 
   return (
     <div className="grid gap-6">
-      <div className="rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+      <div className="max-w-2xl rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
         <div className="grid w-full gap-1 text-left">
           <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground" htmlFor="exports-run-selector">
             Source run
@@ -90,60 +104,59 @@ export function ExportsPanel(props: Props) {
 
           {selectedRun ? (
             selectedRun.status !== "completed" ? (
-              <Alert variant="info" className="text-left">
-                Exports are available once the selected run completes.
+              <Alert variant="warning" title="Action required" className="text-left">
+                Run must complete before exports are available.
               </Alert>
             ) : null
           ) : (
-            <Alert variant="info" className="text-left">
-              Exports are available once this matter has at least one run.
+            <Alert variant="warning" title="Action required" className="text-left">
+              Run analysis first to enable exports.
             </Alert>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
-          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+      <div className="grid max-w-2xl gap-0 divide-y divide-border rounded-ui-lg border border-border bg-card shadow-ui-sm">
+        <ExportRow
+          label="Full Report"
+          icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
-          </div>
-          <div className="text-xs font-medium text-foreground">Full Report</div>
-          <div className="mt-3">
-            <ExportMemoButton
-              folderId={props.folderId}
-              runId={selectedRun?.run_id ?? null}
-              runState={selectedRun?.status ?? null}
-              unsafeOverrideEnabled={props.unsafeOverrideEnabled}
-            />
-          </div>
-        </div>
+          }
+        >
+          <ExportMemoButton
+            folderId={props.folderId}
+            runId={selectedRun?.run_id ?? null}
+            runState={selectedRun?.status ?? null}
+            unsafeOverrideEnabled={props.unsafeOverrideEnabled}
+          />
+        </ExportRow>
 
-        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
-          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+        <ExportRow
+          label="Summary"
+          icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <path d="M3 9h18" />
               <path d="M3 15h18" />
               <path d="M9 3v18" />
             </svg>
-          </div>
-          <div className="text-xs font-medium text-foreground">Summary</div>
-          <div className="mt-3">
-            <ExportCsvButton
-              folderId={props.folderId}
-              runId={selectedRun?.run_id ?? null}
-              runState={selectedRun?.status ?? null}
-              kind="requirements_tracker"
-              label="Download (csv)"
-            />
-          </div>
-        </div>
+          }
+        >
+          <ExportCsvButton
+            folderId={props.folderId}
+            runId={selectedRun?.run_id ?? null}
+            runState={selectedRun?.status ?? null}
+            kind="requirements_tracker"
+            label="Download (csv)"
+          />
+        </ExportRow>
 
-        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
-          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+        <ExportRow
+          label="Details"
+          icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <line x1="8" y1="6" x2="21" y2="6" />
               <line x1="8" y1="12" x2="21" y2="12" />
@@ -152,37 +165,34 @@ export function ExportsPanel(props: Props) {
               <line x1="3" y1="12" x2="3.01" y2="12" />
               <line x1="3" y1="18" x2="3.01" y2="18" />
             </svg>
-          </div>
-          <div className="text-xs font-medium text-foreground">Details</div>
-          <div className="mt-3">
-            <ExportCsvButton
-              folderId={props.folderId}
-              runId={selectedRun?.run_id ?? null}
-              runState={selectedRun?.status ?? null}
-              kind="exceptions_table"
-              label="Download (csv)"
-            />
-          </div>
-        </div>
+          }
+        >
+          <ExportCsvButton
+            folderId={props.folderId}
+            runId={selectedRun?.run_id ?? null}
+            runState={selectedRun?.status ?? null}
+            kind="exceptions_table"
+            label="Download (csv)"
+          />
+        </ExportRow>
 
-        <div className="rounded-ui-lg border border-border bg-card p-4 text-center shadow-ui-sm">
-          <div className="mx-auto mb-2 flex size-9 items-center justify-center rounded-ui-md bg-secondary-100 text-secondary-700">
+        <ExportRow
+          label="Citations"
+          icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
             </svg>
-          </div>
-          <div className="text-xs font-medium text-foreground">Citations</div>
-          <div className="mt-3">
-            <ExportCsvButton
-              folderId={props.folderId}
-              runId={selectedRun?.run_id ?? null}
-              runState={selectedRun?.status ?? null}
-              kind="survey_issues"
-              label="Download (csv)"
-            />
-          </div>
-        </div>
+          }
+        >
+          <ExportCsvButton
+            folderId={props.folderId}
+            runId={selectedRun?.run_id ?? null}
+            runState={selectedRun?.status ?? null}
+            kind="survey_issues"
+            label="Download (csv)"
+          />
+        </ExportRow>
       </div>
     </div>
   );

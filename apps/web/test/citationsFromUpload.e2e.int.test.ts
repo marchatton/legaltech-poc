@@ -162,6 +162,7 @@ type CitationResponse = {
     document_id: string;
     page_number: number;
     snippet_hash: string;
+    polygons: unknown;
   };
 };
 
@@ -471,6 +472,12 @@ describe("citation flow from a fresh document upload", () => {
         expect(citationJson.citation.document_id).toBe(citationEvidence?.expectedSourceDocId ?? "");
         expect(citationJson.citation.page_number).toBeGreaterThan(0);
         expect(citationJson.citation.snippet_hash).toMatch(/^sha256:/);
+        expect(Array.isArray(citationJson.citation.polygons)).toBe(true);
+        const polygons = citationJson.citation.polygons as unknown[];
+        expect(polygons.length).toBeGreaterThan(0);
+        const firstPolygon = polygons[0];
+        expect(Array.isArray(firstPolygon)).toBe(true);
+        expect((firstPolygon as unknown[]).length).toBeGreaterThanOrEqual(3);
 
         const renderRes = await GET_DOCUMENT_RENDER(
           new Request(

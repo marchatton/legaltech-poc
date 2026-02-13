@@ -22,6 +22,7 @@ export function Page({
 }: HTMLAttributes<HTMLElement> & { width?: PageWidth }) {
   return (
     <main
+      id="main-content"
       className={cn("mx-auto w-full px-6 py-10 sm:px-8 animate-fade-in", widthClasses[width], className)}
       {...props}
     >

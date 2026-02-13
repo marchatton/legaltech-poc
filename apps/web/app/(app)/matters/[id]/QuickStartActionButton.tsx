@@ -18,7 +18,7 @@ type Props = {
 function readinessReasonClass(state: QuickStartReadiness["state"]): string {
   if (state === "ready") return "max-w-64 text-right text-2xs text-success";
   if (state === "already-complete") return "max-w-64 text-right text-2xs text-primary";
-  return "max-w-64 text-right text-2xs text-muted-foreground";
+  return "max-w-64 text-right text-2xs text-warning";
 }
 export function QuickStartActionButton(props: Props) {
   const router = useRouter();

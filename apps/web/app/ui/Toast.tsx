@@ -1,4 +1,6 @@
-import type { HTMLAttributes, ReactNode } from "react";
+"use client";
+
+import { useEffect, useState, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "./cn";
 
@@ -10,6 +12,8 @@ export type ToastProps = HTMLAttributes<HTMLDivElement> & {
   description?: ReactNode;
   icon?: ReactNode;
   onClose?: () => void;
+  /** Auto-dismiss after this many ms. Set to 0 to disable. Default 5000. */
+  duration?: number;
 };
 
 const iconBgClasses: Record<ToastVariant, string> = {
@@ -56,14 +60,35 @@ export function Toast({
   description,
   icon,
   onClose,
+  duration = 5000,
   ...props
 }: ToastProps) {
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    if (duration <= 0 || !onClose) return;
+    const timer = setTimeout(() => {
+      setExiting(true);
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
+  useEffect(() => {
+    if (!exiting) return;
+    const timer = setTimeout(() => onClose?.(), 200);
+    return () => clearTimeout(timer);
+  }, [exiting, onClose]);
+
+  const handleClose = () => {
+    setExiting(true);
+  };
+
   return (
     <div
       role="alert"
       className={cn(
         "flex items-start gap-3 rounded-ui-lg border border-border bg-card p-4 shadow-ui-md",
-        "animate-fade-in",
+        exiting ? "animate-fade-out" : "animate-fade-in",
         className,
       )}
       {...props}
@@ -87,8 +112,8 @@ export function Toast({
       {onClose && (
         <button
           type="button"
-          onClick={onClose}
-          className="shrink-0 text-muted-foreground hover:text-foreground transition-colors duration-micro"
+          onClick={handleClose}
+          className="shrink-0 rounded-ui-sm text-muted-foreground hover:text-foreground transition-colors duration-micro focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Dismiss"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -105,6 +130,7 @@ export function Toast({
 export function ToastStack({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
+      aria-live="polite"
       className={cn("fixed bottom-4 right-4 z-[100] flex flex-col gap-2.5 max-w-sm w-full", className)}
       {...props}
     />

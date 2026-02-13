@@ -14,6 +14,7 @@ import { Card } from "../../ui/Card";
 import { EmptyState } from "../../ui/EmptyState";
 import { Page, PageHeader } from "../../ui/Page";
 import { SearchInput } from "../../ui/SearchInput";
+import { SegmentedControl } from "../../ui/SegmentedControl";
 import { StatusDot, type StatusDotStatus } from "../../ui/StatusDot";
 import { TableFrame, Table, TH, TD, TR } from "../../ui/Table";
 
@@ -132,28 +133,18 @@ export default async function MattersPage(props: {
               <button type="submit" className="sr-only">Search</button>
             </form>
 
-            <div className="flex flex-wrap gap-2">
-              {SAVED_VIEW_OPTIONS.map((option) => {
-                const isAll = option.value === null;
-                const isActive = isAll ? !filters.view : filters.view === option.value;
-                const nextView = isActive ? null : option.value;
-                const href = `/matters${buildQueryString({ ...filters, view: nextView }, 1)}`;
-                return (
-                  <Link
-                    key={option.value ?? "all"}
-                    href={href}
-                    aria-pressed={isActive}
-                    className={
-                      isActive
-                        ? "rounded-pill border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm transition-colors duration-micro ease-brand-standard"
-                        : "rounded-pill border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-micro ease-brand-standard hover:bg-muted hover:text-foreground"
-                    }
-                  >
-                    {option.label}
-                  </Link>
-                );
+            <SegmentedControl
+              options={SAVED_VIEW_OPTIONS.map((opt) => {
+                const value = opt.value ?? "all";
+                const nextView = value === "all" ? null : (value as MatterSavedView);
+                return {
+                  value,
+                  label: opt.label,
+                  href: `/matters${buildQueryString({ ...filters, view: nextView }, 1)}`,
+                };
               })}
-            </div>
+              value={filters.view ?? "all"}
+            />
           </div>
         </section>
 

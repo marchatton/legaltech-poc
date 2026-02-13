@@ -104,7 +104,7 @@
     --popover: 255 255 255;
     --popover-foreground: 26 26 26;
     --muted: 245 243 240;            /* #F5F3F0 — warm muted */
-    --muted-foreground: 122 117 110; /* #7A756E */
+    --muted-foreground: 95 90 84;    /* #5F5A54 — 4.5:1+ contrast */
 
     --primary: 251 99 27;            /* #FB631B */
     --primary-foreground: 255 255 255;
@@ -117,7 +117,7 @@
     --destructive-foreground: 255 255 255;
     --success: 45 138 95;
     --success-foreground: 255 255 255;
-    --warning: 212 146 11;
+    --warning: 178 120 8;            /* warning-600 — 4.5:1+ on light bg */
     --warning-foreground: 26 26 26;
     --info: 13 110 165;
     --info-foreground: 255 255 255;

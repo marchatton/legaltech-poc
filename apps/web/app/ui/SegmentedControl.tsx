@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useCallback, type KeyboardEvent } from "react";
 
 import { cn } from "./cn";
 
@@ -6,13 +9,13 @@ type SegmentedOption<T extends string> = {
   value: T;
   label: string;
   count?: number;
+  href?: string;
 };
 
 type Props<T extends string> = {
   options: SegmentedOption<T>[];
   value: T;
   onChange?: (value: T) => void;
-  href?: (value: T) => string;
   size?: "sm" | "md";
   className?: string;
 };
@@ -31,8 +34,39 @@ const sizeClasses: Record<"sm" | "md", { container: string; item: string; count:
 };
 
 export function SegmentedControl<T extends string>(props: Props<T>) {
-  const { options, value, onChange, href, size = "sm", className } = props;
+  const { options, value, onChange, size = "sm", className } = props;
   const s = sizeClasses[size];
+  const activeIdx = options.findIndex((o) => o.value === value);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const tabs = Array.from(
+        e.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]'),
+      );
+      if (!tabs.length) return;
+      let next = -1;
+      if (e.key === "ArrowRight") {
+        next = activeIdx < tabs.length - 1 ? activeIdx + 1 : 0;
+      } else if (e.key === "ArrowLeft") {
+        next = activeIdx > 0 ? activeIdx - 1 : tabs.length - 1;
+      } else if (e.key === "Home") {
+        next = 0;
+      } else if (e.key === "End") {
+        next = tabs.length - 1;
+      }
+      if (next >= 0) {
+        e.preventDefault();
+        const opt = options[next];
+        if (opt?.href) {
+          tabs[next]?.click();
+        } else {
+          onChange?.(opt.value);
+        }
+        tabs[next]?.focus();
+      }
+    },
+    [activeIdx, options, onChange],
+  );
 
   return (
     <div
@@ -42,11 +76,13 @@ export function SegmentedControl<T extends string>(props: Props<T>) {
         className,
       )}
       role="tablist"
+      onKeyDown={handleKeyDown}
     >
       {options.map((option) => {
         const isActive = option.value === value;
         const itemClass = cn(
           "inline-flex items-center gap-1.5 rounded-ui-md font-medium transition-all duration-micro ease-brand-standard",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           s.item,
           isActive
             ? "bg-card text-foreground font-semibold shadow-ui-sm"
@@ -68,13 +104,14 @@ export function SegmentedControl<T extends string>(props: Props<T>) {
             </span>
           ) : null;
 
-        if (href) {
+        if (option.href) {
           return (
             <Link
               key={option.value}
-              href={href(option.value)}
+              href={option.href}
               role="tab"
               aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
               className={itemClass}
             >
               {option.label}
@@ -89,6 +126,7 @@ export function SegmentedControl<T extends string>(props: Props<T>) {
             type="button"
             role="tab"
             aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
             onClick={() => onChange?.(option.value)}
             className={itemClass}
           >

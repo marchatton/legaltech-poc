@@ -291,7 +291,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
     <div className="flex flex-col bg-card border border-border rounded-ui-lg shadow-ui-sm overflow-hidden">
       {/* Header bar */}
       <div className="px-4 py-2.5 border-b border-border bg-muted/30 flex items-center gap-2">
-        <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" aria-hidden="true">
+        <div className="w-6 h-6 rounded-ui-md bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
@@ -322,7 +322,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
 
             return (
               <div key={m.id} className="grid gap-2 animate-fade-in">
-                <div className={`max-w-[80%] rounded-2xl border border-border px-4 py-3 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
+                <div className={`max-w-[80%] rounded-ui-2xl border border-border px-4 py-3 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
                   <div className="whitespace-pre-wrap text-sm leading-relaxed">
                     {m.content || (m.status === "sending" || m.status === "streaming" ? (
                       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
@@ -443,7 +443,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
           <button
             type="submit"
             disabled={!canSend}
-            className="flex size-[38px] shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground transition-opacity duration-micro disabled:opacity-40"
+            className="flex size-9 shrink-0 items-center justify-center rounded-ui-md bg-primary text-primary-foreground transition-opacity duration-micro disabled:opacity-40"
             aria-label="Send message"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">

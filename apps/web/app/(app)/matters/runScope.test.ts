@@ -104,12 +104,12 @@ describe("run scope helpers", () => {
   });
 
   it("publishes deterministic disabled reasons for non-completed runs", () => {
-    expect(exportDisabledReason({ runId: null, runStatus: null })).toBe("Export is disabled until a run exists.");
+    expect(exportDisabledReason({ runId: null, runStatus: null })).toBe("Run analysis first to enable exports.");
     expect(exportDisabledReason({ runId: "run_a", runStatus: "running" })).toBe(
-      "Export is disabled until the run completes (current: running).",
+      "Run must complete before exports are available (current: running).",
     );
     expect(exportDisabledReason({ runId: "run_b", runStatus: "failed" })).toBe(
-      "Export is disabled until the run completes (current: failed).",
+      "Run must complete before exports are available (current: failed).",
     );
     expect(exportDisabledReason({ runId: "run_c", runStatus: "completed" })).toBeNull();
   });

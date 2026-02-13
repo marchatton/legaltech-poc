@@ -10,6 +10,7 @@ import {
   emptyListPayloadV0,
 } from "@orbital-poc/core";
 import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import { anchorBoxToPolygons } from "@orbital-poc/core/geometry/anchors";
 
 import { chatModel } from "../lib/ai/gateway.server";
 import { MISSING_EVIDENCE_TEXT } from "../lib/chat/protocol";
@@ -288,6 +289,17 @@ function resolveAnchorPage(args: { pageStart: number | null; pageEnd: number | n
   return null;
 }
 
+const FULL_PAGE_BBOX = [0, 0, 1, 1] as const;
+
+function fallbackPagePolygons(pageNumber: number): unknown {
+  // Current ingest stores text chunks without per-snippet geometry, so we persist
+  // a deterministic page-level anchor instead of empty polygons.
+  return anchorBoxToPolygons({
+    page: pageNumber,
+    bbox: FULL_PAGE_BBOX,
+  });
+}
+
 function lockableEvidenceFromChunks(chunks: HydratedChunk[]): LockableEvidence[] {
   const out: LockableEvidence[] = [];
   for (const chunk of chunks) {
@@ -305,7 +317,7 @@ function lockableEvidenceFromChunks(chunks: HydratedChunk[]): LockableEvidence[]
         page_number: pageNumber,
         snippet,
         snippet_hash: hashSnippet(snippet),
-        polygons_json: [],
+        polygons_json: fallbackPagePolygons(pageNumber),
       },
     });
   }

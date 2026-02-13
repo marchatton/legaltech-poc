@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import Script from "next/script";
 
 import { isDemoModeEnabled } from "../lib/demoMode.server";
+import { orbitalMode } from "../lib/runtimeMode";
+import { resolveShellEnvironment } from "./(app)/matters/shellEnvironment";
 
 import "./globals.css";
 
@@ -17,6 +19,7 @@ export const metadata = {
 
 export default function RootLayout(props: { children: ReactNode }) {
   const demoEnabled = isDemoModeEnabled();
+  const shellEnv = resolveShellEnvironment(orbitalMode(), demoEnabled);
   const themeInitScript = `(() => {
   try {
     const t = localStorage.getItem("orbital-theme");
@@ -37,9 +40,12 @@ export default function RootLayout(props: { children: ReactNode }) {
         </Script>
       </head>
       <body className="min-h-dvh bg-background font-sans text-foreground">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-ui-md focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:shadow-md focus:ring-2 focus:ring-ring">
+          Skip to content
+        </a>
         <ThemeProvider>
           {demoEnabled ? (
-            <DemoToolbar />
+            <DemoToolbar environmentLabel={shellEnv.label} />
           ) : (
             <div className="sticky top-0 z-50 h-12 border-b border-border bg-card/95 backdrop-blur">
               <div className="mx-auto flex h-full w-full items-center justify-end px-4 lg:px-6">

@@ -28,9 +28,9 @@ export function exportDisabledReason(args: {
   runId: string | null;
   runStatus: string | null;
 }): string | null {
-  if (!args.runId) return "Export is disabled until a run exists.";
+  if (!args.runId) return "Run analysis first to enable exports.";
   if (!isExportRunEligible(args.runStatus)) {
-    return `Export is disabled until the run completes (current: ${args.runStatus ?? "unknown"}).`;
+    return `Run must complete before exports are available (current: ${args.runStatus ?? "unknown"}).`;
   }
   return null;
 }

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
-import { Alert } from "../../../ui/Alert";
 import { Button } from "../../../ui/Button";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { InlineStatus } from "../../../ui/InlineStatus";
@@ -154,7 +153,7 @@ export function ExportMemoButton(props: Props) {
   }
 
   return (
-    <div className="grid justify-items-center gap-2">
+    <div className="grid justify-items-center gap-2" title={disabled ?? undefined}>
       {state.kind === "blocked" ? (
         <ErrorBanner
           title="Export blocked"
@@ -234,12 +233,6 @@ export function ExportMemoButton(props: Props) {
       >
         Download (docx)
       </Button>
-
-      {disabled ? (
-        <Alert variant="info" className="text-left">
-          {disabled}
-        </Alert>
-      ) : null}
 
       {state.kind === "error" ? (
         <ErrorBanner

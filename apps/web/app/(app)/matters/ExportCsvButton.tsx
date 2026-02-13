@@ -115,13 +115,12 @@ export function ExportCsvButton(props: Props) {
   }
 
   return (
-    <div className="grid justify-items-center gap-2">
+    <div className="grid justify-items-center gap-2" title={disabled ?? undefined}>
       <Button
         variant="secondary"
         size="sm"
         onClick={run}
         disabled={Boolean(disabled)}
-        title={disabled ?? undefined}
         loading={state.kind === "loading"}
       >
         {props.label ?? "Export CSV"}

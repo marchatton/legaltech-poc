@@ -28,7 +28,7 @@ export type AccordionItemProps = Omit<HTMLAttributes<HTMLDetailsElement>, "child
 export function AccordionItem({ className, trigger, children, defaultOpen, ...props }: AccordionItemProps) {
   return (
     <details className={cn("group", className)} open={defaultOpen || undefined} {...props}>
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3.5 font-semibold text-sm text-foreground hover:bg-muted [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3.5 font-semibold text-sm text-foreground hover:bg-muted [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
         <span>{trigger}</span>
         <svg
           className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-standard ease-brand-standard group-open:rotate-180"
@@ -39,6 +39,7 @@ export function AccordionItem({ className, trigger, children, defaultOpen, ...pr
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-hidden="true"
         >
           <path d="m6 9 6 6 6-6" />
         </svg>

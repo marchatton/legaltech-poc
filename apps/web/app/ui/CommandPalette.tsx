@@ -6,13 +6,19 @@ import { cn } from "./cn";
 
 /* ── CommandPalette (outer shell) ── */
 
-export function CommandPalette({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export type CommandPaletteProps = HTMLAttributes<HTMLDivElement> & {
+  closing?: boolean;
+};
+
+export function CommandPalette({ className, closing, ...props }: CommandPaletteProps) {
   return (
     <div
       role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
       className={cn(
         "w-full max-w-[520px] overflow-hidden rounded-ui-xl border border-border bg-popover shadow-ui-lg",
-        "animate-fade-in",
+        closing ? "animate-fade-out" : "animate-fade-in",
         className,
       )}
       {...props}
@@ -30,6 +36,7 @@ export const CommandInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTM
         className={cn(
           "w-full border-0 border-b border-border bg-transparent px-5 py-4 text-base text-foreground outline-none",
           "placeholder:text-muted-foreground",
+          "focus-visible:ring-2 focus-visible:ring-ring",
           className,
         )}
         {...props}
@@ -52,7 +59,7 @@ export function CommandGroup({ heading, className, children, ...props }: Command
           {heading}
         </div>
       )}
-      {children}
+      <div role="listbox">{children}</div>
     </div>
   );
 }

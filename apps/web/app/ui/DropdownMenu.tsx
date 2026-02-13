@@ -1,18 +1,50 @@
-import type { HTMLAttributes } from "react";
+import { useCallback, type HTMLAttributes, type KeyboardEvent } from "react";
 
 import { cn } from "./cn";
 
 /* ── DropdownMenu (the menu container) ── */
 
-export function DropdownMenu({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export type DropdownMenuProps = HTMLAttributes<HTMLDivElement> & {
+  closing?: boolean;
+};
+
+export function DropdownMenu({ className, closing, onKeyDown, ...props }: DropdownMenuProps) {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      onKeyDown?.(e);
+      if (e.defaultPrevented) return;
+      const items = Array.from(
+        e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])'),
+      );
+      if (!items.length) return;
+      const current = items.indexOf(document.activeElement as HTMLElement);
+      let next = -1;
+      if (e.key === "ArrowDown") {
+        next = current < items.length - 1 ? current + 1 : 0;
+      } else if (e.key === "ArrowUp") {
+        next = current > 0 ? current - 1 : items.length - 1;
+      } else if (e.key === "Home") {
+        next = 0;
+      } else if (e.key === "End") {
+        next = items.length - 1;
+      }
+      if (next >= 0) {
+        e.preventDefault();
+        items[next].focus();
+      }
+    },
+    [onKeyDown],
+  );
+
   return (
     <div
       role="menu"
       className={cn(
         "min-w-[200px] rounded-ui-lg border border-border bg-popover p-1 shadow-ui-lg",
-        "animate-fade-in",
+        closing ? "animate-fade-out" : "animate-fade-in",
         className,
       )}
+      onKeyDown={handleKeyDown}
       {...props}
     />
   );
@@ -20,7 +52,7 @@ export function DropdownMenu({ className, ...props }: HTMLAttributes<HTMLDivElem
 
 /* ── DropdownItem ── */
 
-export type DropdownItemProps = HTMLAttributes<HTMLDivElement> & {
+export type DropdownItemProps = HTMLAttributes<HTMLButtonElement> & {
   destructive?: boolean;
   icon?: React.ReactNode;
   shortcut?: string;
@@ -37,12 +69,12 @@ export function DropdownItem({
   ...props
 }: DropdownItemProps) {
   return (
-    <div
+    <button
+      type="button"
       role="menuitem"
-      tabIndex={disabled ? -1 : 0}
-      aria-disabled={disabled}
+      disabled={disabled}
       className={cn(
-        "flex items-center gap-2 rounded-ui-md px-3 py-2 text-sm cursor-pointer",
+        "flex w-full items-center gap-2 rounded-ui-md px-3 py-2 text-sm text-left cursor-pointer",
         "transition-colors duration-micro ease-brand-standard",
         "hover:bg-muted",
         "focus-visible:outline-none focus-visible:bg-muted",
@@ -57,7 +89,7 @@ export function DropdownItem({
       {shortcut && (
         <span className="ml-auto font-mono text-2xs text-muted-foreground">{shortcut}</span>
       )}
-    </div>
+    </button>
   );
 }
 

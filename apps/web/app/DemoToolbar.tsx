@@ -19,7 +19,11 @@ function isRecord(val: unknown): val is Record<string, unknown> {
   return !!val && typeof val === "object" && !Array.isArray(val);
 }
 
-export function DemoToolbar() {
+type DemoToolbarProps = {
+  environmentLabel?: string;
+};
+
+export function DemoToolbar(props: DemoToolbarProps) {
   const router = useRouter();
   const [packId, setPackId] = useState<DemoPackId>(DEMO_PACK_ALLOWLIST[0]);
   const [state, setState] = useState<LoadState>({ kind: "idle" });
@@ -69,6 +73,11 @@ export function DemoToolbar() {
           DEMO MODE
         </span>
         <span className="text-sm font-medium text-muted-foreground">Operator Controls</span>
+        {props.environmentLabel ? (
+          <span className="rounded-ui-sm border border-border bg-muted px-2 py-0.5 font-mono text-2xs font-medium text-muted-foreground">
+            {props.environmentLabel}
+          </span>
+        ) : null}
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">Allowlisted packs</span>

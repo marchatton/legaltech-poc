@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { forwardRef, useId, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "./cn";
 
@@ -12,13 +12,15 @@ export type ToggleProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onChang
 
 export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
   function Toggle({ className, pressed, onPressedChange, label, ...props }, ref) {
+    const labelId = useId();
     return (
-      <label className={cn("inline-flex items-center gap-2 cursor-pointer text-sm", className)}>
+      <div className={cn("inline-flex items-center gap-2 cursor-pointer text-sm", className)}>
         <button
           ref={ref}
           type="button"
           role="switch"
           aria-checked={pressed}
+          aria-labelledby={label ? labelId : undefined}
           className={cn(
             "relative inline-flex h-6 w-11 shrink-0 items-center rounded-pill border-none cursor-pointer",
             "transition-colors duration-micro ease-brand-standard",
@@ -31,14 +33,14 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
         >
           <span
             className={cn(
-              "pointer-events-none block h-[18px] w-[18px] rounded-full bg-white shadow-ui-sm",
+              "pointer-events-none block h-[18px] w-[18px] rounded-full bg-card shadow-ui-sm",
               "transition-transform duration-standard ease-brand-standard",
               pressed ? "translate-x-[22px]" : "translate-x-[3px]",
             )}
           />
         </button>
-        {label}
-      </label>
+        {label ? <span id={labelId}>{label}</span> : null}
+      </div>
     );
   },
 );

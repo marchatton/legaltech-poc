@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useTheme, type Theme } from "./ThemeProvider";
 import { DropdownMenu } from "./DropdownMenu";
 import { cn } from "./cn";
+import { useClickOutside } from "./useClickOutside";
+import { useEscapeKey } from "./useEscapeKey";
 
 const options: { value: Theme; label: string }[] = [
   { value: "light", label: "Light" },
@@ -16,28 +18,10 @@ export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const close = useCallback(() => setOpen(false), []);
 
-  useEffect(() => {
-    if (!open) return;
-
-    function onDocumentClick(event: MouseEvent) {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (rootRef.current?.contains(target)) return;
-      setOpen(false);
-    }
-
-    function onEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("mousedown", onDocumentClick);
-    document.addEventListener("keydown", onEscape);
-    return () => {
-      document.removeEventListener("mousedown", onDocumentClick);
-      document.removeEventListener("keydown", onEscape);
-    };
-  }, [open]);
+  useClickOutside(rootRef, close);
+  useEscapeKey(close, open);
 
   const active = options.find((opt) => opt.value === theme) ?? options[1];
 
@@ -52,7 +36,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        aria-haspopup="menu"
+        aria-label="Theme"
+        aria-haspopup="true"
         aria-expanded={open}
         className={cn(
           "inline-flex items-center gap-2 rounded-pill border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-ui-sm transition-colors duration-micro ease-brand-standard hover:bg-muted",

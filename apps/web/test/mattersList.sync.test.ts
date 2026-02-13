@@ -21,9 +21,9 @@ describe("US-002 matters list controls and actions", () => {
     expect(source).toContain('name="state"');
     expect(source).toContain('name="view"');
     expect(source).toContain('value: "needs_attention"');
-    expect(source).toContain('aria-pressed={isActive}');
+    expect(source).toContain("<SegmentedControl");
     expect(source).toContain("buildQueryString({ ...filters, view: nextView }");
-    expect(source).toContain("href={href}");
+    expect(source).toContain("href: `/matters${buildQueryString({ ...filters, view: nextView }, 1)}`");
     expect(source).toContain("buildQueryString");
     expect(source).toContain("No matters matched the current filters.");
     expect(source).toContain("Reset filters");

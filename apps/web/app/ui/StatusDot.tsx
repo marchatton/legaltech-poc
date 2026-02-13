@@ -25,7 +25,11 @@ const sizeClasses: Record<StatusDotSize, string> = {
 
 export function StatusDot({ status, size = "xs", label, className }: StatusDotProps) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", className)}>
+    <span
+      className={cn("inline-flex items-center gap-1.5 text-xs font-medium", className)}
+      role="img"
+      aria-label={label ?? status}
+    >
       <span
         className={cn("shrink-0 rounded-full", sizeClasses[size], statusColorClasses[status])}
         aria-hidden="true"

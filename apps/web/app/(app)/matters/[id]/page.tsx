@@ -1,30 +1,23 @@
 import { z } from "zod";
 
-import Link from "next/link";
-
 import { assertDevOrDemoProd } from "../../../../lib/devOnly";
-import { ensureSchema, sql } from "../../../../lib/db.server";
-
 import {
   buildDocumentUploadCapabilities,
   deriveDocumentReadinessStatus,
-  type DocumentOcrStatus,
-  type DocumentParseStatus,
 } from "../../../../lib/documentSetup";
-import { createSignedGetHeaders, validateStorageKey } from "../../../../lib/objectStore.server";
 import {
   countReportRowsByTab,
   filterReportRowsByTab,
   parseReportTriageFilters,
-  type ReportTriageTab,
 } from "../../../../lib/reportTriage.server";
 import { deriveRunFailureEnvelope } from "../../../../lib/runFailureEnvelope";
 import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.server";
-import { Badge, type BadgeVariant } from "../../../ui/Badge";
+import { Alert } from "../../../ui/Alert";
+import { Badge } from "../../../ui/Badge";
 import { EmptyState } from "../../../ui/EmptyState";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
-
 import { ProgressBar } from "../../../ui/ProgressBar";
+import { SegmentedControl } from "../../../ui/SegmentedControl";
 import { StatePage } from "../../../ui/StatePage";
 import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
 import { firstSearchParamValue, resolveSelectedRunId, type RunSelectorOption } from "../runScope";
@@ -40,6 +33,32 @@ import {
   summarizeOperatorChecklist,
 } from "./operatorChecklist";
 import { ReportTriagePanel } from "./ReportTriagePanel";
+import {
+  ensureDbSchema,
+  fetchFolder,
+  fetchDocuments,
+  fetchLatestRun,
+  fetchRunOptions,
+  fetchRequestedRun,
+  fetchCompletedFallbackRun,
+  fetchReportRows,
+  fetchCitationIdsByRow,
+  renderDocUrl,
+  type ReportRowWithCounts,
+} from "./matterDetail.server";
+import {
+  type SearchParamRecord,
+  type MatterDetailTab,
+  MATTER_DETAIL_TAB_ORDER,
+  MATTER_DETAIL_TAB_LABELS,
+  REPORT_TRIAGE_TABS,
+  parseRunIdFilter,
+  reportTabHref,
+  parseDetailTab,
+  buildDetailTabHref,
+  matterStateBadgeVariant,
+  matterStatusLabel,
+} from "./matterDetailHelpers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,169 +66,6 @@ export const dynamic = "force-dynamic";
 const ParamsSchema = z.object({
   id: z.string().min(1),
 });
-
-type SearchParamRecord = Record<string, string | string[] | undefined>;
-
-type FolderRow = {
-  id: string;
-  name: string;
-  state: string;
-  latest_index_version: string;
-  jurisdiction_state: string | null;
-  created_at: Date;
-  updated_at: Date;
-};
-
-type DocRow = {
-  id: string;
-  filename: string;
-  storage_key: string | null;
-  upload_completed_at: Date | null;
-  parse_status: DocumentParseStatus;
-  ocr_status: DocumentOcrStatus;
-  page_count: number | null;
-  extraction_quality: number | null;
-  error_json: unknown | null;
-  created_at: Date;
-  folder_id: string;
-};
-
-type RunSummaryRow = {
-  id: string;
-  state: string;
-  agent_bundle_version: string | null;
-  questions_total: number;
-  questions_done: number;
-  error_json: unknown | null;
-  trace_id: string | null;
-  created_at: Date;
-  updated_at: Date;
-  started_at: Date | null;
-};
-
-type RunSelectorDbRow = {
-  id: string;
-  state: string;
-  created_at: Date;
-  updated_at: Date;
-};
-
-type ReportRow = {
-  id: string;
-  question_id: string;
-  question: string;
-  answer: string;
-  status: string;
-  notes: string | null;
-  provenance_json: unknown;
-  payload_schema_version: string | null;
-  payload_json: unknown;
-  updated_at: Date;
-};
-
-type ReportRowWithCounts = ReportRow & {
-  citation_count: number;
-  citation_ids: string[];
-};
-
-const RunIdSchema = z.string().trim().min(1).max(200);
-
-const REPORT_TRIAGE_TABS: Array<{ id: ReportTriageTab; label: string }> = [
-  { id: "all", label: "All" },
-  { id: "needs_review", label: "Needs Review" },
-  { id: "reviewed", label: "Reviewed" },
-  { id: "flagged", label: "Flagged" },
-];
-
-type MatterDetailTab = "report" | "documents" | "chat" | "exports";
-
-const MATTER_DETAIL_TAB_ORDER: MatterDetailTab[] = ["report", "documents", "chat", "exports"];
-const MATTER_DETAIL_TAB_LABELS: Record<MatterDetailTab, string> = {
-  report: "To-do",
-  documents: "Documents",
-  chat: "Chat",
-  exports: "Reports",
-};
-
-function firstString(value: string | string[] | undefined): string | undefined {
-  if (typeof value === "string") return value;
-  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
-  return undefined;
-}
-
-function parseRunIdFilter(searchParams: Record<string, string | string[] | undefined>): string | null {
-  const raw = firstString(searchParams.run_id);
-  if (!raw) return null;
-  const parsed = RunIdSchema.safeParse(raw);
-  return parsed.success ? parsed.data : null;
-}
-
-function reportTabHref(args: { folderId: string; runId: string | null; rowTab: ReportTriageTab }): string {
-  const params = new URLSearchParams();
-  if (args.runId) params.set("run_id", args.runId);
-  if (args.rowTab !== "all") params.set("row_tab", args.rowTab);
-  params.set("tab", "report");
-  const query = params.toString();
-  return query.length > 0 ? `/matters/${encodeURIComponent(args.folderId)}?${query}` : `/matters/${encodeURIComponent(args.folderId)}`;
-}
-
-function parseDetailTab(searchParams: SearchParamRecord): MatterDetailTab {
-  const raw = firstString(searchParams.tab);
-  if (!raw) return "report";
-  return MATTER_DETAIL_TAB_ORDER.includes(raw as MatterDetailTab) ? (raw as MatterDetailTab) : "report";
-}
-
-function buildDetailTabHref(args: {
-  folderId: string;
-  tab: MatterDetailTab;
-  rawSearchParams: SearchParamRecord;
-  reportRunId: string | null;
-}): string {
-  const params = new URLSearchParams();
-  const runId = firstString(args.rawSearchParams.run_id);
-  const rowTab = firstString(args.rawSearchParams.row_tab);
-  if (runId) params.set("run_id", runId);
-  if (rowTab && rowTab !== "all") params.set("row_tab", rowTab);
-  params.set("tab", args.tab);
-
-  if (args.tab === "report" && args.reportRunId && !params.get("run_id")) {
-    params.set("run_id", args.reportRunId);
-  }
-
-  const query = params.toString();
-  return query.length > 0 ? `/matters/${encodeURIComponent(args.folderId)}?${query}` : `/matters/${encodeURIComponent(args.folderId)}`;
-}
-
-function renderUrl(doc: DocRow): string | null {
-  if (!doc.storage_key || !doc.upload_completed_at) return null;
-  const keyValid = validateStorageKey(doc.storage_key);
-  if (!keyValid.ok) return null;
-
-  const signed = createSignedGetHeaders({ storageKey: doc.storage_key });
-  return `/documents/${encodeURIComponent(doc.id)}/pdf?${new URLSearchParams({
-    expires: String(signed.expires_at_ms),
-    sig: signed.signature,
-  }).toString()}`;
-}
-
-function matterStateBadgeVariant(args: {
-  readinessState: "runnable" | "blocked";
-  folderState: string;
-}): BadgeVariant {
-  if (args.readinessState === "runnable") return "success";
-  if (args.folderState === "failed") return "destructive";
-  return "warning";
-}
-
-function matterStatusLabel(args: {
-  readinessState: "runnable" | "blocked";
-  folderState: string;
-}): string {
-  if (args.readinessState === "runnable") return "Ready";
-  if (args.folderState === "failed") return "Needs Attention";
-  if (args.folderState === "ingesting") return "Processing";
-  return "Blocked";
-}
 
 function DocumentIcon() {
   return (
@@ -276,36 +132,17 @@ export default async function MatterPage(props: {
     return <StatePage title="Matter" message="Invalid route params." />;
   }
 
-  await ensureSchema();
+  await ensureDbSchema();
 
   const folderId = parsed.data.id;
-  const folders = await sql<FolderRow[]>`
-    SELECT id, name, state, latest_index_version, jurisdiction_state, created_at, updated_at
-    FROM folders
-    WHERE id = ${folderId}
-    LIMIT 1
-  `;
-  const folder = folders[0] ?? null;
+  const folder = await fetchFolder(folderId);
   if (!folder) {
     return <StatePage title="Matter" message="Matter not found." backHref="/matters" backLabel="Back to matters" />;
   }
 
-  const docs = await sql<DocRow[]>`
-    SELECT id, folder_id, filename, storage_key, upload_completed_at, parse_status, ocr_status, page_count, extraction_quality, error_json, created_at
-    FROM documents
-    WHERE folder_id = ${folderId}
-    ORDER BY created_at DESC
-  `;
+  const docs = await fetchDocuments(folderId);
+  const latestRun = await fetchLatestRun(folderId);
 
-  const runs = await sql<RunSummaryRow[]>`
-    SELECT id, state, agent_bundle_version, questions_total, questions_done, error_json, trace_id, created_at, updated_at, started_at
-    FROM runs
-    WHERE folder_id = ${folderId}
-      AND type = 'quick_start_title_survey'
-    ORDER BY created_at DESC, updated_at DESC, id DESC
-    LIMIT 1
-  `;
-  const latestRun = runs[0] ?? null;
   const checklistSignal = latestRun
     ? {
         state: latestRun.state,
@@ -322,15 +159,8 @@ export default async function MatterPage(props: {
   const reportRequestedRunId = parseRunIdFilter(rawSearchParams);
   const activeTab = parseDetailTab(rawSearchParams);
 
-  const exportRuns = await sql<RunSelectorDbRow[]>`
-    SELECT id, state, created_at, updated_at
-    FROM runs
-    WHERE folder_id = ${folderId}
-      AND type = 'quick_start_title_survey'
-    ORDER BY created_at DESC, updated_at DESC, id DESC
-    LIMIT 25
-  `;
-  const runOptions: RunSelectorOption[] = exportRuns.map((run) => ({
+  const exportRunRows = await fetchRunOptions(folderId);
+  const runOptions: RunSelectorOption[] = exportRunRows.map((run) => ({
     run_id: run.id,
     status: run.state,
     created_at: run.created_at.toISOString(),
@@ -344,28 +174,12 @@ export default async function MatterPage(props: {
   let reportRun = latestRun;
   let activeRun = latestRun;
   if (reportRequestedRunId && reportRequestedRunId !== latestRun?.id) {
-    const requestedRuns = await sql<RunSummaryRow[]>`
-      SELECT id, state, agent_bundle_version, questions_total, questions_done, error_json, trace_id, created_at, updated_at, started_at
-      FROM runs
-      WHERE id = ${reportRequestedRunId}
-        AND folder_id = ${folderId}
-        AND type = 'quick_start_title_survey'
-      LIMIT 1
-    `;
-    reportRun = requestedRuns[0] ?? latestRun;
+    const requested = await fetchRequestedRun(reportRequestedRunId, folderId);
+    reportRun = requested ?? latestRun;
     activeRun = reportRun;
   } else if (!reportRequestedRunId && latestRun && latestRun.state !== "completed") {
-    const fallbackRuns = await sql<RunSummaryRow[]>`
-      SELECT id, state, agent_bundle_version, questions_total, questions_done, error_json, trace_id, created_at, updated_at, started_at
-      FROM runs
-      WHERE folder_id = ${folderId}
-        AND type = 'quick_start_title_survey'
-        AND state = ${"completed"}
-      ORDER BY created_at DESC, updated_at DESC, id DESC
-      LIMIT 1
-    `;
-    const fallbackRun = fallbackRuns[0] ?? null;
-    if (fallbackRun && fallbackRun.id !== latestRun.id) reportRun = fallbackRun;
+    const fallback = await fetchCompletedFallbackRun(folderId);
+    if (fallback && fallback.id !== latestRun.id) reportRun = fallback;
   }
 
   const reportRunFailure = reportRun
@@ -386,29 +200,9 @@ export default async function MatterPage(props: {
     : null;
   const showingCompletedHistory = Boolean(activeRunFailure && activeRun && reportRun && activeRun.id !== reportRun.id);
 
-  const reportRows = reportRun
-    ? await sql<ReportRow[]>`
-        SELECT id, question_id, question, answer, status, notes, provenance_json, payload_schema_version, payload_json, updated_at
-        FROM report_rows
-        WHERE run_id = ${reportRun.id}
-        ORDER BY created_at ASC, question_id ASC
-      `
-    : [];
+  const reportRows = reportRun ? await fetchReportRows(reportRun.id) : [];
   const reportRowIds = reportRows.map((row) => row.id);
-  const reportCitations = reportRowIds.length
-    ? await sql<Array<{ report_row_id: string; citation_id: string }>>`
-        SELECT report_row_id, id AS citation_id
-        FROM citations
-        WHERE report_row_id = ANY(${reportRowIds})
-        ORDER BY report_row_id ASC, id ASC
-      `
-    : [];
-  const citationIdsByRow = new Map<string, string[]>();
-  for (const item of reportCitations) {
-    const existing = citationIdsByRow.get(item.report_row_id);
-    if (existing) existing.push(item.citation_id);
-    else citationIdsByRow.set(item.report_row_id, [item.citation_id]);
-  }
+  const citationIdsByRow = await fetchCitationIdsByRow(reportRowIds);
   const reportRowsWithCounts: ReportRowWithCounts[] = reportRows.map((row) => ({
     ...row,
     citation_count: citationIdsByRow.get(row.id)?.length ?? 0,
@@ -440,7 +234,7 @@ export default async function MatterPage(props: {
     page_count: doc.page_count,
     error_json: doc.error_json,
     created_at: doc.created_at.toISOString(),
-    open_pdf_url: renderUrl(doc),
+    open_pdf_url: renderDocUrl(doc),
   }));
   const indexedReadyCount = setupDocuments.reduce(
     (count, doc) => (doc.status === "indexed-ready" ? count + 1 : count),
@@ -455,10 +249,7 @@ export default async function MatterPage(props: {
   });
   const runnable = canonicalReadiness.state === "runnable";
   const chatContextReady = runnable && indexedReadyCount > 0;
-  const chatContextGuidance =
-    indexedReadyCount === 0
-      ? "Upload a PDF and refresh readiness to enable chat."
-      : "Waiting for matter to reach ready state.";
+  const chatContextGuidance = canonicalReadiness.reason;
   const quickStartReadiness: QuickStartReadiness =
     canonicalReadiness.state !== "runnable"
       ? {
@@ -589,6 +380,12 @@ export default async function MatterPage(props: {
                   );
                 })}
               </ol>
+
+              {quickStartReadiness.state === "blocked" ? (
+                <Alert variant="warning" title="Action required" className="mt-4">
+                  {quickStartReadiness.reason}
+                </Alert>
+              ) : null}
             </div>
 
             {reportRun ? (
@@ -619,39 +416,19 @@ export default async function MatterPage(props: {
                   </ErrorBanner>
                 ) : null}
 
-                <div className="flex flex-wrap items-center gap-2" aria-label="Report row status tabs">
-                  {REPORT_TRIAGE_TABS.map((tab) => {
-                    const isActive = triageFilters.rowTab === tab.id;
-                    return (
-                      <Link
-                        key={tab.id}
-                        href={reportTabHref({
-                          folderId,
-                          runId: reportRun?.id ?? null,
-                          rowTab: tab.id,
-                        })}
-                        aria-current={isActive ? "page" : undefined}
-                        className={
-                          isActive
-                            ? "inline-flex items-center gap-2 rounded-pill border border-primary bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                            : "inline-flex items-center gap-2 rounded-pill border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-micro ease-brand-standard"
-                        }
-                      >
-                        <span>{tab.label}</span>
-                        <span
-                          className={
-                            isActive
-                              ? "rounded-pill bg-primary-foreground/20 px-1.5 py-0.5 text-2xs font-semibold tabular-nums"
-                              : "rounded-pill bg-muted px-1.5 py-0.5 text-2xs font-semibold text-muted-foreground tabular-nums"
-                          }
-                        >
-                          {reportRowCounts[tab.id]}
-                        </span>
-                      </Link>
-                    );
-                  })}
-
-                </div>
+                <SegmentedControl
+                  options={REPORT_TRIAGE_TABS.map((tab) => ({
+                    value: tab.id,
+                    label: tab.label,
+                    count: reportRowCounts[tab.id],
+                    href: reportTabHref({
+                      folderId,
+                      runId: reportRun?.id ?? null,
+                      rowTab: tab.id,
+                    }),
+                  }))}
+                  value={triageFilters.rowTab}
+                />
 
                 {reportRowsWithCounts.length === 0 ? (
                   <EmptyState

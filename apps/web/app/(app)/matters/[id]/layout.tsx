@@ -7,9 +7,7 @@ import Link from "next/link";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { isDemoModeEnabled } from "../../../../lib/demoMode.server";
 import { orbitalMode } from "../../../../lib/runtimeMode";
-
 import { Badge } from "../../../ui/Badge";
-
 import { resolveShellEnvironment } from "../shellEnvironment";
 
 const ParamsSchema = z.object({
@@ -73,7 +71,7 @@ export default async function MatterDetailLayout(props: {
         </div>
       </div>
 
-      <main className="flex-1 overflow-auto">{props.children}</main>
+      <main id="main-content" className="flex-1 overflow-auto">{props.children}</main>
     </>
   );
 }
