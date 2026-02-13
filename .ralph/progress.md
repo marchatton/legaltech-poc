@@ -1181,3 +1181,41 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - `dev-browser` must be launched with `./server.sh --headless` in this Sprite VM (no X server).
 ---
+## [2026-02-13 01:39:25 UTC] - US-003: Setup and readiness failure UX is explicit
+Thread: 
+Run: 20260213-005806-15124 (iteration 3)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-3.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: a6ccf91 fix(setup-documents): add explicit failure retries
+- Post-commit status: clean
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/setupDocuments.sync.test.ts -> PASS
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> FAIL (flaky `test/foldersRunsRoute.wdk.int.test.ts` saw `running` vs `completed` once)
+  - Command: pnpm test (rerun per guardrail) -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -p 3101 + cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (injected completion/readiness failure browser smoke with retry actions) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(app)/matters/[id]/SetupDocumentsPanel.tsx
+  - apps/web/test/setupDocuments.sync.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Added deterministic setup/readiness failure mapping in `SetupDocumentsPanel` for upload init, upload PUT, upload complete, and readiness recompute failures.
+  - Added explicit recovery actions and labels (`Retry upload`, `Retry completion`, `Retry refresh`) and wired retry handlers to the correct operation.
+  - Added explicit refresh loading state and bounded polling outcomes so failures are surfaced instead of silently ending in ambiguous state.
+  - Preserved correctness for completion-failure path by only applying completion status after successful completion response; failures keep explicit error state with retry.
+  - Expanded US-003 sync tests to lock failure-code/recovery wiring and bounded loading behavior.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Persisting retry context (`File`, completion payload) enables precise retries instead of dismiss-only errors.
+  - Gotchas encountered
+  - `pnpm test` can intermittently fail `foldersRunsRoute.wdk.int.test.ts`; rerun per guardrail until one clean pass.
+  - Useful context
+  - Browser smoke for this flow can be made deterministic by intercepting `/documents/*/complete` and `/folders/*/documents` once to force failure envelopes and then validating retry recovery.
+---
