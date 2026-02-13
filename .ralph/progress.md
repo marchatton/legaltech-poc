@@ -1475,3 +1475,38 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - `smoke:nightly` now combines `fixture:eval:all` with the pack 09 operator path test, covering both data-pack gates and demo operator contract in one tier entrypoint.
 ---
+## [2026-02-13 03:17 UTC] - US-010: Overnight loop recovery and checkpoint resume
+Thread: 
+Run: 20260213-005806-15124 (iteration 10)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-10.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-10.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 8bce614 feat(overnight-loop): add checkpoint resume halt logic
+- Post-commit status: `clean`
+- Verification:
+  - Command: `pnpm --filter @orbital-poc/web test -- test/overnightLoopCheckpoint.test.ts` -> PASS
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - apps/web/lib/overnightLoopCheckpoint.server.ts
+  - apps/web/test/overnightLoopCheckpoint.test.ts
+- What was implemented
+  - Added `runOvernightStoryLoop` orchestration with structured checkpoint persistence after each completed story, including run context tags (`story_id`, `stage`).
+  - Added structured failure checkpoint persistence (`status=failed`, failure metadata, `haltBeforeStoryId`, `resumeStoryId`) so contract-breaking failures stop downstream execution deterministically.
+  - Added resume controls that block auto-continue after upstream failure unless `resumeFromCheckpoint` is explicitly set.
+  - Added US-010 tests covering per-story checkpoint writes, report-stage failure halting before export, negative no-auto-continue behavior, and explicit checkpoint resume.
+  - Security/performance/regression audit: no secret exposure paths introduced, checkpoint logic is O(n) over story count with bounded file writes, and changes are isolated to new module/tests with full gate coverage.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - A small typed checkpoint contract (`completed` vs `failed`) plus explicit `resumeStoryId` keeps recovery behavior deterministic and testable.
+  - Gotchas encountered
+  - Filtering Vitest with `-- test/file` still ran the full suite in this workspace, so plan for full-suite runtime even for focused checks.
+  - Useful context
+  - `blocked_by_existing_failure` is an effective guardrail state to prevent accidental downstream execution until an explicit resume decision is made.
+---
