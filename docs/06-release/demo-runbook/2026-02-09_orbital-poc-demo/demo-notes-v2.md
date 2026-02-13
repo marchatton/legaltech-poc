@@ -27,12 +27,7 @@ I also wanted to see how far I could push a shipping workflow with current model
 
 This project was primarily a learning vehicle, but with practical output.
 
-My core responsibility is still creating value for users and the company. The way that happens is changing:
-
-1. Less value from typing code line-by-line.
-2. More value from shaping systems, prompting well, enforcing quality bars, and shipping outcomes.
-
-I am not claiming an engineer title shift here. I am saying the work mix is changing, and I am intentionally building capability in that direction.
+My core responsibility is still creating value for users and the company. I know engineers are feeling disruption with soon engineers not hand writing code (already a large way there). That said I am not claiming to being able to fully shipping production grade performant scalable and secure systems. 
 
 ## 4) Build stats (30 sec)
 
@@ -70,8 +65,8 @@ I also used the Compound engineering workflow (`compound-docs`) to consolidate s
 
 ### Stack decisions that held up
 
-1. Native Claude for design system exploration/iteration.
-2. Vercel AI Gateway for chat model routing and consistency.
+1. Vercel AI Gateway for chat model routing and consistency.
+2. Workflow Dev Kit for durable workflows and state management.
 3. Azure Document Intelligence for document/layout handling in the doc pipeline.
 
 ## 7) Close (30 sec)

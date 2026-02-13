@@ -210,3 +210,42 @@ Non-blocking caveat observed:
 
 Go/No-Go decision:
 1. GO for demo-readiness in current fallback-chat mode.
+
+### 2026-02-13 — Post-GO follow-ups (chip sync + live-model smoke)
+Status: complete.
+
+1) Report chip sync fix (non-blocking caveat resolved):
+1. Root cause: report tab chips/counters were server-derived while row status changes were client-local optimistic state.
+2. Fix applied in `apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx`:
+   - after successful `mark_reviewed`, call `router.refresh()` to re-sync server-rendered counters.
+3. Verification:
+   - Before action: `Needs Review 8`, `Reviewed 1`.
+   - After `Mark reviewed` on TS-02 (no manual reload): `Needs Review 7`, `Reviewed 2`.
+
+2) Live-model chat smoke with API key:
+1. Confirmed key presence in `apps/web/.env.local` (non-empty).
+2. Launched temporary server with key loaded on `http://localhost:3102`.
+3. Direct chat endpoint probe:
+   - `POST /folders/fld_d8e9f884-81ce-49f3-920e-9ac6d9dc565d/chat`
+   - prompt: `Who is the Proposed Insured?`
+4. Result proved non-fallback model path:
+   - tokenized answer returned: `...18W18 Acquisition LLC...`
+   - `sources` array returned with ready anchors (non-empty), then `done`.
+
+3) Commit-scope decision from dirty tree (recommended):
+1. Commit now (this follow-up scope):
+   - `apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx`
+   - `docs/98-tmp/demo-readiness-recovery-plan_2026-02-13.md`
+2. Keep separate (prior demo-readiness branch work, already validated):
+   - `apps/web/app/(api)/folders/[id]/chat/route.ts`
+   - `apps/web/lib/chat.routes.test.ts`
+   - `apps/web/lib/quickStartRunProcessor.server.ts`
+   - `apps/web/steps/quickStartWriteRowV0.step.server.ts`
+   - `apps/web/test/reportRowsFromStepOutputs.int.test.ts`
+   - `apps/web/test/realDataWorkflows.e2e.int.test.ts`
+   - `docs/04-projects/02-features/0007_demo-prod-deploy/runbook.md`
+   - `docs/98-tmp/evidence/golden1_exports.png`
+   - `docs/98-tmp/evidence/golden2_exports.png`
+   - `docs/98-tmp/handoffs/handoff_2026-02-13_11-49-42_demo-readiness-next-steps.md`
+3. Exclude from commit (runtime/local artifacts):
+   - `apps/web/.next-dev.lock`
