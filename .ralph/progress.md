@@ -1219,3 +1219,50 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - Browser smoke for this flow can be made deterministic by intercepting `/documents/*/complete` and `/folders/*/documents` once to force failure envelopes and then validating retry recovery.
 ---
+## [2026-02-13 01:54 UTC] - US-004: Run lifecycle state machine is deterministic
+Thread: 
+Run: 20260213-005806-15124 (iteration 4)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-4.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 22ea737 fix(run-lifecycle): enforce deterministic transitions
+- Post-commit status: `clean`
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/runLifecycleStateMachine.int.test.ts test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/ingestDocumentWorkflow.int.test.ts test/ingestDocumentStepIdempotency.int.test.ts test/ingestDocumentTimeout.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint && pnpm typecheck && pnpm test && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm dev -p 3101 -> PASS
+  - Command: curl -I --max-time 10 http://127.0.0.1:3101 -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/app/(api)/runs/[id]/route.ts
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/lib/db/schema/core.server.ts
+  - apps/web/lib/quickStartRunProcessor.server.ts
+  - apps/web/lib/runLifecycle.server.ts
+  - apps/web/steps/ingestDocumentProcess.step.server.ts
+  - apps/web/steps/quickStartWriteRowV0.step.server.ts
+  - apps/web/steps/wdkSmokeDone.step.server.ts
+  - apps/web/test/foldersRunsRoute.wdk.int.test.ts
+  - apps/web/test/runLifecycleStateMachine.int.test.ts
+  - apps/web/workflows/ingestDocumentWorkflow.server.ts
+  - apps/web/workflows/wdkSmokeWorkflow.server.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Added a canonical run lifecycle helper with explicit allowed transitions, terminal-state immutability, and transition-time metadata support.
+  - Extended run schema/backfill to use `queued` as the initial state and persist `queued_at`, `started_at`, and `completed_at` timestamps.
+  - Updated run creation/workflow paths to transition `queued -> running` deterministically before execution and to fail safely on schedule errors.
+  - Updated run processors/steps to use guarded transitions so terminal runs do not regress to non-terminal states under retries or races.
+  - Exposed run transition timestamps from `GET /api/runs/:id` and added integration coverage for transition graph and terminal immutability.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - A dedicated transition helper keeps state-graph enforcement consistent across APIs, workers, and workflow entry points.
+  - Gotchas encountered
+  - Idempotent workflow retries can encounter queued/running/terminal existing runs; transition handling must treat some non-success outcomes as expected no-ops.
+  - Useful context
+  - Existing flaky `foldersRunsRoute.wdk.int.test.ts` behavior remained stable in this run after lifecycle changes, but repeated test rerun guidance in guardrails is still relevant.
+---
