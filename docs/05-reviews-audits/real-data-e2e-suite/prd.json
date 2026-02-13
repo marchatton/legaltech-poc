@@ -1,0 +1,531 @@
+{
+  "version": 1,
+  "project": "Real-Data E2E Overnight Consolidated Loop (A -> B -> C)",
+  "overview": "Consolidated large-scope PRD for unattended overnight execution that closes Loop A readiness, Loop B run/report contracts, and Loop C trust/citation/export contracts in one sequential dependency chain, with added recovery checkpoints, concurrency safety, and parity drift detection.",
+  "goals": [
+    "Eliminate contradictory readiness, run, report, citation, and export states across UI and API surfaces.",
+    "Preserve strict fail-closed trust/export behavior while improving operator reliability.",
+    "Keep overnight execution deterministic, resumable, and observable."
+  ],
+  "nonGoals": [
+    "Loop D and broader P1/P2 review/chat/resilience scope.",
+    "Production rollout for these workflows in this cycle.",
+    "Broad pack allowlist expansion beyond pack_09_bad_citation.",
+    "Dedicated telemetry dashboard buildout or separate copy-spec project in this phase."
+  ],
+  "successMetrics": [
+    "A->B->C contract chain is stable under real-data packs with deterministic state transitions.",
+    "No unresolved planning questions remain for this consolidated overnight loop.",
+    "pack_09_bad_citation fail-closed behavior is operator-reachable and covered in PR/nightly smoke tiers.",
+    "Overnight runs can halt and resume without replaying completed stages."
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Next.js App Router + TypeScript",
+    "hosting": "Local dev and demo-prod operator surfaces",
+    "database": "Postgres",
+    "auth": "Existing mode and route gating, no auth model changes in this slice"
+  },
+  "routes": [
+    {
+      "path": "/matters",
+      "name": "Matters list",
+      "purpose": "Entry and readiness state visibility"
+    },
+    {
+      "path": "/matters/[id]",
+      "name": "Matter detail",
+      "purpose": "Setup, readiness, run progress, and report access"
+    },
+    {
+      "path": "/api/folders/[id]/runs",
+      "name": "Run start API",
+      "purpose": "Readiness-gated run creation with idempotency controls"
+    },
+    {
+      "path": "/api/runs/[id]",
+      "name": "Run status API",
+      "purpose": "Deterministic state progression and terminal outcomes"
+    },
+    {
+      "path": "/api/folders/[id]/report",
+      "name": "Report API",
+      "purpose": "Run-scoped report rows sourced from real step outputs"
+    },
+    {
+      "path": "/api/citations/[id]",
+      "name": "Citation API",
+      "purpose": "Success-or-typed-failure citation outcome"
+    },
+    {
+      "path": "/api/documents/[id]/render",
+      "name": "Document render API",
+      "purpose": "Citation evidence render contract"
+    },
+    {
+      "path": "/api/documents/[id]/pdf",
+      "name": "Document PDF API",
+      "purpose": "Citation evidence PDF contract"
+    },
+    {
+      "path": "/api/export/csv",
+      "name": "Export API",
+      "purpose": "Strict fail-closed export gating"
+    },
+    {
+      "path": "/api/demo/load-pack",
+      "name": "Load-pack API",
+      "purpose": "Operator allowlist including pack_09_bad_citation"
+    },
+    {
+      "path": "/matters/viewer",
+      "name": "Citation viewer",
+      "purpose": "Explicit citation success/failure UX"
+    }
+  ],
+  "uiNotes": [
+    "Blocked readiness and blocked export states must include actionable next-step copy.",
+    "Error states are deterministic and never silent.",
+    "Invalid citations must not show stale highlight overlays.",
+    "Concurrent run-start attempts must render explicit duplicate or in-progress feedback."
+  ],
+  "dataModel": [
+    {
+      "entity": "Folder",
+      "fields": [
+        "id",
+        "name",
+        "readiness_state",
+        "readiness_reason"
+      ]
+    },
+    {
+      "entity": "Document",
+      "fields": [
+        "id",
+        "folder_id",
+        "status",
+        "parse_status",
+        "ocr_status",
+        "error_json"
+      ]
+    },
+    {
+      "entity": "Run",
+      "fields": [
+        "id",
+        "folder_id",
+        "state",
+        "started_at",
+        "completed_at",
+        "error_code",
+        "safety_state"
+      ]
+    },
+    {
+      "entity": "ReportRow",
+      "fields": [
+        "id",
+        "run_id",
+        "question_id",
+        "status",
+        "payload_schema_version",
+        "payload_json"
+      ]
+    },
+    {
+      "entity": "Citation",
+      "fields": [
+        "id",
+        "document_id",
+        "page_number",
+        "snippet_hash",
+        "status",
+        "failure_code"
+      ]
+    },
+    {
+      "entity": "Artefact",
+      "fields": [
+        "id",
+        "run_id",
+        "kind",
+        "safe",
+        "download_url"
+      ]
+    },
+    {
+      "entity": "OvernightCheckpoint",
+      "fields": [
+        "id",
+        "story_id",
+        "status",
+        "run_context_json",
+        "created_at"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Fixture and operator execution is pack-driven via docs/08-example-data with allowlisted pack IDs and expected trust/fail-closed outcomes.",
+    "example": {
+      "pack_id": "pack_09_bad_citation",
+      "expected_citation_outcome": "typed_failure",
+      "expected_export_outcome": "EXPORT_BLOCKED"
+    }
+  },
+  "rules": [
+    "Story order is mandatory and sequential: US-001 through US-012.",
+    "Readiness contract decisions land before run/report changes.",
+    "Run/report contract decisions land before trust/export changes.",
+    "Run polling cadence is fixed to 2s for queued/running states and stops at terminal states.",
+    "No compatibility shim for placeholder-row consumers is introduced.",
+    "pack_09_bad_citation smoke checks run in PR and nightly tiers.",
+    "On upstream contract failure, loop halts and writes checkpoint before any downstream story executes."
+  ],
+  "qualityGates": [
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Canonical readiness contract across list/detail/API",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As an operator, I want readiness states to match across list, detail, and run-start APIs so I can trust whether a matter is runnable.",
+      "acceptanceCriteria": [
+        "Given pack_01_clean, readiness is runnable across list, detail, and API surfaces.",
+        "Given pack_02_missing_rea, readiness is blocked with explicit reason across list, detail, and API surfaces.",
+        "Example: run-start denial reason codes match blocked readiness reason text shown in UI.",
+        "Negative: UI never shows ready while run-start API denies missing prerequisites."
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Quick Start readiness gate is deterministic",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want Quick Start to start only when readiness is runnable so blocked contexts fail loudly.",
+      "acceptanceCriteria": [
+        "Quick Start enablement is derived only from canonical readiness state.",
+        "Blocked readiness shows actionable reason and never enqueues a run.",
+        "Example: fixing missing prerequisites transitions blocked to runnable and enables Quick Start.",
+        "Negative: blocked start attempts cannot silently enqueue runs."
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Setup and readiness failure UX is explicit",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As an operator, I want setup failures surfaced clearly so recovery is obvious.",
+      "acceptanceCriteria": [
+        "Upload/init/complete and readiness recomputation failures render deterministic errors with recovery actions.",
+        "Example: upload completion failure shows retry and does not mark readiness complete.",
+        "Negative: setup failures are never hidden behind indefinite loading states."
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Run lifecycle state machine is deterministic",
+      "status": "open",
+      "dependsOn": [
+        "US-002",
+        "US-003"
+      ],
+      "description": "As an operator, I want run transitions to be stable so downstream behavior is trustworthy.",
+      "acceptanceCriteria": [
+        "Runs follow allowed transitions only and terminal states are immutable.",
+        "Example: successful run transitions queued to running to completed with transition timestamps.",
+        "Negative: terminal runs never regress to non-terminal states."
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Report rows are sourced from real step outcomes",
+      "status": "open",
+      "dependsOn": [
+        "US-004"
+      ],
+      "description": "As a reviewer, I want report rows to reflect real run outputs so triage is accurate.",
+      "acceptanceCriteria": [
+        "Report rows are generated from persisted run step outputs for the selected run.",
+        "Example: pack_05_partial_release row statuses remain stable across reloads for the same run.",
+        "Negative: seeded fallback rows are not emitted for successful real-data runs."
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Run and report failure envelopes are explicit and safe",
+      "status": "open",
+      "dependsOn": [
+        "US-005"
+      ],
+      "description": "As an operator, I want typed failure envelopes so recovery actions are clear and safe.",
+      "acceptanceCriteria": [
+        "Run/report failures expose deterministic typed envelopes and recoverable UI states.",
+        "Example: failed active run shows typed error while preserving prior completed-run history.",
+        "Negative: failed runs must not show stale success rows."
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Citation outcomes are explicit success or typed failure",
+      "status": "open",
+      "dependsOn": [
+        "US-006"
+      ],
+      "description": "As a reviewer, I want citation requests to return auditable outcomes so trust checks are deterministic.",
+      "acceptanceCriteria": [
+        "Citation/render/pdf paths return valid payloads or typed failures.",
+        "Example: valid citation opens expected document page and trust metadata.",
+        "Negative: invalid citations never appear as ambiguous success or stale overlays."
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Export fail-closed behavior is strict and observable",
+      "status": "open",
+      "dependsOn": [
+        "US-007"
+      ],
+      "description": "As an operator, I want blocked exports enforced deterministically so unsafe outputs cannot leak.",
+      "acceptanceCriteria": [
+        "Export route enforces EXPORT_BLOCKED when trust or safety preconditions fail.",
+        "Example: pack_09_bad_citation produces blocked export with explicit reason and no download.",
+        "Negative: blocked or incomplete runs never produce signed download links."
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Demo-prod pack_09 allowlist and PR/nightly smoke",
+      "status": "open",
+      "dependsOn": [
+        "US-008"
+      ],
+      "description": "As a demo operator, I want pack_09_bad_citation available in toolbar flow so fail-closed scenarios are operator-reachable.",
+      "acceptanceCriteria": [
+        "Load-pack API and toolbar include pack_09_bad_citation.",
+        "PR and nightly smoke include pack_09 operator path checks.",
+        "Example: operator selects pack 09, runs flow, and observes blocked export contract.",
+        "Negative: non-allowlisted arbitrary pack IDs remain validation-rejected."
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Overnight loop recovery and checkpoint resume",
+      "status": "open",
+      "dependsOn": [
+        "US-009"
+      ],
+      "description": "As an on-call operator, I want the overnight loop to stop safely and resume from checkpoint so failures do not corrupt downstream contracts.",
+      "acceptanceCriteria": [
+        "Loop persists checkpoint after each completed story with run context.",
+        "On contract-breaking failure, loop halts before downstream stories and writes structured failure checkpoint.",
+        "Example: failure at report stage halts before export stage and stores resume pointer.",
+        "Negative: loop never auto-continues into downstream stories after upstream failure."
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Run-start idempotency and concurrency guardrails",
+      "status": "open",
+      "dependsOn": [
+        "US-010"
+      ],
+      "description": "As an operator, I want duplicate start actions to be safely de-duped so concurrent clicks or retries do not create conflicting runs.",
+      "acceptanceCriteria": [
+        "Run-start endpoint enforces idempotency key or equivalent lock semantics per matter context.",
+        "Concurrent requests for same runnable context produce one canonical run and explicit duplicate response behavior.",
+        "Example: double-triggered Quick Start yields one run id and one informative duplicate response.",
+        "Negative: concurrent starts never create multiple active runs for the same context."
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "Cross-surface parity drift detection and telemetry taxonomy",
+      "status": "open",
+      "dependsOn": [
+        "US-011"
+      ],
+      "description": "As an engineering lead, I want parity checks and canonical telemetry tags so A->B->C drift is detected early.",
+      "acceptanceCriteria": [
+        "Parity checks compare list/detail/run/report/export outputs for the same run context.",
+        "Telemetry tags use canonical fields stage, story_id, pack_id, and run_id across all loop surfaces.",
+        "Example: readiness parity mismatch fails verification and identifies exact stage and story.",
+        "Negative: smoke runs never pass when readiness_state_mismatch_detected is above zero."
+      ]
+    }
+  ],
+  "executionMode": {
+    "type": "single_loop_sequential",
+    "intent": "overnight_unattended",
+    "existingCodebase": true,
+    "commandTemplate": "ralph build 1 --agent=codex --prd docs/05-reviews-audits/real-data-e2e-suite/prd.json --no-commit",
+    "ordering": [
+      "US-001",
+      "US-002",
+      "US-003",
+      "US-004",
+      "US-005",
+      "US-006",
+      "US-007",
+      "US-008",
+      "US-009",
+      "US-010",
+      "US-011",
+      "US-012"
+    ]
+  },
+  "enhancementSummary": {
+    "deepenedOn": "2026-02-13",
+    "sectionsEnhanced": [
+      "Execution Mode",
+      "User Stories",
+      "Functional Requirements",
+      "Verification Plan",
+      "Deployment Verification"
+    ],
+    "keyImprovements": [
+      "Added overnight recovery and checkpoint resume story US-010.",
+      "Added concurrency/idempotency guardrails story US-011.",
+      "Added parity drift detection and telemetry taxonomy story US-012."
+    ]
+  },
+  "inScope": [
+    "Loop A readiness and Quick Start gating closure.",
+    "Loop B run lifecycle and report contract closure.",
+    "Loop C citation, trust, export, and pack_09 operator allowlist closure.",
+    "Recovery and resumability for unattended overnight execution.",
+    "Concurrency safety and parity drift detection across surfaces."
+  ],
+  "functionalRequirements": [
+    "FR-001: Canonical readiness reason model shared across list, detail, and run-start surfaces.",
+    "FR-002: Quick Start gating derives solely from canonical readiness state.",
+    "FR-003: Setup/readiness failures map to deterministic user-facing errors.",
+    "FR-004: Run-state transitions are canonical and enforced.",
+    "FR-005: Poll every 2s while run state is queued/running, stop at terminal.",
+    "FR-006: Report rows are run-scoped and sourced from persisted step outputs.",
+    "FR-007: Seeded fallback rows are removed from successful real-data paths.",
+    "FR-008: Run/report failure envelopes are typed and safe for UI use.",
+    "FR-009: Citation/render/pdf endpoints use success-or-typed-failure contracts.",
+    "FR-010: Export fail-closed gating remains strict via EXPORT_BLOCKED.",
+    "FR-011: pack_09_bad_citation is allowlisted in API and toolbar options.",
+    "FR-012: PR and nightly smoke tiers include pack_09 operator path coverage.",
+    "FR-013: Run/report row consistency invariants are enforced via schema constraints and monitoring.",
+    "FR-014: Report row generation is idempotent via deterministic step-output identity and conflict handling.",
+    "FR-015: Cross-surface state correctness checks keep list/detail/run/report/export aligned to one source of truth.",
+    "FR-016: Overnight loop persists checkpoints and fails closed before downstream execution on upstream failure.",
+    "FR-017: Run-start endpoint enforces idempotency and concurrency locking semantics.",
+    "FR-018: Telemetry taxonomy and parity assertion gates are mandatory in PR/nightly verification."
+  ],
+  "implementationBestPractices": {
+    "nextRouteHandlers": [
+      "Keep handlers in app/**/route.ts with explicit supported HTTP methods.",
+      "Validate route params and body at the boundary before orchestration.",
+      "Keep heavy orchestration in shared server modules, not handler glue."
+    ],
+    "zod": [
+      "Reuse shared schemas for readiness/run/citation/export contracts.",
+      "Use safeParse for user-facing validation and typed issues.",
+      "Use strict schema mode where unknown keys should fail."
+    ],
+    "tests": [
+      "Prefer deterministic integration tests for contract logic.",
+      "Isolate fixtures and control clocks/randomness in assertions.",
+      "Run fast reliable checks in PR and heavier parity checks nightly."
+    ]
+  },
+  "performanceConsiderations": [
+    "2s polling cadence with bounded retry and timeout backoff.",
+    "Run-scoped bulk query patterns to avoid N+1 in report generation.",
+    "Safe caching of idempotent citation/render outcomes by pack/run.",
+    "Checkpoint persistence and bounded parallel expensive operations overnight."
+  ],
+  "failureStatesAndUX": [
+    "Readiness blocked: explicit reason and next action.",
+    "Setup failures: deterministic banner with retry guidance.",
+    "Run/report failures: typed recoverable error states.",
+    "Invalid citations: citation_failed behavior and no stale evidence overlays.",
+    "Blocked exports: explicit blocked reason and triage handoff.",
+    "Invalid pack IDs: validation errors with no side effects.",
+    "Concurrent run-start attempts: explicit in-progress or duplicate feedback."
+  ],
+  "metricsLogging": [
+    "readiness_state_mismatch_detected target 0 on smoke packs.",
+    "quick_start_blocked_attempt_total by reason code.",
+    "run_state_transition_invalid_total target 0.",
+    "report_rows_seeded_fallback_total target 0 on successful real-data runs.",
+    "report_state_mismatch_total.",
+    "citation_lookup_failed_total by failure code.",
+    "export_blocked_total by run and failure category.",
+    "demo_pack_load_validation_error_total.",
+    "overnight_checkpoint_write_fail_total.",
+    "overnight_resume_attempt_total and overnight_resume_success_total."
+  ],
+  "rollbackDisablePath": [
+    "Use additive feature gates for readiness canonicalization and run-report real mapping.",
+    "On regression, fall back to blocked-default or fail-closed safe behavior.",
+    "Allowlist rollback by removing pack_09_bad_citation from API and UI enums.",
+    "Disable checkpoint-resume feature independently if needed."
+  ],
+  "risksDependencies": {
+    "risks": [
+      "Hidden fallback branches may still produce inconsistent states.",
+      "Legacy consumer assumptions about placeholder semantics may cause transient mismatches.",
+      "Cross-surface copy or contract drift may reduce operator confidence.",
+      "Concurrency edges may bypass intended single-run behavior without strict locks."
+    ],
+    "dependencies": [
+      "Existing apps/web folder, document, run, report, citation, and export APIs.",
+      "Sequential contract dependency chain readiness to run/report to trust/export.",
+      "Reliable fixture packs and smoke tooling for parity checks."
+    ]
+  },
+  "verificationPlan": [
+    "Run quality gates: pnpm lint, pnpm typecheck, pnpm test.",
+    "Execute stories in strict dependency order US-001 through US-012.",
+    "PR smoke packs: pack_01_clean, pack_02_missing_rea, pack_09_bad_citation.",
+    "Nightly smoke repeats include pack_09 operator path, blocked export, and parity assertions.",
+    "Inject controlled failure to validate checkpoint halt and resume behavior.",
+    "Run concurrency tests validating idempotent run-start behavior."
+  ],
+  "deploymentVerification": {
+    "preRun": [
+      "Verify API and toolbar allowlist includes pack_09_bad_citation.",
+      "Verify readiness parity checks return no mismatches on packs 01 and 02.",
+      "Verify report invariant checks expect zero seeded fallback rows on successful runs."
+    ],
+    "postRun": [
+      "Confirm no invalid run-state transitions occurred.",
+      "Confirm blocked export behavior for pack_09 and no unsafe links issued.",
+      "Confirm checkpoint records and canonical telemetry tags exist for each story stage."
+    ],
+    "rollbackReadiness": [
+      "Confirm rollback toggles are available for allowlist, checkpoint resume, and run/report mapping."
+    ]
+  },
+  "resolvedDecisions": [
+    "Existing codebase implementation path.",
+    "Root prd.md/prd.json consolidation while keeping slice PRDs as references.",
+    "Single sequential overnight loop rather than parallel multi-loop execution.",
+    "Readiness reason enum centralized before Loop B.",
+    "Run polling cadence standardized to 2s active and stop at terminal.",
+    "No temporary compatibility shim.",
+    "pack_09 smoke in PR and nightly tiers.",
+    "No dedicated telemetry dashboard or separate copy-spec in this phase."
+  ],
+  "sources": [
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/prds/a_entry-readiness-foundation/prd.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/prds/b_run-lifecycle-report-contract/prd.md",
+    "docs/05-reviews-audits/real-data-e2e-suite/prds/c_trust-citation-export-contract/prd.md"
+  ]
+}
