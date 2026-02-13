@@ -21,6 +21,11 @@ Next.js App Router web application.
 - The intended operator flow is: iterate locally (Sprite/host) first, then deploy to a single Hetzner VM via Docker Compose.
 - Canonical runbook: `docs/04-projects/02-features/0007_demo-prod-deploy/runbook.md`
 
+## Runtime Defaults (Important)
+- Local dev and Sprite dev are host-native (non-Docker). Run app/worker with `pnpm` on the host/VM.
+- For local/Sprite, use a host Postgres service at `127.0.0.1:5432` (default DSN: `postgresql://orbital:orbital@127.0.0.1:5432/orbital`).
+- Use Docker Compose for demo-prod packaging/deploy workflows, not for day-to-day local or Sprite iteration.
+
 ## Local Dev Notes
 - For artefacts tab UI checks in local dev, enable list rendering + dev signing fallback:
   `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3101`

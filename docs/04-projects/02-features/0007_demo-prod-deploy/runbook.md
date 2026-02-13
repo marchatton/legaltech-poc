@@ -5,16 +5,17 @@ This runbook is written for the simplest path:
 - Deploy later to a single Hetzner Ubuntu VM using Docker Compose.
 - Use IP-only HTTP for now (no TLS), protected by browser Basic Auth.
 
+Important environment split:
+- Local dev + Sprite dev: host-native (non-Docker).
+- Hetzner demo-prod deployment: Docker Compose.
+
 If you later want HTTPS, add a domain + reverse proxy (Caddy/Traefik) and move Basic Auth there or keep it in middleware.
 
 ## Operator Quick Checklist (Phase 4)
 Use this when you need to run the demo with minimal setup drift.
 
 ### 1) Startup steps (local demo path)
-1. From repo root, start Postgres:
-```bash
-docker compose up -d db
-```
+1. Ensure host Postgres is running on `127.0.0.1:5432` and `orbital` DB/user exists.
 2. From repo root, start the app:
 ```bash
 pnpm dev
@@ -68,10 +69,14 @@ Post-recovery smoke check:
 ## Phase A: Continue Local Dev (Sprite)
 Goal: keep moving fast without needing the VM yet.
 
-1) Start dependencies (Postgres)
-- From repo root:
+1) Ensure host Postgres is up (non-Docker)
+- Validate connectivity:
 ```bash
-docker compose up -d db
+pg_isready -h 127.0.0.1 -p 5432 -d orbital -U orbital
+```
+- If needed, create the DB:
+```bash
+createdb -O orbital orbital
 ```
 
 2) Start the web app
