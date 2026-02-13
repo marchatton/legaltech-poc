@@ -227,7 +227,6 @@ async function writeClipboardText(value: string): Promise<void> {
   await navigator.clipboard.writeText(value);
 }
 
-const SPLIT_VIEW_LOCK_STORAGE_KEY = "orbital.report.split_view_lock";
 
 function parseCitationResponse(json: unknown): {
   citationId: string;
@@ -318,8 +317,6 @@ export function ReportTriagePanel(props: Props) {
   const [pendingRowId, setPendingRowId] = useState<string | null>(null);
   const [pendingCopyAction, setPendingCopyAction] = useState<CopyAction | null>(null);
   const [feedback, setFeedback] = useState<ActionFeedback>({ kind: "idle" });
-  const [splitViewLocked, setSplitViewLocked] = useState(false);
-  const [splitViewPreferenceLoaded, setSplitViewPreferenceLoaded] = useState(false);
   const [viewerCitationId, setViewerCitationId] = useState<string | null>(null);
   const [viewerState, setViewerState] = useState<ViewerPanelState>({ kind: "idle" });
   const [isDesktopSplit, setIsDesktopSplit] = useState(false);
@@ -364,19 +361,6 @@ export function ReportTriagePanel(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem(SPLIT_VIEW_LOCK_STORAGE_KEY);
-    if (stored === "1") setSplitViewLocked(true);
-    if (stored === "0") setSplitViewLocked(false);
-    setSplitViewPreferenceLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!splitViewPreferenceLoaded || typeof window === "undefined") return;
-    window.localStorage.setItem(SPLIT_VIEW_LOCK_STORAGE_KEY, splitViewLocked ? "1" : "0");
-  }, [splitViewLocked, splitViewPreferenceLoaded]);
-
-  useEffect(() => {
     if (!selectedRow) {
       setViewerCitationId(null);
       setViewerState({ kind: "idle" });
@@ -385,11 +369,11 @@ export function ReportTriagePanel(props: Props) {
   }, [selectedRow]);
 
   useEffect(() => {
-    if (!viewerCitationId || splitViewLocked || !selectedRow) return;
+    if (!viewerCitationId || !selectedRow) return;
     if (!selectedRow.citation_ids.includes(viewerCitationId)) {
       setViewerCitationId(null);
     }
-  }, [selectedRow, splitViewLocked, viewerCitationId]);
+  }, [selectedRow, viewerCitationId]);
 
   const closeEvidenceViewer = useCallback(() => {
     setViewerCitationId(null);
@@ -770,7 +754,7 @@ export function ReportTriagePanel(props: Props) {
             aria-hidden="true"
             onClick={closeRowDrawer}
           />
-          <div className="fixed right-0 bottom-0 top-0 z-[70] flex max-w-full">
+          <div className="fixed right-0 bottom-0 top-0 z-[70] flex">
           {showDesktopSplitViewer ? (
             <aside
               className="hidden xl:flex h-full w-[min(56vw,56rem)] min-w-[30rem] border-l border-border bg-background shadow-ui-lg"
@@ -793,7 +777,7 @@ export function ReportTriagePanel(props: Props) {
           ) : null}
 
           <aside
-            className="h-full w-full max-w-[94.5rem] border-l border-border bg-card shadow-ui-lg"
+            className="h-full w-[min(40rem,100vw)] shrink-0 border-l border-border bg-card shadow-ui-lg"
             role="dialog"
             aria-modal="true"
             aria-labelledby={`row-drawer-title-${selectedRow.id}`}
@@ -868,22 +852,10 @@ export function ReportTriagePanel(props: Props) {
                 <section>
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Citation summary</h3>
                   <div className="mt-2 space-y-2 rounded-ui-md border border-border bg-background p-3 text-xs text-muted-foreground">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span>locked citations</span>
-                        <span className="font-mono text-foreground">{selectedRow.citation_count}</span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant={splitViewLocked ? "success" : "secondary"}
-                        size="sm"
-                        onClick={() => setSplitViewLocked((prev) => !prev)}
-                        aria-pressed={splitViewLocked}
-                      >
-                        Split-view lock {splitViewLocked ? "on" : "off"}
-                      </Button>
+                    <div className="flex items-center gap-2">
+                      <span>locked citations</span>
+                      <span className="font-mono text-foreground">{selectedRow.citation_count}</span>
                     </div>
-                    <div className="text-2xs text-muted-foreground">Lock state is saved in local browser storage.</div>
                     {selectedRow.citation_ids.length ? (
                       <div className="grid gap-1">
                         <div className="text-muted-foreground">citation ids</div>
