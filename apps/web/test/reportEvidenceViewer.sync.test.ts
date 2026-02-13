@@ -79,6 +79,9 @@ describe("US-007 valid citation trust viewer verification", () => {
     expect(source).toContain("page: String(citation.pageNumber)");
     expect(source).toContain("documentId: citation.documentId");
     expect(source).toContain("pageNumber: citation.pageNumber");
+    expect(source).toContain("computeCitationSnippetHash");
+    expect(source).toContain("viewerErrorCodeFromEvidence");
+    expect(source).toContain("computedSnippetHash: computedSnippetHash ?? \"sha256:unavailable\"");
   });
 
   it("renders overlays and trust metadata from payload with deterministic fallback", () => {
@@ -117,7 +120,10 @@ describe("US-008 invalid citation fail closed", () => {
     const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
     const viewerSource = readUtf8(viewerPath);
 
-    expect(panelSource).toContain("errorCode: chipGate.viewerErrorCode");
+    expect(panelSource).toContain("errorCode: viewerErrorCode");
+    expect(panelSource).toContain("SNIPPET_HASH_MISMATCH");
+    expect(panelSource).toContain("DOC_MISMATCH");
+    expect(panelSource).toContain("WRONG_PAGE");
     expect(viewerSource).toContain("if (props.errorCode) {");
     expect(viewerSource).toContain("setOverlay([]);");
     expect(viewerSource).toContain("reason_code:");

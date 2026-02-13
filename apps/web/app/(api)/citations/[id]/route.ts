@@ -209,56 +209,68 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
   const citationId = parsedParams.data.id;
 
-  await ensureSchema();
-  const citations = await sql<
-    Array<{
-      id: string;
-      document_id: string;
-      page_number: number;
-      snippet: string;
-      snippet_hash: string;
-      polygons_json: unknown;
-      provenance_json: unknown;
-    }>
-  >`
-    SELECT c.id, c.document_id, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
-    FROM citations c
-    LEFT JOIN report_rows r
-      ON r.id = c.report_row_id
-    WHERE c.id = ${citationId}
-    LIMIT 1
-  `;
-  const cit = citations[0];
-  if (!cit) {
-    if (!dbOnlyEvidenceMode && isDevOrDemoProd()) {
-      return seedCitationResponse({
-        citationId,
-        packId: parsedQuery.data.pack,
-        traceId,
+  try {
+    await ensureSchema();
+    const citations = await sql<
+      Array<{
+        id: string;
+        document_id: string;
+        page_number: number;
+        snippet: string;
+        snippet_hash: string;
+        polygons_json: unknown;
+        provenance_json: unknown;
+      }>
+    >`
+      SELECT c.id, c.document_id, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
+      FROM citations c
+      LEFT JOIN report_rows r
+        ON r.id = c.report_row_id
+      WHERE c.id = ${citationId}
+      LIMIT 1
+    `;
+    const cit = citations[0];
+    if (!cit) {
+      if (!dbOnlyEvidenceMode && isDevOrDemoProd()) {
+        return seedCitationResponse({
+          citationId,
+          packId: parsedQuery.data.pack,
+          traceId,
+          headers,
+        });
+      }
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Citation not found.", traceId }), {
+        status: 404,
         headers,
       });
     }
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Citation not found.", traceId }), {
-      status: 404,
+    const trust = trustMetadataFromProvenance(cit.provenance_json);
+
+    return Response.json(
+      {
+        citation: {
+          id: cit.id,
+          document_id: cit.document_id,
+          page_number: cit.page_number,
+          polygons: cit.polygons_json,
+          snippet: cit.snippet,
+          snippet_hash: cit.snippet_hash,
+          doc_version: trust.doc_version,
+          verified_at: trust.verified_at,
+          loaded_state: trust.loaded_state,
+        },
+      },
+      { status: 200, headers },
+    );
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("citations.get_failed", {
+      citationId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to load citation.", traceId }), {
+      status: 500,
       headers,
     });
   }
-  const trust = trustMetadataFromProvenance(cit.provenance_json);
-
-  return Response.json(
-    {
-      citation: {
-        id: cit.id,
-        document_id: cit.document_id,
-        page_number: cit.page_number,
-        polygons: cit.polygons_json,
-        snippet: cit.snippet,
-        snippet_hash: cit.snippet_hash,
-        doc_version: trust.doc_version,
-        verified_at: trust.verified_at,
-        loaded_state: trust.loaded_state,
-      },
-    },
-    { status: 200, headers },
-  );
 }

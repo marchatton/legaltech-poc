@@ -57,45 +57,122 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
   const documentId = parsedParams.data.id;
   const page = parsedQuery.data.page;
 
-  const fixture = parseFixtureDocumentId(documentId);
-  if (fixture.ok) {
-    if (dbOnlyEvidenceMode) {
+  try {
+    const fixture = parseFixtureDocumentId(documentId);
+    if (fixture.ok) {
+      if (dbOnlyEvidenceMode) {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      // Fixture documents are only available in dev and demo-prod.
+      if (!isDevOrDemoProd()) {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      // Verify the fixture PDF exists so we can fail closed on drift.
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const packRoot = path.resolve(process.cwd(), "../../docs/08-example-data");
+      const candidate = path.resolve(packRoot, fixture.packId, "docs", fixture.filename);
+      if (!candidate.startsWith(packRoot + path.sep)) {
+        return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid path.", traceId }), {
+          status: 400,
+          headers,
+        });
+      }
+      try {
+        const stat = fs.statSync(candidate);
+        if (!stat.isFile()) throw new Error("NOT_A_FILE");
+      } catch {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      const signed = createSignedGetHeaders({ storageKey: `fixture:${documentId}` });
+      const renderUrl = `/documents/${documentId}/pdf?${new URLSearchParams({
+        expires: String(signed.expires_at_ms),
+        sig: signed.signature,
+      }).toString()}`;
+
+      return Response.json(
+        {
+          document_id: documentId,
+          page,
+          render_url: renderUrl,
+        },
+        { status: 200, headers },
+      );
+    }
+
+    await ensureSchema();
+
+    const docs = await sql<
+      Array<{ id: string; storage_key: string | null; upload_completed_at: Date | null; page_count: number | null }>
+    >`
+      SELECT id, storage_key, upload_completed_at, page_count
+      FROM documents
+      WHERE id = ${documentId}
+      LIMIT 1
+    `;
+    const doc = docs[0];
+    if (!doc) {
       return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
         status: 404,
         headers,
       });
     }
 
-    // Fixture documents are only available in dev and demo-prod.
-    if (!isDevOrDemoProd()) {
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
-        status: 404,
+    if (!doc.storage_key) {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key.", traceId }), {
+        status: 409,
         headers,
       });
     }
 
-    // Verify the fixture PDF exists so we can fail closed on drift.
-    const fs = await import("node:fs");
-    const path = await import("node:path");
-    const packRoot = path.resolve(process.cwd(), "../../docs/08-example-data");
-    const candidate = path.resolve(packRoot, fixture.packId, "docs", fixture.filename);
-    if (!candidate.startsWith(packRoot + path.sep)) {
-      return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid path.", traceId }), {
-        status: 400,
-        headers,
-      });
-    }
-    try {
-      const stat = fs.statSync(candidate);
-      if (!stat.isFile()) throw new Error("NOT_A_FILE");
-    } catch {
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
-        status: 404,
+    if (!doc.upload_completed_at) {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload not completed yet.", traceId }), {
+        status: 409,
         headers,
       });
     }
 
-    const signed = createSignedGetHeaders({ storageKey: `fixture:${documentId}` });
+    const keyValid = validateStorageKey(doc.storage_key);
+    if (!keyValid.ok) {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has an invalid storage_key.", traceId }), {
+        status: 409,
+        headers,
+      });
+    }
+
+    if (!objectExists(doc.storage_key)) {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Raw PDF not found for storage_key.", traceId }), {
+        status: 409,
+        headers,
+      });
+    }
+
+    const pageCount = typeof doc.page_count === "number" && Number.isFinite(doc.page_count) ? doc.page_count : null;
+    if (pageCount && page > pageCount) {
+      return Response.json(
+        safeErrorEnvelope({
+          code: "VALIDATION_ERROR",
+          message: "page is out of range.",
+          details: { page: "out_of_range", page_count: pageCount },
+          traceId,
+        }),
+        { status: 400, headers },
+      );
+    }
+
+    const signed = createSignedGetHeaders({ storageKey: doc.storage_key });
     const renderUrl = `/documents/${documentId}/pdf?${new URLSearchParams({
       expires: String(signed.expires_at_ms),
       sig: signed.signature,
@@ -109,80 +186,16 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
       },
       { status: 200, headers },
     );
-  }
-
-  await ensureSchema();
-
-  const docs = await sql<
-    Array<{ id: string; storage_key: string | null; upload_completed_at: Date | null; page_count: number | null }>
-  >`
-    SELECT id, storage_key, upload_completed_at, page_count
-    FROM documents
-    WHERE id = ${documentId}
-    LIMIT 1
-  `;
-  const doc = docs[0];
-  if (!doc) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
-      status: 404,
-      headers,
-    });
-  }
-
-  if (!doc.storage_key) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key.", traceId }), {
-      status: 409,
-      headers,
-    });
-  }
-
-  if (!doc.upload_completed_at) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Upload not completed yet.", traceId }), {
-      status: 409,
-      headers,
-    });
-  }
-
-  const keyValid = validateStorageKey(doc.storage_key);
-  if (!keyValid.ok) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has an invalid storage_key.", traceId }), {
-      status: 409,
-      headers,
-    });
-  }
-
-  if (!objectExists(doc.storage_key)) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Raw PDF not found for storage_key.", traceId }), {
-      status: 409,
-      headers,
-    });
-  }
-
-  const pageCount = typeof doc.page_count === "number" && Number.isFinite(doc.page_count) ? doc.page_count : null;
-  if (pageCount && page > pageCount) {
-    return Response.json(
-      safeErrorEnvelope({
-        code: "VALIDATION_ERROR",
-        message: "page is out of range.",
-        details: { page: "out_of_range", page_count: pageCount },
-        traceId,
-      }),
-      { status: 400, headers },
-    );
-  }
-
-  const signed = createSignedGetHeaders({ storageKey: doc.storage_key });
-  const renderUrl = `/documents/${documentId}/pdf?${new URLSearchParams({
-    expires: String(signed.expires_at_ms),
-    sig: signed.signature,
-  }).toString()}`;
-
-  return Response.json(
-    {
-      document_id: documentId,
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("documents.render.get_failed", {
+      documentId,
       page,
-      render_url: renderUrl,
-    },
-    { status: 200, headers },
-  );
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to load render URL.", traceId }), {
+      status: 500,
+      headers,
+    });
+  }
 }

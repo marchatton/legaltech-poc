@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-13 02:30:20 | run=20260213-005806-15124 | iter=6 | mode=build | story=US-006 | duration=1289s | status=success
 - 2026-02-13 02:08:49 | run=20260213-005806-15124 | iter=5 | mode=build | story=US-005 | duration=776s | status=success
 - 2026-02-13 01:55:48 | run=20260213-005806-15124 | iter=4 | mode=build | story=US-004 | duration=937s | status=success
 - 2026-02-13 01:40:09 | run=20260213-005806-15124 | iter=3 | mode=build | story=US-003 | duration=714s | status=success
@@ -241,3 +242,8 @@
 [2026-02-13 02:24:56] US-006 iteration 6: final verification run starting (lint/typecheck/test/build).
 [2026-02-13 02:27:17] US-006 iteration 6: verification complete (lint/typecheck/test/build passed; pnpm test flaky once then passed on rerun).
 [2026-02-13 02:29:13] US-006 iteration 6: progress log updated with commit/verification details.
+[2026-02-13 02:30:20] ITERATION 6 end (duration=1289s)
+[2026-02-13 02:30:27] ITERATION 7 start (mode=build story=US-007)
+[2026-02-13 02:30:45] US-007 start: auditing citation/render/pdf success/failure contracts
+[2026-02-13 02:35:37] US-007 major code changes: fail-closed split-view validation + typed INTERNAL envelopes for citation/render/pdf routes + expanded route/viewer tests
+[2026-02-13 02:43:55] US-007 verification complete: targeted tests + lint/typecheck/test/build passed (test gate passed after flaky rerun) and browser checks validated valid trust metadata and fail-closed citation_failed state

@@ -81,4 +81,46 @@ describe("GET /documents/:id/pdf", () => {
     expect(statObjectMock).not.toHaveBeenCalled();
     expect(createObjectReadStreamMock).not.toHaveBeenCalled();
   });
+
+  it("returns UNAUTHORISED when render signature is missing", async () => {
+    process.env.ORBITAL_MODE = "dev";
+
+    const documentId = "doc_pdf_missing_sig";
+    const { GET } = await import("../app/(api)/documents/[id]/pdf/route");
+
+    const res = await GET(new Request(`http://localhost:3000/documents/${documentId}/pdf`), {
+      params: Promise.resolve({ id: documentId }),
+    });
+
+    expect(res.status).toBe(403);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("UNAUTHORISED");
+
+    expect(assertDevOrDemoProdApiMock).toHaveBeenCalledTimes(1);
+    expect(ensureSchemaMock).not.toHaveBeenCalled();
+    expect(sqlMock).not.toHaveBeenCalled();
+  });
+
+  it("returns typed INTERNAL envelope when pdf path throws unexpectedly", async () => {
+    process.env.ORBITAL_MODE = "dev";
+
+    ensureSchemaMock.mockImplementationOnce(async () => {
+      throw new Error("boom");
+    });
+
+    const documentId = "doc_pdf_internal";
+    const expiresAtMs = Date.now() + 60_000;
+    const { GET } = await import("../app/(api)/documents/[id]/pdf/route");
+
+    const res = await GET(
+      new Request(`http://localhost:3000/documents/${documentId}/pdf?expires=${expiresAtMs}&sig=sig_test`),
+      {
+        params: Promise.resolve({ id: documentId }),
+      },
+    );
+
+    expect(res.status).toBe(500);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("INTERNAL");
+  });
 });

@@ -74,4 +74,50 @@ describe("GET /documents/:id/render", () => {
     expect(objectExistsMock).not.toHaveBeenCalled();
     expect(validateStorageKeyMock).not.toHaveBeenCalled();
   });
+
+  it("returns VALIDATION_ERROR when page exceeds known page_count", async () => {
+    process.env.ORBITAL_MODE = "dev";
+
+    const documentId = "doc_render_page_bounds";
+    sqlMock.mockResolvedValueOnce([
+      {
+        id: documentId,
+        storage_key: "s3://docs/doc_render_page_bounds.pdf",
+        upload_completed_at: new Date("2026-02-13T00:00:00.000Z"),
+        page_count: 2,
+      },
+    ]);
+
+    const { GET } = await import("../app/(api)/documents/[id]/render/route");
+    const res = await GET(new Request(`http://localhost:3000/documents/${documentId}/render?page=3`), {
+      params: Promise.resolve({ id: documentId }),
+    });
+
+    expect(res.status).toBe(400);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("VALIDATION_ERROR");
+
+    expect(assertDevOrDemoProdApiMock).toHaveBeenCalledTimes(1);
+    expect(ensureSchemaMock).toHaveBeenCalledTimes(1);
+    expect(sqlMock).toHaveBeenCalledTimes(1);
+    expect(createSignedGetHeadersMock).not.toHaveBeenCalled();
+  });
+
+  it("returns typed INTERNAL envelope when render path throws unexpectedly", async () => {
+    process.env.ORBITAL_MODE = "dev";
+
+    ensureSchemaMock.mockImplementationOnce(async () => {
+      throw new Error("boom");
+    });
+
+    const documentId = "doc_render_internal";
+    const { GET } = await import("../app/(api)/documents/[id]/render/route");
+    const res = await GET(new Request(`http://localhost:3000/documents/${documentId}/render?page=1`), {
+      params: Promise.resolve({ id: documentId }),
+    });
+
+    expect(res.status).toBe(500);
+    const json: unknown = await res.json().catch(() => null);
+    expect(errorCode(json)).toBe("INTERNAL");
+  });
 });

@@ -76,24 +76,116 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     });
   }
 
-  const fixture = parseFixtureDocumentId(documentId);
-  if (fixture.ok) {
-    if (dbOnlyEvidenceMode) {
+  try {
+    const fixture = parseFixtureDocumentId(documentId);
+    if (fixture.ok) {
+      if (dbOnlyEvidenceMode) {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      // Fixture documents are only available in dev and demo-prod.
+      if (!isDevOrDemoProd()) {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      const sigOk = verifySignature({ purpose: "get", storageKey: `fixture:${documentId}`, expiresAtMs, sig: sigRaw });
+      if (!sigOk) {
+        return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
+          status: 403,
+          headers,
+        });
+      }
+
+      const packRoot = path.resolve(process.cwd(), "../../docs/08-example-data");
+      const candidate = path.resolve(packRoot, fixture.packId, "docs", fixture.filename);
+      if (!candidate.startsWith(packRoot + path.sep)) {
+        return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid path.", traceId }), {
+          status: 400,
+          headers,
+        });
+      }
+
+      let stat: fs.Stats;
+      try {
+        stat = fs.statSync(candidate);
+      } catch {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+      if (!stat.isFile()) {
+        return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
+          status: 404,
+          headers,
+        });
+      }
+
+      const size = stat.size;
+      const rangeHeader = req.headers.get("range");
+      const range = rangeHeader ? parseSingleRangeHeader(rangeHeader, size) : null;
+
+      headers.set("Accept-Ranges", "bytes");
+      headers.set("Content-Type", "application/pdf");
+      headers.set("Content-Disposition", `inline; filename="${safePdfFilename(fixture.filename)}"`);
+
+      if (!rangeHeader) {
+        headers.set("Content-Length", String(size));
+        const nodeStream = fs.createReadStream(candidate);
+        return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 200, headers });
+      }
+
+      if (!range) {
+        headers.set("Content-Range", `bytes */${size}`);
+        return new Response(null, { status: 416, headers });
+      }
+
+      const { start, end } = range;
+      headers.set("Content-Range", `bytes ${start}-${end}/${size}`);
+      headers.set("Content-Length", String(end - start + 1));
+
+      const nodeStream = fs.createReadStream(candidate, { start, end });
+      return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 206, headers });
+    }
+
+    await ensureSchema();
+
+    const docs = await sql<Array<{ id: string; storage_key: string | null; filename: string }>>`
+      SELECT id, storage_key, filename
+      FROM documents
+      WHERE id = ${documentId}
+      LIMIT 1
+    `;
+    const doc = docs[0];
+    if (!doc) {
       return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
         status: 404,
         headers,
       });
     }
 
-    // Fixture documents are only available in dev and demo-prod.
-    if (!isDevOrDemoProd()) {
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
-        status: 404,
+    if (!doc.storage_key) {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key.", traceId }), {
+        status: 409,
         headers,
       });
     }
 
-    const sigOk = verifySignature({ purpose: "get", storageKey: `fixture:${documentId}`, expiresAtMs, sig: sigRaw });
+    const keyValid = validateStorageKey(doc.storage_key);
+    if (!keyValid.ok) {
+      return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has an invalid storage_key.", traceId }), {
+        status: 409,
+        headers,
+      });
+    }
+
+    const sigOk = verifySignature({ purpose: "get", storageKey: doc.storage_key, expiresAtMs, sig: sigRaw });
     if (!sigOk) {
       return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
         status: 403,
@@ -101,29 +193,14 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
       });
     }
 
-    const packRoot = path.resolve(process.cwd(), "../../docs/08-example-data");
-    const candidate = path.resolve(packRoot, fixture.packId, "docs", fixture.filename);
-    if (!candidate.startsWith(packRoot + path.sep)) {
-      return Response.json(safeErrorEnvelope({ code: "VALIDATION_ERROR", message: "Invalid path.", traceId }), {
-        status: 400,
-        headers,
-      });
-    }
-
-    let stat: fs.Stats;
+    let stat;
     try {
-      stat = fs.statSync(candidate);
+      stat = await statObject(doc.storage_key);
     } catch {
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
-        status: 404,
-        headers,
-      });
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), { status: 404, headers });
     }
     if (!stat.isFile()) {
-      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), {
-        status: 404,
-        headers,
-      });
+      return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), { status: 404, headers });
     }
 
     const size = stat.size;
@@ -132,11 +209,11 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
     headers.set("Accept-Ranges", "bytes");
     headers.set("Content-Type", "application/pdf");
-    headers.set("Content-Disposition", `inline; filename="${safePdfFilename(fixture.filename)}"`);
+    headers.set("Content-Disposition", `inline; filename="${safePdfFilename(doc.filename)}"`);
 
     if (!rangeHeader) {
       headers.set("Content-Length", String(size));
-      const nodeStream = fs.createReadStream(candidate);
+      const nodeStream = createObjectReadStream(doc.storage_key);
       return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 200, headers });
     }
 
@@ -149,82 +226,17 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
     headers.set("Content-Range", `bytes ${start}-${end}/${size}`);
     headers.set("Content-Length", String(end - start + 1));
 
-    const nodeStream = fs.createReadStream(candidate, { start, end });
+    const nodeStream = createObjectReadStream(doc.storage_key, { start, end });
     return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 206, headers });
-  }
-
-  await ensureSchema();
-
-  const docs = await sql<Array<{ id: string; storage_key: string | null; filename: string }>>`
-    SELECT id, storage_key, filename
-    FROM documents
-    WHERE id = ${documentId}
-    LIMIT 1
-  `;
-  const doc = docs[0];
-  if (!doc) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "Document not found.", traceId }), {
-      status: 404,
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("documents.pdf.get_failed", {
+      documentId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return Response.json(safeErrorEnvelope({ code: "INTERNAL", message: "Failed to load PDF.", traceId }), {
+      status: 500,
       headers,
     });
   }
-
-  if (!doc.storage_key) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has no storage_key.", traceId }), {
-      status: 409,
-      headers,
-    });
-  }
-
-  const keyValid = validateStorageKey(doc.storage_key);
-  if (!keyValid.ok) {
-    return Response.json(safeErrorEnvelope({ code: "CONFLICT", message: "Document has an invalid storage_key.", traceId }), {
-      status: 409,
-      headers,
-    });
-  }
-
-  const sigOk = verifySignature({ purpose: "get", storageKey: doc.storage_key, expiresAtMs, sig: sigRaw });
-  if (!sigOk) {
-    return Response.json(safeErrorEnvelope({ code: "UNAUTHORISED", message: "Invalid render signature.", traceId }), {
-      status: 403,
-      headers,
-    });
-  }
-
-  let stat;
-  try {
-    stat = await statObject(doc.storage_key);
-  } catch {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), { status: 404, headers });
-  }
-  if (!stat.isFile()) {
-    return Response.json(safeErrorEnvelope({ code: "NOT_FOUND", message: "PDF not found.", traceId }), { status: 404, headers });
-  }
-
-  const size = stat.size;
-  const rangeHeader = req.headers.get("range");
-  const range = rangeHeader ? parseSingleRangeHeader(rangeHeader, size) : null;
-
-  headers.set("Accept-Ranges", "bytes");
-  headers.set("Content-Type", "application/pdf");
-  headers.set("Content-Disposition", `inline; filename="${safePdfFilename(doc.filename)}"`);
-
-  if (!rangeHeader) {
-    headers.set("Content-Length", String(size));
-    const nodeStream = createObjectReadStream(doc.storage_key);
-    return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 200, headers });
-  }
-
-  if (!range) {
-    headers.set("Content-Range", `bytes */${size}`);
-    return new Response(null, { status: 416, headers });
-  }
-
-  const { start, end } = range;
-  headers.set("Content-Range", `bytes ${start}-${end}/${size}`);
-  headers.set("Content-Length", String(end - start + 1));
-
-  const nodeStream = createObjectReadStream(doc.storage_key, { start, end });
-  return new Response(Readable.toWeb(nodeStream) as ReadableStream, { status: 206, headers });
 }

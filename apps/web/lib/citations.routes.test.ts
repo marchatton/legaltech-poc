@@ -172,6 +172,33 @@ describe("GET /citations/:id (db-first)", () => {
     });
   });
 
+  it("returns typed INTERNAL envelope when citation query throws unexpectedly", async () => {
+    process.env.FEATURE_CITATIONS_API = "1";
+
+    const citationId = "cit_throws_internal";
+    sqlMock.mockImplementationOnce(async () => {
+      throw new Error("db exploded");
+    });
+
+    const { GET } = await import("../app/(api)/citations/[id]/route");
+    const res = await GET(new Request(`http://localhost:3000/citations/${citationId}`), {
+      params: Promise.resolve({ id: citationId }),
+    });
+
+    expect(assertDevOrDemoProdApiMock).not.toHaveBeenCalled();
+    expect(ensureSchemaMock).toHaveBeenCalledTimes(1);
+    expect(sqlMock).toHaveBeenCalledTimes(1);
+
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({
+      error: {
+        code: "INTERNAL",
+        message: "Failed to load citation.",
+        trace_id: expect.any(String),
+      },
+    });
+  });
+
   it("falls back to seed snapshots on DB miss in ORBITAL_MODE=dev", async () => {
     process.env.FEATURE_CITATIONS_API = "1";
     (process.env as Record<string, string | undefined>).NODE_ENV = "development";

@@ -278,11 +278,13 @@ function parseCitationResponse(json: unknown): {
   };
 }
 
-function parseRenderResponse(json: unknown): { pdfUrl: string } | null {
+function parseRenderResponse(json: unknown): { pdfUrl: string; documentId: string; pageNumber: number } | null {
   if (!isRecord(json)) return null;
   const pdfUrl = typeof json.render_url === "string" ? json.render_url : null;
-  if (!pdfUrl) return null;
-  return { pdfUrl };
+  const documentId = typeof json.document_id === "string" ? json.document_id : null;
+  const pageNumber = typeof json.page === "number" && Number.isInteger(json.page) ? json.page : null;
+  if (!pdfUrl || !documentId || !pageNumber) return null;
+  return { pdfUrl, documentId, pageNumber };
 }
 
 function toViewerPanelError(err: unknown, fallbackCode: string, fallbackMessage: string): { code: string; message: string } {
@@ -295,6 +297,33 @@ function toViewerPanelError(err: unknown, fallbackCode: string, fallbackMessage:
     return { code: fallbackCode, message: err.message };
   }
   return { code: fallbackCode, message: fallbackMessage };
+}
+
+function normalizeSnippetText(input: string): string {
+  return input.replace(/\r\n/g, "\n").trim().replace(/\s+/g, " ");
+}
+
+async function computeCitationSnippetHash(snippet: string): Promise<string | null> {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) return null;
+  const bytes = new TextEncoder().encode(normalizeSnippetText(snippet));
+  const digest = await subtle.digest("SHA-256", bytes);
+  const hashHex = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+  return `sha256:${hashHex}`;
+}
+
+function viewerErrorCodeFromEvidence(args: {
+  chipGateErrorCode: string | null;
+  citation: { documentId: string; pageNumber: number; snippetHash: string };
+  render: { documentId: string; pageNumber: number };
+  computedSnippetHash: string | null;
+}): string | null {
+  if (args.chipGateErrorCode) return args.chipGateErrorCode;
+  if (args.render.documentId !== args.citation.documentId) return "DOC_MISMATCH";
+  if (args.render.pageNumber !== args.citation.pageNumber) return "WRONG_PAGE";
+  if (!args.computedSnippetHash) return "SNIPPET_HASH_UNVERIFIED";
+  if (args.computedSnippetHash !== args.citation.snippetHash) return "SNIPPET_HASH_MISMATCH";
+  return null;
 }
 
 export function ReportTriagePanel(props: Props) {
@@ -468,6 +497,14 @@ export function ReportTriagePanel(props: Props) {
         throw { code: "INVALID_RENDER_PAYLOAD", message: "Render URL payload was invalid." };
       }
 
+      const computedSnippetHash = await computeCitationSnippetHash(citation.snippet);
+      const viewerErrorCode = viewerErrorCodeFromEvidence({
+        chipGateErrorCode: chipGate.viewerErrorCode,
+        citation,
+        render,
+        computedSnippetHash,
+      });
+
       if (!cancelled) {
         setViewerState({
           kind: "ready",
@@ -478,8 +515,8 @@ export function ReportTriagePanel(props: Props) {
             polygons: citation.polygons,
             snippet: citation.snippet,
             snippetHash: citation.snippetHash,
-            computedSnippetHash: citation.snippetHash,
-            errorCode: chipGate.viewerErrorCode,
+            computedSnippetHash: computedSnippetHash ?? "sha256:unavailable",
+            errorCode: viewerErrorCode,
             pdfUrl: render.pdfUrl,
             docVersion: citation.docVersion,
             verifiedAt: citation.verifiedAt,
