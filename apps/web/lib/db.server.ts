@@ -99,16 +99,24 @@ async function ensureSchemaInner(): Promise<void> {
   await ensureAllSchemas(sql);
 }
 
+function shouldEnsureSchemaEveryCall(): boolean {
+  return process.env.ORBITAL_SCHEMA_ENSURE_MODE === "always";
+}
+
 export async function ensureSchema(): Promise<void> {
-  // In Next dev, module code can hot-reload while `globalThis` survives.
-  // Re-run schema ensures each call so new migration steps are applied.
-  if (process.env.NODE_ENV === "development") {
+  // Escape hatch for schema-authoring sessions where forcing DDL on each call
+  // is desirable. Normal dev/runtime should cache to avoid request stalls.
+  if (shouldEnsureSchemaEveryCall()) {
     await ensureSchemaInner();
     return;
   }
 
   if (!g.__orbitalSchemaReady) {
-    g.__orbitalSchemaReady = ensureSchemaInner();
+    g.__orbitalSchemaReady = ensureSchemaInner().catch((error) => {
+      // Allow a clean retry after transient bootstrapping failures.
+      delete g.__orbitalSchemaReady;
+      throw error;
+    });
   }
   await g.__orbitalSchemaReady;
 }
