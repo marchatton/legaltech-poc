@@ -7,6 +7,7 @@ import { ensureSchema, sql } from "../db.server";
 import { refreshFolderState } from "../folderState.server";
 import { newId } from "../ids";
 import { readObject } from "../objectStore.server";
+import { primeDocumentChunkEmbeddings } from "../retrieval/embedChunks.server";
 import { safeErrMessage } from "../safeErrMessage";
 
 type PdfJsTextItem = { str?: string };
@@ -589,6 +590,17 @@ export async function processDocumentIngest(documentId: string): Promise<void> {
         index_version: indexVersion,
         page_count: pageCount,
         total_chars: totalChars,
+      });
+    }
+
+    const semanticPrime = await primeDocumentChunkEmbeddings({ documentId, indexVersion });
+    if (semanticPrime.embedded > 0) {
+      // eslint-disable-next-line no-console
+      console.info("ingest.semantic_prime_document", {
+        document_id: documentId,
+        index_version: indexVersion,
+        attempted: semanticPrime.attempted,
+        embedded: semanticPrime.embedded,
       });
     }
 

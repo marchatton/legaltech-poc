@@ -7,6 +7,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { chatModel } from "../../../../../lib/ai/gateway.server";
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
+import { primeFolderChunkEmbeddings } from "../../../../../lib/retrieval/embedChunks.server";
 import { hybridSearch } from "../../../../../lib/retrieval/types";
 import { isDevOrDemoProd } from "../../../../../lib/runtimeMode";
 import { createTraceContext } from "../../../../../lib/trace.server";
@@ -32,6 +33,19 @@ type ChunkRow = {
   page_start: number | null;
   page_end: number | null;
   text: string;
+};
+
+type CitationSnippetRow = {
+  document_id: string;
+  page_number: number;
+  snippet: string;
+};
+
+type SourceContext = {
+  documentId: string;
+  pageNumber: number;
+  snippet: string;
+  anchorReady: boolean;
 };
 
 function safeErrMessage(err: unknown): string {
@@ -60,6 +74,40 @@ function shouldUseDemoFallback(): boolean {
   return !process.env.AI_GATEWAY_API_KEY?.trim();
 }
 
+async function loadCitationSnippetFallback(args: { folderId: string; limit: number }): Promise<CitationSnippetRow[]> {
+  if (args.limit <= 0) return [];
+  const rows = await sql<CitationSnippetRow[]>`
+    SELECT c.document_id, c.page_number, c.snippet
+    FROM citations c
+    JOIN report_rows rr ON rr.id = c.report_row_id
+    WHERE rr.folder_id = ${args.folderId}
+      AND rr.run_id = (
+        SELECT r.id
+        FROM runs r
+        WHERE r.folder_id = ${args.folderId}
+        ORDER BY (CASE WHEN r.state = 'completed' THEN 1 ELSE 0 END) DESC, r.created_at DESC
+        LIMIT 1
+      )
+    ORDER BY c.locked_at DESC
+    LIMIT ${args.limit}
+  `;
+
+  const deduped: CitationSnippetRow[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const documentId = typeof row.document_id === "string" ? row.document_id.trim() : "";
+    const pageNumber = Number.isInteger(row.page_number) && row.page_number > 0 ? row.page_number : 1;
+    const snippet = typeof row.snippet === "string" ? row.snippet.trim() : "";
+    if (!documentId || !snippet) continue;
+    const key = `${documentId}:${pageNumber}:${snippet}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push({ document_id: documentId, page_number: pageNumber, snippet });
+  }
+
+  return deduped;
+}
+
 function ndjsonStream(args: {
   traceId: string;
   folderId: string;
@@ -69,11 +117,30 @@ function ndjsonStream(args: {
   fallbackToMissingEvidence: boolean;
 }): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
+  let streamClosed = false;
 
   return new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (evt: unknown) => {
-        controller.enqueue(encoder.encode(`${JSON.stringify(evt)}\n`));
+      const send = (evt: unknown): boolean => {
+        if (streamClosed) return false;
+        try {
+          controller.enqueue(encoder.encode(`${JSON.stringify(evt)}\n`));
+          return true;
+        } catch {
+          // Consumer disconnected while streaming; stop emitting.
+          streamClosed = true;
+          return false;
+        }
+      };
+
+      const close = () => {
+        if (streamClosed) return;
+        streamClosed = true;
+        try {
+          controller.close();
+        } catch {
+          // Ignore close failures when stream was already cancelled.
+        }
       };
 
       // Ensure the client sees a started stream even if the model call fails
@@ -92,8 +159,13 @@ function ndjsonStream(args: {
           trace_id: args.traceId,
           retryable: opts.retryable,
         });
-        controller.close();
+        close();
       };
+
+      const abortListener = () => {
+        fail({ code: "ABORTED", message: "Chat request was cancelled.", retryable: true });
+      };
+      args.abortSignal.addEventListener("abort", abortListener, { once: true });
 
       try {
         if (args.abortSignal.aborted) {
@@ -105,8 +177,24 @@ function ndjsonStream(args: {
           send({ type: "token", token: MISSING_EVIDENCE_TEXT });
           send({ type: "sources", sources: [] satisfies ChatSource[] });
           send({ type: "done", status: "complete" });
-          controller.close();
+          close();
           return;
+        }
+
+        const semanticPrime = await primeFolderChunkEmbeddings({
+          folderId: args.folderId,
+          indexVersion: args.indexVersion,
+          traceId: args.traceId,
+        });
+        if (semanticPrime.embedded > 0) {
+          // eslint-disable-next-line no-console
+          console.info("chat.semantic_prime_folder", {
+            trace_id: args.traceId,
+            folder_id: args.folderId,
+            index_version: args.indexVersion,
+            attempted: semanticPrime.attempted,
+            embedded: semanticPrime.embedded,
+          });
         }
 
         const hits = await hybridSearch({
@@ -116,54 +204,68 @@ function ndjsonStream(args: {
           opts: { kFinal: 6 },
         });
 
-        if (hits.length === 0) {
+        let contexts: SourceContext[] = [];
+        if (hits.length > 0) {
+          const chunkIds = hits.map((h) => h.chunk_id);
+          const chunkRows = await sql<ChunkRow[]>`
+            SELECT id, document_id, page_start, page_end, text
+            FROM chunks
+            WHERE id = ANY(${chunkIds})
+          `;
+          const chunkById = new Map<string, ChunkRow>(chunkRows.map((c) => [c.id, c]));
+          contexts = hits.map((h) => {
+            const c = chunkById.get(h.chunk_id);
+            const documentId = c?.document_id ?? h.document_id;
+            const anchorPage = c?.page_start ?? h.page_start ?? h.page_end ?? null;
+            const anchorReady = typeof anchorPage === "number" && Number.isInteger(anchorPage) && anchorPage > 0;
+            const pageNumber = anchorReady ? anchorPage : 1;
+            const snippet = (c?.text ?? "").trim().slice(0, 1200);
+            return { documentId, pageNumber, snippet, anchorReady };
+          });
+        } else {
+          const citationSnippets = await loadCitationSnippetFallback({ folderId: args.folderId, limit: 6 });
+          contexts = citationSnippets.map((row) => ({
+            documentId: row.document_id,
+            pageNumber: row.page_number,
+            snippet: row.snippet.slice(0, 1200),
+            anchorReady: true,
+          }));
+        }
+
+        if (contexts.length === 0) {
           send({ type: "token", token: MISSING_EVIDENCE_TEXT });
           send({ type: "sources", sources: [] satisfies ChatSource[] });
           send({ type: "done", status: "complete" });
-          controller.close();
+          close();
           return;
         }
 
-        const chunkIds = hits.map((h) => h.chunk_id);
-        const chunkRows = await sql<ChunkRow[]>`
-          SELECT id, document_id, page_start, page_end, text
-          FROM chunks
-          WHERE id = ANY(${chunkIds})
-        `;
-
-        const chunkById = new Map<string, ChunkRow>(chunkRows.map((c) => [c.id, c]));
         const sources: ChatSource[] = [];
         const sourceLines: string[] = [];
 
-        hits.forEach((h, idx) => {
-          const c = chunkById.get(h.chunk_id);
-          const documentId = c?.document_id ?? h.document_id;
-          const anchorPage = c?.page_start ?? h.page_start ?? h.page_end ?? null;
-          const anchorReady = typeof anchorPage === "number" && Number.isInteger(anchorPage) && anchorPage > 0;
-          const pageNumber = anchorReady ? anchorPage : 1;
+        contexts.forEach((ctx, idx) => {
           sources.push(
-            anchorReady
+            ctx.anchorReady
               ? {
-                  document_id: documentId,
-                  page_number: pageNumber,
+                  document_id: ctx.documentId,
+                  page_number: ctx.pageNumber,
                   anchor_state: "ready",
                 }
               : {
-                  document_id: documentId,
-                  page_number: pageNumber,
+                  document_id: ctx.documentId,
+                  page_number: ctx.pageNumber,
                   anchor_state: "unavailable",
                   anchor_reason: "Source anchor is unavailable for this citation.",
                 },
           );
-
-          const snippet = (c?.text ?? "").trim().slice(0, 1200);
-          sourceLines.push(`[S${idx + 1}] ${documentId} p.${pageNumber}\n${snippet}`);
+          sourceLines.push(`[S${idx + 1}] ${ctx.documentId} p.${ctx.pageNumber}\n${ctx.snippet}`);
         });
 
         const system =
           `Answer using only the provided sources.\n` +
           `If the answer is not supported by the sources, respond exactly with: ${JSON.stringify(MISSING_EVIDENCE_TEXT)}\n` +
-          `Be concise.`;
+          `For broad questions, synthesize across relevant sources before answering.\n` +
+          `Be concise and do not invent facts.`;
 
         const user = `Question:\n${args.message}\n\nSources:\n${sourceLines.join("\n\n")}`;
 
@@ -181,12 +283,17 @@ function ndjsonStream(args: {
 
         send({ type: "sources", sources });
         send({ type: "done", status: "complete" });
-        controller.close();
+        close();
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("chat.stream_failed", { trace_id: args.traceId, message: safeErrMessage(err) });
         fail({ code: "MODEL_STREAM_FAILED", message: "Chat response failed. Please retry.", retryable: true });
+      } finally {
+        args.abortSignal.removeEventListener("abort", abortListener);
       }
+    },
+    cancel() {
+      streamClosed = true;
     },
   });
 }

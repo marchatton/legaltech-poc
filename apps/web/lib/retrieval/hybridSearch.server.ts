@@ -7,6 +7,7 @@ import { ensureSchema, sql } from "../db.server";
 
 import { mergeHybridHits, type LexicalBranchHit, type SemanticBranchHit } from "./mergeHybridHits";
 import type { HybridSearchHit, HybridSearchOpts } from "./types";
+import { vectorLiteral } from "./vectorLiteral";
 
 export const DEFAULT_HYBRID_SEARCH_TUNING = {
   kLex: 20,
@@ -74,20 +75,6 @@ function resolveHybridSearchOpts(opts?: HybridSearchOpts): ResolvedHybridSearchO
   const probes = toNonNegativeIntOrNull(opts?.probes);
 
   return { kLex, kSem, kFinal, lexWeight, semWeight, probes };
-}
-
-function vectorLiteral(embedding: unknown): string {
-  if (!Array.isArray(embedding)) throw new Error("Embedding is not an array.");
-  if (embedding.length !== 1536) throw new Error(`Embedding length must be 1536 (got ${embedding.length}).`);
-
-  const parts: string[] = [];
-  for (const n of embedding) {
-    const v = typeof n === "number" ? n : Number(n);
-    if (!Number.isFinite(v)) throw new Error("Embedding contains a non-finite value.");
-    parts.push(String(v));
-  }
-
-  return `[${parts.join(",")}]`;
 }
 
 async function isPgvectorEnabled(): Promise<boolean> {
@@ -352,4 +339,3 @@ export async function hybridSearchWithDebug(args: {
 }): Promise<{ hits: HybridSearchHit[]; debug: HybridSearchDebug }> {
   return hybridSearchInternal({ ...args, log: true });
 }
-

@@ -5,6 +5,7 @@ import { MISSING_EVIDENCE_TEXT } from "./chat/protocol";
 const ensureSchemaMock = vi.fn();
 const sqlMock = vi.fn();
 const hybridSearchMock = vi.fn();
+const primeFolderChunkEmbeddingsMock = vi.fn();
 const streamTextMock = vi.fn();
 
 vi.mock("./db.server", () => ({
@@ -19,6 +20,10 @@ vi.mock("./devOnlyApi.server", () => ({
 
 vi.mock("./retrieval/types", () => ({
   hybridSearch: hybridSearchMock,
+}));
+
+vi.mock("./retrieval/embedChunks.server", () => ({
+  primeFolderChunkEmbeddings: primeFolderChunkEmbeddingsMock,
 }));
 
 vi.mock("./ai/gateway.server", () => ({
@@ -40,7 +45,9 @@ describe("POST /folders/:id/chat", () => {
     ensureSchemaMock.mockReset();
     sqlMock.mockReset();
     hybridSearchMock.mockReset();
+    primeFolderChunkEmbeddingsMock.mockReset();
     streamTextMock.mockReset();
+    primeFolderChunkEmbeddingsMock.mockResolvedValue({ attempted: 0, embedded: 0, skippedReason: "NO_PENDING_CHUNKS" });
     process.env.CHAT_ENABLED = "1";
     process.env.ORBITAL_MODE = "prod";
     process.env.AI_GATEWAY_API_KEY = "test-gateway-key";
@@ -214,5 +221,111 @@ describe("POST /folders/:id/chat", () => {
         },
       ],
     });
+    expect(primeFolderChunkEmbeddingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ folderId: "fld_123", indexVersion: "v1" }),
+    );
+  });
+
+  it("falls back to locked citation snippets when retrieval returns no direct hits", async () => {
+    queueSqlResults([
+      [{ latest_index_version: "v1" }],
+      [
+        {
+          document_id: "doc_fallback",
+          page_number: 7,
+          snippet: "The closing date is contingent on clearance of all exceptions.",
+        },
+      ],
+    ]);
+    hybridSearchMock.mockResolvedValueOnce([]);
+    streamTextMock.mockReturnValueOnce({
+      textStream: (async function* () {
+        yield "Based on available evidence, ";
+        yield "closing risk remains tied to unresolved exceptions.";
+      })(),
+    });
+
+    const { POST } = await import("../app/(api)/folders/[id]/chat/route");
+    const res = await POST(
+      new Request("http://localhost:3000/folders/fld_123/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "What are the top closing risks?" }),
+      }),
+      { params: Promise.resolve({ id: "fld_123" }) },
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    const events = body
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+
+    const combinedText = events
+      .filter((evt) => evt.type === "token")
+      .map((evt) => String(evt.token ?? ""))
+      .join("");
+    expect(combinedText).toContain("closing risk");
+    expect(combinedText).not.toContain(MISSING_EVIDENCE_TEXT);
+    expect(events).toContainEqual({
+      type: "sources",
+      sources: [
+        {
+          document_id: "doc_fallback",
+          page_number: 7,
+          anchor_state: "ready",
+        },
+      ],
+    });
+  });
+
+  it("allows stream consumer cancellation without throwing server errors", async () => {
+    queueSqlResults([
+      [{ latest_index_version: "v1" }],
+      [
+        {
+          id: "chk_1",
+          document_id: "doc_1",
+          page_start: 2,
+          page_end: 2,
+          text: "Chunk text",
+        },
+      ],
+    ]);
+    hybridSearchMock.mockResolvedValueOnce([
+      {
+        chunk_id: "chk_1",
+        document_id: "doc_1",
+        page_start: 2,
+        page_end: 2,
+      },
+    ]);
+    streamTextMock.mockReturnValueOnce({
+      textStream: (async function* () {
+        yield "first ";
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        yield "second";
+      })(),
+    });
+
+    const { POST } = await import("../app/(api)/folders/[id]/chat/route");
+    const res = await POST(
+      new Request("http://localhost:3000/folders/fld_123/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: "cancel mid-stream" }),
+      }),
+      { params: Promise.resolve({ id: "fld_123" }) },
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body).toBeTruthy();
+    const reader = res.body!.getReader();
+    const first = await reader.read();
+    expect(first.done).toBe(false);
+    await expect(reader.cancel()).resolves.toBeUndefined();
+    await new Promise((resolve) => setTimeout(resolve, 20));
   });
 });
