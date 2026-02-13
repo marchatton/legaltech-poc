@@ -1266,3 +1266,42 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - Existing flaky `foldersRunsRoute.wdk.int.test.ts` behavior remained stable in this run after lifecycle changes, but repeated test rerun guidance in guardrails is still relevant.
 ---
+## [2026-02-13 02:08:04 UTC] - US-005: Report rows are sourced from real step outcomes
+Thread: 
+Run: 20260213-005806-15124 (iteration 5)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-5.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-5.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 87ac7b5 fix(report): materialize rows from run step outputs
+- Post-commit status: `clean`
+- Verification:
+  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/reportRowsFromStepOutputs.int.test.ts test/wdkStepQueue.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc && timeout 35s pnpm --filter @orbital-poc/web dev -p 3101 -> PASS (server reached ready state before timeout)
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/folders/[id]/report/route.ts
+  - apps/web/lib/reportRowsFromStepOutputs.server.ts
+  - apps/web/steps/quickStartWriteRowV0.step.server.ts
+  - apps/web/test/reportRowsFromStepOutputs.int.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Removed Quick Start seeded snapshot row injection so successful real-data runs no longer emit fixture-seeded report rows.
+  - Extended `quickStartWriteRowV0` step output to persist a complete `report_row` payload in `run_steps.output_json`.
+  - Added `materializeReportRowsFromStepOutputs` server utility that upserts missing report rows/citations from persisted succeeded step outputs.
+  - Wired report API (`GET /api/folders/[id]/report`) to materialize from step outputs before reading rows for the selected run.
+  - Added integration tests covering run-step to report-row materialization stability across reloads and seeded-fallback suppression.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Step handlers should persist full output contracts so downstream read surfaces can recover deterministically from persisted step logs.
+  - Gotchas encountered
+  - Route-level materialization must avoid clobbering reviewer edits; `ON CONFLICT DO NOTHING` preserves triage state while backfilling missing rows.
+  - Useful context
+  - Seed snapshots live under `tmp/fixture-seed`; tests can create per-test pack snapshots to assert fallback behavior without shared-pack coupling.
+---
