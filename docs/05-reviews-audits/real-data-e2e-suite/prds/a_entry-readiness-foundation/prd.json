@@ -17,10 +17,7 @@
     "Quick Start never starts when readiness is blocked.",
     "Setup failures are explicitly surfaced with recovery guidance."
   ],
-  "openQuestions": [
-    "Should readiness reason codes be centralized in a shared enum module before Loop B starts?",
-    "Do we require a dedicated telemetry dashboard for readiness mismatches in this phase?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js App Router + TypeScript",
     "hosting": "Local dev and demo-prod operator surfaces",
@@ -190,5 +187,9 @@
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md"
+  ],
+  "resolvedDecisions": [
+    "Readiness reason codes are centralized in a shared enum module in Loop A before Loop B starts.",
+    "Dedicated telemetry dashboard work is deferred in this phase; use log counters plus PR/nightly smoke outcomes."
   ]
 }

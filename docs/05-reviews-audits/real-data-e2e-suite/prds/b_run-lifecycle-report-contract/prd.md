@@ -124,8 +124,12 @@ As an operator, I want run/report failures surfaced with typed reasons so recove
 
 ## Open Questions
 
-- Should run status polling interval/cadence be standardized in this loop or deferred?
-- Do we need a temporary compatibility shim for any existing report consumers expecting placeholder rows?
+- None. Closed on 2026-02-13 via `ask-questions-if-underspecified` defaults.
+
+## Resolved Decisions
+
+- Run polling cadence is standardized in this loop: poll every 2s while run state is `queued` or `running`; stop polling at terminal states.
+- No temporary compatibility shim will be added; report consumers must align to the canonical run/report contract.
 
 ## Quality Gates
 

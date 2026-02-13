@@ -124,8 +124,12 @@ As a demo operator, I want to select `pack_09_bad_citation` from the toolbar so 
 
 ## Open Questions
 
-- Should pack 09 operator smoke coverage run on every PR or nightly-only after initial rollout?
-- Do we need a dedicated operator-facing copy spec for blocked export recovery CTAs?
+- None. Closed on 2026-02-13 via `ask-questions-if-underspecified` defaults.
+
+## Resolved Decisions
+
+- `pack_09_bad_citation` operator smoke coverage runs in both PR and nightly tiers.
+- No dedicated operator-facing copy spec is added in this phase; blocked export messaging uses existing shared error/support copy conventions.
 
 ## Quality Gates
 

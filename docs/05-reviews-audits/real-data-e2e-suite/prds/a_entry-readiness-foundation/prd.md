@@ -124,8 +124,12 @@ As an operator, I want setup failures surfaced clearly so I can recover without 
 
 ## Open Questions
 
-- Should readiness reason codes be centralized in a shared enum module before Loop B starts?
-- Do we require a dedicated telemetry dashboard for readiness mismatches in this phase?
+- None. Closed on 2026-02-13 via `ask-questions-if-underspecified` defaults.
+
+## Resolved Decisions
+
+- Readiness reason codes are centralized in a shared enum module in Loop A before Loop B starts.
+- Dedicated telemetry dashboard work is deferred in this phase; use log counters plus PR/nightly smoke outcomes.
 
 ## Quality Gates
 

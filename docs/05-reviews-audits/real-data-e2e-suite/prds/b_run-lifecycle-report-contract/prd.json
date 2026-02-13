@@ -17,10 +17,7 @@
     "Report rows map to real run outputs for pack_01_clean, pack_04_multi_parcel, and pack_05_partial_release.",
     "Seeded fallback report writes are absent from successful P0 runs."
   ],
-  "openQuestions": [
-    "Should run-status polling cadence be standardized in this loop or deferred?",
-    "Do we need a temporary compatibility shim for any report consumers expecting placeholder rows?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js App Router + TypeScript",
     "hosting": "Local dev and demo-prod operator surfaces",
@@ -201,5 +198,9 @@
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md"
+  ],
+  "resolvedDecisions": [
+    "Run polling cadence is standardized in this loop: poll every 2s while run state is queued or running; stop polling at terminal states.",
+    "No temporary compatibility shim will be added; report consumers must align to the canonical run/report contract."
   ]
 }

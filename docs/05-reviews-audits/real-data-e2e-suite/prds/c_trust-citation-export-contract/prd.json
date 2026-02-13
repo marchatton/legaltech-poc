@@ -17,10 +17,7 @@
     "Citation open path shows explicit success or typed failure with no silent ambiguity.",
     "Exports remain fail-closed with stable EXPORT_BLOCKED behavior for unsafe scenarios."
   ],
-  "openQuestions": [
-    "Should pack_09 operator smoke coverage run on every PR or nightly-only after initial rollout?",
-    "Do we need a dedicated operator-facing copy spec for blocked export recovery CTAs?"
-  ],
+  "openQuestions": [],
   "stack": {
     "framework": "Next.js App Router + TypeScript",
     "hosting": "Local dev and demo-prod operator surfaces",
@@ -211,5 +208,9 @@
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-dev-priority-implementation-plan.md",
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-mode-implementation-matrix.md",
     "docs/05-reviews-audits/real-data-e2e-suite/workflow-pack-2d-suite-model.md"
+  ],
+  "resolvedDecisions": [
+    "pack_09_bad_citation operator smoke coverage runs in both PR and nightly tiers.",
+    "No dedicated operator-facing copy spec is added in this phase; blocked export messaging uses existing shared error/support copy conventions."
   ]
 }
