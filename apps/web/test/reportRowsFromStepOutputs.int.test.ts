@@ -334,7 +334,7 @@ describe("report rows from persisted step outputs", () => {
           AND question_id = 'TS-01'
         LIMIT 1
       `;
-      expect(reportRows[0]?.status).toBe("citation_failed");
+      expect(reportRows[0]?.status).toBe("needs_review");
       expect(reportRows[0]?.answer).toBe("Unable to produce citations.");
     } finally {
       await sql`DELETE FROM folders WHERE id = ${folderId}`;

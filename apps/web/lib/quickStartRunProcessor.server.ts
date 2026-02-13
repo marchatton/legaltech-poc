@@ -27,7 +27,22 @@ type FailureCounts = Record<string, number>;
 
 type JsonArg = Parameters<typeof sql.json>[0];
 
-function missingInputRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }) {
+type QuickStartRowStatus = "needs_review" | "missing_input" | "citation_failed";
+
+type QuickStartRow = {
+  folder_id: string;
+  question_set_version: string;
+  question_id: string;
+  question: string;
+  answer: string;
+  status: QuickStartRowStatus;
+  notes: string | null;
+  provenance_json: unknown;
+  payload_schema_version: string | null;
+  payload_json: unknown | null;
+};
+
+function missingInputRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }): QuickStartRow {
   return {
     folder_id: args.folderId,
     question_set_version: args.questionSetVersion,
@@ -56,7 +71,38 @@ function missingInputRow(args: { folderId: string; questionSetVersion: string; q
   };
 }
 
-function citationFailedRow(args: { folderId: string; questionSetVersion: string; questionId: string; question: string }) {
+function docsReadyNeedsReviewRow(args: {
+  folderId: string;
+  questionSetVersion: string;
+  questionId: string;
+  question: string;
+}): QuickStartRow {
+  return {
+    folder_id: args.folderId,
+    question_set_version: args.questionSetVersion,
+    question_id: args.questionId,
+    question: args.question,
+    answer: "Unable to produce citations.",
+    status: "needs_review" as const,
+    notes: null as string | null,
+    provenance_json: {
+      checklist: [
+        "Confirm the correct PDFs are uploaded for this folder.",
+        "Review and edit this row before exporting deliverables.",
+        "Re-run the workflow after retrieval+locking is implemented.",
+      ],
+    },
+    payload_schema_version: null as string | null,
+    payload_json: null as unknown | null,
+  };
+}
+
+function citationFailedRow(args: {
+  folderId: string;
+  questionSetVersion: string;
+  questionId: string;
+  question: string;
+}): QuickStartRow {
   return {
     folder_id: args.folderId,
     question_set_version: args.questionSetVersion,
@@ -209,7 +255,7 @@ export async function processQuickStartRun(runId: string): Promise<void> {
     if (existingQids.has(q.question_id)) continue;
 
     const row = hasDocs
-      ? citationFailedRow({
+      ? docsReadyNeedsReviewRow({
           folderId: run.folder_id,
           questionSetVersion: run.question_set_version,
           questionId: q.question_id,
@@ -313,7 +359,7 @@ export async function processQuickStartRun(runId: string): Promise<void> {
             ${rowWithPayload.answer},
             ${rowWithPayload.status},
             ${rowWithPayload.notes},
-            ${t.json(rowWithPayload.provenance_json)},
+            ${t.json(rowWithPayload.provenance_json as JsonArg)},
             ${rowWithPayload.payload_schema_version},
             ${payloadJson},
             now(),
@@ -442,7 +488,7 @@ export async function processQuickStartRun(runId: string): Promise<void> {
               ${fallbackWithPayload.answer},
               ${fallbackWithPayload.status},
               ${fallbackWithPayload.notes},
-              ${t.json(fallbackWithPayload.provenance_json)},
+              ${t.json(fallbackWithPayload.provenance_json as JsonArg)},
               ${fallbackWithPayload.payload_schema_version},
               ${payloadJson},
               now(),

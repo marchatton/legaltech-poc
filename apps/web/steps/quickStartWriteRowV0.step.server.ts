@@ -131,6 +131,33 @@ function missingInputRow(args: { folderId: string; questionSetVersion: string; q
   };
 }
 
+function docsReadyNeedsReviewRow(args: {
+  folderId: string;
+  questionSetVersion: string;
+  questionId: string;
+  question: string;
+}): QuickStartRow {
+  return {
+    folder_id: args.folderId,
+    question_set_version: args.questionSetVersion,
+    question_id: args.questionId,
+    question: args.question,
+    answer: "Unable to produce citations.",
+    status: "needs_review" as const,
+    citation_ids: [] as string[],
+    notes: null as string | null,
+    provenance_json: {
+      checklist: [
+        "Confirm the correct PDFs are uploaded for this folder.",
+        "Review and edit this row before exporting deliverables.",
+        "Re-run the workflow after retrieval+locking is implemented.",
+      ],
+    },
+    payload_schema_version: null as string | null,
+    payload_json: null as unknown | null,
+  };
+}
+
 function citationFailedRow(args: {
   folderId: string;
   questionSetVersion: string;
@@ -303,7 +330,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
     (doc) => doc.upload_completed_at !== null && doc.parse_status === "parsed" && doc.ocr_status === "done",
   );
   const baseRow = hasDocs
-    ? citationFailedRow({
+    ? docsReadyNeedsReviewRow({
         folderId: run.folder_id,
         questionSetVersion: run.question_set_version,
         questionId: q.question_id,

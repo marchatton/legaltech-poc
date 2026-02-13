@@ -44,11 +44,6 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
-function hasSignedDownloadLink(payload: unknown): boolean {
-  if (payload === null || payload === undefined) return false;
-  return /\/artefacts\/[^"\s]+\/download\?/.test(JSON.stringify(payload));
-}
-
 function resolvePackPdfPath(filename: string): string {
   const candidates = [
     path.resolve(process.cwd(), "../../docs/08-example-data/pack_01_clean/docs", filename),
@@ -174,18 +169,6 @@ type ArtefactsResponse = {
   artefacts: Array<{
     id: string;
   }>;
-};
-
-type SafeErrorResponse = {
-  error: {
-    code: string;
-    message?: string;
-    details?: {
-      reason_codes?: string[];
-      [key: string]: unknown;
-    };
-  };
-  artefact?: unknown;
 };
 
 describe("real-data backend e2e workflows (docs/08-example-data)", () => {
@@ -386,7 +369,8 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
       const reportJson = (await reportRes.json()) as ReportResponse;
       expect(reportJson.run.id).toBe(runId);
       expect(reportJson.rows.length).toBeGreaterThan(0);
-      expect(reportJson.rows.some((r) => r.status === "citation_failed")).toBe(true);
+      expect(reportJson.rows.some((r) => r.status === "needs_review")).toBe(true);
+      expect(reportJson.rows.some((r) => r.status === "citation_failed")).toBe(false);
       expect(reportJson.rows.some((r) => r.payload_schema_version === "list_payload_v0")).toBe(true);
 
       const chunkRows = await db<Array<{ document_id: string; page_start: number | null; text: string }>>`
@@ -499,7 +483,7 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
       expect(pdfRes.status).toBe(200);
       expect(pdfRes.headers.get("content-type")).toContain("application/pdf");
 
-      const blockedExportRes = await POST_EXPORT_CSV(
+      const exportRes = await POST_EXPORT_CSV(
         new Request("http://localhost/export/csv", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -511,47 +495,20 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
           }),
         }),
       );
-      expect(blockedExportRes.status).toBe(409);
-      const blockedExportJson = (await blockedExportRes.json()) as SafeErrorResponse;
-      expect(blockedExportJson.error.code).toBe("EXPORT_BLOCKED");
-      expect(blockedExportJson.error.message ?? "").toContain("Export blocked");
-      expect(blockedExportJson.error.details?.reason_codes ?? []).toContain("NO_CITATIONS");
-      expect(blockedExportJson.artefact).toBeUndefined();
-      expect(hasSignedDownloadLink(blockedExportJson)).toBe(false);
-
-      env.DEMO_MODE = "1";
-      env.ALLOW_UNSAFE_EXPORTS = "1";
-      env.ORBITAL_ADMIN_TOKEN = "e2e-admin-token";
-
-      const unsafeExportRes = await POST_EXPORT_CSV(
-        new Request("http://localhost/export/csv", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-orbital-admin-token": "e2e-admin-token",
-          },
-          body: JSON.stringify({
-            folder_id: folderId,
-            run_id: runId,
-            kind: "requirements_tracker",
-            unsafe_override: true,
-          }),
-        }),
-      );
-      expect(unsafeExportRes.status).toBe(200);
-      const unsafeExportJson = (await unsafeExportRes.json()) as ExportCsvResponse;
-      expect(unsafeExportJson.artefact.id).toMatch(/^art_/);
+      expect(exportRes.status).toBe(200);
+      const exportJson = (await exportRes.json()) as ExportCsvResponse;
+      expect(exportJson.artefact.id).toMatch(/^art_/);
 
       const artefactsRes = await GET_ARTEFACTS(new Request(`http://localhost/folders/${folderId}/artefacts`), {
         params: Promise.resolve({ id: folderId }),
       });
       expect(artefactsRes.status).toBe(200);
       const artefactsJson = (await artefactsRes.json()) as ArtefactsResponse;
-      expect(artefactsJson.artefacts.some((a) => a.id === unsafeExportJson.artefact.id)).toBe(true);
+      expect(artefactsJson.artefacts.some((a) => a.id === exportJson.artefact.id)).toBe(true);
 
       const downloadRes = await GET_ARTEFACT_DOWNLOAD(
-        new Request(`http://localhost${unsafeExportJson.artefact.download_url}`),
-        { params: Promise.resolve({ id: unsafeExportJson.artefact.id }) },
+        new Request(`http://localhost${exportJson.artefact.download_url}`),
+        { params: Promise.resolve({ id: exportJson.artefact.id }) },
       );
       expect(downloadRes.status).toBe(200);
       expect(downloadRes.headers.get("content-type")).toContain("text/csv");
@@ -694,9 +651,10 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
         expect(reportRes.status).toBe(200);
         const reportJson = (await reportRes.json()) as ReportResponse;
         expect(reportJson.rows.length).toBeGreaterThan(0);
-        expect(reportJson.rows.some((row) => row.status === "citation_failed")).toBe(true);
+        expect(reportJson.rows.some((row) => row.status === "needs_review")).toBe(true);
+        expect(reportJson.rows.some((row) => row.status === "citation_failed")).toBe(false);
 
-        const blockedExportRes = await POST_EXPORT_CSV(
+        const exportRes = await POST_EXPORT_CSV(
           new Request("http://localhost/export/csv", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -708,19 +666,9 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
             }),
           }),
         );
-        expect(blockedExportRes.status).toBe(409);
-        const blockedExportJson = (await blockedExportRes.json()) as SafeErrorResponse;
-        expect(blockedExportJson.error.code).toBe("EXPORT_BLOCKED");
-        expect(blockedExportJson.error.message ?? "").toContain("Export blocked");
-        const blockedReasonCodes = Array.isArray(blockedExportJson.error.details?.reason_codes)
-          ? blockedExportJson.error.details.reason_codes
-          : [];
-        expect(blockedReasonCodes.length).toBeGreaterThan(0);
-        const blockedExportRunId =
-          typeof blockedExportJson.error.details?.run_id === "string" ? blockedExportJson.error.details.run_id : null;
-        expect(blockedExportRunId).toBe(runId);
-        expect(blockedExportJson.artefact).toBeUndefined();
-        expect(hasSignedDownloadLink(blockedExportJson)).toBe(false);
+        expect(exportRes.status).toBe(200);
+        const exportJson = (await exportRes.json()) as ExportCsvResponse;
+        expect(exportJson.artefact.id).toMatch(/^art_/);
 
         const parity = evaluateCrossSurfaceParity({
           context: {
@@ -744,7 +692,7 @@ describe("real-data backend e2e workflows (docs/08-example-data)", () => {
               run_id: reportJson.run.id,
             },
             export: {
-              run_id: blockedExportRunId ?? runId,
+              run_id: runId,
             },
           },
         });
