@@ -15,6 +15,7 @@ import { parseDemoMatterMetadata } from "../lib/demoMatterMetadata";
 import { loadSeedSnapshot, type ResolvedSeedSnapshot } from "../lib/fixtureSeed.server";
 import { newId } from "../lib/ids";
 import { loadQuestionSetV1 } from "../lib/questionSet.server";
+import { completeRunIfReady, transitionRunState } from "../lib/runLifecycle.server";
 import type { StepRow } from "../lib/wdk/stepQueue.server";
 
 const InputSchema = z.object({
@@ -343,16 +344,24 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
 
   const { version: currentQuestionSetVersion, questionSet } = await loadQuestionSetV1();
   if (currentQuestionSetVersion !== run.question_set_version) {
-    await s`
-      UPDATE runs
-      SET state = 'failed',
-          error_json = ${s.json({
-            code: "QUESTION_SET_MISMATCH",
-            message: "Pinned question_set_version does not match current question set.",
-          } as JsonArg)},
-          updated_at = now()
-      WHERE id = ${args.step.run_id}
-    `;
+    const transition = await transitionRunState({
+      runId: args.step.run_id,
+      to: "failed",
+      errorJson: {
+        code: "QUESTION_SET_MISMATCH",
+        message: "Pinned question_set_version does not match current question set.",
+      },
+      db: s,
+    });
+    if (!transition.ok && transition.reason !== "TERMINAL_IMMUTABLE") {
+      // eslint-disable-next-line no-console
+      console.warn("run.transition_failed", {
+        run_id: args.step.run_id,
+        to: "failed",
+        reason: transition.reason,
+        current_state: transition.currentState,
+      });
+    }
 
     const durationMs = Date.now() - startedAt;
     return {
@@ -370,17 +379,25 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
   }
 
   if (!q) {
-    await s`
-      UPDATE runs
-      SET state = 'failed',
-          error_json = ${s.json({
-            code: "QUESTION_NOT_FOUND",
-            message: "Question not found in current question set.",
-            details: { question_id: input.question_id },
-          } as JsonArg)},
-          updated_at = now()
-      WHERE id = ${args.step.run_id}
-    `;
+    const transition = await transitionRunState({
+      runId: args.step.run_id,
+      to: "failed",
+      errorJson: {
+        code: "QUESTION_NOT_FOUND",
+        message: "Question not found in current question set.",
+        details: { question_id: input.question_id },
+      },
+      db: s,
+    });
+    if (!transition.ok && transition.reason !== "TERMINAL_IMMUTABLE") {
+      // eslint-disable-next-line no-console
+      console.warn("run.transition_failed", {
+        run_id: args.step.run_id,
+        to: "failed",
+        reason: transition.reason,
+        current_state: transition.currentState,
+      });
+    }
 
     const durationMs = Date.now() - startedAt;
     return {
@@ -616,16 +633,8 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
     finalReasonCode = fallbackRes.reason_code;
   }
 
-  const completed = await s<Array<{ id: string }>>`
-    UPDATE runs
-    SET state = 'completed',
-        updated_at = now()
-    WHERE id = ${args.step.run_id}
-      AND state = 'running'
-      AND questions_done >= questions_total
-    RETURNING id
-  `;
-  if (completed[0]) {
+  const completion = await completeRunIfReady({ runId: args.step.run_id, clearError: true, db: s });
+  if (completion.completed) {
     // eslint-disable-next-line no-console
     console.info("run.completed", { run_id: args.step.run_id, trace_id: run.trace_id ?? null });
   }

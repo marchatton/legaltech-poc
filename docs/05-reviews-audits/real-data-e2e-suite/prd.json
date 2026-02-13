@@ -225,7 +225,7 @@
     {
       "id": "US-003",
       "title": "Setup and readiness failure UX is explicit",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
@@ -236,13 +236,13 @@
         "Negative: setup failures are never hidden behind indefinite loading states."
       ],
       "startedAt": "2026-02-13T01:28:15.981613+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-13T01:28:15.981642+00:00"
+      "completedAt": "2026-02-13T01:40:09.360925+00:00",
+      "updatedAt": "2026-02-13T01:40:09.360882+00:00"
     },
     {
       "id": "US-004",
       "title": "Run lifecycle state machine is deterministic",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-002",
         "US-003"
@@ -252,7 +252,10 @@
         "Runs follow allowed transitions only and terminal states are immutable.",
         "Example: successful run transitions queued to running to completed with transition timestamps.",
         "Negative: terminal runs never regress to non-terminal states."
-      ]
+      ],
+      "startedAt": "2026-02-13T01:40:11.626005+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-13T01:40:11.626023+00:00"
     },
     {
       "id": "US-005",

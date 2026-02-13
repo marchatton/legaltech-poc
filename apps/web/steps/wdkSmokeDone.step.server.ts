@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
+import { transitionRunState } from "../lib/runLifecycle.server";
 import type { StepRow } from "../lib/wdk/stepQueue.server";
 
 const InputSchema = z.object({
@@ -21,7 +22,7 @@ export async function wdkSmokeDoneStep(args: { step: StepRow; workerId: string; 
   if (!args.db) await ensureSchema();
   const s = args.db ?? sql;
 
-  await s`UPDATE runs SET state = 'completed', updated_at = now() WHERE id = ${args.step.run_id}`;
+  await transitionRunState({ runId: args.step.run_id, to: "completed", clearError: true, db: s });
 
   return {
     output: {
@@ -33,4 +34,3 @@ export async function wdkSmokeDoneStep(args: { step: StepRow; workerId: string; 
     },
   };
 }
-

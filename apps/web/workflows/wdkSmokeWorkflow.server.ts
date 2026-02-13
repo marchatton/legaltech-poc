@@ -3,6 +3,7 @@ import "server-only";
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
 import { newId } from "../lib/ids";
+import { transitionRunState } from "../lib/runLifecycle.server";
 import { scheduleStep } from "../lib/wdk/stepQueue.server";
 
 export async function startWdkSmokeWorkflow(args?: { traceId?: string; db?: Sql }): Promise<{
@@ -35,7 +36,7 @@ export async function startWdkSmokeWorkflow(args?: { traceId?: string; db?: Sql 
       ${runId},
       ${folderId},
       'wdk_smoke',
-      'running',
+      'queued',
       'v1',
       'v0',
       'v0',
@@ -51,6 +52,10 @@ export async function startWdkSmokeWorkflow(args?: { traceId?: string; db?: Sql 
     db: s,
   });
 
+  const runningTransition = await transitionRunState({ runId, to: "running", clearError: true, db: s });
+  if (!runningTransition.ok) {
+    throw new Error(`WDK_SMOKE_RUN_TRANSITION_FAILED:${runningTransition.reason}:${runningTransition.currentState ?? "none"}`);
+  }
+
   return { folderId, runId, initStepId };
 }
-

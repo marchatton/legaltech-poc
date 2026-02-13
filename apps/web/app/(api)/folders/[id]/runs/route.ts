@@ -9,6 +9,7 @@ import { newId } from "../../../../../lib/ids";
 import { assertJsonContentType } from "../../../../../lib/jsonContentType";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
 import { resolveCanonicalReadiness } from "../../../../../lib/readinessContract.server";
+import { transitionRunState } from "../../../../../lib/runLifecycle.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 import { kickInlineWdkWorker } from "../../../../../lib/wdk/wdkInlineKick.server";
 import { quickStartStepHandlers } from "../../../../../steps/quickStartStepHandlers.server";
@@ -347,7 +348,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
         ${runId},
         ${folderId},
         ${parsedBody.data.type},
-        'running',
+        'queued',
         ${indexVersion},
         ${agentVersion},
         ${questionSetVersion},
@@ -424,6 +425,52 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     questions_total: questionsTotal,
   });
 
+  let scheduled: Awaited<ReturnType<typeof startQuickStartTitleSurveyWorkflow>>;
+  try {
+    scheduled = await startQuickStartTitleSurveyWorkflow({
+      runId,
+      questionSetVersion,
+      traceId,
+      db: sql,
+    });
+  } catch (err: unknown) {
+    await transitionRunState({
+      runId,
+      to: "failed",
+      errorJson: {
+        code: "WORKFLOW_SCHEDULE_FAILED",
+        message: "Failed to schedule Quick Start workflow steps.",
+      },
+      db: sql,
+    });
+    // eslint-disable-next-line no-console
+    console.error("wdk.workflow_schedule_failed", {
+      trace_id: traceId,
+      run_id: runId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+
+    return Response.json(runsErrorEnvelope({ code: "INTERNAL", message: "Failed to schedule run.", traceId }), {
+      status: 500,
+      headers,
+    });
+  }
+
+  const runningTransition = await transitionRunState({ runId, to: "running", clearError: true, db: sql });
+  if (!runningTransition.ok) {
+    // eslint-disable-next-line no-console
+    console.error("run.transition_to_running_failed", {
+      trace_id: traceId,
+      run_id: runId,
+      reason: runningTransition.reason,
+      current_state: runningTransition.currentState,
+    });
+    return Response.json(runsErrorEnvelope({ code: "INTERNAL", message: "Failed to initialize run state.", traceId }), {
+      status: 500,
+      headers,
+    });
+  }
+
   const created: RunRow = {
     id: runId,
     folder_id: folderId,
@@ -432,13 +479,6 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     agent_bundle_version: agentVersion,
     question_set_version: questionSetVersion,
   };
-
-  const scheduled = await startQuickStartTitleSurveyWorkflow({
-    runId,
-    questionSetVersion,
-    traceId,
-    db: sql,
-  });
   const insertedSteps = scheduled.steps.reduce((acc, s) => acc + (s.inserted ? 1 : 0), 0);
 
   // eslint-disable-next-line no-console

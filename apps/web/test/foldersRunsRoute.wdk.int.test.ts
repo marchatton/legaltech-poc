@@ -168,6 +168,9 @@ describe("POST /folders/:id/runs (quick start)", () => {
     expect(progressBody?.run?.progress?.questions_done).toBeGreaterThanOrEqual(1);
     expect(progressBody?.run?.progress?.questions_done).toBeLessThanOrEqual(questionSet.questions.length);
     expect(progressBody?.run?.progress?.questions_total).toBe(questionSet.questions.length);
+    expect(typeof progressBody?.run?.transitions?.queued_at).toBe("string");
+    expect(typeof progressBody?.run?.transitions?.started_at).toBe("string");
+    expect(progressBody?.run?.transitions?.completed_at).toBeNull();
 
     await drainWdkStepsOnce({
       workerId: "test:wdk",
@@ -184,6 +187,21 @@ describe("POST /folders/:id/runs (quick start)", () => {
       LIMIT 1
     `;
     expect(finalRun[0]?.state).toBe("completed");
+
+    const finalRunRes = await GET_RUN(new Request(`http://localhost/runs/${runId}`, { method: "GET" }), {
+      params: Promise.resolve({ id: runId }),
+    });
+    expect(finalRunRes.status).toBe(200);
+    const finalRunBody = (await finalRunRes.json()) as any;
+    expect(typeof finalRunBody?.run?.transitions?.queued_at).toBe("string");
+    expect(typeof finalRunBody?.run?.transitions?.started_at).toBe("string");
+    expect(typeof finalRunBody?.run?.transitions?.completed_at).toBe("string");
+    expect(new Date(finalRunBody.run.transitions.started_at).getTime()).toBeGreaterThanOrEqual(
+      new Date(finalRunBody.run.transitions.queued_at).getTime(),
+    );
+    expect(new Date(finalRunBody.run.transitions.completed_at).getTime()).toBeGreaterThanOrEqual(
+      new Date(finalRunBody.run.transitions.started_at).getTime(),
+    );
 
       await sql`DELETE FROM folders WHERE id = ${folderId}`;
     },

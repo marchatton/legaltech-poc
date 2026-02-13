@@ -278,7 +278,7 @@ export default async function MatterPage(props: {
   `;
 
   const runs = await sql<RunSummaryRow[]>`
-    SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at, NULL::timestamptz AS started_at
+    SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at, started_at
     FROM runs
     WHERE folder_id = ${folderId}
       AND type = 'quick_start_title_survey'
@@ -324,7 +324,7 @@ export default async function MatterPage(props: {
   let reportRun = latestRun;
   if (reportRequestedRunId && reportRequestedRunId !== latestRun?.id) {
     const requestedRuns = await sql<RunSummaryRow[]>`
-      SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at
+      SELECT id, state, agent_bundle_version, questions_total, questions_done, created_at, updated_at, started_at
       FROM runs
       WHERE id = ${reportRequestedRunId}
         AND folder_id = ${folderId}

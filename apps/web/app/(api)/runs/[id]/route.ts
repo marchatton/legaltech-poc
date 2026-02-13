@@ -54,9 +54,23 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
       questions_total: number;
       questions_done: number;
       failure_counts_json: unknown;
+      queued_at: Date;
+      started_at: Date | null;
+      completed_at: Date | null;
     }>
   >`
-    SELECT id, state, index_version, agent_bundle_version, question_set_version, questions_total, questions_done, failure_counts_json
+    SELECT
+      id,
+      state,
+      index_version,
+      agent_bundle_version,
+      question_set_version,
+      questions_total,
+      questions_done,
+      failure_counts_json,
+      queued_at,
+      started_at,
+      completed_at
     FROM runs
     WHERE id = ${runId}
     LIMIT 1
@@ -82,6 +96,11 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
           questions_done: run.questions_done ?? 0,
         },
         failure_counts: asFailureCounts(run.failure_counts_json),
+        transitions: {
+          queued_at: run.queued_at.toISOString(),
+          started_at: run.started_at ? run.started_at.toISOString() : null,
+          completed_at: run.completed_at ? run.completed_at.toISOString() : null,
+        },
       },
     },
     { status: 200, headers },

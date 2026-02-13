@@ -3,6 +3,7 @@ import "server-only";
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
 import { newId } from "../lib/ids";
+import { transitionRunState } from "../lib/runLifecycle.server";
 import { scheduleStep } from "../lib/wdk/stepQueue.server";
 
 function agentBundleVersion(): string {
@@ -55,6 +56,7 @@ export async function startIngestDocumentWorkflow(args: {
   const agentVersion = agentBundleVersion();
 
   let runId = runInsertId;
+  let insertedRun = false;
   try {
     await s`
       INSERT INTO runs (
@@ -76,7 +78,7 @@ export async function startIngestDocumentWorkflow(args: {
         ${runInsertId},
         ${folderId},
         'ingest_document',
-        'running',
+        'queued',
         ${indexVersion},
         ${agentVersion},
         'v0',
@@ -88,6 +90,7 @@ export async function startIngestDocumentWorkflow(args: {
         now()
       )
     `;
+    insertedRun = true;
   } catch (err: unknown) {
     // Idempotency-key races should reuse the existing run.
     const code = typeof err === "object" && err ? (err as { code?: unknown }).code : null;
@@ -115,6 +118,18 @@ export async function startIngestDocumentWorkflow(args: {
     db: s,
   });
 
+  const runningTransition = await transitionRunState({ runId, to: "running", clearError: true, db: s });
+  if (!runningTransition.ok) {
+    // Idempotent retries may target an already-running or terminal run.
+    const acceptableIdempotentState =
+      !insertedRun &&
+      (runningTransition.reason === "INVALID_TRANSITION" || runningTransition.reason === "TERMINAL_IMMUTABLE");
+    if (!acceptableIdempotentState) {
+      throw new Error(
+        `INGEST_WDK_START_RUN_TRANSITION_FAILED:${runningTransition.reason}:${runningTransition.currentState ?? "none"}`,
+      );
+    }
+  }
+
   return { runId, stepId };
 }
-

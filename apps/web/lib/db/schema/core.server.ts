@@ -81,7 +81,7 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
       id TEXT PRIMARY KEY,
       folder_id TEXT NOT NULL REFERENCES folders(id) ON DELETE CASCADE,
       type TEXT NOT NULL,
-      state TEXT NOT NULL CHECK (state IN ('created','running','completed','partial','failed','cancelled')),
+      state TEXT NOT NULL CHECK (state IN ('queued','running','completed','partial','failed','cancelled')),
       index_version TEXT NOT NULL,
       agent_bundle_version TEXT NOT NULL,
       question_set_version TEXT NOT NULL,
@@ -91,10 +91,58 @@ export async function ensureCoreSchema(sql: Sql): Promise<void> {
       questions_done INT NOT NULL DEFAULT 0,
       failure_counts_json JSONB NOT NULL DEFAULT '{}'::jsonb,
       error_json JSONB NULL,
+      queued_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      started_at TIMESTAMPTZ NULL,
+      completed_at TIMESTAMPTZ NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       UNIQUE (folder_id, idempotency_key)
     );
+  `;
+
+  // Backfill run lifecycle fields for existing dev DBs.
+  await sql`ALTER TABLE runs ADD COLUMN IF NOT EXISTS queued_at TIMESTAMPTZ NOT NULL DEFAULT now();`;
+  await sql`ALTER TABLE runs ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ NULL;`;
+  await sql`ALTER TABLE runs ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ NULL;`;
+
+  // Normalize pre-US-004 state naming.
+  await sql`UPDATE runs SET state = 'queued' WHERE state = 'created';`;
+
+  await sql`
+    UPDATE runs
+    SET queued_at = created_at
+    WHERE queued_at IS DISTINCT FROM created_at
+  `;
+  await sql`
+    UPDATE runs
+    SET started_at = COALESCE(started_at, created_at, queued_at, now())
+    WHERE state IN ('running','completed','partial','failed','cancelled')
+      AND started_at IS NULL
+  `;
+  await sql`
+    UPDATE runs
+    SET started_at = NULL
+    WHERE state = 'queued'
+      AND started_at IS NOT NULL
+  `;
+  await sql`
+    UPDATE runs
+    SET completed_at = COALESCE(completed_at, updated_at, started_at, queued_at, now())
+    WHERE state IN ('completed','partial','failed','cancelled')
+      AND completed_at IS NULL
+  `;
+  await sql`
+    UPDATE runs
+    SET completed_at = NULL
+    WHERE state IN ('queued','running')
+      AND completed_at IS NOT NULL
+  `;
+
+  await sql`ALTER TABLE runs DROP CONSTRAINT IF EXISTS runs_state_check;`;
+  await sql`
+    ALTER TABLE runs
+    ADD CONSTRAINT runs_state_check
+      CHECK (state IN ('queued','running','completed','partial','failed','cancelled'))
   `;
 
   // Durable step execution log. Steps are responsible for idempotency via step_key.

@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
 import { processDocumentIngest } from "../lib/ingest/ingestProcessor.server";
+import { transitionRunState } from "../lib/runLifecycle.server";
 import type { StepRow } from "../lib/wdk/stepQueue.server";
 
 const InputSchema = z.object({
@@ -54,16 +55,10 @@ export async function ingestDocumentProcessStep(args: { step: StepRow; workerId:
   if (!doc) throw new Error("INGEST_WDK_STEP_DOCUMENT_NOT_FOUND");
 
   if (doc.parse_status === "parsed" && doc.ocr_status === "done") {
-    await s`UPDATE runs SET state = 'completed', updated_at = now() WHERE id = ${args.step.run_id}`;
+    await transitionRunState({ runId: args.step.run_id, to: "completed", clearError: true, db: s });
   } else if (doc.parse_status === "failed" || doc.ocr_status === "failed") {
     const errJson = doc.error_json ?? { code: "INGEST_FAILED", message: "Document ingest failed." };
-    await s`
-      UPDATE runs
-      SET state = 'failed',
-          error_json = ${s.json(errJson)},
-          updated_at = now()
-      WHERE id = ${args.step.run_id}
-    `;
+    await transitionRunState({ runId: args.step.run_id, to: "failed", errorJson: errJson, db: s });
   } else {
     // Defensive: if ingest returns without reaching a terminal state, force a retry.
     throw new Error("INGEST_WDK_STEP_NON_TERMINAL_DOCUMENT_STATE");

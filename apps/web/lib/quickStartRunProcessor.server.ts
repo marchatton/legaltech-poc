@@ -10,6 +10,7 @@ import {
 import { ensureSchema, sql } from "./db.server";
 import { newId } from "./ids";
 import { loadQuestionSetV1 } from "./questionSet.server";
+import { completeRunIfReady, transitionRunState } from "./runLifecycle.server";
 import { safeErrMessage } from "./safeErrMessage";
 
 type RunRow = {
@@ -156,16 +157,15 @@ export async function processQuickStartRun(runId: string): Promise<void> {
 
   const { version: currentQuestionSetVersion, questionSet } = await loadQuestionSetV1();
   if (currentQuestionSetVersion !== run.question_set_version) {
-    await sql`
-      UPDATE runs
-      SET state = 'failed',
-          error_json = ${sql.json({
-            code: "QUESTION_SET_MISMATCH",
-            message: "Pinned question_set_version does not match current question set.",
-          })},
-          updated_at = now()
-      WHERE id = ${runId}
-    `;
+    await transitionRunState({
+      runId,
+      to: "failed",
+      errorJson: {
+        code: "QUESTION_SET_MISMATCH",
+        message: "Pinned question_set_version does not match current question set.",
+      },
+      db: sql,
+    });
     return;
   }
 
@@ -500,30 +500,21 @@ export async function processQuickStartRun(runId: string): Promise<void> {
     WHERE id = ${runId}
   `;
 
-  await sql`
-    UPDATE runs
-    SET state = 'completed',
-        updated_at = now()
-    WHERE id = ${runId}
-      AND state = 'running'
-      AND questions_done >= questions_total
-  `;
+  await completeRunIfReady({ runId, clearError: true, db: sql });
 
   // If we couldn't persist terminal rows for every question, avoid leaving the
   // run stuck in running. Keep it inspectable with a safe error envelope.
   if (questionsDone < run.questions_total) {
-    await sql`
-      UPDATE runs
-      SET state = 'partial',
-          error_json = ${sql.json({
-            code: "ROW_WRITE_INCOMPLETE",
-            message: "Run completed with missing terminal rows.",
-            details: { questions_total: run.questions_total, questions_done: questionsDone },
-          })},
-          updated_at = now()
-      WHERE id = ${runId}
-        AND state = 'running'
-    `;
+    await transitionRunState({
+      runId,
+      to: "partial",
+      errorJson: {
+        code: "ROW_WRITE_INCOMPLETE",
+        message: "Run completed with missing terminal rows.",
+        details: { questions_total: run.questions_total, questions_done: questionsDone },
+      },
+      db: sql,
+    });
   }
 
   // eslint-disable-next-line no-console
