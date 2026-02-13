@@ -123,10 +123,10 @@ function SidebarNav(props: { active: DestinationId; collapsed: boolean; onNaviga
                   "flex w-full items-center rounded-ui-md border-l-[3px] py-2.5 text-sm font-medium transition-colors duration-micro ease-brand-standard",
                   props.collapsed ? "justify-center px-2" : "gap-3 px-3",
                   isActive
-                    ? "border-l-secondary bg-secondary/10 text-secondary-foreground shadow-ui-sm"
-                    : "border-l-transparent text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                    ? "border-l-secondary bg-secondary/10 text-sidebar-foreground shadow-ui-sm"
+                    : "border-l-transparent text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                 );
-                const iconClass = cn("size-5 shrink-0", isActive ? "text-secondary-foreground" : "text-muted-foreground");
+                const iconClass = cn("size-5 shrink-0", isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/60");
 
                 if (item.href) {
                   return (

@@ -158,6 +158,7 @@ export default async function MatterPage(props: {
       }
     : null;
   const operatorChecklistSteps = deriveOperatorChecklistSteps(checklistSignal);
+  const showOperatorChecklist = operatorChecklistSteps.some((step) => step.state !== "done");
   const requestedRunId = firstSearchParamValue(rawSearchParams.run_id);
   const triageFilters = parseReportTriageFilters(rawSearchParams);
   const reportRequestedRunId = parseRunIdFilter(rawSearchParams);
@@ -246,6 +247,9 @@ export default async function MatterPage(props: {
     created_at: doc.created_at.toISOString(),
     open_pdf_url: renderDocUrl(doc),
   }));
+  const sourceLabelByDocumentId: Record<string, string> = Object.fromEntries(
+    setupDocuments.map((doc) => [doc.id, doc.filename]),
+  );
   const indexedReadyCount = setupDocuments.reduce(
     (count, doc) => (doc.status === "indexed-ready" ? count + 1 : count),
     0,
@@ -367,42 +371,44 @@ export default async function MatterPage(props: {
       <div className="px-6 py-6 lg:px-8">
         {activeTab === "report" ? (
           <section className="space-y-4">
-            <div className="max-w-lg rounded-ui-lg border border-border/70 bg-muted/20 p-4">
-              <div className="mb-4">
-                <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
-              </div>
+            {showOperatorChecklist ? (
+              <div className="max-w-lg rounded-ui-lg border border-border/70 bg-muted/20 p-4">
+                <div className="mb-4">
+                  <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">Progress</span>
+                </div>
 
-              <ol className="relative space-y-4">
-                {operatorChecklistSteps.map((step, i) => {
-                  const isLast = i === operatorChecklistSteps.length - 1;
-                  return (
-                    <li key={step.id} className="relative pl-6">
-                      {!isLast && (
-                        <span className="absolute left-[7px] top-4 h-[calc(100%+0.5rem)] w-0.5 bg-border" aria-hidden="true" />
-                      )}
-                      <span className={`absolute left-0 top-0.5 flex size-4 items-center justify-center rounded-full ${
-                        step.state === "done"
-                          ? "bg-success text-white"
-                          : step.state === "in_progress"
-                            ? "bg-warning text-white"
-                            : "border-2 border-border bg-card"
-                      }`}>
-                        {step.state === "done" ? (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="size-2.5" aria-hidden="true">
-                            <path d="m5 13 4 4L19 7" />
-                          </svg>
-                        ) : step.state === "in_progress" ? (
-                          <span className="size-1.5 rounded-full bg-white animate-pulse" />
-                        ) : null}
-                      </span>
-                      <div className={`text-sm ${step.state === "done" ? "text-muted-foreground" : step.state === "in_progress" ? "font-medium text-foreground" : "text-muted-foreground"}`}>
-                        {step.label}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
+                <ol className="relative space-y-4">
+                  {operatorChecklistSteps.map((step, i) => {
+                    const isLast = i === operatorChecklistSteps.length - 1;
+                    return (
+                      <li key={step.id} className="relative pl-6">
+                        {!isLast && (
+                          <span className="absolute left-[7px] top-4 h-[calc(100%+0.5rem)] w-0.5 bg-border" aria-hidden="true" />
+                        )}
+                        <span className={`absolute left-0 top-0.5 flex size-4 items-center justify-center rounded-full ${
+                          step.state === "done"
+                            ? "bg-success text-white"
+                            : step.state === "in_progress"
+                              ? "bg-warning text-white"
+                              : "border-2 border-border bg-card"
+                        }`}>
+                          {step.state === "done" ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="size-2.5" aria-hidden="true">
+                              <path d="m5 13 4 4L19 7" />
+                            </svg>
+                          ) : step.state === "in_progress" ? (
+                            <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                          ) : null}
+                        </span>
+                        <div className={`text-sm ${step.state === "done" ? "text-muted-foreground" : step.state === "in_progress" ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                          {step.label}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            ) : null}
 
             {reportRun ? (
               <>
@@ -544,12 +550,17 @@ export default async function MatterPage(props: {
 
         {activeTab === "chat" ? (
           <section>
-            <ChatPanel folderId={folderId} contextReady={chatContextReady} contextGuidance={chatContextGuidance} />
+            <ChatPanel
+              folderId={folderId}
+              contextReady={chatContextReady}
+              contextGuidance={chatContextGuidance}
+              sourceLabelByDocumentId={sourceLabelByDocumentId}
+            />
           </section>
         ) : null}
 
         {activeTab === "exports" ? (
-          <section className="max-w-2xl rounded-ui-lg border border-border bg-card p-4 shadow-ui-sm">
+          <section className="max-w-2xl">
             <div className="mb-3">
               <SectionTitle>Reports</SectionTitle>
               <p className="mt-1 text-xs text-muted-foreground">

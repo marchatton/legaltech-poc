@@ -9,6 +9,7 @@ import { Chip } from "../../../ui/Chip";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { EmptyState } from "../../../ui/EmptyState";
 import { Input } from "../../../ui/Input";
+import { Prose } from "../../../ui/Prose";
 import { Spinner } from "../../../ui/Spinner";
 
 import { parseChatStreamEvent, type ChatSource, type ChatStreamEvent } from "../../../../lib/chat/protocol";
@@ -86,7 +87,12 @@ const SUGGESTED_PROMPTS = [
   "List all parties and their roles",
 ];
 
-export function ChatPanel(props: { folderId: string; contextReady: boolean; contextGuidance: string }) {
+export function ChatPanel(props: {
+  folderId: string;
+  contextReady: boolean;
+  contextGuidance: string;
+  sourceLabelByDocumentId: Record<string, string>;
+}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -305,22 +311,28 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
             return (
               <div key={m.id} className="grid gap-2 animate-fade-in">
                 <div className={`max-w-[80%] rounded-ui-2xl border border-border px-4 py-3 shadow-ui-sm transition-colors duration-micro ease-brand-standard ${bubbleCls}`}>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {m.content ? (
-                      <>
+                  {m.content ? (
+                    isUser ? (
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed">
                         {m.content}
+                      </div>
+                    ) : (
+                      <div>
+                        <Prose content={m.content} />
                         {m.status === "streaming" ? (
                           <span className="ml-0.5 inline-block animate-pulse text-muted-foreground" aria-hidden="true">
                             |
                           </span>
                         ) : null}
-                      </>
-                    ) : m.status === "sending" || m.status === "streaming" ? (
+                      </div>
+                    )
+                  ) : m.status === "sending" || m.status === "streaming" ? (
+                    <div className="text-sm leading-relaxed">
                       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                         <Spinner size="xs" /> {m.status === "sending" ? "Sending..." : "Streaming..."}
                       </span>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : null}
                 </div>
 
 
@@ -352,8 +364,9 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
                       {m.sources.map((s, idx) => {
                         const sourceKey = `${s.document_id}:${s.page_number}:${idx}`;
                         const sourceReady = s.anchor_state === "ready";
+                        const sourceLabel = props.sourceLabelByDocumentId[s.document_id] ?? s.document_id;
                         const title = sourceReady
-                          ? `Open ${s.document_id} page ${s.page_number}`
+                          ? `Open ${sourceLabel} page ${s.page_number}`
                           : s.anchor_reason ?? "Source anchor is unavailable.";
                         const opening = openingSourceKey === `${s.document_id}:${s.page_number}`;
                         return sourceReady ? (
@@ -367,7 +380,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
                               void openSource(s);
                             }}
                           >
-                            {s.document_id} p.{s.page_number}
+                            {sourceLabel} p.{s.page_number}
                           </Chip>
                         ) : (
                           <Chip
@@ -377,13 +390,10 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
                             title={title}
                             aria-disabled="true"
                           >
-                            {s.document_id} p.{s.page_number} unavailable
+                            {sourceLabel} p.{s.page_number} unavailable
                           </Chip>
                         );
                       })}
-                    </div>
-                    <div className="mt-2 text-2xs text-muted-foreground">
-                      Clickable chips require anchor-ready sources.
                     </div>
                   </section>
                 ) : null}
@@ -407,7 +417,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
               className="text-left text-xs leading-relaxed"
               onClick={() => {
                 if (!props.contextReady) return;
-                setInput(prompt);
+                void sendMessage(prompt);
               }}
             >
               {prompt}
@@ -440,8 +450,7 @@ export function ChatPanel(props: { folderId: string; contextReady: boolean; cont
             aria-label="Send message"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </Button>
         </form>

@@ -11,17 +11,22 @@ import type { RunSelectorOption } from "../runScope";
 
 import { ExportMemoButton } from "./ExportMemoButton";
 
-function ExportRow({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+function ExportRow({ icon, label, description, children }: { icon: ReactNode; label: string; description?: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div className="flex items-center gap-3">
-        <div className="flex size-8 items-center justify-center rounded-ui-md bg-secondary/10 text-secondary-foreground">
-          {icon}
+    <article className="animate-fade-in rounded-ui-md border border-border bg-card p-3 transition-colors hover:border-foreground/30 hover:bg-secondary/10">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-ui-md bg-secondary/10 text-secondary-foreground">
+            {icon}
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-medium text-foreground">{label}</div>
+            {description ? <div className="mt-0.5 text-xs text-muted-foreground">{description}</div> : null}
+          </div>
         </div>
-        <span className="text-sm font-medium text-foreground">{label}</span>
+        {children}
       </div>
-      {children}
-    </div>
+    </article>
   );
 }
 
@@ -116,9 +121,10 @@ export function ExportsPanel(props: Props) {
         </div>
       </div>
 
-      <div className="grid max-w-2xl gap-0 divide-y divide-border rounded-ui-lg border border-border bg-card shadow-ui-sm">
+      <div className="grid max-w-2xl gap-2">
         <ExportRow
           label="Full Report"
+          description="Word memo with all findings"
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
@@ -136,6 +142,7 @@ export function ExportsPanel(props: Props) {
 
         <ExportRow
           label="Summary"
+          description="Requirements tracker spreadsheet"
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -156,6 +163,7 @@ export function ExportsPanel(props: Props) {
 
         <ExportRow
           label="Details"
+          description="Exceptions and detail rows"
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <line x1="8" y1="6" x2="21" y2="6" />
@@ -178,6 +186,7 @@ export function ExportsPanel(props: Props) {
 
         <ExportRow
           label="Citations"
+          description="Source references and anchors"
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4" aria-hidden="true">
               <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />

@@ -27,7 +27,7 @@ export function chipClassName(args?: {
 }) {
   const variant = args?.variant ?? "filter";
   return cn(
-    "inline-flex items-center gap-2 rounded-pill border border-border bg-card font-medium transition-colors duration-micro ease-brand-standard hover:border-foreground/20",
+    "inline-flex items-center gap-2 rounded-pill border border-border bg-card font-medium transition-all duration-micro ease-brand-standard hover:border-foreground/20 hover:bg-muted hover:-translate-y-px hover:shadow-ui-sm active:translate-y-0",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     variant === "citation" ? "font-mono text-2xs px-2.5 py-0.5" : "text-sm px-3 py-1",
     args?.active && "bg-primary/10 border-primary text-primary font-semibold",

@@ -53,6 +53,82 @@
   }
 }
 
+/* ── Chat prose (markdown rendering) ── */
+@layer components {
+  .prose-chat {
+    @apply text-sm leading-relaxed;
+  }
+
+  .prose-chat h1 {
+    @apply text-lg font-semibold mt-4 mb-2 first:mt-0;
+  }
+
+  .prose-chat h2 {
+    @apply text-base font-semibold mt-4 mb-1.5 first:mt-0;
+  }
+
+  .prose-chat h3 {
+    @apply text-sm font-semibold mt-3 mb-1 first:mt-0;
+  }
+
+  .prose-chat p {
+    @apply my-2 first:mt-0 last:mb-0;
+  }
+
+  .prose-chat strong {
+    @apply font-semibold;
+  }
+
+  .prose-chat ul {
+    @apply my-2 ml-4 list-disc space-y-1;
+  }
+
+  .prose-chat ol {
+    @apply my-2 ml-4 list-decimal space-y-1;
+  }
+
+  .prose-chat li > ul,
+  .prose-chat li > ol {
+    @apply mt-1;
+  }
+
+  .prose-chat code {
+    @apply rounded bg-muted/60 px-1 py-0.5 text-2xs font-mono;
+  }
+
+  .prose-chat pre {
+    @apply my-2 rounded-ui-md bg-muted/60 p-3 overflow-x-auto;
+  }
+
+  .prose-chat pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-chat blockquote {
+    @apply my-2 border-l-2 border-border pl-3 text-muted-foreground;
+  }
+
+  .prose-chat hr {
+    @apply my-3 border-border;
+  }
+
+  .prose-chat a {
+    @apply text-primary underline underline-offset-2;
+  }
+
+  .prose-chat table {
+    @apply my-2 w-full text-sm;
+  }
+
+  .prose-chat th {
+    @apply border-b border-border pb-1 text-left font-semibold;
+  }
+
+  .prose-chat td {
+    @apply border-b border-border/50 py-1;
+  }
+}
+
 /* ── Custom scrollbar ── */
 ::-webkit-scrollbar {
   width: 6px;
