@@ -1,0 +1,90 @@
+name: Real Data Smoke
+
+on:
+  pull_request:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+jobs:
+  pr-smoke:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    name: PR smoke (pack 09 operator path)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: orbital
+          POSTGRES_PASSWORD: orbital
+          POSTGRES_DB: orbital
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U orbital -d orbital"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://orbital:orbital@127.0.0.1:5432/orbital
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run PR smoke tier
+        run: pnpm smoke:pr
+
+  nightly-smoke:
+    if: github.event_name == 'schedule'
+    name: Nightly smoke (pack 09 operator path)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: orbital
+          POSTGRES_PASSWORD: orbital
+          POSTGRES_DB: orbital
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U orbital -d orbital"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://orbital:orbital@127.0.0.1:5432/orbital
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run nightly smoke tier
+        run: pnpm smoke:nightly

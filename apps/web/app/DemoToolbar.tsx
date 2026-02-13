@@ -4,17 +4,11 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { DEMO_PACK_ALLOWLIST, type DemoPackId } from "../lib/demoPackAllowlist";
+
 import { Button } from "./ui/Button";
 import { Select } from "./ui/Input";
 import { ThemeToggle } from "./ui/ThemeToggle";
-
-const PACK_OPTIONS = [
-  { id: "pack_01_clean", label: "pack_01_clean" },
-  { id: "pack_02_missing_rea", label: "pack_02_missing_rea" },
-  { id: "pack_09_bad_citation", label: "pack_09_bad_citation" },
-] as const;
-
-type PackId = (typeof PACK_OPTIONS)[number]["id"];
 
 type LoadState =
   | { kind: "idle" }
@@ -27,7 +21,7 @@ function isRecord(val: unknown): val is Record<string, unknown> {
 
 export function DemoToolbar() {
   const router = useRouter();
-  const [packId, setPackId] = useState<PackId>("pack_01_clean");
+  const [packId, setPackId] = useState<DemoPackId>(DEMO_PACK_ALLOWLIST[0]);
   const [state, setState] = useState<LoadState>({ kind: "idle" });
 
   async function loadPack() {
@@ -82,13 +76,13 @@ export function DemoToolbar() {
             className="min-w-52 border-border bg-background text-foreground"
             uiSize="sm"
             value={packId}
-            onChange={(e) => setPackId(e.currentTarget.value as PackId)}
+            onChange={(e) => setPackId(e.currentTarget.value as DemoPackId)}
             disabled={state.kind === "loading"}
             aria-label="Allowlisted demo pack"
           >
-            {PACK_OPTIONS.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.label}
+            {DEMO_PACK_ALLOWLIST.map((packIdOption) => (
+              <option key={packIdOption} value={packIdOption}>
+                {packIdOption}
               </option>
             ))}
           </Select>

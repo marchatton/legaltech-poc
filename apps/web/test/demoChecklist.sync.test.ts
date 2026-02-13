@@ -12,11 +12,11 @@ function readUtf8(p: string): string {
   return fs.readFileSync(p, "utf8");
 }
 
-function extractDemoPackIdsFromToolbarSource(src: string): string[] {
-  const match = src.match(/const PACK_OPTIONS\s*=\s*\[((?:.|\n)*?)\]\s*as const;/);
+function extractDemoPackIdsFromAllowlistSource(src: string): string[] {
+  const match = src.match(/DEMO_PACK_ALLOWLIST\s*=\s*\[((?:.|\n)*?)\]\s*as const;/);
   if (!match) return [];
   const block = match[1] ?? "";
-  return [...block.matchAll(/id:\s*"([^"]+)"/g)].map((m) => m[1]).filter(Boolean);
+  return [...block.matchAll(/"([^"]+)"/g)].map((m) => m[1]).filter(Boolean);
 }
 
 describe("0007 demo checklist", () => {
@@ -32,10 +32,13 @@ describe("0007 demo checklist", () => {
 
     const demoToolbarPath = path.join(root, "apps/web/app/DemoToolbar.tsx");
     const demoToolbar = readUtf8(demoToolbarPath);
-    const packIds = extractDemoPackIdsFromToolbarSource(demoToolbar);
+    const allowlistPath = path.join(root, "apps/web/lib/demoPackAllowlist.ts");
+    const allowlistSource = readUtf8(allowlistPath);
+    const packIds = extractDemoPackIdsFromAllowlistSource(allowlistSource);
 
     // If this ever goes empty, the toolbar structure changed; update this guard.
     expect(packIds.length).toBeGreaterThan(0);
+    expect(demoToolbar).toContain("DEMO_PACK_ALLOWLIST");
     for (const id of packIds) {
       expect(checklist).toContain(id);
     }

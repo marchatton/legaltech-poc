@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-02-13 02:55:31 | run=20260213-005806-15124 | iter=8 | mode=build | story=US-008 | duration=606s | status=success
 - 2026-02-13 02:45:23 | run=20260213-005806-15124 | iter=7 | mode=build | story=US-007 | duration=896s | status=success
 - 2026-02-13 02:30:20 | run=20260213-005806-15124 | iter=6 | mode=build | story=US-006 | duration=1289s | status=success
 - 2026-02-13 02:08:49 | run=20260213-005806-15124 | iter=5 | mode=build | story=US-005 | duration=776s | status=success
@@ -255,3 +256,8 @@
 [2026-02-13 02:50:37] US-008 major code update: export csv now fail-closes precondition failures with EXPORT_BLOCKED and reason_codes; updated csv route + real-data e2e assertions for explicit reasons/no signed links
 [2026-02-13 02:53:22] US-008 verification complete: targeted export tests, pnpm lint/typecheck/test, pnpm build, and web dev server startup smoke all passing
 [2026-02-13 02:54:38] US-008 progress entry appended with commit + full verification matrix
+[2026-02-13 02:55:31] ITERATION 8 end (duration=606s)
+[2026-02-13 02:55:35] ITERATION 9 start (mode=build story=US-009)
+[2026-02-13 02:56:29] US-009 iteration 9 start: auditing allowlist and PR/nightly smoke coverage
+[2026-02-13 03:00:51] US-009 major code updates: shared demo allowlist, pack regression tests, PR/nightly smoke workflow+scripts
+[2026-02-13 03:05:21] US-009 verification complete: smoke tiers, lint/typecheck/test/build, dev server and browser toolbar flow check passed

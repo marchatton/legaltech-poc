@@ -13,13 +13,14 @@ import { orbitalMode } from "../../../../lib/runtimeMode";
 import { refreshFolderState } from "../../../../lib/folderState.server";
 import { enqueueDocumentIngest } from "../../../../lib/ingest/ingestQueue.server";
 import { newId } from "../../../../lib/ids";
+import { DEMO_PACK_ALLOWLIST } from "../../../../lib/demoPackAllowlist";
 import { putObjectWriteOnce, validateStorageKey } from "../../../../lib/objectStore.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
 
 const BodySchema = z.object({
-  pack_id: z.enum(["pack_01_clean", "pack_02_missing_rea", "pack_09_bad_citation"]),
+  pack_id: z.enum(DEMO_PACK_ALLOWLIST),
 });
 
 const PDF_FILENAME_RE = /^[A-Za-z0-9_-]+\.pdf$/i;

@@ -9,6 +9,8 @@
     "lint": "pnpm -r lint",
     "test:push": "pnpm -r --if-present test:push",
     "test:int": "pnpm -r --if-present test:int",
+    "smoke:pr": "pnpm --filter @orbital-poc/web test:smoke:allowlist && pnpm --filter @orbital-poc/web test:smoke:operator-pack09",
+    "smoke:nightly": "pnpm fixture:eval:all && pnpm --filter @orbital-poc/web test:smoke:operator-pack09",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "verify": "bash scripts/verify.sh",

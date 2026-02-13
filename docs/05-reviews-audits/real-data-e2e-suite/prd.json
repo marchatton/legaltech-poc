@@ -311,7 +311,7 @@
     {
       "id": "US-008",
       "title": "Export fail-closed behavior is strict and observable",
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "US-007"
       ],
@@ -322,13 +322,13 @@
         "Negative: blocked or incomplete runs never produce signed download links."
       ],
       "startedAt": "2026-02-13T02:45:25.746182+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-02-13T02:45:25.746197+00:00"
+      "completedAt": "2026-02-13T02:55:31.858211+00:00",
+      "updatedAt": "2026-02-13T02:55:31.858177+00:00"
     },
     {
       "id": "US-009",
       "title": "Demo-prod pack_09 allowlist and PR/nightly smoke",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "US-008"
       ],
@@ -338,7 +338,10 @@
         "PR and nightly smoke include pack_09 operator path checks.",
         "Example: operator selects pack 09, runs flow, and observes blocked export contract.",
         "Negative: non-allowlisted arbitrary pack IDs remain validation-rejected."
-      ]
+      ],
+      "startedAt": "2026-02-13T02:55:34.101496+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-13T02:55:34.101518+00:00"
     },
     {
       "id": "US-010",

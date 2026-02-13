@@ -10,6 +10,8 @@
     "lint": "next lint",
     "test:push": "vitest run --exclude \"test/**/*.int.test.ts\"",
     "test:int": "vitest run test/*.int.test.ts test/*.e2e.int.test.ts",
+    "test:smoke:allowlist": "vitest run test/demoPackAllowlist.sync.test.ts test/demoLoadPack.validation.test.ts",
+    "test:smoke:operator-pack09": "vitest run test/realDataWorkflows.e2e.int.test.ts --testNamePattern \"operator smoke: load-pack bad citation flow stays export-blocked\"",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
