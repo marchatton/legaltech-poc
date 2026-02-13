@@ -100,4 +100,60 @@ describe("deriveTextOverlayFromSnippet", () => {
     expect(width).toBeLessThan(380);
     expect(height).toBeLessThan(120);
   });
+
+  it("prefers answer-focused highlights over broad header matches", () => {
+    const viewport = identityViewport();
+    const items = [
+      {
+        str: "COMMITMENT FOR TITLE INSURANCE",
+        transform: [1, 0, 0, 1, 60, 720],
+        width: 320,
+        height: 12,
+      },
+      {
+        str: "Commitment Date: January 12, 2026 Order No.: OW-an-5568",
+        transform: [1, 0, 0, 1, 60, 700],
+        width: 420,
+        height: 12,
+      },
+      {
+        str: "SCHEDULE A",
+        transform: [1, 0, 0, 1, 60, 630],
+        width: 120,
+        height: 12,
+      },
+      {
+        str: "1. Proposed Insured: 18W18 Acquisition LLC",
+        transform: [1, 0, 0, 1, 60, 612],
+        width: 330,
+        height: 12,
+      },
+      {
+        str: "2. Policy Amount: $75,000,000",
+        transform: [1, 0, 0, 1, 60, 596],
+        width: 260,
+        height: 12,
+      },
+    ];
+
+    const polygons = deriveTextOverlayFromSnippet({
+      items,
+      snippet:
+        "COMMITMENT FOR TITLE INSURANCE Commitment Date: January 12, 2026 Order No.: OW-an-5568 " +
+        "SCHEDULE A 1. Proposed Insured: 18W18 Acquisition LLC 2. Policy Amount: $75,000,000",
+      focusText:
+        "Based on the provided evidence, the Proposed Insured is 18W18 Acquisition LLC. " +
+        "This is stated in Schedule A, Section 1.",
+      viewport,
+    });
+
+    expect(polygons).toBeTruthy();
+    expect(polygons?.length).toBeGreaterThan(0);
+
+    const allY = (polygons ?? []).flatMap((poly) => poly.map(([, y]) => y));
+
+    // Focused matching should stay in the Schedule A region rather than the top-page header.
+    expect(Math.max(...allY)).toBeLessThan(660);
+    expect(Math.min(...allY)).toBeGreaterThan(580);
+  });
 });

@@ -39,6 +39,7 @@ export type ViewerEvidenceData = {
   pageNumber: number;
   polygons: NormPolygons;
   snippet: string;
+  answerText: string | null;
   snippetHash: string;
   computedSnippetHash: string;
   errorCode: string | null;
@@ -494,6 +495,7 @@ export function ReportTriageProvider(props: ProviderProps) {
       return;
     }
     const citationId = activeCitationId;
+    const rowAnswer = activeRow.answer;
     const chipGate = citationChipGateForRow(activeRow);
 
     const controller = new AbortController();
@@ -554,6 +556,7 @@ export function ReportTriageProvider(props: ProviderProps) {
             pageNumber: citation.pageNumber,
             polygons: citation.polygons,
             snippet: citation.snippet,
+            answerText: rowAnswer,
             snippetHash: citation.snippetHash,
             computedSnippetHash: computedSnippetHash ?? "sha256:unavailable",
             errorCode: viewerErrorCode,

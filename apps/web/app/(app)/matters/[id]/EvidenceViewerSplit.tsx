@@ -45,6 +45,7 @@ function EvidenceViewerPanelContent() {
           pageNumber={viewerState.data.pageNumber}
           polygons={viewerState.data.polygons}
           snippet={viewerState.data.snippet}
+          answerText={viewerState.data.answerText}
           snippetHash={viewerState.data.snippetHash}
           computedSnippetHash={viewerState.data.computedSnippetHash}
           errorCode={viewerState.data.errorCode}

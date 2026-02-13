@@ -30,6 +30,7 @@ type Props = {
   pageNumber: number;
   polygons: NormPolygons;
   snippet: string;
+  answerText?: string | null;
   snippetHash: string;
   computedSnippetHash: string;
   errorCode: string | null;
@@ -432,6 +433,7 @@ export function CitationViewerClient(props: Props) {
             ? deriveTextOverlayFromSnippet({
                 items: textContent.items,
                 snippet: props.snippet,
+                focusText: props.answerText ?? null,
                 viewport,
               })
             : null;

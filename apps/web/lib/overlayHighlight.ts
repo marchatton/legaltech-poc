@@ -25,6 +25,7 @@ type MatchedRect = Rect & {
   centerY: number;
   height: number;
   score: number;
+  normalizedText: string;
 };
 
 type MatchedGroup = {
@@ -35,6 +36,7 @@ type MatchedGroup = {
   centerY: number;
   maxHeight: number;
   score: number;
+  normalizedText: string;
 };
 
 const STOP_WORDS = new Set([
@@ -182,6 +184,7 @@ function toMatchedRect(item: PdfTextItemLike, viewport: PdfJsViewportLike, token
     height,
     centerY: minY + height / 2,
     score,
+    normalizedText,
   };
 }
 
@@ -200,6 +203,7 @@ function mergeIntoLines(rects: MatchedRect[]): MatchedGroup[] {
         centerY: rect.centerY,
         maxHeight: rect.height,
         score: rect.score,
+        normalizedText: rect.normalizedText,
       });
       continue;
     }
@@ -214,6 +218,7 @@ function mergeIntoLines(rects: MatchedRect[]): MatchedGroup[] {
         centerY: rect.centerY,
         maxHeight: rect.height,
         score: rect.score,
+        normalizedText: rect.normalizedText,
       });
       continue;
     }
@@ -224,6 +229,7 @@ function mergeIntoLines(rects: MatchedRect[]): MatchedGroup[] {
     last.maxY = Math.max(last.maxY, rect.maxY);
     last.maxHeight = Math.max(last.maxHeight, rect.height);
     last.score += rect.score;
+    last.normalizedText = `${last.normalizedText} ${rect.normalizedText}`;
     last.centerY = (last.minY + last.maxY) / 2;
   }
 
@@ -283,6 +289,7 @@ export function isFullPageFallbackPolygons(polygons: NormPolygons): boolean {
 export function deriveTextOverlayFromSnippet(args: {
   items: unknown[];
   snippet: string;
+  focusText?: string | null;
   viewport: PdfJsViewportLike;
   maxLines?: number;
 }): CssPolygons | null {
@@ -291,28 +298,64 @@ export function deriveTextOverlayFromSnippet(args: {
     return null;
   }
 
-  const tokens = tokensFromSnippet(args.snippet);
-  if (tokens.length === 0) return null;
+  function deriveFromTokens(input: {
+    tokens: string[];
+    maxLines: number;
+    minGroupScore: number;
+    requiredAnyTokens?: string[];
+  }): CssPolygons | null {
+    if (input.tokens.length === 0) return null;
 
-  const rects: MatchedRect[] = [];
-  for (const rawItem of args.items) {
-    const rect = toMatchedRect(rawItem as PdfTextItemLike, args.viewport, tokens);
-    if (rect) rects.push(rect);
+    const rects: MatchedRect[] = [];
+    for (const rawItem of args.items) {
+      const rect = toMatchedRect(rawItem as PdfTextItemLike, args.viewport, input.tokens);
+      if (rect) rects.push(rect);
+    }
+    if (rects.length === 0) return null;
+
+    const requiredTokens = input.requiredAnyTokens ?? [];
+    const grouped = mergeIntoLines(rects)
+      .filter((group) => group.score >= input.minGroupScore)
+      .filter((group) =>
+        requiredTokens.length === 0 ? true : requiredTokens.some((token) => group.normalizedText.includes(token)),
+      );
+    if (grouped.length === 0) return null;
+
+    const selected = grouped
+      .sort((a, b) => (a.score === b.score ? a.minY - b.minY : b.score - a.score))
+      .slice(0, input.maxLines)
+      .sort((a, b) => a.minY - b.minY);
+
+    const polygons = selected
+      .map((group) => groupToPolygon(group, args.viewport))
+      .filter((poly): poly is CssPolygons[number] => Array.isArray(poly) && poly.length >= 3);
+
+    return polygons.length > 0 ? polygons : null;
   }
-  if (rects.length === 0) return null;
-
-  const grouped = mergeIntoLines(rects);
-  if (grouped.length === 0) return null;
 
   const maxLines = args.maxLines ?? 4;
-  const selected = grouped
-    .sort((a, b) => (a.score === b.score ? a.minY - b.minY : b.score - a.score))
-    .slice(0, maxLines)
-    .sort((a, b) => a.minY - b.minY);
+  const snippetTokens = tokensFromSnippet(args.snippet);
+  if (snippetTokens.length === 0) return null;
 
-  const polygons = selected
-    .map((group) => groupToPolygon(group, args.viewport))
-    .filter((poly): poly is CssPolygons[number] => Array.isArray(poly) && poly.length >= 3);
+  const focusTokensRaw = tokensFromSnippet(args.focusText ?? "");
+  if (focusTokensRaw.length >= 2) {
+    const snippetTokenSet = new Set(snippetTokens);
+    const focusTokensInSnippet = focusTokensRaw.filter((token) => snippetTokenSet.has(token));
+    const focusTokens = focusTokensInSnippet.length >= 2 ? focusTokensInSnippet : focusTokensRaw;
+    const requiredFocusTokens = focusTokens.filter((token) => /\d/.test(token));
 
-  return polygons.length > 0 ? polygons : null;
+    const focusOverlay = deriveFromTokens({
+      tokens: focusTokens,
+      maxLines: Math.min(maxLines, 2),
+      minGroupScore: 2,
+      requiredAnyTokens: requiredFocusTokens.length > 0 ? requiredFocusTokens : undefined,
+    });
+    if (focusOverlay) return focusOverlay;
+  }
+
+  return deriveFromTokens({
+    tokens: snippetTokens,
+    maxLines,
+    minGroupScore: 1,
+  });
 }
