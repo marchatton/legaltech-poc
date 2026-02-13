@@ -69,6 +69,10 @@ I also used the Compound engineering workflow (`compound-docs`) to consolidate s
 2. Workflow Dev Kit for durable workflows and state management.
 3. Azure Document Intelligence for document/layout handling in the doc pipeline.
 
+### 30 sec tech stack overview (speaker-ready)
+
+I used `Next.js 15` + `TypeScript` so UI and API live in one deploy, and chat streams from route handlers without a separate backend service. `Tailwind` is wired to a shared preset + token system, so I can ship fast without UI drift. On ingest, documents are split with `char_window_v0` chunks (`1500` max chars, `200` overlap) and stored with page + char offsets and `text_hash` for idempotent re-indexing. Chat retrieval is hybrid by design: lexical (`websearch_to_tsquery` + `ts_rank_cd`) plus semantic (`pgvector` cosine over `1536`-dim embeddings), merged at `0.55` lexical / `0.45` semantic. In chat, I take top-`6` chunks and return citation sources with `document_id`, `page_number`, and anchor state; citation records keep `snippet_hash` and polygon geometry so evidence can be verified and highlighted.
+
 ## 7) Close (30 sec)
 
 This is not a production claim. It is a shipped learning system that proves:
