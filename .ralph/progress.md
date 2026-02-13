@@ -1100,3 +1100,45 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-
   - Useful context
   - In this environment, local artefacts checks required `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1` and used `-p 3201` because `3101` was already in use.
 ---
+## [2026-02-13 01:15:34 UTC] - US-001: Canonical readiness contract across list/detail/API
+Thread: 
+Run: 20260213-005806-15124 (iteration 1)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-1.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-1.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: b596291 fix(readiness): unify list/detail/run-start contract
+- Post-commit status: clean
+- Verification:
+  - Command: pnpm lint -> PASS
+  - Command: pnpm typecheck -> PASS
+  - Command: pnpm test -> PASS
+  - Command: pnpm build -> PASS
+  - Command: pnpm --filter @orbital-poc/web dev -p 3101 -> PASS
+  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (list/detail/run-start parity smoke; screenshots in tmp/us001-matters-list.png, tmp/us001-pack02-detail.png, tmp/us001-pack01-detail.png) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/progress.md
+  - apps/web/lib/readinessContract.server.ts
+  - apps/web/lib/mattersList.server.ts
+  - apps/web/app/(app)/matters/page.tsx
+  - apps/web/app/(app)/matters/[id]/page.tsx
+  - apps/web/app/(api)/folders/[id]/route.ts
+  - apps/web/app/(api)/folders/[id]/runs/route.ts
+  - apps/web/test/readinessContractParity.int.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+- What was implemented
+  - Added a shared canonical readiness contract (`state`, `reason_code`, `reason`, `missing_documents`) and centralized missing-prerequisite detection for demo packs.
+  - Wired canonical readiness into matters list data and UI row status/reason copy so list reflects runnable vs blocked parity.
+  - Wired canonical readiness into matter detail page quick-start gating/badge state so blocked readiness surfaces explicit reason text.
+  - Extended folder detail API payload to include canonical readiness for parity with list and run-start surfaces.
+  - Updated run-start API conflict handling to return canonical readiness message plus `readiness_reason_code` details when blocked.
+  - Added integration coverage asserting pack_01 runnable vs pack_02_missing_rea blocked parity across list, detail API, and run-start API (including reason-code/text alignment).
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - A single readiness-contract helper removes copy/logic drift between UI state and API denial envelopes.
+  - Gotchas encountered
+  - In this Sprite environment, `dev-browser` must run with `./server.sh --headless` (no X server).
+  - Useful context
+  - `vitest run -- <file>` still executes the full configured suite in this repo; plan verification runtime accordingly.
+---
