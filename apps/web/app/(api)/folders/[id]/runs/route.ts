@@ -8,6 +8,7 @@ import { refreshFolderState } from "../../../../../lib/folderState.server";
 import { newId } from "../../../../../lib/ids";
 import { assertJsonContentType } from "../../../../../lib/jsonContentType";
 import { loadQuestionSetV1 } from "../../../../../lib/questionSet.server";
+import { resolveCanonicalReadiness } from "../../../../../lib/readinessContract.server";
 import { createTraceContext } from "../../../../../lib/trace.server";
 import { kickInlineWdkWorker } from "../../../../../lib/wdk/wdkInlineKick.server";
 import { quickStartStepHandlers } from "../../../../../steps/quickStartStepHandlers.server";
@@ -97,13 +98,6 @@ function runStartConflictForLatestRun(state: string): string {
     return "Latest Quick Start already completed. Review the outputs below, or load the pack again to create a fresh matter.";
   }
   return `Quick Start already ${state} for this matter. Wait for this run to finish, or load the pack again to create a fresh matter.`;
-}
-
-function runStartConflictForFolderState(state: string): string {
-  if (state === "failed") return "Folder ingest failed. Retry ingest or re-index.";
-  if (state === "empty") return "No indexed documents yet. Upload a source PDF and refresh readiness.";
-  if (state === "ingesting") return "Folder is ingesting. Wait for indexing to complete, then retry Quick Start.";
-  return `Folder is not runnable yet (state: ${state}).`;
 }
 
 async function findRunByIdempotencyKey(args: { folderId: string; idempotencyKey: string }): Promise<RunRow | null> {
@@ -243,8 +237,8 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   }
 
   const folderId = parsedParams.data.id;
-  const folders = await sql<{ id: string; state: string; latest_index_version: string }[]>`
-    SELECT id, state, latest_index_version
+  const folders = await sql<{ id: string; name: string; state: string; latest_index_version: string }[]>`
+    SELECT id, name, state, latest_index_version
     FROM folders
     WHERE id = ${folderId}
     LIMIT 1
@@ -283,8 +277,8 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
   // Keep folder state consistent with latest persisted facts before enforcing runnable preconditions.
   await refreshFolderState(folderId);
 
-  const refreshed = await sql<{ state: string; latest_index_version: string }[]>`
-    SELECT state, latest_index_version
+  const refreshed = await sql<{ name: string; state: string; latest_index_version: string }[]>`
+    SELECT name, state, latest_index_version
     FROM folders
     WHERE id = ${folderId}
     LIMIT 1
@@ -297,12 +291,28 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
     });
   }
 
-  if (folder.state !== "indexed" && folder.state !== "ready") {
+  const docs = await sql<Array<{ filename: string }>>`
+    SELECT filename
+    FROM documents
+    WHERE folder_id = ${folderId}
+  `;
+  const readiness = resolveCanonicalReadiness({
+    folderState: folder.state,
+    folderName: folder.name,
+    documentFilenames: docs.map((doc) => doc.filename),
+  });
+
+  if (readiness.state !== "runnable") {
     return Response.json(
       runsErrorEnvelope({
         code: "CONFLICT",
-        message: runStartConflictForFolderState(folder.state),
-        details: { folder_state: folder.state },
+        message: readiness.reason,
+        details: {
+          folder_state: folder.state,
+          readiness_reason_code: readiness.reason_code,
+          readiness_reason: readiness.reason,
+          missing_documents: readiness.missing_documents,
+        },
         traceId,
       }),
       { status: 409, headers },

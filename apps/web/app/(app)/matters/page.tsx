@@ -63,10 +63,13 @@ function buildQueryString(filters: MatterListFilters, page?: number): string {
   return qs.length > 0 ? `?${qs}` : "";
 }
 
-function statusForState(state: string): { label: string; variant: BadgeVariant; dot: StatusDotStatus } {
-  if (state === "ready" || state === "indexed") return { label: "Active", variant: "success", dot: "success" };
-  if (state === "failed") return { label: "Needs Attention", variant: "destructive", dot: "error" };
-  return { label: "Needs Attention", variant: "warning", dot: "warning" };
+function statusForReadiness(args: {
+  readinessState: "runnable" | "blocked";
+  folderState: string;
+}): { label: string; variant: BadgeVariant; dot: StatusDotStatus } {
+  if (args.readinessState === "runnable") return { label: "Active", variant: "success", dot: "success" };
+  if (args.folderState === "failed") return { label: "Needs Attention", variant: "destructive", dot: "error" };
+  return { label: "Blocked", variant: "warning", dot: "warning" };
 }
 
 function formatTimestampParts(iso: string): { date: string; time: string } {
@@ -210,7 +213,10 @@ export default async function MattersPage(props: {
                   </thead>
                   <tbody>
                     {visibleMatters.map((matter, i) => {
-                      const status = statusForState(matter.state);
+                      const status = statusForReadiness({
+                        readinessState: matter.readiness.state,
+                        folderState: matter.state,
+                      });
                       const delay = Math.min(i * 30, 300);
                       const createdAt = formatTimestampParts(matter.created_at);
                       const detailHref = `/matters/${encodeURIComponent(matter.id)}`;
@@ -220,6 +226,7 @@ export default async function MattersPage(props: {
                           <TD className="p-0 align-top">
                             <Link href={detailHref} className="block px-3 py-2.5">
                               <div className="text-sm font-medium text-foreground">{matter.name}</div>
+                              <div className="mt-1 text-2xs text-muted-foreground">{matter.readiness.reason}</div>
                             </Link>
                           </TD>
                           <TD className="p-0 align-top">

@@ -199,3 +199,7 @@
 [2026-02-12 16:38:15] US-008 verification complete: pnpm lint/typecheck/test, pnpm build, and dev-browser checks passed (disabled unresolved source chip + fail-closed viewer reason with zero overlay polygons)
 [2026-02-12 16:41:34] US-008 progress entry appended with verification, browser evidence, and commit details
 [2026-02-12 16:42:21] ITERATION 4 end (duration=1615s)
+[2026-02-13 00:58:07] ITERATION 1 start (mode=build story=US-001)
+[2026-02-13 00:58:36] US-001 start: auditing readiness contract across list/detail/run-start
+[2026-02-13 01:05:38] US-001 major code changes: added canonical readiness contract and wired list/detail/run-start parity
+[2026-02-13 01:14:16] US-001 verification complete: lint/typecheck/test/build passed; browser parity checks passed for list/detail/run-start

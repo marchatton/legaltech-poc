@@ -5,6 +5,7 @@ import { safeErrorEnvelope } from "@orbital-poc/core";
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
 import { refreshFolderState } from "../../../../lib/folderState.server";
+import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.server";
 import { createTraceContext } from "../../../../lib/trace.server";
 
 export const runtime = "nodejs";
@@ -73,12 +74,24 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
     });
   }
 
+  const docs = await sql<Array<{ filename: string }>>`
+    SELECT filename
+    FROM documents
+    WHERE folder_id = ${folderId}
+  `;
+  const readiness = resolveCanonicalReadiness({
+    folderState: folder.state,
+    folderName: folder.name,
+    documentFilenames: docs.map((doc) => doc.filename),
+  });
+
   return Response.json(
     {
       folder: {
         id: folder.id,
         name: folder.name,
         state: folder.state,
+        readiness,
         latest_index_version: folder.latest_index_version,
         created_at: folder.created_at.toISOString(),
         updated_at: folder.updated_at.toISOString(),

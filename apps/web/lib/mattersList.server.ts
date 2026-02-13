@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { ensureSchema, sql } from "./db.server";
 import type { FolderState } from "./folderState.server";
+import { resolveCanonicalReadiness, type CanonicalReadiness } from "./readinessContract.server";
 
 const FolderStateSchema = z.enum(["empty", "ingesting", "indexed", "ready", "failed"]);
 const MatterSavedViewSchema = z.enum(["active", "needs_attention", "demo_packs"]);
@@ -31,6 +32,7 @@ export type MatterListItem = {
   id: string;
   name: string;
   state: FolderState;
+  readiness: CanonicalReadiness;
   latest_index_version: string;
   created_at: string;
   updated_at: string;
@@ -116,10 +118,30 @@ export async function listMatters(filters: MatterListFilters): Promise<MatterLis
     ORDER BY created_at DESC, id DESC
   `;
 
+  const folderIds = rows.map((row) => row.id);
+  const docsByFolder = new Map<string, string[]>();
+  if (folderIds.length > 0) {
+    const docs = await sql<Array<{ folder_id: string; filename: string }>>`
+      SELECT folder_id, filename
+      FROM documents
+      WHERE folder_id = ANY(${sql.array(folderIds)})
+    `;
+    for (const doc of docs) {
+      const existing = docsByFolder.get(doc.folder_id);
+      if (existing) existing.push(doc.filename);
+      else docsByFolder.set(doc.folder_id, [doc.filename]);
+    }
+  }
+
   return rows.map((row) => ({
     id: row.id,
     name: row.name,
     state: row.state,
+    readiness: resolveCanonicalReadiness({
+      folderState: row.state,
+      folderName: row.name,
+      documentFilenames: docsByFolder.get(row.id) ?? [],
+    }),
     latest_index_version: row.latest_index_version,
     created_at: row.created_at.toISOString(),
     updated_at: row.updated_at.toISOString(),

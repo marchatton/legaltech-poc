@@ -191,7 +191,7 @@
     {
       "id": "US-001",
       "title": "Canonical readiness contract across list/detail/API",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "description": "As an operator, I want readiness states to match across list, detail, and run-start APIs so I can trust whether a matter is runnable.",
       "acceptanceCriteria": [
@@ -199,7 +199,10 @@
         "Given pack_02_missing_rea, readiness is blocked with explicit reason across list, detail, and API surfaces.",
         "Example: run-start denial reason codes match blocked readiness reason text shown in UI.",
         "Negative: UI never shows ready while run-start API denies missing prerequisites."
-      ]
+      ],
+      "startedAt": "2026-02-13T00:58:06.850849+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-02-13T00:58:06.850890+00:00"
     },
     {
       "id": "US-002",

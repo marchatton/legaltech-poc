@@ -18,6 +18,7 @@ import {
   parseReportTriageFilters,
   type ReportTriageTab,
 } from "../../../../lib/reportTriage.server";
+import { resolveCanonicalReadiness } from "../../../../lib/readinessContract.server";
 import { Badge, type BadgeVariant } from "../../../ui/Badge";
 import { EmptyState } from "../../../ui/EmptyState";
 import { buttonClassName } from "../../../ui/Button";
@@ -186,18 +187,23 @@ function renderUrl(doc: DocRow): string | null {
   }).toString()}`;
 }
 
-function matterStateBadgeVariant(state: string): BadgeVariant {
-  if (state === "ready" || state === "indexed") return "success";
-  if (state === "failed") return "destructive";
+function matterStateBadgeVariant(args: {
+  readinessState: "runnable" | "blocked";
+  folderState: string;
+}): BadgeVariant {
+  if (args.readinessState === "runnable") return "success";
+  if (args.folderState === "failed") return "destructive";
   return "warning";
 }
 
-function matterStatusLabel(state: string): string {
-  if (state === "ready" || state === "indexed") return "Active";
-  if (state === "failed") return "Needs Attention";
-  if (state === "ingesting") return "Processing";
-  if (state === "empty") return "Setup";
-  return state;
+function matterStatusLabel(args: {
+  readinessState: "runnable" | "blocked";
+  folderState: string;
+}): string {
+  if (args.readinessState === "runnable") return "Ready";
+  if (args.folderState === "failed") return "Needs Attention";
+  if (args.folderState === "ingesting") return "Processing";
+  return "Blocked";
 }
 
 function DocumentIcon() {
@@ -389,7 +395,13 @@ export default async function MatterPage(props: {
     0,
   );
 
-  const runnable = folder.state === "indexed" || folder.state === "ready";
+  const canonicalReadiness = resolveCanonicalReadiness({
+    folderState: folder.state,
+    folderName: folder.name,
+    documentFilenames: setupDocuments.map((doc) => doc.filename),
+    indexedReadyCount,
+  });
+  const runnable = canonicalReadiness.state === "runnable";
   const chatContextReady = runnable && indexedReadyCount > 0;
   const chatContextGuidance =
     indexedReadyCount === 0
@@ -406,18 +418,18 @@ export default async function MatterPage(props: {
       state: "blocked",
       reason: `Quick Start is ${latestRun.state}. Wait for it to finish.`,
     };
-  } else if (!runnable) {
+  } else if (canonicalReadiness.state !== "runnable") {
     quickStartReadiness = {
       state: "blocked",
       reason:
-        indexedReadyCount === 0
+        canonicalReadiness.reason_code === "NO_INDEXED_DOCUMENTS"
           ? "Upload a PDF and refresh readiness before running Quick Start."
-          : "Waiting for matter to reach ready state.",
+          : canonicalReadiness.reason,
     };
   } else {
     quickStartReadiness = {
       state: "ready",
-      reason: `${indexedReadyCount} document${indexedReadyCount === 1 ? "" : "s"} ready. Run Quick Start now.`,
+      reason: canonicalReadiness.reason,
     };
   }
   const unsafeOverrideEnabled =
@@ -454,8 +466,17 @@ export default async function MatterPage(props: {
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
             <div className="flex items-center gap-3 min-w-0">
               <h1 className="font-serif text-2xl font-semibold text-foreground truncate">{folder.name}</h1>
-              <Badge variant={matterStateBadgeVariant(folder.state)} className="shrink-0">
-                {matterStatusLabel(folder.state)}
+              <Badge
+                variant={matterStateBadgeVariant({
+                  readinessState: canonicalReadiness.state,
+                  folderState: folder.state,
+                })}
+                className="shrink-0"
+              >
+                {matterStatusLabel({
+                  readinessState: canonicalReadiness.state,
+                  folderState: folder.state,
+                })}
               </Badge>
             </div>
 
