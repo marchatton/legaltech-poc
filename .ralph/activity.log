@@ -282,3 +282,4 @@
 [2026-02-13 03:26:56] Start US-012 work: parity drift detection and telemetry taxonomy
 [2026-02-13 03:32:47] US-012 major code changes: added cross-surface parity telemetry helper, smoke readiness mismatch gate, and export blocked run_id context
 [2026-02-13 03:35:54] US-012 verification complete: focused vitest, lint, typecheck, full test, build, and dev server probe passed
+[2026-02-13 03:37:09] US-012 progress entry appended to .ralph/progress.md

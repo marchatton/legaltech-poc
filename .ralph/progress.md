@@ -1546,3 +1546,44 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Useful context
   - Returning conflict details with canonical `run_id` makes duplicate responses actionable for operator UX and client retries.
 ---
+## [2026-02-13 03:36 UTC] - US-012: Cross-surface parity drift detection and telemetry taxonomy
+Thread: 
+Run: 20260213-005806-15124 (iteration 12)
+Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-12.log
+Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-12.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: fed53b5 feat(parity): add cross-surface drift checks
+- Post-commit status: `clean`
+- Verification:
+  - Command: `pnpm --filter @orbital-poc/web exec vitest run lib/crossSurfaceParity.server.test.ts lib/exportCsv.routes.test.ts` -> PASS
+  - Command: `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts --testNamePattern "operator smoke: load-pack bad citation flow stays export-blocked"` -> PASS
+  - Command: `pnpm lint` -> PASS
+  - Command: `pnpm typecheck` -> PASS
+  - Command: `pnpm test` -> PASS
+  - Command: `pnpm build` -> PASS
+  - Command: `pnpm --filter @orbital-poc/web dev -p 3101` (HTTP probe via `curl -I http://127.0.0.1:3101`) -> PASS
+- Files changed:
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - apps/web/app/(api)/export/csv/route.ts
+  - apps/web/lib/crossSurfaceParity.server.ts
+  - apps/web/lib/crossSurfaceParity.server.test.ts
+  - apps/web/lib/exportCsv.routes.test.ts
+  - apps/web/test/realDataWorkflows.e2e.int.test.ts
+  - docs/05-reviews-audits/real-data-e2e-suite/prd.json
+  - .ralph/progress.md
+- What was implemented
+  - Added `apps/web/lib/crossSurfaceParity.server.ts` to compare list/detail/run/report/export surfaces under a shared run context and emit parity metrics plus canonical telemetry tags (`stage`, `story_id`, `pack_id`, `run_id`) for each surface.
+  - Added `assertSmokeReadinessParity` so verification fails hard when `readiness_state_mismatch_detected` is above zero, with error text containing exact stage and story.
+  - Added unit coverage in `apps/web/lib/crossSurfaceParity.server.test.ts` for canonical tag shape, zero-drift parity, readiness mismatch failure semantics, and run-context drift detection.
+  - Wired operator smoke e2e (`test/realDataWorkflows.e2e.int.test.ts`) to run parity checks across list/detail/run/report/export outputs for the same pack/run context (`pack_09_bad_citation`), and fail if readiness drift is detected.
+  - Extended blocked export envelopes to include `run_id` consistently for citation-failure and missing-citation failure paths so export surface parity can be correlated to the same run context.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - A small parity helper with typed telemetry tags is an effective way to centralize cross-surface drift rules and keep smoke assertions concise.
+  - Gotchas encountered
+  - `vitest --testNamePattern` skips non-matching files entirely; run helper/unit suites separately when validating both focused smoke and library behavior in one iteration.
+  - Useful context
+  - Including `run_id` in fail-closed export envelopes makes parity diagnostics deterministic without changing safety behavior.
+---
