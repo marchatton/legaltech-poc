@@ -72,7 +72,7 @@ export function DemoToolbar(props: DemoToolbarProps) {
         <span className="rounded-ui-sm border border-orange-400/40 bg-orange-500/15 px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-widest text-orange-600 dark:text-orange-300">
           DEMO MODE
         </span>
-        <span className="text-sm font-medium text-muted-foreground">Operator Controls</span>
+        <span className="text-sm font-medium text-muted-foreground">Demo Controls</span>
         {props.environmentLabel ? (
           <span className="rounded-ui-sm border border-border bg-muted px-2 py-0.5 font-mono text-2xs font-medium text-muted-foreground">
             {props.environmentLabel}

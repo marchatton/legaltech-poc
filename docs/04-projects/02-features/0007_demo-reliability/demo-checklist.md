@@ -18,6 +18,12 @@ DEMO_MODE=1 pnpm dev
 - [ ] Confirm fixture packs exist on disk:
   - [ ] `docs/08-example-data/pack_01_clean/docs/*.pdf`
   - [ ] `docs/08-example-data/pack_02_missing_rea/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_03_mismatch_and_cert_gap/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_04_multi_parcel/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_05_partial_release/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_06_overlapping_easements/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_07_scans_rotated_low_quality/docs/*.pdf`
+  - [ ] `docs/08-example-data/pack_08_defined_terms_and_cross_refs/docs/*.pdf`
   - [ ] `docs/08-example-data/pack_09_bad_citation/docs/*.pdf`
 
 ## Demo: `pack_01_clean` (happy path)
