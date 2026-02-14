@@ -27,6 +27,7 @@ type Props = {
   citationId: string;
   pdfUrl: string;
   documentId: string;
+  documentLabel: string;
   pageNumber: number;
   polygons: NormPolygons;
   snippet: string;
@@ -101,14 +102,14 @@ function recoveryChecklistForReason(reasonCode: string): string[] {
   if (reasonCode === "SNIPPET_HASH_MISMATCH") {
     return [
       "Confirm the snippet text still matches the cited source passage.",
-      "Return to the report row and keep it in needs-review until citation text is corrected.",
+      "Return to the report row and leave the review step open until citation text is corrected.",
       "Use Flag citation wrong below to acknowledge incorrect evidence.",
     ];
   }
 
   if (reasonCode === "DOC_MISMATCH" || reasonCode === "WRONG_PAGE") {
     return [
-      "Confirm document_id and page are targeting the expected source.",
+      "Confirm the document and page are targeting the expected source.",
       "Re-open evidence from the report row citation chip to reload the anchor target.",
       "Keep the row in flagged status until the citation target resolves.",
     ];
@@ -502,7 +503,7 @@ export function CitationViewerClient(props: Props) {
         <div className="h-14 border-b border-border bg-card flex items-center justify-between px-4 flex-shrink-0">
           <div className="flex items-center gap-3">
             <span className="font-mono text-sm font-medium text-foreground truncate max-w-[200px]">
-              {props.documentId}
+              {props.documentLabel}
             </span>
 
             <div className="h-5 w-px bg-border" />
@@ -626,7 +627,7 @@ export function CitationViewerClient(props: Props) {
               ) : (
                 <span className="flex items-center text-xs text-success font-medium px-2.5 py-1.5">
                   <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                  Verified at 100%
+                  Verified
                 </span>
               )}
             </div>
@@ -758,7 +759,7 @@ export function CitationViewerClient(props: Props) {
               <div className="rounded-ui-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 <div className="font-semibold">Citation could not be verified.</div>
                 <div className="mt-1 text-xs text-destructive/90">
-                  Keep this row in needs-review or use &quot;Flag citation as wrong&quot;.
+                  Keep this row open for review, or use &quot;Flag citation as wrong&quot;.
                 </div>
               </div>
 
@@ -805,7 +806,7 @@ export function CitationViewerClient(props: Props) {
                     <div className="mt-1 text-2xs">
                       {snippetHashMatches
                         ? "Computed snippet hash matches citation payload."
-                        : "Computed snippet hash differs from citation payload. Keep this row in needs-review until corrected."}
+                        : "Computed snippet hash differs from citation payload. Keep this row open for review until corrected."}
                     </div>
                   </div>
                 </div>
@@ -838,7 +839,7 @@ export function CitationViewerClient(props: Props) {
                 <div className="mt-1 text-2xs">
                   {snippetHashMatches
                     ? "Computed snippet hash matches citation payload."
-                    : "Computed snippet hash differs from citation payload. Keep this row in needs-review until corrected."}
+                    : "Computed snippet hash differs from citation payload. Keep this row open for review until corrected."}
                 </div>
               </div>
 

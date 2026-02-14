@@ -77,6 +77,7 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
       Array<{
         id: string;
         document_id: string;
+        document_filename: string | null;
         page_number: number;
         snippet: string;
         snippet_hash: string;
@@ -84,10 +85,12 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
         provenance_json: unknown;
       }>
     >`
-      SELECT c.id, c.document_id, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
+      SELECT c.id, c.document_id, d.filename AS document_filename, c.page_number, c.snippet, c.snippet_hash, c.polygons_json, r.provenance_json
       FROM citations c
       LEFT JOIN report_rows r
         ON r.id = c.report_row_id
+      LEFT JOIN documents d
+        ON d.id = c.document_id
       WHERE c.id = ${citationId}
       LIMIT 1
     `;
@@ -105,6 +108,7 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
         citation: {
           id: cit.id,
           document_id: cit.document_id,
+          document_filename: nonEmptyNullableString(cit.document_filename),
           page_number: cit.page_number,
           polygons: cit.polygons_json,
           snippet: cit.snippet,

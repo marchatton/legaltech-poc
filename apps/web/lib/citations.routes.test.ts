@@ -62,6 +62,7 @@ describe("GET /citations/:id (db-only)", () => {
       citation: {
         id: citationId,
         document_id: row.document_id,
+        document_filename: null,
         page_number: row.page_number,
         polygons: row.polygons_json,
         snippet: row.snippet,
@@ -107,6 +108,7 @@ describe("GET /citations/:id (db-only)", () => {
       citation: {
         id: citationId,
         document_id: row.document_id,
+        document_filename: null,
         page_number: row.page_number,
         polygons: row.polygons_json,
         snippet: row.snippet,
@@ -148,6 +150,7 @@ describe("GET /citations/:id (db-only)", () => {
       citation: {
         id: citationId,
         document_id: row.document_id,
+        document_filename: null,
         page_number: row.page_number,
         polygons: row.polygons_json,
         snippet: row.snippet,

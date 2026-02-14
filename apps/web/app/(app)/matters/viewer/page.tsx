@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { fixtureDocumentId, parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 import Link from "next/link";
 
 import { headers } from "next/headers";
@@ -35,6 +35,7 @@ const CitationResponseSchema = z.object({
   citation: z.object({
     id: z.string().min(1),
     document_id: z.string().min(1),
+    document_filename: z.string().trim().min(1).nullable().optional(),
     page_number: z.number().int().positive(),
     polygons: z
       .array(z.array(z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)])).min(3))
@@ -84,6 +85,17 @@ function safeErrFromJson(json: unknown, fallback: SafeErr): SafeErr {
 
 function mattersPackHref(packId: string): string {
   return `/matters?pack=${packId}`;
+}
+
+function nonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function fallbackDocumentLabelFromId(documentId: string): string | null {
+  const parsed = parseFixtureDocumentId(documentId);
+  return parsed.ok ? parsed.filename : null;
 }
 
 export default async function MatterViewerPage(props: {
@@ -199,6 +211,17 @@ export default async function MatterViewerPage(props: {
     }
   }
   const resolvedPage = requestedPage ?? cit.page_number;
+  const filenameByDocumentId = new Map<string, string>();
+  for (const seedCitation of Object.values(snapshot.citations)) {
+    filenameByDocumentId.set(seedCitation.document_id, seedCitation.document_filename);
+  }
+  const documentLabel =
+    (requestedDocId && /\.pdf$/i.test(requestedDocId) ? requestedDocId : null) ??
+    filenameByDocumentId.get(resolvedDocId) ??
+    nonEmptyString(cit.document_filename) ??
+    fallbackDocumentLabelFromId(resolvedDocId) ??
+    resolvedDocId;
+
   let errorCode: string | null = null;
   if (computed !== cit.snippet_hash) errorCode = "SNIPPET_HASH_MISMATCH";
   else if (resolvedDocId !== cit.document_id) errorCode = "DOC_MISMATCH";
@@ -218,7 +241,7 @@ export default async function MatterViewerPage(props: {
           title="Viewer"
           message={
             <>
-              Failed to fetch render_url for <span className="font-mono">{resolvedDocId}</span> (page {resolvedPage}).
+              Failed to load the PDF preview for <span className="font-mono">{documentLabel}</span> (page {resolvedPage}).
             </>
           }
           detail={`${e.code}: ${e.message}`}
@@ -234,7 +257,7 @@ export default async function MatterViewerPage(props: {
         title="Viewer"
         message={
           <>
-            Failed to fetch render_url for <span className="font-mono">{resolvedDocId}</span> (page {resolvedPage}).
+            Failed to load the PDF preview for <span className="font-mono">{documentLabel}</span> (page {resolvedPage}).
           </>
         }
         detail={message}
@@ -246,7 +269,7 @@ export default async function MatterViewerPage(props: {
 
   const parsedRender = RenderResponseSchema.safeParse(renderJson);
   if (!parsedRender.success) {
-    return <StatePage title="Viewer" message="Invalid render_url payload." backHref={mattersPackHref(packId)} backLabel="Back to matters" />;
+    return <StatePage title="Viewer" message="Invalid PDF preview payload." backHref={mattersPackHref(packId)} backLabel="Back to matters" />;
   }
 
   const pdfUrl = parsedRender.data.render_url;
@@ -277,6 +300,7 @@ export default async function MatterViewerPage(props: {
           citationId={citationId}
           pdfUrl={pdfUrl}
           documentId={resolvedDocId}
+          documentLabel={documentLabel}
           pageNumber={resolvedPage}
           polygons={cit.polygons}
           snippet={cit.snippet}

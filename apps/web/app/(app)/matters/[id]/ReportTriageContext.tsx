@@ -36,6 +36,7 @@ export type CopyAction = "answer";
 export type ViewerEvidenceData = {
   citationId: string;
   documentId: string;
+  documentLabel: string;
   pageNumber: number;
   polygons: NormPolygons;
   snippet: string;
@@ -250,6 +251,7 @@ async function writeClipboardText(value: string): Promise<void> {
 function parseCitationResponse(json: unknown): {
   citationId: string;
   documentId: string;
+  documentLabel: string;
   pageNumber: number;
   polygons: NormPolygons;
   snippet: string;
@@ -271,6 +273,7 @@ function parseCitationResponse(json: unknown): {
   return {
     citationId,
     documentId,
+    documentLabel: nonEmptyString(citation.document_filename) ?? documentId,
     pageNumber,
     polygons,
     snippet,
@@ -553,6 +556,7 @@ export function ReportTriageProvider(props: ProviderProps) {
           data: {
             citationId: citation.citationId,
             documentId: citation.documentId,
+            documentLabel: citation.documentLabel,
             pageNumber: citation.pageNumber,
             polygons: citation.polygons,
             snippet: citation.snippet,

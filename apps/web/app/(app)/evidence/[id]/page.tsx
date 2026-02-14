@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
 import Link from "next/link";
 
 import { headers } from "next/headers";
@@ -36,6 +37,7 @@ const CitationResponseSchema = z.object({
   citation: z.object({
     id: z.string().min(1),
     document_id: z.string().min(1),
+    document_filename: z.string().trim().min(1).nullable().optional(),
     page_number: z.number().int().positive(),
     polygons: z
       .array(z.array(z.tuple([z.number().min(0).max(1), z.number().min(0).max(1)])).min(3))
@@ -81,6 +83,17 @@ function safeErrFromJson(json: unknown, fallback: SafeErr): SafeErr {
     code: typeof code === "string" && code.trim() ? code.trim() : fallback.code,
     message: typeof message === "string" && message.trim() ? message.trim() : fallback.message,
   };
+}
+
+function nonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function fallbackDocumentLabelFromId(documentId: string): string | null {
+  const parsed = parseFixtureDocumentId(documentId);
+  return parsed.ok ? parsed.filename : null;
 }
 
 function mattersHref(packId: string | null): string {
@@ -184,6 +197,7 @@ export default async function EvidenceViewerPage(props: {
   }
 
   const cit = parsedCitation.data.citation;
+  const documentLabel = nonEmptyString(cit.document_filename) ?? fallbackDocumentLabelFromId(cit.document_id) ?? cit.document_id;
   const computed = hashSnippet(cit.snippet);
   const errorCode = computed !== cit.snippet_hash ? "SNIPPET_HASH_MISMATCH" : null;
 
@@ -201,7 +215,7 @@ export default async function EvidenceViewerPage(props: {
           title="Evidence"
           message={
             <>
-              Failed to fetch render_url for <span className="font-mono">{cit.document_id}</span> (page {cit.page_number}).
+              Failed to load the PDF preview for <span className="font-mono">{documentLabel}</span> (page {cit.page_number}).
             </>
           }
           detail={`${e.code}: ${e.message}`}
@@ -217,7 +231,7 @@ export default async function EvidenceViewerPage(props: {
         title="Evidence"
         message={
           <>
-            Failed to fetch render_url for <span className="font-mono">{cit.document_id}</span> (page {cit.page_number}).
+            Failed to load the PDF preview for <span className="font-mono">{documentLabel}</span> (page {cit.page_number}).
           </>
         }
         detail={message}
@@ -229,7 +243,7 @@ export default async function EvidenceViewerPage(props: {
 
   const parsedRender = RenderResponseSchema.safeParse(renderJson);
   if (!parsedRender.success) {
-    return <StatePage title="Evidence" message="Invalid render_url payload." backHref={citationHref} backLabel="Back to matters" />;
+    return <StatePage title="Evidence" message="Invalid PDF preview payload." backHref={citationHref} backLabel="Back to matters" />;
   }
 
   const pdfUrl = parsedRender.data.render_url;
@@ -260,6 +274,7 @@ export default async function EvidenceViewerPage(props: {
           citationId={citationId}
           pdfUrl={pdfUrl}
           documentId={cit.document_id}
+          documentLabel={documentLabel}
           pageNumber={cit.page_number}
           polygons={cit.polygons}
           snippet={cit.snippet}

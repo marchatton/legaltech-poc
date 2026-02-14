@@ -42,6 +42,7 @@ function EvidenceViewerPanelContent() {
           citationId={viewerState.data.citationId}
           pdfUrl={viewerState.data.pdfUrl}
           documentId={viewerState.data.documentId}
+          documentLabel={viewerState.data.documentLabel}
           pageNumber={viewerState.data.pageNumber}
           polygons={viewerState.data.polygons}
           snippet={viewerState.data.snippet}

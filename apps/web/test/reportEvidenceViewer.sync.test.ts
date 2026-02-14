@@ -39,7 +39,7 @@ describe("US-003 split-view evidence controls and verification states", () => {
     expect(source).toContain("trustVerifiedAt");
     expect(source).toContain("trustLoadedState");
     expect(source).toContain("Unavailable from payload");
-    expect(source).toContain("Verified at 100%");
+    expect(source).toContain("Verified");
   });
 });
 
