@@ -611,7 +611,7 @@ export function SetupDocumentsPanel(props: {
         <div>
           <SectionTitle>Documents</SectionTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            Upload source PDFs, then run analysis once at least one is indexed-ready.
+            Upload source documents for the matter.
           </p>
         </div>
 
@@ -635,17 +635,6 @@ export function SetupDocumentsPanel(props: {
               disabled={isRefreshing}
             >
               Upload documents
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => void refreshReadiness()}
-              disabled={isUploading}
-              loading={isRefreshing}
-              loadingLabel="Refreshing"
-            >
-              Check status
             </Button>
           </div>
           <span className="text-2xs text-muted-foreground">
@@ -702,13 +691,22 @@ export function SetupDocumentsPanel(props: {
                       <div className="max-w-[28rem] truncate text-sm font-medium text-foreground" title={`ID: ${doc.id}`}>
                         {doc.filename}
                       </div>
-                      <Badge variant={docStatusVariant[doc.status]}>{statusLabel(doc.status)}</Badge>
+                      {doc.status !== "indexed-ready" ? (
+                        <Badge variant={docStatusVariant[doc.status]}>{statusLabel(doc.status)}</Badge>
+                      ) : null}
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <span className="font-mono">{doc.parse_status}/{doc.ocr_status}</span>
+                      {doc.status !== "indexed-ready" ? (
+                        <span className="font-mono">{doc.parse_status}/{doc.ocr_status}</span>
+                      ) : null}
                       {typeof doc.page_count === "number" ? <span>pages: {doc.page_count}</span> : null}
                       {typeof doc.extraction_quality === "number" ? (
-                        <span>quality: {Math.round(doc.extraction_quality * 100)}%</span>
+                        <Badge
+                          variant={doc.extraction_quality > 0.7 ? "success" : doc.extraction_quality >= 0.4 ? "warning" : "primary"}
+                          size="sm"
+                        >
+                          {Math.round(doc.extraction_quality * 100)}% quality
+                        </Badge>
                       ) : null}
                     </div>
                   </div>

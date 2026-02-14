@@ -24,6 +24,7 @@ import {
   uniqueFilterValues,
   type ArtefactFilterSearchParams,
 } from "./artefactsFilters";
+import { MatterAutoRefresh } from "./[id]/MatterAutoRefresh";
 import { ArtefactDownloadButton } from "./ArtefactDownloadButton";
 import { UnsafeArtefactBadge } from "./UnsafeArtefactBadge";
 
@@ -81,7 +82,12 @@ export async function ArtefactsList(props: Props) {
     return (
       <Card className="p-4">
         <SectionTitle>Artefacts</SectionTitle>
-        <EmptyState variant="compact" title="No artefacts yet" description="Artefacts will appear after export runs complete." />
+        <EmptyState
+          variant="compact"
+          title="No artefacts yet"
+          description="Export runs add files here automatically. We'll keep checking for new files."
+        />
+        <MatterAutoRefresh enabled intervalMs={5000} />
       </Card>
     );
   }
@@ -97,7 +103,12 @@ export async function ArtefactsList(props: Props) {
     return (
       <Card className="p-4">
         <SectionTitle>Artefacts</SectionTitle>
-        <EmptyState variant="compact" title="No artefacts yet" description="Artefacts will appear after export runs complete." />
+        <EmptyState
+          variant="compact"
+          title="No artefacts yet"
+          description="Export runs add files here automatically. We'll keep checking for new files."
+        />
+        <MatterAutoRefresh enabled intervalMs={5000} />
       </Card>
     );
   }

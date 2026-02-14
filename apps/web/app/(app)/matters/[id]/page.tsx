@@ -18,7 +18,6 @@ import { EmptyState } from "../../../ui/EmptyState";
 import { ErrorBanner } from "../../../ui/ErrorBanner";
 import { OrbitalLoader } from "../../../ui/OrbitalLoader";
 import { SectionTitle } from "../../../ui/Page";
-import { ProgressBar } from "../../../ui/ProgressBar";
 import { SegmentedControl } from "../../../ui/SegmentedControl";
 import { StatePage } from "../../../ui/StatePage";
 import { WorkspaceTabs, type WorkspaceTabItem } from "../../../ui/WorkspaceTabs";
@@ -71,14 +70,6 @@ function DocumentIcon() {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <polyline points="14 2 14 8 20 8" />
-    </svg>
-  );
-}
-
-function ProgressIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-primary" aria-hidden="true">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   );
 }
@@ -300,10 +291,6 @@ export default async function MatterPage(props: {
     count: tabCounts[tabId],
     icon: tabIcon(tabId),
   }));
-  const runQuestionsDone = latestRun?.questions_done ?? 0;
-  const runQuestionsTotal = latestRun?.questions_total ?? 0;
-  const runProgress = runQuestionsTotal > 0 ? Math.round((runQuestionsDone / runQuestionsTotal) * 100) : 0;
-  const showRunQuestionsProgress = runQuestionsDone > 0 || runQuestionsTotal > 0;
   const reportEmptyStateTitle = reportRunBlockingFailure
     ? "Run report unavailable"
     : reportRunProgress
@@ -312,10 +299,10 @@ export default async function MatterPage(props: {
   const reportEmptyStateDescription = reportRunBlockingFailure
     ? "No report rows were produced for this run. Re-run analysis after fixing the failure."
     : reportRunProgress
-      ? "Report rows will appear after processing completes. Refresh in a moment."
+      ? "Report rows will appear after processing completes. This page updates automatically."
       : "Run analysis to generate report rows for triage.";
   const showIngestingCenterState = !reportRun && canonicalReadiness.reason_code === "INGEST_IN_PROGRESS";
-  const autoRefreshEnabled = canonicalReadiness.reason_code === "INGEST_IN_PROGRESS";
+  const autoRefreshEnabled = canonicalReadiness.reason_code === "INGEST_IN_PROGRESS" || Boolean(reportRunProgress);
 
   return (
     <div className="min-w-0">
@@ -345,18 +332,11 @@ export default async function MatterPage(props: {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              {showRunQuestionsProgress ? (
-                <div className="flex items-center gap-3 rounded-ui-md border border-border bg-muted/30 px-3 py-2">
-                  <ProgressIcon />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {runQuestionsDone}/{runQuestionsTotal} questions
-                    </span>
-                    <ProgressBar value={runProgress} className="mt-1 w-28" />
-                  </div>
-                </div>
-              ) : null}
-              <QuickStartActionButton folderId={folderId} readiness={quickStartReadiness} />
+              <QuickStartActionButton
+                folderId={folderId}
+                readiness={quickStartReadiness}
+                appearance="button"
+              />
             </div>
           </div>
 
@@ -548,16 +528,14 @@ export default async function MatterPage(props: {
           </section>
         ) : null}
 
-        {activeTab === "chat" ? (
-          <section>
-            <ChatPanel
-              folderId={folderId}
-              contextReady={chatContextReady}
-              contextGuidance={chatContextGuidance}
-              sourceLabelByDocumentId={sourceLabelByDocumentId}
-            />
-          </section>
-        ) : null}
+        <section hidden={activeTab !== "chat"} className={activeTab === "chat" ? undefined : "hidden"}>
+          <ChatPanel
+            folderId={folderId}
+            contextReady={chatContextReady}
+            contextGuidance={chatContextGuidance}
+            sourceLabelByDocumentId={sourceLabelByDocumentId}
+          />
+        </section>
 
         {activeTab === "exports" ? (
           <section className="max-w-2xl">
