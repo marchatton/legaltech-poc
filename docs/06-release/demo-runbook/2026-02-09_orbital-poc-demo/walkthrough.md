@@ -1,181 +1,123 @@
-# Walkthrough: Orbital Copilot PoC (Trust Substrate)
+# Walkthrough: Orbital Copilot PoC (Architecture-Honest, Journey-Led)
 
-Scope: **US only**. This is a dev-only PoC slice to prove a “trust substrate” (evidence locking + verification posture), not a production system.
+Scope: **US only**. This is a demo-grade PoC. It is not a production deployment claim.
 
-## The user (and what “better” feels like)
+## 0) Caveats and framing
 
-Organisation: US CRE law firm (title + survey diligence).
+- Synthetic packs and synthetic customer context are used for deterministic demo and eval loops.
+- This walkthrough explicitly separates:
+  - `current runtime` (implemented now)
+  - `target architecture` (documented north star)
+- Trust posture is fail-closed by design for citation integrity and missing evidence.
 
-Buyer: partner / practice lead / ops lead.
-Success metric: faster turnaround without increasing miss risk or liability.
+## 1) User and outcomes
 
-End user: junior associate / paralegal doing first-pass diligence under time pressure.
+Organisation: US CRE law firm teams performing title + survey diligence.
 
-Job to be done: turn a messy diligence pack (title commitment, exception instruments, survey) into **reviewable work product** a senior can sign off without hunting for evidence.
+Buyer: practice lead/partner accountable for turnaround and risk posture.
 
-Starting feelings: rushed, uncertain, “too many tabs”, worried about being wrong.
+End user: associate/paralegal who must produce defensible first-pass outputs under time pressure.
 
-Desired feelings: confident, clear, faster, fewer guesses, an audit trail when challenged.
+Job to be done: convert messy diligence packs into reviewable work product with checkable evidence.
 
-Business success outcome (target): reduce first-pass diligence time from hours to **<30 minutes per matter** while keeping **zero uncited material claims** in outputs (measured on fixture packs first, then pilot matters).
+Starting feelings: rushed, uncertain, worried about being wrong.
 
-## The problem (why the status quo fails)
+Desired feelings: confident, clear, faster, fewer guesses, auditable review path.
 
-CRE diligence is time-sensitive, but a single miss can blow up insurability, lender comfort, or value.
+Business target: reduce first-pass diligence time to **<30 minutes per matter** while keeping **zero uncited material claims**.
 
-The bottleneck is not drafting prose. It is:
-- finding the right clause in messy PDFs
-- turning it into artefacts that match the firm’s deliverables
-- giving a senior reviewer a fast path to verify evidence without re-reading the whole pack
+## 2) Current journey topology (v3 parity)
 
-In practice, the strongest competitor is often “no decision”: teams stick with manual workflows because adopting a tool feels riskier than living with the pain.
+The demo aligns to the v3 user-journey model:
 
-## The solution approach (the “trust substrate”)
+- `P1` Global Shell: nav, environment posture, breadcrumb, stable identifiers.
+- `P2` Matters List: search/filter/open/create and demo-history reopen.
+- `P3` Setup/Documents: upload/readiness progression and run gating copy.
+- `P4` Matter Detail/Report: run initiation + triage tabs + row statuses.
+- `P5` Row Drawer: decision actions (`mark reviewed`, `flag issue`, copy answer).
+- `P6` Evidence Viewer: citation trust surface, verification indicator, failure recovery.
+- `P7` Exports: run-scoped exports with blocked-state loopback.
+- `P8` Artefacts: filtered retrieval with provenance and safety labels.
+- `P9` Matter Chat: run-scoped chat (`L1`) with selected/effective run disclosure.
+- `P10` to `P12` Demo surfaces: toolbar, operator checklist, demo history.
+- `P13` Shared error layer: deterministic error banner and retry/escalation contract.
 
-The PoC is built around one wedge: **make trust checkable in the UI**.
+## 3) End-to-end demo flow
 
-Instead of treating citations as an afterthought (“here are some quotes and page numbers”), we treat evidence as a **first-class object** with explicit integrity properties. This is the core idea:
+1. Open matters list (`pack_01_clean`) and confirm shell context.
+2. Start Quick Start run and monitor progress in report triage.
+3. Open row drawer and perform an explicit decision action.
+4. Click citation chip to open viewer and verify highlight at 100% zoom.
+5. Navigate to exports and show blocked-state deep-link to failed rows.
+6. Open chat and show run scoping behaviour + anchor-gated source chips.
 
-- Retrieval finds evidence and returns **IDs**, not prose.
-- Drafting can reference only those retrieved IDs.
-- We then **lock** citations into immutable records with explicit fields: snippet (what we claim the evidence is), `snippet_hash` (tamper/drift detection), and geometry polygons (so the UI can highlight the clause on the page).
-- Verification runs before anything is exportable.
-- If integrity breaks, we **fail closed** (explicit `citation_failed`, no highlight overlay, export blocked by default).
-- If evidence is missing, that is a first-class outcome (`missing_input` with a checklist), not “best effort”.
+Safety scenarios:
+- `pack_02_missing_rea`: explicit `missing_input` behaviour.
+- `TB-BAD-CITATION`: explicit `citation_failed` behaviour with no overlay.
 
-Two IDs matter (and it is intentional):
-- `chunk_id`: a retrieval address within a specific `index_version` (useful for ranking, evals, and repeatability, but not stable across reindexing).
-- `citation_id`: an immutable evidence “receipt” created by the lock step (stores snippet + hash + geometry and stays stable even if chunking/indexing changes later).
+## 4) Architecture: implemented now vs target
 
-Why start here (instead of “full automation”)?
-- In high-stakes workflows, a fluent answer with weak provenance creates **false trust**.
-- If the trust moment is not solid, everything downstream is noise.
-- Evidence locking + fail-closed verification gives you a stable spine to build larger workflows on top of (more packs, more artefacts, more automation).
+### Implemented now (source of truth: `07_current_poc_runtime.md`)
 
-What this looks like end-to-end (conceptually):
-- Ingestion: OCR/layout (for geometry) -> deterministic chunking -> hybrid index
-- Run: retrieve chunk IDs -> draft row -> lock citations -> verify integrity -> write row status + artefacts
-- UI: citation chips -> viewer -> click-to-highlight overlay (at 100% zoom) -> explicit row status
+- Next.js App Router (`apps/web`) route handlers with Zod boundary validation
+- Postgres-backed state and WDK `run_steps` execution for ingest + Quick Start
+- Local filesystem object store (`tmp/object-store`)
+- PDF extraction via `pdfjs-dist` text extraction
+- Quick Start rows execute retrieve/draft/lock step flow in WDK
+- Fixture-backed citation overlays for deterministic evidence verification demos
 
-In this demo slice, the UI is driven by **fixture-seeded snapshots** so we can prove the trust behaviour deterministically before wiring the full LLM pipeline.
+### Target architecture (source of truth: `00_overview.md`, `10_system_architecture.md`)
 
-## Solution options considered (and why we did not pick them for v1)
+- OCR/layout geometry-first ingest defaults
+- Broader hybrid retrieval and evidence locking coverage across uploaded docs
+- Expanded observability/evals guardrails for deployment-grade reliability
+- Durable separation of web tier and worker tier where needed
 
-Option: “chat with PDFs” as the product.
-Trade-off: great for drafting; weak for defensible work product.
-Why not: it optimises for fluent answers, but the diligence workflow needs checkable artefacts and a senior-review path.
+## 5) Key trust policies (demo-critical)
 
-Option: best-effort citations (quotes + page numbers) and “warn-but-export”.
-Trade-off: fewer hard failures; easier to ship early.
-Why not: warnings do not reliably travel with exported artefacts; “plausible but unprovable” output trains users to trust the system at the wrong moment.
+- Evidence-first outputs: claims must map to locked citation IDs.
+- Fail-closed verification: integrity failures are explicit and block trust path.
+- Missing evidence is a first-class outcome (`missing_input`), not best-effort prose.
+- Trace/log posture redacts sensitive content and secrets by default.
 
-Option: fail-open verification (export even if evidence integrity breaks).
-Trade-off: fewer blocked exports early; seemingly “more useful”.
-Why not: in this domain, a broken trust chain is worse than “not found”.
+## 6) Known cut-lines retained in this demo
 
-Option: agent loops (open-ended tools) to “figure it out”.
-Trade-off: flexible; can appear more capable.
-Why not: side effects and retries become hard to reason about. We prefer a fixed, resumable step pipeline.
+- Readiness checklist backend state machine is not implemented (copy-only guidance).
+- Citation flag action is UI acknowledgement only (no persistence endpoint yet).
+- Chat scope remains `L1` (no advanced isolation/compare UX).
+- Source chips are strict anchor-gated.
+- Demo elapsed timing is coarse minute-level.
 
-Option: semantic verification (entailment/NLI model) in v1.
-Trade-off: could catch “evidence exists but claim is wrong”.
-Why not (for v1): adds a probabilistic failure surface without fixture-eval confidence; we start with deterministic integrity checks first.
+## 7) Tech stack snapshot
 
-Option: external vector DB / managed RAG service.
-Trade-off: can be powerful; reduces some self-hosting work.
-Why not (initially): Postgres keeps one source of truth and makes joins (runs/rows/citations/chunks) straightforward; adds less infra for a PoC.
+Implemented:
+- Frontend: Next.js 15 + React + Tailwind + shared UI primitives
+- Orchestration: Workflow DevKit steps (`run_steps`)
+- Data: Postgres + local object store
+- Validation: Zod
+- Demo determinism: fixture seeds under `tmp/fixture-seed`
 
-## Key ADRs (decision record)
+Design system:
+- Canonical showcase: `docs/02-guidelines/v5-final/design-system.html`
+- Tokens/preset source: `docs/02-guidelines/v5-final/tokens.css`, `docs/02-guidelines/v5-final/tailwind.preset.ts`
 
-These are the “keystone” decisions shaping the PoC posture:
+## 8) Demo scenarios and expected outcomes
 
-- ADR-0001 Evidence-first outputs (lock citation IDs with snippet hashes): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0001_evidence-first-outputs-with-citation-ids-and-locking.md`
-- ADR-0002 Verification is fail-closed (blocked-by-default export posture): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0002_verification-is-fail-closed.md`
-- ADR-0003 OCR/layout extraction is default for PDFs (geometry-first): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0003_ocr-layout-extraction-is-the-default-for-all-pdfs.md`
-- ADR-0004 Hybrid retrieval returns chunk IDs (tsvector + pgvector), not prose: `docs/96-engineering-tutor-learnings/2026-02-08_adr-0004_hybrid-retrieval-returning-chunk-ids-lexical-vector.md`
-- ADR-0005 Orchestration is a fixed step pipeline (retrieve -> draft -> lock -> verify -> write): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0005_deterministic-ish-orchestration-via-workflow-devkit-steps.md`
-- ADR-0013 LLM + embeddings calls go through AI SDK; gateway default (planned): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0013_llm-embeddings-calls-go-through-ai-sdk-gateway-is-default.md`
-- ADR-0015 Deterministic, page-bounded chunking + index versioning: `docs/96-engineering-tutor-learnings/2026-02-08_adr-0015_deterministic-page-bounded-chunking-line-window-v1-index-version-bump-rules.md`
-- ADR-0017 Verification v1 is integrity-only (no entailment model): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0017_verification-v1-is-integrity-only-no-entailment-model.md`
-- ADR-0020 Overlay verification posture (100% zoom only in v1): `docs/96-engineering-tutor-learnings/2026-02-08_adr-0020_rh2-overlay-is-verified-at-100-zoom-only-in-poc-v1-regression-proof-is-artifact-based.md`
+1. Evidence verification (`pack_01_clean`)
+- Expected: clickable citation -> viewer highlight + trust context.
 
-## Tech stack (what exists today vs what is planned)
+2. Missing input (`pack_02_missing_rea`)
+- Expected: `missing_input` row with explicit copy/checklist.
 
-Implemented in the demo slice:
-- Web app: Next.js (App Router) + React + Tailwind: `apps/web/`
-- PDF rendering: `pdfjs-dist` + a highlight overlay layer (viewer route): `apps/web/app/(app)/matters/viewer/`
-- Validation: Zod at boundaries
-- DB dependency: local Postgres via Docker Compose (pgvector image): `docker-compose.yml`
-- Fixture seed/eval tooling: TypeScript Node scripts: `scripts/fixtures/`
-- Domain logic: `@orbital-poc/core` (citations, geometry, fixture schemas): `packages/core/`
+3. Fail-closed citation (`TB-BAD-CITATION`)
+- Expected: `citation_failed` reason + no overlay.
 
-Planned / architecture intent (not all wired in this UI slice yet):
-- Orchestration: Workflow DevKit step runner (durable, retryable steps)
-- OCR/layout: Azure Document Intelligence (Layout) behind a provider adapter (swappable to Textract)
-- LLM calls: Vercel AI SDK via a gateway/router (for model routing + consistent telemetry); model selection is env-driven (`LLM_MODEL_CHAT`, `LLM_MODEL_SUMMARY`, `EMBED_MODEL`) and the current demo runbook assumes Claude for drafting + `openai/text-embedding-3-large` for embeddings
-- Retrieval substrate: Postgres `tsvector` + `pgvector` hybrid retrieval returning chunk IDs
+4. Scanned/rotated resilience (`pack_07_scans_rotated_low_quality`)
+- Expected: viewer remains usable; verification stays explicit.
 
-## Design system walkthrough (web app)
+## 9) Canonical references
 
-The web app uses a small token-driven design system designed for “trust work”:
-
-- Tokens (CSS variables): `apps/web/app/tokens.css`
-- Tailwind preset mapping tokens to utilities: `apps/web/tailwind.preset.ts`
-- Fonts are loaded in Next `<head>`: `apps/web/app/head.tsx`
-- UI primitives: `apps/web/app/ui/Button.tsx`, `apps/web/app/ui/Badge.tsx`, `apps/web/app/ui/Card.tsx`, `apps/web/app/ui/Input.tsx`
-
-Key characteristics:
-- Canvas: warm cream in light mode, pure-black dark mode.
-- Typography: Inter (UI), Crimson Pro (headings), JetBrains Mono (IDs/citations).
-- Colour posture: orange is reserved for high-signal moments; semantic colours are used for status and risk posture.
-- Shape: consistent radii (`--radius-*`) and small, quiet shadows (`shadow-ui-*`) to keep focus on evidence.
-
-Where you see it in the demo UI:
-- Status chips are explicit and terminal.
-- `needs_review` uses warning styling.
-- `reviewed` uses success styling.
-- `missing_input` is muted and accompanied by a checklist.
-- `citation_failed` is destructive and blocks export by default.
-
-## Test/example data (fixture packs)
-
-Fixture packs are the source of truth for deterministic demos and evals:
-
-- Packs live in `docs/08-example-data/<pack_id>/`
-- `manifest.json` (required; loaders/evals must read this and must not infer file paths)
-- `docs/` (source PDFs)
-- `layout/` (anchors/layout JSON for highlight overlays and chunking)
-- `truth/` (expected outputs and golden questions)
-
-Seeding uses those packs to generate a snapshot the demo UI can load:
-- `pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite`
-- Outputs: `tmp/fixture-seed/<pack_id>/snapshot.json`
-
-## A few end-to-end scenarios (what to show and what “success” looks like)
-
-Setup (dev-only):
-- `docker compose up -d db`
-- `pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite`
-- `pnpm dev`
-
-Scenario 1: Evidence verification (happy path)
-- Open `http://localhost:3000/matters?pack=pack_01_clean`
-- Click any `cit_*` chip on a `needs_review` row
-- Expected: PDF opens, highlight overlay renders at 100% zoom, snippet + `snippet_hash` are visible
-- Optional: mark a row reviewed and confirm the status change is explicit
-
-Scenario 2: Missing document is a first-class outcome
-- Open `http://localhost:3000/matters?pack=pack_02_missing_rea`
-- Expected: a `missing_input` row with answer exactly `Not found in provided documents.` and a “missing document checklist” showing evidence signals
-
-Scenario 3: Fail-closed citation (integrity break)
-- On `pack_01_clean`, find `TB-BAD-CITATION` and click `cit_TB_BAD_1`
-- Expected: viewer shows `citation_failed` (e.g. `SNIPPET_HASH_MISMATCH`), renders **no overlay**, and export posture remains blocked by default
-
-Scenario 4: Scans and rotation resilience
-- Open `http://localhost:3000/matters?pack=pack_07_scans_rotated_low_quality`
-- Expected: viewer remains usable on scan-heavy PDFs; rotation works; highlight either aligns at 100% zoom or fails closed with an explicit reason code
-
-For the full talk track + diagrams, see:
-- `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-script.md`
-- `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html`
+- Current runtime: `docs/03-architecture/07_current_poc_runtime.md`
+- Target architecture: `docs/03-architecture/00_overview.md`, `docs/03-architecture/10_system_architecture.md`
+- Observability/evals posture: `docs/03-architecture/60_observability_and_evals.md`
+- User journeys v3: `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md`

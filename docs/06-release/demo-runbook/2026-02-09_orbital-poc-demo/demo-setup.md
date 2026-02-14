@@ -1,33 +1,45 @@
+# Demo Setup (2026-02-14 refresh)
 
-  1. Start local Postgres (Postgres.app or Homebrew service).
-  2. Create DB + user once:
+## Quick path (recommended)
 
-  psql postgres <<'SQL'
-  DO $$
-  BEGIN
-    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'orbital') THEN
-      CREATE ROLE orbital LOGIN PASSWORD 'orbital';
-    END IF;
-  END
-  $$;
-  CREATE DATABASE orbital OWNER orbital;
-  SQL
+1. Start Postgres via Docker Compose:
 
-  3. Install deps from repo root:
+```bash
+docker compose up -d db
+```
 
-  pnpm install
+2. Install dependencies (repo root):
 
-  4. Start app in dev mode:
+```bash
+pnpm install
+```
 
-  DATABASE_URL=postgresql://orbital:orbital@127.0.0.1:5432/orbital \
-  DEMO_MODE=1 \
-  ALLOW_DEV_OBJECT_STORE_SECRET=1 \
-  EVIDENCE_BACKEND=db_only \
-  pnpm dev
+3. Seed demo fixture packs:
 
-  5. Open http://localhost:3000/matters.
-  6. Load pack_01_clean from Operator Controls.
-  7. Run Quick Start and continue the flow.
+```bash
+pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite
+```
 
-  If you already have a local Postgres DB/user, just skip step 2 and use your own
-  DATABASE_URL.
+4. Start app in dev mode:
+
+```bash
+pnpm dev
+```
+
+5. Open:
+- `http://localhost:3000/matters?pack=pack_01_clean`
+- `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html`
+
+## Optional flags
+
+- Trace export demo: `FEATURE_TRACE_EXPORT=1` and `ALLOW_ADMIN_BYPASS=1`
+- Spikes CSV export route: `SPIKES_ENABLED=1`
+
+## Worker note
+
+- In `pnpm dev`, WDK draining is inline.
+- If running outside dev, run worker separately:
+
+```bash
+pnpm --filter @orbital-poc/web worker
+```

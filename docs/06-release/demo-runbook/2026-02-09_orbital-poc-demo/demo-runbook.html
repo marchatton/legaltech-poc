@@ -282,7 +282,7 @@
       <nav class="nav" aria-label="Navigation">
         <a class="pill" href="#/" data-route="/"><span class="dot"></span> Home</a>
         <a class="pill" href="#/demo" data-route="/demo"><span class="dot"></span> Demo</a>
-        <a class="pill" href="#/approach" data-route="/approach"><span class="dot"></span> Our approach</a>
+        <a class="pill" href="#/approach" data-route="/approach"><span class="dot"></span> Approach notes</a>
         <a class="pill" href="#/architecture" data-route="/architecture"><span class="dot"></span> Architecture</a>
         <a class="pill" href="#/stack" data-route="/stack"><span class="dot"></span> Stack</a>
         <a class="pill" href="../../../02-guidelines/v5-final/design-system.html" target="_blank" rel="noreferrer"><span class="dot"></span> Design system</a>
@@ -323,8 +323,8 @@
           <li>
             <div class="time">3</div>
             <div>
-              <div class="a-title">Our approach</div>
-              <div class="a-sub">Why evidence-first and fail-closed</div>
+              <div class="a-title">Your approach</div>
+              <div class="a-sub">Placeholder cards for live narration</div>
             </div>
           </li>
           <li>
@@ -347,132 +347,85 @@
     <!-- ═══ DEMO ═══ -->
     <section class="page" id="page-demo" data-page="/demo">
       <h2 class="stitle">Live scenarios</h2>
+      <div class="card" style="margin-bottom:16px;">
+        <h3>Demo links and references</h3>
+        <p style="margin-bottom:10px;">
+          Use these links live to show design system direction and architecture/journey grounding.
+        </p>
+        <div class="scenario">
+          <div>
+            <div class="label">v5-final design system</div>
+            <div class="desc">Show the canonical visual language used for UI alignment decisions.</div>
+          </div>
+          <span class="tag tag-pass">Reference</span>
+          <a class="btn" href="../../../02-guidelines/v5-final/design-system.html" target="_blank" rel="noreferrer">Open</a>
+        </div>
+        <div class="scenario">
+          <div>
+            <div class="label">Current runtime architecture</div>
+            <div class="desc">Implemented reality doc (WDK, fixture-backed evidence surfaces, dev/runtime gates).</div>
+          </div>
+          <span class="tag tag-warn">Current</span>
+          <a class="btn" href="../../../03-architecture/07_current_poc_runtime.md" target="_blank" rel="noreferrer">Open</a>
+        </div>
+        <div class="scenario">
+          <div>
+            <div class="label">v3 user journeys</div>
+            <div class="desc">Current parity topology (P1 to P13) and retained cut-lines.</div>
+          </div>
+          <span class="tag tag-pass">Journey</span>
+          <a class="btn" href="../../../04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md" target="_blank" rel="noreferrer">Open</a>
+        </div>
+      </div>
       <div id="scenarioList"></div>
     </section>
 
-	    <!-- ═══ OUR APPROACH ═══ -->
+	    <!-- ═══ APPROACH NOTES ═══ -->
 	    <section class="page" id="page-approach" data-page="/approach">
-	      <h2 class="stitle">Our approach</h2>
+	      <h2 class="stitle">Your approach (speaker placeholders)</h2>
 
 	      <div class="card" style="margin-bottom:16px;">
-	        <h3>Positioning</h3>
-	        <p style="font-size:15px; color:var(--fg); font-weight:500; font-family:var(--serif); margin-bottom:8px;">
-	          CRE diligence work-product automation.
-	        </p>
-	        <p>
-	          Orbital is not a general legal AI. It turns messy title, survey, and deal document packs into
-	          <strong style="color:var(--fg);">checkable work product</strong> with locked evidence.
-	        </p>
-	        <div class="hr"></div>
+	        <h3>Card 1: Problem framing</h3>
 	        <ul>
-	          <li><strong style="color:var(--fg);">Best fit:</strong> US CRE law firm practice groups doing repeatable acquisition/financing diligence.</li>
-	          <li><strong style="color:var(--fg);">Primary user:</strong> junior associate/paralegal doing first-pass extraction and issue spotting.</li>
-	          <li><strong style="color:var(--fg);">Validator/buyer:</strong> senior associate/partner signing off on risk and insurability.</li>
+	          <li>Who feels the pain first?</li>
+	          <li>What does the current workflow miss?</li>
+	          <li>What makes this painful enough to change now?</li>
 	        </ul>
 	      </div>
 
 	      <div class="card" style="margin-bottom:16px;">
-	        <h3>The problem</h3>
-	        <p>
-	          CRE diligence is time-sensitive, but a single miss can blow up insurability, lender comfort, or value.
-	          The bottleneck is not drafting &mdash; it is turning a messy pack into artefacts a senior can review
-	          without hunting for evidence.
-	        </p>
-	        <p style="margin-top:8px;">
-	          The real competitor is often <strong style="color:var(--fg);">no decision</strong>: teams stick with the manual workflow
-	          because the risk of changing tools feels higher than the pain of the status quo.
-	        </p>
-	      </div>
-
-	      <div class="card" style="margin-bottom:16px;">
-	        <h3>Approach landscape (what teams do instead)</h3>
-	        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:4px;">
-	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Status quo (manual)</p>
-	            <p style="font-size:12px;">Juniors read PDFs, track requirements/exceptions in Excel, draft in Word; seniors verify by hunting passages.</p>
-	          </div>
-	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Horizontal copilots</p>
-	            <p style="font-size:12px;">ChatGPT/Claude/M365 are great at drafting. The diligence system is still DIY, and auditability is inconsistent.</p>
-	          </div>
-	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Legal AI platforms</p>
-	            <p style="font-size:12px;">Harvey/Legora can become workflow builders. Getting to CRE-native outputs can turn into a configuration project.</p>
-	          </div>
-	          <div style="padding:12px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg);">
-	            <p style="font-size:12px; font-weight:600; color:var(--fg); margin-bottom:4px;">Contract review tools</p>
-	            <p style="font-size:12px;">Kira/Luminance excel at clause extraction. Title commitments, exception instruments, and survey reconciliation are not the centre of gravity.</p>
-	          </div>
-	        </div>
-	      </div>
-
-	      <div class="card" style="margin-bottom:16px;">
-	        <h3>"Perfect world" criteria</h3>
+	        <h3>Card 2: Why this approach</h3>
 	        <ul>
-	          <li>Outputs match your deliverables (structure and tone), not generic summaries.</li>
-	          <li>Every material claim is backed by evidence you can click to verify.</li>
-	          <li>Missing evidence is explicit (fail-closed), not hand-waved.</li>
-	          <li>Exports drop into Word/Excel without copy/paste glue.</li>
+	          <li>Why this design choice over alternatives?</li>
+	          <li>Where you intentionally accepted trade-offs.</li>
+	          <li>What constraints this is optimised for.</li>
 	        </ul>
 	      </div>
 
 	      <div class="card" style="margin-bottom:16px;">
-	        <h3>Orbital is a different category</h3>
-	        <p>
-	          Not "chat with PDFs" and not legal research. Orbital is designed around the outputs you already produce
-	          and the evidence you must be able to defend.
-	        </p>
-	      </div>
-
-	      <div class="grid-3" style="margin-bottom:16px;">
-	        <div class="card">
-	          <h3>Work product, not chat</h3>
-	          <p>Issues lists, requirement trackers, exception tables, objection/cure asks &mdash; in your structure.</p>
-	        </div>
-	        <div class="card">
-	          <h3>Evidence-first UX</h3>
-	          <p>Every material claim is backed by locked citations. Click-to-verify instead of "trust the model".</p>
-	        </div>
-	        <div class="card">
-	          <h3>Document reality</h3>
-	          <p>Built for messy scans, missing exhibits, and inconsistent formatting. Orbital assumes that reality.</p>
-	        </div>
+	        <h3>Card 3: Trust and safety posture</h3>
+	        <ul>
+	          <li>How you handle uncertainty and missing evidence.</li>
+	          <li>What must fail closed.</li>
+	          <li>What users can verify directly in the UI.</li>
+	        </ul>
 	      </div>
 
 	      <div class="card" style="margin-bottom:16px;">
-	        <h3>PoC scope (truthfulness)</h3>
-	        <p>
-	          This demo leads with evidence-first, artefact-first outputs for title + survey quick-start. It does not claim
-	          SSO/RBAC, multi-tenant, or deep integrations.
-	        </p>
-	      </div>
-
-	      <div class="card" style="margin-bottom:16px;">
-	        <h3>Value</h3>
-	        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;">
-	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-	            <p style="font-size:12px;"><strong style="color:var(--fg);">Faster first pass</strong> without sacrificing defensibility</p>
-	          </div>
-	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-	            <p style="font-size:12px;"><strong style="color:var(--fg);">Lower review friction</strong> &mdash; less time hunting for evidence</p>
-	          </div>
-	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-	            <p style="font-size:12px;"><strong style="color:var(--fg);">Reduced miss risk</strong> &mdash; exceptions and requirements made explicit</p>
-	          </div>
-	          <div style="padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg);">
-	            <p style="font-size:12px;"><strong style="color:var(--fg);">Consistency</strong> across a practice group</p>
-	          </div>
-	        </div>
+	        <h3>Card 4: Customer and business impact</h3>
+	        <ul>
+	          <li>What improves for the end user in week one.</li>
+	          <li>What improves for the reviewer/buyer.</li>
+	          <li>How you will measure success after this demo.</li>
+	        </ul>
 	      </div>
 
 	      <div class="card">
-	        <h3>Discovery prompts (keep it interactive)</h3>
+	        <h3>Card 5: Ask and next step</h3>
 	        <ul>
-	          <li>What are your must-have deliverables per deal (exceptions table, requirements tracker, survey memo)?</li>
-	          <li>Who does first pass, and who signs off?</li>
-	          <li>Where does time actually go: first pass, senior review, or chasing missing docs/exhibits?</li>
-	          <li>What have you tried: manual only, ChatGPT/Claude/M365, Harvey/Legora, Kira/Luminance?</li>
-	          <li>If we only improved one thing in the next 30 days, what would it be?</li>
+	          <li>What decision you want from this audience.</li>
+	          <li>What pilot or follow-up you propose.</li>
+	          <li>What support you need to move forward.</li>
 	        </ul>
 	      </div>
 	    </section>
@@ -481,12 +434,93 @@
 		    <section class="page" id="page-architecture" data-page="/architecture">
 		      <h2 class="stitle">Architecture</h2>
 
+          <div class="card full">
+            <h3>Current runtime vs target architecture</h3>
+            <p>
+              <strong style="color:var(--fg);">Implemented now:</strong> WDK-backed ingest and Quick Start row steps,
+              Next.js route handlers, Postgres state, local object store, and fixture-backed citation trust overlays.
+            </p>
+            <p style="margin-top:8px;">
+              <strong style="color:var(--fg);">Target trajectory:</strong> OCR/layout-first ingest defaults, broader retrieval/citation
+              coverage on uploaded docs, and expanded observability/evals hardening.
+            </p>
+            <div class="hr"></div>
+            <ul>
+              <li>Current runtime source: <code>docs/03-architecture/07_current_poc_runtime.md</code></li>
+              <li>Target architecture source: <code>docs/03-architecture/00_overview.md</code> and <code>docs/03-architecture/10_system_architecture.md</code></li>
+              <li>User journey source: <code>docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md</code></li>
+            </ul>
+          </div>
+
 		      <div class="arch-stack">
 		        <div class="card full">
-		          <h3>Ingestion pipeline</h3>
+		          <h3>Current runtime ingestion</h3>
 		          <div class="diagram">
 		            <pre class="mermaid mermaid-source">
 		flowchart LR
+	  A["Upload PDF"] --> B["Object store\n(tmp/object-store)"]
+	  B --> C["WDK step\ningest_document.process"]
+	  C --> D["pdf.js extraction\nper-page text"]
+	  D --> E["Persist\ndocument_pages + chunks"]
+	  E --> F["Folder\nindexed/ready"]
+	            </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1701.7999999999997 116" width="1701.7999999999997" height="116" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm1-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm1-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="157.8,58 197.8,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="472.90000000000003,58 512.9000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="795.1500000000001,58 835.1500000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="1110.25,58 1150.25,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="1425.35,58 1465.35,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<rect x="40" y="40" width="117.80000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="197.8" y="40" width="275.1" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="512.9000000000001" y="40" width="282.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="835.1500000000001" y="40" width="275.1" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="1150.25" y="40" width="275.1" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="1465.35" y="40" width="196.45000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="98.9" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Upload PDF&quot;</text>
+<text x="335.35" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Object store\n(tmp/object-store)&quot;</text>
+<text x="654.0250000000001" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;WDK step\ningest_document.process&quot;</text>
+<text x="972.7" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;pdf.js extraction\nper-page text&quot;</text>
+<text x="1287.8" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Persist\ndocument_pages + chunks&quot;</text>
+<text x="1563.5749999999998" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Folder\nindexed/ready&quot;</text>
+</svg>
+</div>
+<!--bm:svg:end-->
+	          </div>
+	        </div>
+
+	        <div class="card full">
+	          <h3>Target ingestion trajectory</h3>
+	          <div class="diagram">
+	            <pre class="mermaid mermaid-source">
+	flowchart LR
 	  A["Upload"] --> B["OCR +\nlayout"]
 	  B --> C["Chunk +\nembed"]
 	  C --> D["Index"]
@@ -514,17 +548,17 @@
   }
 </style>
 <defs>
-  <marker id="bm1-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+  <marker id="bm2-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
     <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
   </marker>
-  <marker id="bm1-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm2-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
     <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
   </marker>
 </defs>
-<polyline points="129.2,58 169.2,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
-<polyline points="308.45,58 348.45,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
-<polyline points="494.84999999999997,58 534.85,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
-<polyline points="616.9,58 656.9000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm1-arrowhead)" />
+<polyline points="129.2,58 169.2,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="308.45,58 348.45,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="494.84999999999997,58 534.85,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
+<polyline points="616.9,58 656.9000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
 <rect x="39.99999999999999" y="40" width="89.2" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
 <rect x="169.2" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
 <rect x="348.45" y="40" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
@@ -542,19 +576,19 @@
 	        </div>
 
 	        <div class="card full">
-	          <h3>Run execution</h3>
+	          <h3>Current runtime run execution</h3>
 	          <div class="diagram">
 	            <pre class="mermaid mermaid-source">
 	flowchart LR
-	  A["Retrieve"] --> B["Hydrate\nevidence"]
-	  B --> C["Draft\nanswer"]
-	  C --> D["Lock\ncitations"]
-	  D --> E["Verify\nintegrity"]
-	  E --> F["Write\nrow"]
+	  A["Queue row step\nquick_start_title_survey.write_row_v0"] --> B["Retrieve\ncandidate evidence"]
+	  B --> C["Draft\nrow answer"]
+	  C --> D["Lock\ncitation IDs"]
+	  D --> E["Verify\nintegrity rules"]
+	  E --> F["Write\nreport_row status"]
 	            </pre>
 <!--bm:svg:start-->
 <div class="mermaid-svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1129.8000000000002 116" width="1129.8000000000002" height="116" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1723.25 116" width="1723.25" height="116" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
 <style>
   text { font-family: 'Inter', system-ui, sans-serif; }
   svg {
@@ -574,30 +608,30 @@
   }
 </style>
 <defs>
-  <marker id="bm2-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+  <marker id="bm3-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
     <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
   </marker>
-  <marker id="bm2-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm3-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
     <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
   </marker>
 </defs>
-<polyline points="143.5,58 183.5,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="351.35,58 391.35,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="530.6,58 570.6,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="724.15,58 764.1500000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="932,58 972.0000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<rect x="40" y="40" width="103.5" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="183.5" y="40" width="167.85000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="391.35" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="570.6" y="40" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="764.1500000000001" y="40" width="167.85000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="972.0000000000001" y="40" width="117.80000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<text x="91.75" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Retrieve&quot;</text>
-<text x="267.425" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Hydrate\nevidence&quot;</text>
-<text x="460.975" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Draft\nanswer&quot;</text>
-<text x="647.375" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Lock\ncitations&quot;</text>
-<text x="848.075" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Verify\nintegrity&quot;</text>
-<text x="1030.9" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Write\nrow&quot;</text>
+<polyline points="465.25000000000006,58 505.2500000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-arrowhead)" />
+<polyline points="751.7500000000001,58 791.75,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-arrowhead)" />
+<polyline points="959.5999999999999,58 999.5999999999999,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-arrowhead)" />
+<polyline points="1174.6,58 1214.6,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-arrowhead)" />
+<polyline points="1425.35,58 1465.35,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-arrowhead)" />
+<rect x="40" y="40" width="425.25000000000006" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="505.2500000000001" y="40" width="246.50000000000003" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="791.75" y="40" width="167.85000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="999.5999999999999" y="40" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="1214.6" y="40" width="210.75000000000003" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="1465.35" y="40" width="217.9" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="252.62500000000003" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Queue row step\nquick_start_title_survey.write_row_v0&quot;</text>
+<text x="628.5000000000001" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Retrieve\ncandidate evidence&quot;</text>
+<text x="875.675" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Draft\nrow answer&quot;</text>
+<text x="1087.1" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Lock\ncitation IDs&quot;</text>
+<text x="1319.975" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Verify\nintegrity rules&quot;</text>
+<text x="1574.3" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Write\nreport_row status&quot;</text>
 </svg>
 </div>
 <!--bm:svg:end-->
@@ -648,10 +682,10 @@
   }
 </style>
 <defs>
-  <marker id="bm3-seq-arrow" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm4-seq-arrow" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
     <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
   </marker>
-  <marker id="bm3-seq-arrow-open" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm4-seq-arrow-open" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
     <polyline points="0 0, 8 2.4, 0 4.8" fill="none" stroke="var(--_arrow)" stroke-width="1" />
   </marker>
 </defs>
@@ -664,21 +698,21 @@
 <line x1="224.6" y1="70" x2="224.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
 <line x1="364.6" y1="70" x2="364.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
 <line x1="504.6" y1="70" x2="504.6" y2="492" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
-<line x1="84.6" y1="90" x2="224.6" y2="90" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<line x1="84.6" y1="90" x2="224.6" y2="90" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-seq-arrow)" />
 <text x="154.6" y="84" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Click citation</text>
-<line x1="224.6" y1="130" x2="364.6" y2="130" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<line x1="224.6" y1="130" x2="364.6" y2="130" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-seq-arrow)" />
 <text x="294.6" y="124" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Fetch citation + polygons</text>
-<line x1="364.6" y1="170" x2="224.6" y2="170" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<line x1="364.6" y1="170" x2="224.6" y2="170" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm4-seq-arrow)" />
 <text x="294.6" y="164" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Locked citation object</text>
-<line x1="224.6" y1="210" x2="364.6" y2="210" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<line x1="224.6" y1="210" x2="364.6" y2="210" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-seq-arrow)" />
 <text x="294.6" y="204" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Document render (page N)</text>
-<line x1="364.6" y1="250" x2="504.6" y2="250" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<line x1="364.6" y1="250" x2="504.6" y2="250" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm4-seq-arrow)" />
 <text x="434.6" y="244" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Signed PDF URL</text>
-<polyline points="504.6,290 534.6,290 534.6,310 504.6,310" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm3-seq-arrow)" />
+<polyline points="504.6,290 534.6,290 534.6,310 504.6,310" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-seq-arrow)" />
 <text x="540.6" y="300" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Verify hash</text>
-<line x1="504.6" y1="388" x2="84.6" y2="388" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<line x1="504.6" y1="388" x2="84.6" y2="388" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm4-seq-arrow)" />
 <text x="294.6" y="382" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Highlighted passage</text>
-<line x1="504.6" y1="452" x2="84.6" y2="452" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm3-seq-arrow)" />
+<line x1="504.6" y1="452" x2="84.6" y2="452" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#bm4-seq-arrow)" />
 <text x="294.6" y="446" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Failure + reason</text>
 <rect x="39.99999999999999" y="30" width="89.2" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <text x="84.6" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Reviewer</text>
@@ -695,7 +729,74 @@
 	        </div>
 
 	        <div class="card full">
-	          <h3>Deployment</h3>
+	          <h3>Current demo topology</h3>
+	          <div class="diagram">
+	            <pre class="mermaid mermaid-source">
+	flowchart LR
+	  U["Browser"] --> N["Next.js dev server"]
+	  N --> P["Postgres"]
+	  N --> O["Local object store\n(tmp/object-store)"]
+	  N --> S["Fixture seed snapshots\n(tmp/fixture-seed)"]
+	  N --> W["WDK worker\n(dev inline or separate)"]
+	  W --> P
+	  W --> O
+	            </pre>
+<!--bm:svg:start-->
+<div class="mermaid-svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1135.95 246" width="1135.95" height="246" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<style>
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="bm5-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="bm5-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="136.35000000000002,118 176.35000000000002,118" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="351.35,118 371.35,118 371.35,98 936.95,98 936.95,100" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="351.35,118 371.35,118 371.35,178 936.95,178 936.95,170" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="351.35,118 371.35,118 371.35,58 391.3500000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="351.35,118 371.35,118 371.35,138 412.80000000000007,138" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="716.5000000000001,138 936.95,138 936.95,136" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="716.5000000000001,138 757.95,138 757.95,198 936.95,198 936.95,206" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<rect x="40.00000000000001" y="100" width="96.35000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="176.35000000000002" y="100" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="885.2" y="100" width="103.5" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="777.95" y="170" width="318" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="391.3500000000001" y="40" width="346.6" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="412.80000000000007" y="120" width="303.70000000000005" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="88.17500000000001" y="118" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Browser&quot;</text>
+<text x="263.85" y="118" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Next.js dev server&quot;</text>
+<text x="936.95" y="118" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Postgres&quot;</text>
+<text x="936.95" y="188" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Local object store\n(tmp/object-store)&quot;</text>
+<text x="564.6500000000001" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Fixture seed snapshots\n(tmp/fixture-seed)&quot;</text>
+<text x="564.6500000000001" y="138" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;WDK worker\n(dev inline or separate)&quot;</text>
+</svg>
+</div>
+<!--bm:svg:end-->
+	          </div>
+	        </div>
+
+	        <div class="card full">
+	          <h3>Target deployment trajectory</h3>
 	          <div class="diagram">
 	            <pre class="mermaid mermaid-source">
 	flowchart TB
@@ -739,10 +840,10 @@
   }
 </style>
 <defs>
-  <marker id="bm4-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+  <marker id="bm6-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
     <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
   </marker>
-  <marker id="bm4-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm6-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
     <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
   </marker>
 </defs>
@@ -755,13 +856,13 @@
 <rect x="225.4875" y="352" width="729.4250000000001" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="225.4875" y="352" width="729.4250000000001" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
 <text x="237.4875" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Data plane&quot;</text>
-<polyline points="220.40000000000003,132 220.40000000000003,152 138.77499999999998,152 138.77499999999998,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
-<polyline points="220.40000000000003,132 220.40000000000003,152 302.02500000000003,152 302.02500000000003,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
-<polyline points="657.8000000000001,132 657.8000000000001,152 501.70000000000005,152 501.70000000000005,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
-<polyline points="657.8000000000001,132 657.8000000000001,152 636.35,152 636.35,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
-<polyline points="657.8000000000001,132 657.8000000000001,152 792.45,152 792.45,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
-<polyline points="302.02500000000003,288 302.02500000000003,426 459.7375,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
-<polyline points="792.45,288 792.45,426 641.8875,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm4-arrowhead)" />
+<polyline points="220.40000000000003,132 220.40000000000003,152 138.77499999999998,152 138.77499999999998,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="220.40000000000003,132 220.40000000000003,152 302.02500000000003,152 302.02500000000003,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="657.8000000000001,132 657.8000000000001,152 501.70000000000005,152 501.70000000000005,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="657.8000000000001,132 657.8000000000001,152 636.35,152 636.35,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="657.8000000000001,132 657.8000000000001,152 792.45,152 792.45,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="302.02500000000003,288 302.02500000000003,426 459.7375,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="792.45,288 792.45,426 641.8875,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
 <rect x="132.90000000000003" y="96" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
 <rect x="72.72499999999997" y="252" width="132.10000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
 <rect x="228.82500000000005" y="252" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
@@ -852,18 +953,18 @@ stateDiagram-v2
   }
 </style>
 <defs>
-  <marker id="bm5-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+  <marker id="bm7-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
     <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
   </marker>
-  <marker id="bm5-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm7-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
     <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
   </marker>
 </defs>
-<polyline points="132.26250000000002,76 132.26250000000002,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
-<polyline points="132.26250000000002,152 132.26250000000002,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
-<polyline points="132.26250000000002,228 132.26250000000002,248 81.025,248 81.025,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
-<polyline points="81.025,304 81.025,344" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
-<polyline points="132.26250000000002,228 132.26250000000002,248 183.5,248 183.5,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm5-arrowhead)" />
+<polyline points="132.26250000000002,76 132.26250000000002,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm7-arrowhead)" />
+<polyline points="132.26250000000002,152 132.26250000000002,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm7-arrowhead)" />
+<polyline points="132.26250000000002,228 132.26250000000002,248 81.025,248 81.025,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm7-arrowhead)" />
+<polyline points="81.025,304 81.025,344" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm7-arrowhead)" />
+<polyline points="132.26250000000002,228 132.26250000000002,248 183.5,248 183.5,268" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm7-arrowhead)" />
 <circle cx="132.26250000000002" cy="58" r="16" fill="var(--_text)" stroke="none" />
 <rect x="98.38750000000002" y="116" width="67.75" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
 <rect x="84.0875" y="192" width="96.35000000000001" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
@@ -913,17 +1014,17 @@ stateDiagram-v2
   }
 </style>
 <defs>
-  <marker id="bm6-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+  <marker id="bm8-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
     <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
   </marker>
-  <marker id="bm6-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+  <marker id="bm8-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
     <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
   </marker>
 </defs>
-<polyline points="98.9,76 98.9,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="98.9,152 98.9,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="244.27499999999998,76 244.27499999999998,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="400.375,76 400.375,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
+<polyline points="98.9,76 98.9,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm8-arrowhead)" />
+<polyline points="98.9,152 98.9,192" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm8-arrowhead)" />
+<polyline points="244.27499999999998,76 244.27499999999998,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm8-arrowhead)" />
+<polyline points="400.375,76 400.375,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm8-arrowhead)" />
 <circle cx="98.9" cy="58" r="16" fill="var(--_text)" stroke="none" />
 <rect x="40" y="116" width="117.80000000000001" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
 <rect x="54.300000000000004" y="192" width="89.2" height="36" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
@@ -959,10 +1060,10 @@ stateDiagram-v2
 	          <div class="libs">Next.js 15 (App Router)<br>React 19<br>Tailwind CSS<br>TanStack Table<br>pdf.js + overlay layer</div>
 	        </div>
 	        <div class="stack-tile">
-	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Durable, retryable workflows for OCR/LLM steps. Postgres-backed state makes runs observable, resumable, and idempotent.">?</button>
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="WDK run steps provide durable, retryable ingest/run execution. In dev mode the worker drains inline; outside dev it runs as a separate process.">?</button>
 	          <span class="icon" aria-hidden="true">&#9881;</span>
 	          <h4>Orchestration</h4>
-	          <div class="libs">Workflow DevKit (WDK)<br>Postgres-backed state<br>Retryable idempotent steps<br>Row-by-row progress</div>
+	          <div class="libs">Workflow DevKit (WDK)<br>Postgres-backed run_steps<br>Retryable idempotent steps<br>Row-by-row progress</div>
 	        </div>
 	        <div class="stack-tile">
 	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Vercel AI SDK keeps streaming and tool calls consistent. A gateway/router makes it easy to swap models without rewriting the app.">?</button>
@@ -977,16 +1078,16 @@ stateDiagram-v2
 	          <div class="libs">Postgres<br>pgvector (semantic)<br>tsvector (lexical)<br>S3-compatible objects</div>
 	        </div>
 	        <div class="stack-tile">
-	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Azure Document Intelligence returns text plus layout geometry, which we need for polygon highlights. Strong on scan-heavy PDFs.">?</button>
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Current runtime extraction uses pdf.js text extraction. Target path is OCR/layout geometry-first ingestion for stronger evidence anchoring on uploaded docs.">?</button>
 	          <span class="icon" aria-hidden="true">&#9744;</span>
 	          <h4>OCR</h4>
-	          <div class="libs">Azure Document Intelligence<br>Per-page text + geometry<br>Scan-resilient extraction</div>
+	          <div class="libs">Current: pdf.js text extraction<br>Target: OCR/layout provider<br>Geometry-backed anchoring path</div>
 	        </div>
 	        <div class="stack-tile">
-	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Vercel handles short-lived web requests; workers handle long-running steps. Keeping the data plane close to workers reduces latency and cost.">?</button>
+	          <button class="why" type="button" aria-label="Why this stack choice?" data-tooltip="Current demo runs locally (Next.js + Postgres + local object storage). Target deployment keeps web and worker responsibilities explicit.">?</button>
 	          <span class="icon" aria-hidden="true">&#9673;</span>
 	          <h4>Infra</h4>
-	          <div class="libs">Vercel (web tier)<br>Hetzner (worker + DB)<br>Zod validation<br>AI SDK telemetry</div>
+	          <div class="libs">Current: local Docker + dev server<br>Target: split web/worker tiers<br>Zod safe boundaries<br>Trace/export gates</div>
 	        </div>
 	      </div>
 	    </section>
@@ -1002,6 +1103,7 @@ stateDiagram-v2
             <div class="codeblock">docker compose up -d db</div>
             <div class="codeblock">pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite</div>
             <div class="codeblock">pnpm dev</div>
+            <div class="codeblock">pnpm --filter @orbital-poc/web worker # outside dev mode</div>
           </details>
         </div>
         <div class="card">
@@ -1020,9 +1122,10 @@ stateDiagram-v2
 
   <script>
     const SCENARIOS = [
-      { label: "Evidence verification", desc: "Click a citation to see the source clause highlighted.", url: "http://localhost:3000/matters?pack=pack_01_clean", tag: "pass", tagLabel: "Happy path" },
-      { label: "Missing document", desc: "Required document absent, flagged explicitly.", url: "http://localhost:3000/matters?pack=pack_02_missing_rea", tag: "warn", tagLabel: "Missing input" },
-      { label: "Scanned and rotated PDFs", desc: "Low-quality scans handled gracefully.", url: "http://localhost:3000/matters?pack=pack_07_scans_rotated_low_quality", tag: "pass", tagLabel: "Resilience" },
+      { label: "Evidence verification", desc: "Open row drawer, click a citation, verify highlight at 100% zoom.", url: "http://localhost:3000/matters?pack=pack_01_clean", tag: "pass", tagLabel: "Happy path" },
+      { label: "Missing document", desc: "Required document absent, row resolves to explicit missing_input state.", url: "http://localhost:3000/matters?pack=pack_02_missing_rea", tag: "warn", tagLabel: "Missing input" },
+      { label: "Scanned and rotated PDFs", desc: "Scan-heavy pack keeps viewer controls usable and trust posture explicit.", url: "http://localhost:3000/matters?pack=pack_07_scans_rotated_low_quality", tag: "pass", tagLabel: "Resilience" },
+      { label: "Run-scoped chat", desc: "Show selected/effective run scope disclosure and source-chip anchor gating.", url: "http://localhost:3000/matters?pack=pack_01_clean&tab=chat", tag: "warn", tagLabel: "L1 scope" },
       { label: "Fail-closed citation", desc: "Row TB-BAD-CITATION: click cit_TB_BAD_1; viewer shows SNIPPET_HASH_MISMATCH and renders no overlay.", url: "http://localhost:3000/matters?pack=pack_01_clean", tag: "fail", tagLabel: "Fail-closed" },
     ];
 

@@ -1,82 +1,62 @@
-# Demo Notes v2: Orbital PoC (Story + Build Learnings)
+# Demo Notes v2: Orbital PoC (Refreshed for Current Architecture + v3 Journeys)
 
-Use this as a speaker script. Keep the pace tight and demo-first.
+Use this as speaker support notes. Keep the live product flow first.
 
-## 1) What I built (opening, 45 to 60 sec)
+## 1) What this now demonstrates (opening, 45 to 60 sec)
 
-I built a US commercial real estate matter workspace with three core capabilities:
+This demo now maps to the v3 user-journey topology:
 
-1. `Manage matters`: create/open matters and run repeatable workflows.
-2. `Citations to documents`: evidence-first outputs where claims point back to source documents.
-3. `Chat with a matter`: question-answering in the context of one matter, not a generic chatbot.
+1. Shell and matters discovery (`P1`, `P2`)
+2. Setup/doc readiness (`P3`)
+3. Run and report triage (`P4`)
+4. Drawer-first decisions (`P5`)
+5. Evidence viewer and trust controls (`P6`)
+6. Exports/artefacts and blocked-loop recovery (`P7`, `P8`)
+7. Run-scoped chat (`P9`, L1)
+8. Demo operator loop (toolbar/checklist/history: `P10` to `P12`)
 
-Short version: this is a trust-first workflow product, not just a chat UI.
+Short version: this is a trust workflow with explicit states, not a generic chat assistant.
 
-## 2) Why I chose this (60 to 90 sec)
+## 2) Architecture posture to state clearly (60 to 90 sec)
 
-I chose this domain to learn in a hard, realistic environment:
+Current runtime (implemented today):
+- WDK-backed ingest and Quick Start step execution
+- Next.js route handlers + Postgres + local object store
+- Row-level retrieve/draft/lock flow in Quick Start steps
+- Fixture-backed citation/evidence overlays for deterministic demos
 
-1. `US CRE nuance`: state-by-state differences and domain-specific edge cases.
-2. `Messy docs`: low-quality scans, inconsistent structure, noisy source material.
-3. `Emotional job-to-be-done`: users do not just want speed, they need confidence the result is correct.
-4. `Shipping discipline`: push beyond prototypes into durable build workflows (AI SDK patterns, repeatability, verification loops).
+Target architecture (north star docs):
+- OCR/layout geometry as default ingest substrate
+- Full hybrid retrieval and citation locking across real uploaded docs
+- Expanded eval + observability + deployment hardening
 
-I also wanted to see how far I could push a shipping workflow with current models. I got further than expected, and model quality gains last week (5.3 release) materially helped execution speed.
+Speaker line:
+- "I’ll be explicit about what is implemented now vs what is the target architecture we are iterating toward."
 
-## 3) What this means for my role (45 to 60 sec)
+## 3) User and value frame (30 to 45 sec)
 
-This project was primarily a learning vehicle, but with practical output.
+- User: associate/paralegal doing first-pass US CRE diligence
+- Buyer: practice lead/partner accountable for turnaround and risk
+- Emotional shift: rushed + uncertain -> grounded + defensible
+- Business target: reduce first-pass time while preserving zero-uncited material claims
 
-My core responsibility is still creating value for users and the company. I know engineers are feeling disruption with soon engineers not hand writing code (already a large way there). That said I am not claiming to being able to fully shipping production grade performant scalable and secure systems. 
+## 4) Demo reliability and integrity posture (45 sec)
 
-## 4) Build stats (30 sec)
+- `missing_input` is first-class and explicit
+- `citation_failed` is fail-closed and blocks export posture by default
+- Source chips are anchor-gated (non-clickable when unresolved)
+- Chat is run-scoped (L1), with selected vs effective run disclosure
 
-Current repo/build stats:
+## 5) Current repo snapshot (as of 2026-02-14)
 
-1. `40,048` source LOC (`apps/`, `packages/`, `scripts/`; TS/JS/CSS/SQL).
-2. `513` commits in repo history.
-3. `970M` tokens used (my usage figure).
-4. Subscriptions: `$200` OpenAI + `$20` Claude.
+- Commits: `540`
+- Source LOC (`apps/`, `packages/`, `scripts/`; TS/JS/CSS/SQL): `43,597`
 
-## 5) Synthetic users, synthetic data, and skills system (60 to 90 sec)
+## 6) Visual system callout (15 sec)
 
-I used AI to generate and evolve:
-
-1. Synthetic users/personas for workflow pressure-testing.
-2. Synthetic sample packs and scenario data for repeatable demos and regression loops.
-
-Skills footprint in this repo:
-
-1. `98` total skills (`SKILL.md` files in `.agents/skills`).
-2. `16` explicitly curated (externally sourced, marked in metadata).
-3. `82` project/local skills (everything else by exclusion).
-
-I also used the Compound engineering workflow (`compound-docs`) to consolidate solved problems into reusable team knowledge instead of losing context between runs.
-
-## 6) Tooling learnings (90 sec)
-
-### Build tooling choices that worked
-
-1. Claude + Amp: strongest pair for frontend polish and interaction details.
-2. Codex: strongest for broad implementation velocity across backend, docs, and workflow plumbing.
-3. Repo prompt as context builder: high leverage for keeping long-running work coherent.
-4. Sprites as lightweight VMs: useful isolation for parallel work and task switching.
-5. "Magic patterns" for frontend design: helped preserve quality while moving fast.
-
-### Stack decisions that held up
-
-1. Vercel AI Gateway for chat model routing and consistency.
-2. Workflow Dev Kit for durable workflows and state management.
-3. Azure Document Intelligence for document/layout handling in the doc pipeline.
-
-### 30 sec tech stack overview (speaker-ready)
-
-I used `Next.js 15` + `TypeScript` so UI and API live in one deploy, and chat streams from route handlers without a separate backend service. `Tailwind` is wired to a shared preset + token system, so I can ship fast without UI drift. On ingest, documents are split with `char_window_v0` chunks (`1500` max chars, `200` overlap) and stored with page + char offsets and `text_hash` for idempotent re-indexing. Chat retrieval is hybrid by design: lexical (`websearch_to_tsquery` + `ts_rank_cd`) plus semantic (`pgvector` cosine over `1536`-dim embeddings), merged at `0.55` lexical / `0.45` semantic. In chat, I take top-`6` chunks and return citation sources with `document_id`, `page_number`, and anchor state; citation records keep `snippet_hash` and polygon geometry so evidence can be verified and highlighted.
+- The demo runbook links directly to `docs/02-guidelines/v5-final/design-system.html` so design direction is showable live.
 
 ## 7) Close (30 sec)
 
-This is not a production claim. It is a shipped learning system that proves:
-
-1. You can build credible, trust-aware vertical workflows with AI-native development.
-2. The bottleneck is no longer only coding speed; it is judgment, verification, and system design.
-3. The next step is converting this learning velocity into direct user and company value.
+- "This is not a production claim. It is a realistic, testable trust substrate with explicit journey contracts and architecture boundaries."
+- "Next work is closing the remaining drift between current runtime and target docs while keeping reliability gates tight."
