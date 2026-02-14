@@ -38,7 +38,7 @@ describe("ErrorBanner", () => {
     );
 
     expect(html).not.toContain("Retry");
-    expect(html).toContain("Need help?");
+    expect(html).toContain("Contact support");
   });
 
   it("hides retry CTA when retryable is missing", () => {
@@ -97,6 +97,6 @@ describe("ErrorBanner", () => {
     expect(html).toContain("code: MODEL_STREAM_FAILED");
     expect(html).toContain("trace_id: trc_789");
     expect(html).toContain("route: /matters/pack_02");
-    expect(html).not.toContain("Need help?");
+    expect(html).not.toContain("Contact support");
   });
 });

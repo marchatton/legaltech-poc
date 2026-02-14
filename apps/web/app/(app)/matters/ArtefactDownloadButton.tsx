@@ -29,12 +29,12 @@ export function parseFreshnessState(href: string): FreshnessState {
     const url = new URL(href, base);
     const expiresAtMs = Number(url.searchParams.get("expires"));
     if (!Number.isFinite(expiresAtMs) || expiresAtMs <= 0) {
-      return { kind: "fresh", hint: "Freshness unknown. Refresh this page if download fails." };
+      return { kind: "fresh", hint: "Link expiry is unknown. If download fails, refresh to request a new link." };
     }
 
     const msRemaining = expiresAtMs - Date.now();
     if (msRemaining <= 0) {
-      return { kind: "stale", hint: "Download link is stale. Refresh this page for a fresh link." };
+      return { kind: "stale", hint: "This download link expired. Refresh to request a new link." };
     }
 
     const minutesRemaining = Math.max(1, Math.ceil(msRemaining / 60_000));
@@ -43,7 +43,7 @@ export function parseFreshnessState(href: string): FreshnessState {
       hint: `Signed link fresh for about ${minutesRemaining} minute${minutesRemaining === 1 ? "" : "s"}.`,
     };
   } catch {
-    return { kind: "fresh", hint: "Freshness unknown. Refresh this page if download fails." };
+    return { kind: "fresh", hint: "Link expiry is unknown. If download fails, refresh to request a new link." };
   }
 }
 
@@ -51,12 +51,12 @@ export function resolveDownloadFailureMessage(args: { status: number; payload: u
   const safeError = parseSafeErrorEnvelope(args.payload);
   if (safeError) {
     if (safeError.code === "UNAUTHORISED" && /expired/i.test(safeError.message)) {
-      return "Download link is stale. Refresh this page for a fresh link.";
+      return "This download link expired. Refresh to request a new link.";
     }
     return safeError.message;
   }
 
-  if (args.status === 403) return "Download request was rejected. Refresh this page for a fresh link.";
+  if (args.status === 403) return "Download request was rejected. Refresh to request a new link.";
   if (args.status === 404) return "Artefact was not found. Re-run export if needed.";
   return `Download failed (${args.status}).`;
 }

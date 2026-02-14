@@ -12,7 +12,7 @@ describe("ArtefactDownloadButton helpers", () => {
     const freshness = parseFreshnessState("/artefacts/art_demo/download?expires=1000000&sig=test");
     expect(freshness).toEqual({
       kind: "stale",
-      hint: "Download link is stale. Refresh this page for a fresh link.",
+      hint: "This download link expired. Refresh to request a new link.",
     });
   });
 
@@ -27,7 +27,7 @@ describe("ArtefactDownloadButton helpers", () => {
       },
     });
 
-    expect(message).toBe("Download link is stale. Refresh this page for a fresh link.");
+    expect(message).toBe("This download link expired. Refresh to request a new link.");
   });
 
   it("falls back to HTTP-derived messages when payload is unknown", () => {

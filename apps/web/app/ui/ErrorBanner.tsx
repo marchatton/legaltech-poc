@@ -99,13 +99,13 @@ function ErrorIcon() {
 export function ErrorBanner({
   code,
   message,
-  title = "Operation failed",
+  title = "Action could not be completed",
   traceId,
   retryable,
   onRetry,
   retryLabel = "Retry",
   showSupportAction = true,
-  supportLabel = "Need help?",
+  supportLabel = "Contact support",
   supportRoute,
   supportTarget,
   className,
@@ -172,7 +172,7 @@ export function ErrorBanner({
 
           {showSupportFallback ? (
             <div className="mt-3 rounded-ui-sm border border-border/60 bg-card p-2 text-2xs text-muted-foreground">
-              <div>Support channel is not configured. Share these identifiers with your support contact:</div>
+              <div>Support channel is not configured. Share these details with your support contact:</div>
               <textarea
                 aria-label="Support identifiers"
                 className="mt-2 h-20 w-full resize-none rounded-ui-sm border border-border/60 bg-background/40 p-2 font-mono text-2xs text-foreground"
