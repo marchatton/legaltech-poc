@@ -200,7 +200,7 @@ export function ExportMemoButton(props: Props) {
                       type="password"
                       value={adminToken}
                       onChange={(e) => setAdminToken(e.target.value)}
-                      placeholder="x-orbital-admin-token"
+                      placeholder="x-legaltech-admin-token"
                       autoComplete="off"
                       spellCheck={false}
                     />

@@ -33,7 +33,7 @@ function decodeBasicCredentials(authHeader: string): { user: string; pass: strin
 export function basicAuthRequiredResponse(): Response {
   return new Response("Authentication required.", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Orbital demo-prod"' },
+    headers: { "WWW-Authenticate": 'Basic realm="LegalTech demo-prod"' },
   });
 }
 

@@ -72,7 +72,7 @@ describe("ErrorBanner", () => {
     const parsed = new URL(href);
     expect(parsed.protocol).toBe("mailto:");
     expect(parsed.pathname).toBe("support@orbital.test");
-    expect(parsed.searchParams.get("subject")).toBe("Orbital support request: EXPORT_BLOCKED");
+    expect(parsed.searchParams.get("subject")).toBe("LegalTech support request: EXPORT_BLOCKED");
 
     const body = parsed.searchParams.get("body");
     expect(body).toContain("code: EXPORT_BLOCKED");

@@ -13,8 +13,8 @@ import { ThemeProvider } from "./ui/ThemeProvider";
 import { ThemeToggle } from "./ui/ThemeToggle";
 
 export const metadata = {
-  title: "Orbital PoC",
-  description: "Orbital Copilot PoC",
+  title: "LegalTech PoC",
+  description: "LegalTech Copilot PoC",
 };
 
 export default function RootLayout(props: { children: ReactNode }) {

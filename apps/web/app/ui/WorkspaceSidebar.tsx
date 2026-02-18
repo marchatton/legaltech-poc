@@ -223,7 +223,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
               <div className="flex min-w-0 items-center">
                 <BrandMark />
                 <span className="ml-3 truncate font-serif text-xl font-semibold tracking-tight text-sidebar-foreground">
-                  Orbital
+                  LegalTech
                 </span>
               </div>
               <button
@@ -274,7 +274,7 @@ export function WorkspaceSidebar(props: { active: DestinationId }) {
             <BrandMark />
             {!collapsed && (
               <span className="ml-3 truncate font-serif text-xl font-semibold tracking-tight text-sidebar-foreground">
-                Orbital
+                LegalTech
               </span>
             )}
           </div>

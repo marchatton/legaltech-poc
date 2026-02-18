@@ -64,9 +64,9 @@ export function buildSupportMailtoHref(args: {
     `trace_id: ${supportContextValue(args.traceId)}`,
     `route: ${supportContextValue(args.route)}`,
   ];
-  const subject = `Orbital support request: ${supportContextValue(args.code)}`;
+  const subject = `LegalTech support request: ${supportContextValue(args.code)}`;
   const body = [
-    "Please help investigate this Orbital error.",
+    "Please help investigate this LegalTech error.",
     "",
     ...supportContextLines,
   ].join("\n");

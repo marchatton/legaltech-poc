@@ -7,7 +7,7 @@ export default function HomePage() {
   return (
     <Page width="sm">
       <PageHeader
-        title={<em>Orbital</em>}
+        title={<em>LegalTech</em>}
         subtitle="Choose a workspace: product parity surfaces or dev-only spike harnesses."
       />
 
