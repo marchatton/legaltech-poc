@@ -12,15 +12,22 @@ Canonical related docs:
 - `docs/03-architecture/60_observability_and_evals.md` (failure taxonomy + eval posture)
 
 ## Current PoC status (implemented today)
-The repo does not yet implement the end-to-end retrieve/draft/lock pipeline described below.
+The repo implements a baseline end-to-end `retrieve -> draft -> lock` pipeline for Quick Start, with deterministic fail-closed row statuses.
 
 Current behavior:
-- Ingest extracts text via pdf.js (not OCR) and stores per-page text with `has_geometry=false`.
-  - Code: `apps/web/lib/ingest/ingestQueue.server.ts`
-- Quick Start runs are executed in-process and write placeholder terminal `report_rows` (no retrieval/draft/lock).
-  - Code: `apps/web/lib/quickStartRunQueue.server.ts`
-- Citations/highlights and trace export are fixture-backed for demos (seed snapshots under `tmp/fixture-seed`).
-  - Code: `apps/web/lib/fixtureSeed.server.ts`, `apps/web/app/(api)/citations/[id]/route.ts`
+- Ingest runs as WDK steps, extracts text via pdf.js (not OCR), and stores per-page text with `has_geometry=false`.
+  - Code: `apps/web/workflows/ingestDocumentWorkflow.server.ts`, `apps/web/steps/ingestDocumentProcess.step.server.ts`
+- Quick Start runs schedule one WDK row step per question; each step performs hybrid retrieval, evidence hydration, grounded draft, and citation locking.
+  - Code: `apps/web/app/(api)/folders/[id]/runs/route.ts`, `apps/web/workflows/quickStartTitleSurveyWorkflow.server.ts`, `apps/web/steps/quickStartWriteRowV0.step.server.ts`
+- `GET /citations/:id` reads locked citations from Postgres and returns polygons/snippets for viewer overlay.
+  - Code: `apps/web/app/(api)/citations/[id]/route.ts`
+- Fixture seed snapshots still back trace export and spike CSV export routes.
+  - Code: `apps/web/app/(api)/runs/[id]/trace/route.ts`, `apps/web/app/(api)/spikes/export/csv/route.ts`, `apps/web/lib/fixtureSeed.server.ts`
+
+Gaps vs target:
+- No OCR/layout geometry yet; locked citations currently use deterministic page-level fallback polygons.
+- Verification v1 is integrity-only (no entailment model).
+- Trace export is not yet reconstructed from persisted `runs/run_steps` artifacts.
 
 Treat the remainder of this doc as the **target** pipeline to build towards.
 

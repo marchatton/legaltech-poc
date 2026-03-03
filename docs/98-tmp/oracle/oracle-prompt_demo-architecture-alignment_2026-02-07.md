@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── docs
 │   ├── 03-architecture
 │   │   ├── 00_overview.md *
@@ -488,7 +488,7 @@
 Config: depth cap 3.
 </file_map>
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/00_overview.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/00_overview.md
 ```md
 # Orbital Copilot PoC Architecture
 US CRE Title + Survey Quick Start (evidence-first, artefact-first)
@@ -566,7 +566,7 @@ These should become explicit (ideally as ADRs) before we build the relevant slic
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0006_eval-harness/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0006_eval-harness/prd.md
 ```md
 # PRD: Fixture-Driven Eval Harness (Hard Gates + Reports)
 
@@ -714,7 +714,7 @@ As a developer, CI uploads eval reports so reviewers can see regressions without
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md
 ```md
 # List Verification Policy v1 (Initiative 0002)
 
@@ -758,7 +758,7 @@ When verification runs, provenance must include (safe):
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/30_data_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/30_data_model.md
 ```md
 # Data model (Postgres + pgvector)
 
@@ -1003,7 +1003,7 @@ This rule must be implemented once (e.g. in `packages/core/citations`) and reuse
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 2) Row Payload Contract + Artefact Table Rendering
 
@@ -1115,7 +1115,7 @@ As a user, I can view B-I/B-II/issues as tables, open a row drawer, and click ci
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0004_csv-export/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0004_csv-export/prd.md
 ```md
 # PRD: CSV Exports + Artefacts List (Requirements / Exceptions / Survey Issues)
 
@@ -1370,7 +1370,7 @@ As a demo operator, I can see previously exported artefacts for a matter and dow
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0007_demo-reliability/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0007_demo-reliability/prd.md
 ```md
 # PRD: Demo Reliability Pack (Dev-Only) Pack Loader + Checklist
 
@@ -1493,7 +1493,7 @@ As a demo operator, I have a short checklist that makes the demo repeatable and 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/05_tech_stack_and_dev_workflow.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/05_tech_stack_and_dev_workflow.md
 ```md
 # Tech stack + dev workflow (PoC)
 
@@ -1809,7 +1809,7 @@ Planned commands (not wired yet):
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/50_api_surface.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/50_api_surface.md
 ```md
 # API surface (PoC)
 
@@ -2290,7 +2290,7 @@ Notes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0003_demo-grade-outputs/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0003_demo-grade-outputs/prd.md
 ```md
 # PRD: Initiative 0003 (Spine) — Demo-Grade Outputs + Repeatability
 
@@ -2450,7 +2450,7 @@ As a demo operator, I want to load known fixture packs and re-run the demo twice
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0003_demo-grade-outputs/brief.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0003_demo-grade-outputs/brief.md
 ```md
 # Brief: Initiative 0003 — Demo-grade outputs and repeatability
 
@@ -2585,7 +2585,7 @@ PRD dossiers (drafted as DRAFT; spike outcomes locked 2026-02-07; remaining depe
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/60_observability_and_evals.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/60_observability_and_evals.md
 ```md
 # Observability and evals
 
@@ -2800,7 +2800,7 @@ order by created_at desc;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0003_demo-grade-outputs/risk-register.md
 ```md
 # Risk register (rabbit holes)
 
@@ -2831,7 +2831,7 @@ Use this during shaping to capture tail risks and choose mitigations.
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/DECISIONS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/DECISIONS.md
 ```md
 # Architecture decisions (ADRs)
 
@@ -3399,7 +3399,7 @@ Links
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0003_demo-grade-outputs/breadboard-pack.md
 ```md
 # Breadboard Pack — Initiative 0003: Demo-grade outputs and repeatability
 
@@ -3598,7 +3598,7 @@ graph LR
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0003_demo-grade-outputs/spike-investigation.md
 ```md
 # Spike investigation — Initiative 0003: Demo-grade outputs and repeatability
 
@@ -3808,7 +3808,7 @@ Completed (see `tmp-oracle/oracle_response_0003_1.md` and `tmp-oracle/oracle_res
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0007_demo-reliability/demo-checklist.md
 ```md
 # Demo Checklist (Draft)
 
@@ -3850,7 +3850,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/10_system_architecture.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/10_system_architecture.md
 ```md
 # System architecture
 
@@ -4121,7 +4121,7 @@ If/when we move web/API to Vercel:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/20_state_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/20_state_model.md
 ```md
 # State model
 
@@ -4322,7 +4322,7 @@ group by r.id;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/06_frameworks_agents_rag_evals.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/06_frameworks_agents_rag_evals.md
 ```md
 # Frameworks, agents, RAG, and evals
 
@@ -4473,7 +4473,7 @@ Must be real early:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/failure_ux_copy_v0.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/failure_ux_copy_v0.md
 ```md
 # Failure UX Copy v0 (Initiative 0002)
 
@@ -4512,7 +4512,7 @@ Constraints:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0005_word-export/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0005_word-export/prd.md
 ```md
 # PRD: Word Export (.docx) Single Memo Template
 
@@ -4684,7 +4684,7 @@ As a demo operator, I can see and download the exported memo artefact reliably f
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/40_rag_and_agents.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/40_rag_and_agents.md
 ```md
 # RAG + agents (Quick Start)
 
@@ -4829,7 +4829,7 @@ Because WDK can replay/retry, each step must be safely repeatable:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
 ```md
 # List Payload v0 (Initiative 0002)
 

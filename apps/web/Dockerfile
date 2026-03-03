@@ -20,7 +20,7 @@ COPY packages/core packages/core
 COPY docs/08-example-data docs/08-example-data
 COPY scripts scripts
 
-RUN pnpm --filter @orbital-poc/web build
+RUN pnpm --filter @legaltech-poc/web build
 
 # Runtime image
 FROM node:20-bookworm-slim AS runtime

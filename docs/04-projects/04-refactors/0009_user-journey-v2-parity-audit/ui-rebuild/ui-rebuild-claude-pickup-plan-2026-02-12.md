@@ -167,8 +167,8 @@ Apply the full consolidated operator feedback to simplify the UI, fix layout/sti
    - `apps/web/test/demoHistoryShortcuts.sync.test.ts`
    - `apps/web/test/exportBlockingState.sync.test.ts`
 2. Run targeted checks:
-   - `pnpm --filter @orbital-poc/web test -- mattersList.sync.test.ts shellWayfinding.sync.test.ts setupDocuments.sync.test.ts quickStartReadiness.sync.test.ts demoHistoryShortcuts.sync.test.ts exportBlockingState.sync.test.ts`
-   - `pnpm --filter @orbital-poc/web typecheck`
+   - `pnpm --filter @legaltech-poc/web test -- mattersList.sync.test.ts shellWayfinding.sync.test.ts setupDocuments.sync.test.ts quickStartReadiness.sync.test.ts demoHistoryShortcuts.sync.test.ts exportBlockingState.sync.test.ts`
+   - `pnpm --filter @legaltech-poc/web typecheck`
 3. Manual smoke:
    - `/matters`
    - `/matters/[id]?tab=report`

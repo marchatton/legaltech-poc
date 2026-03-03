@@ -1,7 +1,7 @@
 import "server-only";
 
-import { chunkPageCharWindowV0 } from "@orbital-poc/core";
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import { chunkPageCharWindowV0 } from "@legaltech-poc/core";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
 
 import { ensureSchema, sql } from "../db.server";
 import { refreshFolderState } from "../folderState.server";

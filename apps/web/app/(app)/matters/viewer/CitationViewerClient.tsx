@@ -9,7 +9,7 @@ import {
   type NormPolygons,
   type PdfJsViewportLike,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 import {
   deriveTextOverlayFromSnippet,
   isFullPageFallbackPolygons,

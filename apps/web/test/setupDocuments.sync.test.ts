@@ -56,7 +56,8 @@ describe("US-003 setup documents upload flow", () => {
     expect(source).toContain("for (let i = 0; i < 8; i += 1)");
     expect(source).toContain("setIsRefreshing(true);");
     expect(source).toContain("setIsRefreshing(false);");
-    expect(source).toContain("loading={isRefreshing}");
+    expect(source).toContain("loading={isUploading}");
+    expect(source).toContain("disabled={isRefreshing}");
   });
 
   it("renders setup panel on matter detail and only advertises supported upload capability signals", () => {

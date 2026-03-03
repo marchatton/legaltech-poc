@@ -11,7 +11,7 @@ import {
   type CssPolygons,
   type NormPoint,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 import { useRouter } from "next/navigation";
 
 import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";

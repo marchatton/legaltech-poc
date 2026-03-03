@@ -60,14 +60,21 @@ describe("folders create route", () => {
 
     expect(res.status).toBe(200);
     const json = (await res.json()) as {
-      folder: { id: string; name: string; state: string; latest_index_version: string };
+      folder: {
+        id: string;
+        name: string;
+        state: string;
+        latest_index_version: string;
+        jurisdiction_state: string | null;
+      };
     };
-    expect(json.folder).toEqual({
+    expect(json.folder).toMatchObject({
       id: "fld_test_001",
       name: "Acme Parcel Review",
       state: "empty",
       latest_index_version: "v1",
     });
+    expect(json.folder.jurisdiction_state).toBeNull();
     expect(sqlMock).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(sqlMock.mock.calls[0] ?? [])).toContain("Acme Parcel Review");
   });

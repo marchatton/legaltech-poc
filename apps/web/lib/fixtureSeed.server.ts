@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { z } from "zod";
 
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 const SeedStatusSchema = z.enum(["needs_review", "reviewed", "missing_input", "citation_failed"]);
 

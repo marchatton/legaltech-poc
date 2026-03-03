@@ -1,5 +1,5 @@
-import { safeErrorEnvelope, VerifyInputSchema } from "@orbital-poc/core";
-import { verifyRow } from "@orbital-poc/core/server";
+import { safeErrorEnvelope, VerifyInputSchema } from "@legaltech-poc/core";
+import { verifyRow } from "@legaltech-poc/core/server";
 
 import { assertSpikesEnabled } from "../../../../lib/spikes.server";
 import { createTraceContext } from "../../../../lib/trace.server";

@@ -28,7 +28,7 @@ pnpm dev
 
 5. Open:
 - `http://localhost:3000/matters?pack=pack_01_clean`
-- `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html`
+- `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-runbook.html`
 
 ## Optional flags
 
@@ -41,5 +41,5 @@ pnpm dev
 - If running outside dev, run worker separately:
 
 ```bash
-pnpm --filter @orbital-poc/web worker
+pnpm --filter @legaltech-poc/web worker
 ```

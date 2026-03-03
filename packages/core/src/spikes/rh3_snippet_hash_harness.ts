@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { hashSnippet, normaliseSnippet } from "@orbital-poc/core/citations/snippet";
+import { hashSnippet, normaliseSnippet } from "@legaltech-poc/core/citations/snippet";
 
 type ExtractedSnippet = {
   doc: string;

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Readable } from "node:stream";
 
-import { LocalPdfQuerySchema, safeErrorEnvelope } from "@orbital-poc/core";
+import { LocalPdfQuerySchema, safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { parseSingleRangeHeader } from "../../../../lib/httpRange.server";
 import { safePdfFilename } from "../../../../lib/safePdfFilename.server";

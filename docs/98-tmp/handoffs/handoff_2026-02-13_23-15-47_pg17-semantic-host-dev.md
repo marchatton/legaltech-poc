@@ -69,12 +69,12 @@
 
 ## 5) Tests/Checks
 - Passed:
-  - `pnpm --filter @orbital-poc/web test lib/chat.routes.test.ts`
-  - `pnpm --filter @orbital-poc/web typecheck`
-  - `pnpm --filter @orbital-poc/web lint` (warnings only, pre-existing unrelated)
-  - `pnpm --filter @orbital-poc/web build`
-  - `pnpm --filter @orbital-poc/web test test/chunksRetrievalSchema.int.test.ts`
-  - `pnpm --filter @orbital-poc/web test test/ingestDocumentStepIdempotency.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web test lib/chat.routes.test.ts`
+  - `pnpm --filter @legaltech-poc/web typecheck`
+  - `pnpm --filter @legaltech-poc/web lint` (warnings only, pre-existing unrelated)
+  - `pnpm --filter @legaltech-poc/web build`
+  - `pnpm --filter @legaltech-poc/web test test/chunksRetrievalSchema.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web test test/ingestDocumentStepIdempotency.int.test.ts`
 - DB semantic readiness snapshot:
   - server_version: `17.8 (Homebrew)`
   - `vector` extension: `true`

@@ -12,16 +12,22 @@ function readUtf8(p: string): string {
 }
 
 describe("US-003 split-view evidence controls and verification states", () => {
-  it("persists split-view lock and keeps focus return target when viewer closes", () => {
+  it("keeps split-view wiring and focus-return behavior in context + split viewer", () => {
     const root = repoRootFromWebPackage();
-    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
-    const source = readUtf8(panelPath);
+    const contextPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriageContext.tsx");
+    const splitPath = path.join(root, "apps/web/app/(app)/matters/[id]/EvidenceViewerSplit.tsx");
+    const contextSource = readUtf8(contextPath);
+    const splitSource = readUtf8(splitPath);
 
-    expect(source).toContain("SPLIT_VIEW_LOCK_STORAGE_KEY");
-    expect(source).toContain("Split-view lock");
-    expect(source).toContain("window.requestAnimationFrame(() => target.focus())");
-    expect(source).toContain("CitationViewerClient");
-    expect(source).toContain("renderEvidenceViewerPanel");
+    expect(contextSource).toContain("showDesktopSplitViewer");
+    expect(contextSource).toContain("showMobileSplitViewer");
+    expect(contextSource).toContain("returnFocusRef");
+    expect(contextSource).toContain("window.requestAnimationFrame(() => target.focus())");
+    expect(contextSource).toContain("setViewerCitationId");
+
+    expect(splitSource).toContain("CitationViewerClient");
+    expect(splitSource).toContain("Loading evidence");
+    expect(splitSource).toContain("Select a citation id to load evidence in split view.");
   });
 
   it("renders loading skeleton, page controls, and reset-to-verify CTA in viewer", () => {
@@ -73,10 +79,10 @@ describe("US-005 citation failure recovery and acknowledgement", () => {
 describe("US-007 valid citation trust viewer verification", () => {
   it("loads citation viewer from source chips using citation document + page payload", () => {
     const root = repoRootFromWebPackage();
-    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
-    const source = readUtf8(panelPath);
+    const contextPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriageContext.tsx");
+    const source = readUtf8(contextPath);
 
-    expect(source).toContain("setViewerCitationId(citationId)");
+    expect(source).toContain("setViewerCitationId");
     expect(source).toContain("fetch(`/citations/${encodeURIComponent(citationId)}`");
     expect(source).toContain("/documents/${encodeURIComponent(citation.documentId)}/render?");
     expect(source).toContain("page: String(citation.pageNumber)");
@@ -84,7 +90,7 @@ describe("US-007 valid citation trust viewer verification", () => {
     expect(source).toContain("pageNumber: citation.pageNumber");
     expect(source).toContain("computeCitationSnippetHash");
     expect(source).toContain("viewerErrorCodeFromEvidence");
-    expect(source).toContain("computedSnippetHash: computedSnippetHash ?? \"sha256:unavailable\"");
+    expect(source).toContain('computedSnippetHash: computedSnippetHash ?? "sha256:unavailable"');
   });
 
   it("renders overlays and trust metadata from payload with deterministic fallback", () => {
@@ -94,39 +100,40 @@ describe("US-007 valid citation trust viewer verification", () => {
 
     expect(source).toContain("mapNormPolygonsToViewportCss");
     expect(source).toContain("overlayPath.map");
-    expect(source).toContain("hud.errorCode ? (");
+    expect(source).toContain("hasCitationFailure ? (");
     expect(source).toContain("TRUST_METADATA_FALLBACK");
     expect(source).toContain("loaded_state:");
     expect(source).toContain("doc_version:");
     expect(source).toContain("verified_at:");
-    expect(source).not.toContain('trustLoadedState !== TRUST_METADATA_FALLBACK ? trustLoadedState : "Loaded"');
   });
 });
 
 describe("US-008 invalid citation fail closed", () => {
   it("gates unresolved-anchor source chips with explicit disabled copy", () => {
     const root = repoRootFromWebPackage();
-    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
-    const source = readUtf8(panelPath);
+    const contextPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriageContext.tsx");
+    const chipsPath = path.join(root, "apps/web/app/(app)/matters/[id]/CitationChipList.tsx");
+    const contextSource = readUtf8(contextPath);
+    const chipsSource = readUtf8(chipsPath);
 
-    expect(source).toContain("SOURCE_CHIP_DISABLED_REASON_CODES");
-    expect(source).toContain("Source chip disabled: unresolved anchor target. Re-run verification to relock evidence.");
-    expect(source).toContain("disabled={isCitationChipDisabled}");
-    expect(source).toContain('aria-disabled={isCitationChipDisabled ? "true" : undefined}');
-    expect(source).toContain("Evidence unavailable for");
+    expect(contextSource).toContain("SOURCE_CHIP_DISABLED_REASON_CODES");
+    expect(contextSource).toContain("Source chip disabled: unresolved anchor target. Re-run verification to relock evidence.");
+    expect(chipsSource).toContain("disabled={isCitationChipDisabled}");
+    expect(chipsSource).toContain('aria-disabled={isCitationChipDisabled ? "true" : undefined}');
+    expect(chipsSource).toContain("Evidence unavailable for");
   });
 
   it("routes invalid citations through citation_failed reason codes with no overlay fallback", () => {
     const root = repoRootFromWebPackage();
-    const panelPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriagePanel.tsx");
-    const panelSource = readUtf8(panelPath);
+    const contextPath = path.join(root, "apps/web/app/(app)/matters/[id]/ReportTriageContext.tsx");
     const viewerPath = path.join(root, "apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx");
+    const contextSource = readUtf8(contextPath);
     const viewerSource = readUtf8(viewerPath);
 
-    expect(panelSource).toContain("errorCode: viewerErrorCode");
-    expect(panelSource).toContain("SNIPPET_HASH_MISMATCH");
-    expect(panelSource).toContain("DOC_MISMATCH");
-    expect(panelSource).toContain("WRONG_PAGE");
+    expect(contextSource).toContain("errorCode: viewerErrorCode");
+    expect(contextSource).toContain("SNIPPET_HASH_MISMATCH");
+    expect(contextSource).toContain("DOC_MISMATCH");
+    expect(contextSource).toContain("WRONG_PAGE");
     expect(viewerSource).toContain("if (props.errorCode) {");
     expect(viewerSource).toContain("setOverlay([]);");
     expect(viewerSource).toContain("reason_code:");

@@ -7,7 +7,7 @@ import {
   Paragraph,
 } from "docx";
 
-import { type ListPayloadV0 } from "@orbital-poc/core";
+import { type ListPayloadV0 } from "@legaltech-poc/core";
 
 type RunMeta = {
   id: string;

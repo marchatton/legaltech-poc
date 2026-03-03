@@ -19,7 +19,7 @@ Without WDK being real, Workstream C (Quick Start cutover to WDK) and later retr
 Ship a minimal in-repo WDK runtime + worker that can execute a tiny workflow durably and observably, without cutting over production routes yet.
 
 ### Primary Observable Effect
-- `pnpm --filter @orbital-poc/web worker` can execute a `wdk_smoke` workflow (2-3 steps) durably across restarts.
+- `pnpm --filter @legaltech-poc/web worker` can execute a `wdk_smoke` workflow (2-3 steps) durably across restarts.
 - The workflow and steps follow directive conventions:
   - workflow starts with `"use workflow"`
   - steps start with `"use step"`
@@ -96,7 +96,7 @@ As a contributor, I want a basic guardrail so it’s obvious when a “workflow�
   - claiming steps with `FOR UPDATE SKIP LOCKED`
   - marking success/failure and rescheduling with backoff
   - requeueing stale running steps
-- FR-004: Add a WDK worker loop and wire it into `pnpm --filter @orbital-poc/web worker`.
+- FR-004: Add a WDK worker loop and wire it into `pnpm --filter @legaltech-poc/web worker`.
 
 ## Failure States + UX
 - If the worker is not running, started smoke workflows do not progress. This is acceptable but must be visible in logs and DB state.
@@ -109,8 +109,8 @@ As a contributor, I want a basic guardrail so it’s obvious when a “workflow�
 - No production rollout in this slice; rollback is via code revert.
 
 ## Quality Gates
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 - `pnpm verify`
 
 ## Verification Plan
@@ -120,7 +120,7 @@ Automated:
 
 Manual smoke:
 1. `pnpm dev`
-2. `pnpm --filter @orbital-poc/web worker`
+2. `pnpm --filter @legaltech-poc/web worker`
 3. Start `wdk_smoke`
 4. Kill worker mid-flight; restart; confirm eventual completion without duplicates
 

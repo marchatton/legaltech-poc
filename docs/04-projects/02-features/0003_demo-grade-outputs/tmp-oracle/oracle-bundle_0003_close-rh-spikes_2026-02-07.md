@@ -4,7 +4,7 @@ Paste this whole message into ChatGPT Pro.
 
 ## Prompt
 ````text
-You are reviewing a docs-first shaping packet for Initiative 0003 ("demo-grade outputs and repeatability") in the repo "orbital-poc".
+You are reviewing a docs-first shaping packet for Initiative 0003 ("demo-grade outputs and repeatability") in the repo "legaltech-poc".
 
 Goal: help me CLOSE the rabbit-hole spikes (risk register RH* items with mitigation = spike) for:
 - docs/04-projects/02-features/0003_demo-grade-outputs/

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-import { fixtureDocumentId, parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
+import { fixtureDocumentId, parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 import Link from "next/link";
 
 import { headers } from "next/headers";

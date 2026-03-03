@@ -43,10 +43,10 @@
 
 5) Tests/checks
 - Ran:
-  - `pnpm --filter @orbital-poc/web typecheck` -> PASS
-  - `pnpm --filter @orbital-poc/web lint` -> PASS (existing unrelated warnings only)
-  - `pnpm --filter @orbital-poc/web build` -> PASS
-  - `pnpm --filter @orbital-poc/web exec vitest run lib/citations.routes.test.ts` -> PASS (5/5)
+  - `pnpm --filter @legaltech-poc/web typecheck` -> PASS
+  - `pnpm --filter @legaltech-poc/web lint` -> PASS (existing unrelated warnings only)
+  - `pnpm --filter @legaltech-poc/web build` -> PASS
+  - `pnpm --filter @legaltech-poc/web exec vitest run lib/citations.routes.test.ts` -> PASS (5/5)
 - API smoke validation (dev mode with `DEMO_MODE=1`) showed:
   - `rows_total=9`
   - `rows_with_citations=7`

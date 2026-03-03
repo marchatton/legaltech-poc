@@ -38,7 +38,7 @@ This plan addresses the high/medium-risk findings from the 16-hour code review w
 5. Keep behavior no-op in production (preserve current guardrails).
 
 **Acceptance criteria**
-- In `dev`/`demo-prod`, starting Quick Start begins consuming steps without requiring `pnpm --filter @orbital-poc/web worker`.
+- In `dev`/`demo-prod`, starting Quick Start begins consuming steps without requiring `pnpm --filter @legaltech-poc/web worker`.
 - In `prod`, inline kick remains disabled.
 - Idempotency behavior remains unchanged.
 
@@ -128,10 +128,10 @@ This plan addresses the high/medium-risk findings from the 16-hour code review w
 ## Verification plan
 
 ### Targeted tests first
-- `pnpm --filter @orbital-poc/web test -- lib/citations.routes.test.ts`
-- `pnpm --filter @orbital-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts`
+- `pnpm --filter @legaltech-poc/web test -- lib/citations.routes.test.ts`
+- `pnpm --filter @legaltech-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts`
 - Retrieval tests covering hybrid behavior:
-  - `pnpm --filter @orbital-poc/web test -- test/hybridSearchGoldenQuestions.smoke.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web test -- test/hybridSearchGoldenQuestions.smoke.int.test.ts`
   - plus a focused test for `NO_VECTORS` behavior
 - Ingest UI/message tests (new test file for mapper + render behavior)
 

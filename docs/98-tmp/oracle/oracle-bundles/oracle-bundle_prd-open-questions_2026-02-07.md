@@ -29,12 +29,12 @@ Output format:
 
 ----- BEGIN FILE: package.json -----
 {
-  "name": "orbital-poc",
+  "name": "legaltech-poc",
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "pnpm --filter @orbital-poc/web dev",
-    "start": "pnpm --filter @orbital-poc/web start",
+    "dev": "pnpm --filter @legaltech-poc/web dev",
+    "start": "pnpm --filter @legaltech-poc/web start",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",

@@ -1,4 +1,4 @@
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { orbitalMode } from "./runtimeMode";
 

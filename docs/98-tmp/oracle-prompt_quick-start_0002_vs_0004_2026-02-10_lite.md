@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── apps
 │   └── web
 │       ├── app
@@ -311,7 +311,7 @@
 │   │   └── governance.md
 │   ├── 06-release
 │   │   ├── demo-runbook
-│   │   │   └── 2026-02-09_orbital-poc-demo
+│   │   │   └── 2026-02-09_legaltech-poc-demo
 │   │   │       └── ...
 │   │   ├── postmortems
 │   │   │   └── .gitkeep
@@ -712,7 +712,7 @@
 (+ denotes code-map available)
 Config: depth cap 3.
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/wdk/stepQueue.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/wdk/stepQueue.server.ts
 Imports:
   - import "server-only";
   - import type { Sql } from "../db.server";
@@ -746,7 +746,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/quickStartRunProcessor.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/quickStartRunProcessor.server.ts
 Imports:
   - import "server-only";
   - import {
@@ -754,7 +754,7 @@ Imports:
   ListPayloadV0KindSchema,
   ListPayloadV0Schema,
   emptyListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "./db.server";
   - import { newId } from "./ids";
   - import { loadQuestionSetV1 } from "./questionSet.server";
@@ -780,7 +780,7 @@ Exports:
 
 </file_map>
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/steps/quickStartWriteRowV0.step.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/steps/quickStartWriteRowV0.step.server.ts
 ```ts
 import "server-only";
 
@@ -791,7 +791,7 @@ import {
   ListPayloadV0KindSchema,
   ListPayloadV0Schema,
   emptyListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 
 import type { Sql } from "../lib/db.server";
 import { ensureSchema, sql } from "../lib/db.server";
@@ -1212,7 +1212,7 @@ export async function quickStartWriteRowV0Step(args: { step: StepRow; workerId: 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/questionSet.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/questionSet.server.ts
 ```ts
 import "server-only";
 
@@ -1293,7 +1293,7 @@ export async function loadQuestionSetV1(): Promise<{ questionSet: QuestionSet; v
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/DECISIONS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/DECISIONS.md
 ```md
 # Architecture decisions (ADRs)
 
@@ -1934,11 +1934,11 @@ Links
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/runs/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/runs/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -2251,7 +2251,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
 ```md
 # List Payload v0 (Initiative 0002)
 
@@ -2390,7 +2390,7 @@ These are illustrative only; truth comparators for packs define the concrete exp
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/investigation-report.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/investigation-report.md
 ```md
 # Investigation: 0002 Quick Start Engine "Stuck Extract"
 
@@ -2468,7 +2468,7 @@ Contributing factor: contract drift (list payload schema + question set version 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/stuck-extract.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/stuck-extract.md
 ```md
 # 0002 Quick Start Engine: Where It’s Stuck + What You Need To Answer (Copy/Paste)
 
@@ -2678,7 +2678,7 @@ Pointers:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md
 ```md
 # Comparator Spec v0 (Initiative 0002)
 
@@ -2762,7 +2762,7 @@ The comparator must emit:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md
 ```md
 # List Verification Policy v1 (Initiative 0002)
 
@@ -2809,7 +2809,7 @@ When verification runs, provenance must include (safe):
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json
 ```json
 {
   "question_set_id": "qs_0002_v1",
@@ -2888,7 +2888,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md
 ```md
 # Spike investigation - Quick Start Engine (Initiative 002)
 
@@ -3552,7 +3552,7 @@ If/when a user resolves an ambiguous match, how do we re-run verification withou
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0004_quick-start-to-wdk/plan.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0004_quick-start-to-wdk/plan.md
 ```md
 # Plan: Refactor Quick Start To WDK (Workstream C)
 
@@ -3576,7 +3576,7 @@ Soft dependencies (can be follow-ups):
   - This refactor should preserve current Quick Start behavior (which is placeholder rows and/or missing-input rows today).
 
 Entry criteria (do not start Workstream C PRs until true):
-- `pnpm --filter @orbital-poc/web worker` runs a WDK worker loop (not the legacy jobs worker).
+- `pnpm --filter @legaltech-poc/web worker` runs a WDK worker loop (not the legacy jobs worker).
 - WDK has a supported way to:
   - start a workflow and persist its run state durably
   - schedule/claim/execute steps durably
@@ -3728,12 +3728,12 @@ Deliverable:
 
 ## Verification
 Automated (each PR):
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 
 Manual smoke (PR C2+):
 1. Start web: `pnpm dev`
-2. Start worker: `pnpm --filter @orbital-poc/web worker`
+2. Start worker: `pnpm --filter @legaltech-poc/web worker`
 3. Trigger a run from the UI or via POST `/folders/:id/runs`.
 4. Confirm:
    - run reaches `completed` or `partial`
@@ -3761,7 +3761,7 @@ Regression checks:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0004_quick-start-to-wdk/prd.json
 ```json
 {
   "version": 1,
@@ -3812,9 +3812,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "If the WDK worker is not running, the run may remain running with no progress; this is acceptable for PoC but must be observable via GET /runs/:id and logs."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
-    "pnpm --filter @orbital-poc/web lint"
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint"
   ],
   "verificationPacks": {
     "packs": [
@@ -3925,7 +3925,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/brief.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/brief.md
 ```md
 # Project Brief (1-2 pager)
 
@@ -4062,7 +4062,7 @@ Explicit cuts / deferrals recorded:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/risk-register.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/risk-register.md
 ```md
 # Risk register (rabbit holes)
 
@@ -4099,7 +4099,7 @@ Notes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/schemas/list_payload_v0.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/schemas/list_payload_v0.ts
 ```ts
 import { z } from "zod";
 
@@ -4207,7 +4207,7 @@ export function emptyListPayloadV0(kind: z.infer<typeof ListPayloadV0KindSchema>
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prd.json
 ```json
 {
   "version": 1,
@@ -4522,7 +4522,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/workflows/quickStartTitleSurveyWorkflow.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/workflows/quickStartTitleSurveyWorkflow.server.ts
 ```ts
 import "server-only";
 
@@ -4577,7 +4577,7 @@ export async function startQuickStartTitleSurveyWorkflow(args: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/20_state_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/20_state_model.md
 ```md
 # State model
 
@@ -4784,7 +4784,7 @@ group by r.id;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/07_current_poc_runtime.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/07_current_poc_runtime.md
 ```md
 # Current PoC Runtime (Implemented Today)
 
@@ -4800,9 +4800,9 @@ Current PoC is:
 - Local filesystem “object store” under `tmp/object-store` (`apps/web/lib/objectStore.server.ts`)
 - WDK durable workflows/steps for document ingest (`runs` + `run_steps`) with a worker loop (`apps/web/lib/wdk/wdkWorker.server.ts`)
   - In dev (`pnpm dev`): ingest enqueue kicks an inline WDK worker drainer (same process)
-  - Outside dev: run the worker process (`pnpm --filter @orbital-poc/web worker`)
+  - Outside dev: run the worker process (`pnpm --filter @legaltech-poc/web worker`)
 - Postgres-backed durable jobs for Quick Start runs (`apps/web/lib/jobs/jobQueue.server.ts`) with a worker loop (`apps/web/lib/jobs/jobWorker.server.ts`)
-  - Today, `pnpm --filter @orbital-poc/web worker` runs both the jobs worker and the WDK worker (until Quick Start is ported to WDK in refactor 0004).
+  - Today, `pnpm --filter @legaltech-poc/web worker` runs both the jobs worker and the WDK worker (until Quick Start is ported to WDK in refactor 0004).
 - PDF extraction via `pdfjs-dist` text extraction (not OCR; no geometry) (`apps/web/lib/ingest/ingestProcessor.server.ts`)
 - Fixture-backed “evidence” for demos (seed snapshots under `tmp/fixture-seed`) used by citations, trace export, and spike export flows (`apps/web/lib/fixtureSeed.server.ts`, `scripts/fixtures/seed.ts`)
 

@@ -45,7 +45,7 @@ Saved handoff: docs/98-tmp/handoffs/handoff_2026-02-12_23-28-28_db-only-evidence
   - Not yet run after latest broader `db_only` wiring:
     - Route tests for documents render/pdf fixture denial.
     - Route test for csv export fixture fallback denial.
-    - Full `pnpm --filter @orbital-poc/web test` / `typecheck`.
+    - Full `pnpm --filter @legaltech-poc/web test` / `typecheck`.
 
 - Next steps:
   - 1. Confirm and keep/adjust current `db_only` route changes in render/pdf/export.

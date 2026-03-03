@@ -126,7 +126,7 @@ Files:
 - Optional: reverse proxy service (Caddy/Nginx) for TLS termination.
 
 Critical details:
-- Worker must be a separate service using `pnpm --filter @orbital-poc/web worker`.
+- Worker must be a separate service using `pnpm --filter @legaltech-poc/web worker`.
 - Provide volumes for:
   - `tmp/object-store` (artefacts + stored PDFs)
   - `tmp/fixture-seed` (review state)

@@ -17,7 +17,7 @@ importers:
       '@ai-sdk/gateway':
         specifier: 2.0.35
         version: 2.0.35(zod@3.25.76)
-      '@orbital-poc/core':
+      '@legaltech-poc/core':
         specifier: workspace:*
         version: link:../../packages/core
       ai:

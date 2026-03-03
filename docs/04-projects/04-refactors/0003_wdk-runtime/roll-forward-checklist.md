@@ -8,7 +8,7 @@ This checklist is for the post-cutover cleanup where document ingest is owned by
 
 ## Pre-Deploy (Before Removing Legacy Code)
 1. Confirm the WDK worker is running in every environment that will receive uploads.
-   - Local/dev: `pnpm --filter @orbital-poc/web worker`
+   - Local/dev: `pnpm --filter @legaltech-poc/web worker`
    - Verify you see WDK worker logs and that it is draining `run_steps`.
 2. Confirm ingest is running via WDK.
    - Upload a PDF and confirm:

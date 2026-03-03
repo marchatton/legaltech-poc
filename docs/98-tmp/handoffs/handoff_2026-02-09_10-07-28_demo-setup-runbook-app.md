@@ -32,21 +32,21 @@
  M apps/web/app/ui/Button.tsx
  M apps/web/tailwind.preset.ts
  M docs/04-projects/04-refactors/0001_v5-ui-alignment/plan.md
- M docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-operator-checklist.md
- M docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-script.md
+ M docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-operator-checklist.md
+ M docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-script.md
 ?? apps/web/app/ui/Alert.tsx
 ?? apps/web/app/ui/Chip.tsx
 ?? apps/web/app/ui/InlineStatus.tsx
 ?? apps/web/app/ui/Table.tsx
-?? docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/walkthrough.md
+?? docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/walkthrough.md
 ?? docs/98-tmp/handoffs/handoff_2026-02-09_10-07-28_demo-setup-runbook-app.md
 ```
 
 - Known-intent edits from this session were only:
   - `apps/web/app/(app)/matters/page.tsx` (copy: “Demo-only UI…”)
   - `apps/web/app/page.tsx` (copy: “Matters: demo UI…”)
-  - `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-operator-checklist.md` (copy cleanup)
-  - `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-script.md` (copy cleanup)
+  - `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-operator-checklist.md` (copy cleanup)
+  - `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-script.md` (copy cleanup)
   - plus this handoff note file.
 
 ## 3) Branch/PR
@@ -58,7 +58,7 @@
 ## 4) Running processes
 
 - tmux: none (`tmux ls` empty)
-- DB: `docker compose ps db` shows `orbital-poc-db` healthy, port `5432` mapped.
+- DB: `docker compose ps db` shows `legaltech-poc-db` healthy, port `5432` mapped.
 - Dev server:
   - Started via `pnpm dev` (reachable at `http://localhost:3000`).
   - Note: port `3000` shows a `sprite proxy` listener in `lsof`; avoid fighting it. If the app isn’t responding, just restart `pnpm dev`.
@@ -85,7 +85,7 @@ curl -I "http://localhost:3000/matters?pack=pack_02_missing_rea"
    - `apps/web/app/tokens.css`
    - `docs/04-projects/04-refactors/0001_v5-ui-alignment/plan.md`
 2. If committing demo copy cleanup: stage and commit the 4 demo-related files only.
-3. Run the operator checklist at `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-operator-checklist.md` end-to-end and confirm the 3 manual checks above.
+3. Run the operator checklist at `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-operator-checklist.md` end-to-end and confirm the 3 manual checks above.
 
 ## 7) Risks/gotchas
 

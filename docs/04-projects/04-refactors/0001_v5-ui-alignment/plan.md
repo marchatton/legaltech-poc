@@ -62,7 +62,7 @@ Keep Google Fonts `<link>` approach (already working in `head.tsx`). Migrate to 
 - Optional: add `colors["border-strong"]` mapped to `--border-strong` if added to tokens
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck && pnpm --filter @orbital-poc/web build`
+- `pnpm --filter @legaltech-poc/web typecheck && pnpm --filter @legaltech-poc/web build`
 
 ---
 
@@ -140,7 +140,7 @@ type InlineStatusKind = "idle" | "loading" | "success" | "error" | "warning";
 ```
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: confirm no hydration errors, primitives render correctly
 
 ---
@@ -177,7 +177,7 @@ Add `variant: "primary"`: `bg-primary/10 text-primary ring-primary/20`
 Add `size?: "sm" | "md"` (sm uses `text-2xs py-0 px-1.5`)
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: existing button usages still render (the old "primary" callers may need updating — see migration note)
 
 **Migration note:** After this PR, grep for `variant="primary"` on Button. Calls that intend the "dark neutral" look should switch to `variant="neutral"`. Calls that intend the V5 orange CTA keep `variant="primary"`.
@@ -211,7 +211,7 @@ Add `size?: "sm" | "md"` (sm uses `text-2xs py-0 px-1.5`)
 - Admin token input already has visible label; add `aria-label` for redundancy
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: navigate to matter with blocked export, confirm styling + screen reader announcement
 
 ---
@@ -233,7 +233,7 @@ Add `size?: "sm" | "md"` (sm uses `text-2xs py-0 px-1.5`)
 All other sections on this page are already V5-tokenized.
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: `/matters/:id` Exports section matches adjacent card styling
 
 ---
@@ -283,7 +283,7 @@ function matchStatusVariant(match: string): BadgeVariant {
 ```
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: `/matters` renders badges + chips consistently, focus rings visible on chips
 
 ---
@@ -301,7 +301,7 @@ function matchStatusVariant(match: string): BadgeVariant {
 - Replace download anchor with `<Button variant="secondary" size="sm" asChild><a href={...}>Download</a></Button>` or keep as styled anchor
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: `/matters` with `FEATURE_ARTEFACTS_LIST=1` — table looks correct
 
 ---
@@ -319,7 +319,7 @@ function matchStatusVariant(match: string): BadgeVariant {
 - This adds `aria-live` semantics automatically
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: trigger each action, confirm status text renders + is announced
 
 ---
@@ -337,7 +337,7 @@ function matchStatusVariant(match: string): BadgeVariant {
 - Add `aria-hidden="true"` to decorative SVG overlay
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web typecheck`
 - Manual: `/matters/viewer` — highlight is cyan, errors show as standard alerts
 
 ---
@@ -393,7 +393,7 @@ function matchStatusVariant(match: string): BadgeVariant {
 - Use `text-heading-*` sizes from the preset for key headings
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web build`
+- `pnpm --filter @legaltech-poc/web build`
 - Manual: check all routes in light, dark, and system mode
 - Toggle persists across page refreshes
 - No FOUC (flash of unstyled/wrong-theme content)
@@ -423,15 +423,15 @@ text-amber-*       → text-warning
 ```
 
 **Verification:**
-- `pnpm --filter @orbital-poc/web typecheck && pnpm --filter @orbital-poc/web build && pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck && pnpm --filter @legaltech-poc/web build && pnpm --filter @legaltech-poc/web test`
 - Full manual smoke: `/`, `/matters`, `/matters/:id`, `/matters/viewer`
 
 ---
 
 ## Verification Ladder (for every PR)
-1. `pnpm --filter @orbital-poc/web typecheck`
-2. `pnpm --filter @orbital-poc/web test`
-3. `pnpm --filter @orbital-poc/web build`
+1. `pnpm --filter @legaltech-poc/web typecheck`
+2. `pnpm --filter @legaltech-poc/web test`
+3. `pnpm --filter @legaltech-poc/web build`
 4. Manual smoke:
    - `/`
    - `/matters`

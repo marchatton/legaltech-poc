@@ -84,7 +84,7 @@ As a developer, I want the unused legacy durable jobs runtime removed so Quick S
 
 #### Verification
 - Automated: integration test still passes (no `execute_run` jobs created).
-- Manual: `pnpm --filter @orbital-poc/web worker` starts WDK only (no legacy jobs worker).
+- Manual: `pnpm --filter @legaltech-poc/web worker` starts WDK only (no legacy jobs worker).
 
 ### US-004: Quick Start uses per-question WDK steps (avoid a single job-like step)
 As a developer, I want Quick Start to be broken into per-question durable steps so that restarts do not re-run the entire processor and progress is naturally incremental.
@@ -121,9 +121,9 @@ As a developer, I want Quick Start to be broken into per-question durable steps 
 - For safety during development, if WDK is incomplete, the correct fix is to complete Workstream B rather than silently falling back to jobs.
 
 ## Quality Gates
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
-- `pnpm --filter @orbital-poc/web lint`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
+- `pnpm --filter @legaltech-poc/web lint`
 
 ## Verification Plan
 Automated:
@@ -131,7 +131,7 @@ Automated:
 
 Manual smoke:
 1. `pnpm dev`
-2. `pnpm --filter @orbital-poc/web worker`
+2. `pnpm --filter @legaltech-poc/web worker`
 3. In the UI, click "Run Quick Start" (or POST `/folders/:id/runs`).
 4. Poll `GET /runs/:id` until terminal.
 5. Kill worker mid-run and restart; confirm idempotency (no duplicate rows) and eventual terminal state.

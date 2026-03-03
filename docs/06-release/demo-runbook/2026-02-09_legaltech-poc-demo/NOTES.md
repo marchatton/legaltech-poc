@@ -16,7 +16,7 @@ The runbook (`demo-runbook.html`) stores Mermaid source and rendered inline SVG.
 When you edit any Mermaid source block, regenerate SVGs:
 
 ```bash
-node --experimental-strip-types .agents/skills/06-release/demo-runbook/scripts/render_mermaid_svgs.ts docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html
+node --experimental-strip-types .agents/skills/06-release/demo-runbook/scripts/render_mermaid_svgs.ts docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-runbook.html
 ```
 
 Implementation notes:

@@ -60,8 +60,8 @@
     "Errors use safe error envelope; no stack traces/provider payloads returned."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm verify"
   ],
   "stories": [

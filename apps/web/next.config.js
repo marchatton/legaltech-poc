@@ -24,7 +24,7 @@ const nextConfig = {
   // Ensure Next's output file tracing is rooted at the monorepo, not an inferred dir.
   // This avoids picking up unrelated lockfiles on the machine.
   outputFileTracingRoot: path.join(__dirname, "../.."),
-  transpilePackages: ["@orbital-poc/core"],
+  transpilePackages: ["@legaltech-poc/core"],
   async headers() {
     return [
       {

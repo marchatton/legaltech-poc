@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { streamText } from "ai";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { chatModel } from "../../../../../lib/ai/gateway.server";
 import { ensureSchema, sql } from "../../../../../lib/db.server";

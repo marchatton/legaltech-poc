@@ -5,7 +5,7 @@ import {
   ListPayloadV0KindSchema,
   ListPayloadV0Schema,
   emptyListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "./db.server";
 import { newId } from "./ids";

@@ -1,5 +1,5 @@
 import type { SVGProps } from "react";
-import type { CssPolygons, NormPolygons, PdfJsViewportLike } from "@orbital-poc/core";
+import type { CssPolygons, NormPolygons, PdfJsViewportLike } from "@legaltech-poc/core";
 
 export const overlayHighlightPolygonProps = {
   fill: "rgb(var(--secondary) / 0.35)",

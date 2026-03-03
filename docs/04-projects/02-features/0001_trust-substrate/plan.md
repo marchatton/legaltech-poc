@@ -237,8 +237,8 @@ Follow the repo’s `verify` ladder: smallest scope first; widen only if failure
 Command profiles (run in ladder order):
 
 - V-repo (cross-package or unsure): `pnpm lint && pnpm typecheck && pnpm test && pnpm build`
-- V-web (apps/web only): `pnpm --filter @orbital-poc/web lint && pnpm --filter @orbital-poc/web typecheck && pnpm --filter @orbital-poc/web build`
-- V-core (packages/core only): `pnpm --filter @orbital-poc/core typecheck && pnpm --filter @orbital-poc/core test && pnpm --filter @orbital-poc/core build`
+- V-web (apps/web only): `pnpm --filter @legaltech-poc/web lint && pnpm --filter @legaltech-poc/web typecheck && pnpm --filter @legaltech-poc/web build`
+- V-core (packages/core only): `pnpm --filter @legaltech-poc/core typecheck && pnpm --filter @legaltech-poc/core test && pnpm --filter @legaltech-poc/core build`
 
 Optional (only when relevant):
 

@@ -4,9 +4,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { PdfPerfRun } from "@orbital-poc/core";
-import { PdfPerfRunSchema } from "@orbital-poc/core";
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import type { PdfPerfRun } from "@legaltech-poc/core";
+import { PdfPerfRunSchema } from "@legaltech-poc/core";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { Button } from "../../../ui/Button";
 import { Input, Select } from "../../../ui/Input";

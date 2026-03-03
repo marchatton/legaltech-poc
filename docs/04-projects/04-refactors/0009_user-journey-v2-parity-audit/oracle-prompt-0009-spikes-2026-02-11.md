@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── apps
 │   └── web
 │       ├── app
@@ -260,7 +260,7 @@
 │   │   └── security
 │   ├── 06-release
 │   │   ├── demo-runbook
-│   │   │   └── 2026-02-09_orbital-poc-demo
+│   │   │   └── 2026-02-09_legaltech-poc-demo
 │   │   └── postmortems
 │   ├── 08-example-data
 │   │   ├── pack_01_clean
@@ -744,13 +744,13 @@ Config: directory-only view; selected files shown.
 - Final mandatory checklist for `0009g` (what is required vs nice-to-have).
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/chat/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/chat/route.ts
 ````ts
 import { z } from "zod";
 
 import { streamText } from "ai";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { chatModel } from "../../../../../lib/ai/gateway.server";
 import { ensureSchema, sql } from "../../../../../lib/db.server";
@@ -971,7 +971,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/chat/protocol.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/chat/protocol.ts
 ````ts
 export const MISSING_EVIDENCE_TEXT = "Not found in provided documents." as const;
 
@@ -1044,11 +1044,11 @@ export function parseChatStreamEvent(line: string): ChatStreamEvent | null {
 
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/report/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/report/route.ts
 ````ts
 import { z } from "zod";
 
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -1268,11 +1268,11 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/runs/[id]/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/runs/[id]/route.ts
 ````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
@@ -1361,7 +1361,7 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/spike-investigation.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/spike-investigation.md
 ````md
 # Spike Investigation: 0009 User Journey V2 Parity Audit
 
@@ -1424,7 +1424,7 @@ Track high-leverage unknowns and resolved decisions that can cause scope drift o
 - Relevant PRDs are patched in the same dossier after each spike closes.
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/findings.md
 ````md
 # User Journey V2 Parity Audit Findings
 
@@ -1670,7 +1670,7 @@ Notes:
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/ui/ErrorBanner.tsx`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prd-overall.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prd-overall.md
 ````md
 # PRD (Overall): 0009 User Journey V2 Parity Audit
 
@@ -1838,7 +1838,7 @@ As a lead, I want spike candidates called out early so that risky contract assum
 - `docs/02-guidelines/v5-final/tailwind.preset.ts`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prd-overall.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prd-overall.json
 ````json
 {
   "version": 1,
@@ -1907,9 +1907,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "No silent failures; user-facing states must explain blocked actions and recovery path."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "childPrds": [
@@ -2038,7 +2038,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.md
 ````md
 # PRD: Shell, Matters List, and Setup Flow Parity (0009a)
 
@@ -2220,7 +2220,7 @@ As an operator, I want explicit run-state reason copy so I know why Quick Start 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/pages/NewMatterPage.tsx`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009a_shell-matters-setup/prd.json
 ````json
 {
   "version": 1,
@@ -2295,9 +2295,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "Upload capability claims must match backend-supported MIME/size rules."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [
@@ -2358,7 +2358,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.md
 ````md
 # PRD: Report Triage and Evidence Workflow Parity (0009b)
 
@@ -2542,7 +2542,7 @@ As an operator, I want clear recovery actions when citation quality fails so I c
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/EvidenceViewer.tsx`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009b_report-triage-and-evidence/prd.json
 ````json
 {
   "version": 1,
@@ -2606,9 +2606,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "No silent citation failures; recovery steps must be visible."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [
@@ -2682,7 +2682,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.md
 ````md
 # PRD: Exports and Artefacts Run-Scoped Parity (0009c)
 
@@ -2848,7 +2848,7 @@ As an operator, I want clear download state and unsafe context so I can trust ex
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ArtefactsTab.tsx`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009c_exports-and-artefacts/prd.json
 ````json
 {
   "version": 1,
@@ -2912,9 +2912,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "Run selector changes must deterministically update scoped actions."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [
@@ -2975,7 +2975,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.md
 ````md
 # PRD: Chat Run Scoping and Source Navigation Parity (0009d)
 
@@ -3158,7 +3158,7 @@ As an operator, I want guided prompts and disabled-input copy when context is un
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/matter/ChatTab.tsx`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009d_chat-run-scoping/prd.json
 ````json
 {
   "version": 1,
@@ -3223,9 +3223,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "No-context states must disable input with recovery guidance."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [
@@ -3297,7 +3297,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.md
 ````md
 # PRD: Demo Operator Loop and Checklist Parity (0009e)
 
@@ -3445,7 +3445,7 @@ As a demo operator, I want explicit repeat actions so I can rerun demos quickly 
 - `docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/orbital-ui-wireframes/src/components/demo/DemoToolbar.tsx`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009e_demo-operator-loop/prd.json
 ````json
 {
   "version": 1,
@@ -3508,9 +3508,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "Repeat-load and reopen actions must remain deterministic and idempotent."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [
@@ -3560,7 +3560,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.md
 ````md
 # PRD: Cross-Surface Error and Support Pattern Parity (0009f)
 
@@ -3724,7 +3724,7 @@ As an operator, I want retry behavior to be predictable so I can recover without
 - `packages/core/src/safe-error.ts`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009f_error-and-support-patterns/prd.json
 ````json
 {
   "version": 1,
@@ -3789,9 +3789,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "Escalation action must degrade gracefully when target is unavailable."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [
@@ -3852,7 +3852,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prd.md
 ````md
 # PRD: UI Polish Sweep (Design-System First) (0009g)
 
@@ -4031,7 +4031,7 @@ As a product team, we want trust language and metadata to stay honest so polish 
 - `docs/02-guidelines/v5-final/tailwind.preset.ts`
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/prds/0009g_ui-polish-sweep/prd.json
 ````json
 {
   "version": 1,
@@ -4094,9 +4094,9 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
     "Do not introduce second-level timer precision in demo checklist contexts."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "inspirationSources": {
@@ -4185,7 +4185,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refacto
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-and-magic-patterns-prompts-v2.md
 ````md
 # Orbital End-State User Journeys + Magic Patterns Prompts (V2, UI Breadboard)
 
@@ -4573,7 +4573,7 @@ Include environment signposting and fixture-only context banner.
 ```
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/02-guidelines/v5-final/tokens.css
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/02-guidelines/v5-final/tokens.css
 ````css
 /*
  * Orbital Design System — V5 "Final"
@@ -4775,7 +4775,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/02-guidelines/v5-final
 }
 ````
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/02-guidelines/v5-final/tailwind.preset.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/02-guidelines/v5-final/tailwind.preset.ts
 ````ts
 /**
  * Orbital Design System — V5 "Final"

@@ -19,7 +19,7 @@ This dossier defines Workstream B: ship a concrete WDK runtime in-repo and **rep
    - steps start with `"use step"`
    - workflow functions do no side effects directly (they only call steps)
 4. Existing durable jobs are retired from any flows owned by Workstream B:
-   - `pnpm --filter @orbital-poc/web worker` runs the WDK worker (not the jobs worker)
+   - `pnpm --filter @legaltech-poc/web worker` runs the WDK worker (not the jobs worker)
    - ingest no longer creates `jobs(type=ingest_document)` rows once cutover is rolled forward
 
 Important boundary:
@@ -160,7 +160,7 @@ Full retirement of the jobs runtime is only possible after Quick Start run execu
 
 1) **Introduce WDK runtime and smoke workflow** (no production behavior changed).
 2) **Make worker run WDK**:
-   - keep the CLI `pnpm --filter @orbital-poc/web worker`
+   - keep the CLI `pnpm --filter @legaltech-poc/web worker`
    - update `apps/web/scripts/worker.ts` to run the WDK worker loop
 3) **Port enqueue points**:
    - document ingest enqueue switches from `enqueueJob({type:"ingest_document"})` to `startWorkflow({type:"ingest_document", ...})`
@@ -204,7 +204,7 @@ Acceptance:
 - Ensure dev behavior: in `NODE_ENV=development`, a safe inline “kick” drains a bounded number of steps (optional, but parity with current DX is desirable)
 
 Acceptance:
-- `pnpm --filter @orbital-poc/web worker` executes WDK steps
+- `pnpm --filter @legaltech-poc/web worker` executes WDK steps
 
 ### PR 4: Cutover ingest to WDK workflow
 - Implement `ingest_document` workflow:
@@ -232,12 +232,12 @@ Acceptance:
 
 ## Verification (for each PR)
 Minimum:
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 
 Worker smoke (manual):
 1. `pnpm dev`
-2. In another terminal (or via inline kick): `pnpm --filter @orbital-poc/web worker`
+2. In another terminal (or via inline kick): `pnpm --filter @legaltech-poc/web worker`
 3. Trigger smoke workflow start (dev/spike route)
 4. Kill worker process mid-flight, restart it, confirm steps continue without duplication
 

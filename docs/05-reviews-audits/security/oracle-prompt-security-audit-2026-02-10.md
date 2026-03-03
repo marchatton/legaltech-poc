@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── .agents
 │   ├── skills
 │   │   ├── 05-review
@@ -442,7 +442,7 @@
 │   │       └── 0003_fail-closed-export-gating
 │   ├── 06-release
 │   │   ├── demo-runbook
-│   │   │   └── 2026-02-09_orbital-poc-demo
+│   │   │   └── 2026-02-09_legaltech-poc-demo
 │   │   └── postmortems
 │   ├── 08-example-data
 │   │   ├── pack_01_clean
@@ -503,7 +503,7 @@
 (+ denotes code-map available)
 Config: directory-only view; selected files shown.
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/middleware.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/middleware.ts
 Imports:
   - import { NextResponse, type NextRequest } from "next/server";
   - import { isDemoProd } from "./lib/runtimeMode";
@@ -528,7 +528,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/next.config.js
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/next.config.js
 Imports:
 ---
 
@@ -539,11 +539,11 @@ Global vars:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/artefacts/[id]/download/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/artefacts/[id]/download/route.ts
 Imports:
   - import { Readable } from "node:stream";
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
   - import {
@@ -576,10 +576,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/citations/[id]/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/citations/[id]/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
   - import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
   - import { createTraceContext } from "../../../../lib/trace.server";
@@ -600,12 +600,12 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/demo/load-pack/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/demo/load-pack/route.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../lib/db.server";
   - import { assertDemoModeEnabledApi } from "../../../../lib/demoMode.server";
   - import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
@@ -634,10 +634,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/complete/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/complete/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
   - import { enqueueDocumentIngest } from "../../../../../lib/ingest/ingestQueue.server";
@@ -658,14 +658,14 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/pdf/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/pdf/route.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
   - import { Readable } from "node:stream";
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
-  - import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
+  - import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
   - import { parseSingleRangeHeader } from "../../../../../lib/httpRange.server";
@@ -690,11 +690,11 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/render/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/render/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
-  - import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
+  - import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
   - import { createSignedGetHeaders, objectExists, validateStorageKey } from "../../../../../lib/objectStore.server";
@@ -718,10 +718,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/upload/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/upload/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
   - import { refreshFolderState } from "../../../../../lib/folderState.server";
@@ -745,10 +745,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/export/csv/download/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/export/csv/download/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
   - import {
   objectExists,
@@ -774,10 +774,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/export/csv/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/export/csv/route.ts
 Imports:
   - import { timingSafeEqual } from "node:crypto";
-  - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
+  - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@legaltech-poc/core";
   - import { z } from "zod";
   - import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
   - import { createTraceContext } from "../../../../lib/trace.server";
@@ -816,7 +816,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/export/docx/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/export/docx/route.ts
 Imports:
   - import { timingSafeEqual } from "node:crypto";
   - import { z } from "zod";
@@ -825,7 +825,7 @@ Imports:
   ListPayloadV0Schema,
   safeErrorEnvelope,
   type ListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
   - import { newId } from "../../../../lib/ids";
@@ -859,10 +859,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/artefacts/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/artefacts/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
   - import { createSignedGetHeaders } from "../../../../../lib/objectStore.server";
@@ -887,10 +887,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/documents/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/documents/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
   - import { newId } from "../../../../../lib/ids";
@@ -914,10 +914,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/report/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/report/route.ts
 Imports:
   - import { z } from "zod";
-  - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
+  - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
   - import { createTraceContext } from "../../../../../lib/trace.server";
@@ -943,10 +943,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/runs/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/runs/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
   - import { refreshFolderState } from "../../../../../lib/folderState.server";
@@ -977,10 +977,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../lib/db.server";
   - import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
   - import { refreshFolderState } from "../../../../lib/folderState.server";
@@ -1000,10 +1000,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../lib/db.server";
   - import { assertDevOnlyApi } from "../../../lib/devOnlyApi.server";
   - import { newId } from "../../../lib/ids";
@@ -1025,12 +1025,12 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/runs/[id]/trace/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/runs/[id]/trace/route.ts
 Imports:
   - import { timingSafeEqual } from "node:crypto";
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
-  - import { verifyRow } from "@orbital-poc/core/server";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
+  - import { verifyRow } from "@legaltech-poc/core/server";
   - import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
   - import { listSeededPackIds, loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
   - import { createTraceContext } from "../../../../../lib/trace.server";
@@ -1062,10 +1062,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/runs/[id]/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/runs/[id]/route.ts
 Imports:
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "../../../../lib/db.server";
   - import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
   - import { createTraceContext } from "../../../../lib/trace.server";
@@ -1085,12 +1085,12 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/spikes/export/csv/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/spikes/export/csv/route.ts
 Imports:
   - import { timingSafeEqual } from "node:crypto";
   - import { z } from "zod";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
-  - import { verifyRow } from "@orbital-poc/core/server";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
+  - import { verifyRow } from "@legaltech-poc/core/server";
   - import { ensureSchema, sql } from "../../../../../lib/db.server";
   - import { loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
   - import { newId } from "../../../../../lib/ids";
@@ -1127,12 +1127,12 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/spikes/local-pdf/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/spikes/local-pdf/route.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
   - import { Readable } from "node:stream";
-  - import { LocalPdfQuerySchema, safeErrorEnvelope } from "@orbital-poc/core";
+  - import { LocalPdfQuerySchema, safeErrorEnvelope } from "@legaltech-poc/core";
   - import { parseSingleRangeHeader } from "../../../../lib/httpRange.server";
   - import { safePdfFilename } from "../../../../lib/safePdfFilename.server";
   - import { assertSpikesEnabled } from "../../../../lib/spikes.server";
@@ -1151,10 +1151,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/spikes/rh4-verify/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/spikes/rh4-verify/route.ts
 Imports:
-  - import { safeErrorEnvelope, VerifyInputSchema } from "@orbital-poc/core";
-  - import { verifyRow } from "@orbital-poc/core/server";
+  - import { safeErrorEnvelope, VerifyInputSchema } from "@legaltech-poc/core";
+  - import { verifyRow } from "@legaltech-poc/core/server";
   - import { assertSpikesEnabled } from "../../../../lib/spikes.server";
   - import { createTraceContext } from "../../../../lib/trace.server";
 ---
@@ -1171,7 +1171,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/layout.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/layout.tsx
 Imports:
   - import type { ReactNode } from "react";
   - import { isDemoModeEnabled } from "../lib/demoMode.server";
@@ -1193,7 +1193,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/page.tsx
 Imports:
   - import Link from "next/link";
   - import { Page, PageHeader } from "./ui/Page";
@@ -1207,7 +1207,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/ai/gateway.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/ai/gateway.server.ts
 Imports:
   - import "server-only";
   - import { createGateway } from "@ai-sdk/gateway";
@@ -1231,7 +1231,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/db/schema/chat.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/db/schema/chat.server.ts
 Imports:
   - import "server-only";
   - import type { Sql } from "../../db.server";
@@ -1245,7 +1245,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/db/schema/core.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/db/schema/core.server.ts
 Imports:
   - import "server-only";
   - import type { Sql } from "../../db.server";
@@ -1259,7 +1259,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/db/schema/index.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/db/schema/index.server.ts
 Imports:
   - import "server-only";
   - import type { Sql } from "../../db.server";
@@ -1279,7 +1279,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/db/schema/retrieval.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/db/schema/retrieval.server.ts
 Imports:
   - import "server-only";
   - import type { Sql } from "../../db.server";
@@ -1293,11 +1293,11 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/ingest/ingestProcessor.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/ingest/ingestProcessor.server.ts
 Imports:
   - import "server-only";
-  - import { chunkPageCharWindowV0 } from "@orbital-poc/core";
-  - import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+  - import { chunkPageCharWindowV0 } from "@legaltech-poc/core";
+  - import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
   - import { ensureSchema, sql } from "../db.server";
   - import { refreshFolderState } from "../folderState.server";
   - import { newId } from "../ids";
@@ -1331,7 +1331,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/ingest/ingestQueue.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/ingest/ingestQueue.server.ts
 Imports:
   - import "server-only";
   - import { enqueueJob } from "../jobs/jobQueue.server";
@@ -1347,7 +1347,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/jobs/jobQueue.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/jobs/jobQueue.server.ts
 Imports:
   - import "server-only";
   - import { z } from "zod";
@@ -1384,7 +1384,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/jobs/jobWorker.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/jobs/jobWorker.server.ts
 Imports:
   - import "server-only";
   - import { z } from "zod";
@@ -1423,7 +1423,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/retrieval/types.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/retrieval/types.ts
 Imports:
 ---
 
@@ -1443,7 +1443,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/basicAuth.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/basicAuth.ts
 Imports:
 ---
 
@@ -1461,7 +1461,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/db.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/db.server.ts
 Imports:
   - import "server-only";
   - import postgres from "postgres";
@@ -1491,10 +1491,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/demoMode.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/demoMode.server.ts
 Imports:
   - import "server-only";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
 ---
 
 Functions:
@@ -1507,7 +1507,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/devOnly.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/devOnly.ts
 Imports:
   - import { notFound } from "next/navigation";
   - import { isDevOrDemoProd } from "./runtimeMode";
@@ -1523,10 +1523,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/devOnlyApi.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/devOnlyApi.server.ts
 Imports:
   - import "server-only";
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
   - import { isDevOrDemoProd } from "./runtimeMode";
 ---
 
@@ -1540,7 +1540,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/exportCsv.routes.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/exportCsv.routes.test.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -1557,11 +1557,11 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/exportCsv.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/exportCsv.server.ts
 Imports:
   - import "server-only";
-  - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@orbital-poc/core";
-  - import type { ListPayloadV0 } from "@orbital-poc/core";
+  - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@legaltech-poc/core";
+  - import type { ListPayloadV0 } from "@legaltech-poc/core";
   - import { z } from "zod";
 ---
 
@@ -1597,13 +1597,13 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/fixtureSeed.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/fixtureSeed.server.ts
 Imports:
   - import "server-only";
   - import fs from "node:fs";
   - import path from "node:path";
   - import { z } from "zod";
-  - import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+  - import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 ---
 
 Type-aliases:
@@ -1636,7 +1636,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/folderState.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/folderState.server.ts
 Imports:
   - import "server-only";
   - import { ensureSchema, sql } from "./db.server";
@@ -1657,7 +1657,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/httpRange.server.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/httpRange.server.test.ts
 Imports:
   - import { describe, expect, it } from "vitest";
   - import { parseSingleRangeHeader } from "./httpRange.server";
@@ -1665,7 +1665,7 @@ Imports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/httpRange.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/httpRange.server.ts
 Imports:
   - import "server-only";
 ---
@@ -1678,7 +1678,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/ids.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/ids.ts
 Imports:
   - import { randomUUID } from "node:crypto";
 ---
@@ -1691,7 +1691,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/memoDocx.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/memoDocx.server.ts
 Imports:
   - import "server-only";
   - import {
@@ -1700,7 +1700,7 @@ Imports:
   Packer,
   Paragraph,
 } from "docx";
-  - import { type ListPayloadV0 } from "@orbital-poc/core";
+  - import { type ListPayloadV0 } from "@legaltech-poc/core";
 ---
 
 Type-aliases:
@@ -1722,7 +1722,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/objectStore.server.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/objectStore.server.test.ts
 Imports:
   - import { afterEach, beforeEach, describe, expect, it } from "vitest";
   - import { createSignedGetHeaders, createSignedPutHeaders, verifySignature } from "./objectStore.server";
@@ -1734,7 +1734,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/objectStore.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/objectStore.server.ts
 Imports:
   - import "server-only";
   - import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
@@ -1794,7 +1794,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/overlayHighlight.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/overlayHighlight.ts
 Imports:
   - import type { SVGProps } from "react";
 ---
@@ -1807,7 +1807,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/questionSet.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/questionSet.server.ts
 Imports:
   - import "server-only";
   - import { createHash } from "node:crypto";
@@ -1833,7 +1833,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/quickStartRunProcessor.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/quickStartRunProcessor.server.ts
 Imports:
   - import "server-only";
   - import {
@@ -1841,7 +1841,7 @@ Imports:
   ListPayloadV0KindSchema,
   ListPayloadV0Schema,
   emptyListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
   - import { ensureSchema, sql } from "./db.server";
   - import { newId } from "./ids";
   - import { loadQuestionSetV1 } from "./questionSet.server";
@@ -1866,7 +1866,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/quickStartRunQueue.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/quickStartRunQueue.server.ts
 Imports:
   - import "server-only";
   - import { enqueueJob } from "./jobs/jobQueue.server";
@@ -1882,7 +1882,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/runtimeMode.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/runtimeMode.ts
 Imports:
 ---
 
@@ -1903,7 +1903,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/safeErrMessage.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/safeErrMessage.ts
 Imports:
 ---
 
@@ -1915,7 +1915,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/safePdfFilename.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/safePdfFilename.server.ts
 Imports:
   - import "server-only";
 ---
@@ -1931,9 +1931,9 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/spikes.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/spikes.server.ts
 Imports:
-  - import { safeErrorEnvelope } from "@orbital-poc/core";
+  - import { safeErrorEnvelope } from "@legaltech-poc/core";
 ---
 
 Functions:
@@ -1944,7 +1944,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/trace.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/trace.server.ts
 Imports:
   - import { newId } from "./ids";
 ---
@@ -1957,9 +1957,9 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/validateNormPolygons.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/validateNormPolygons.ts
 Imports:
-  - import type { NormPolygons } from "@orbital-poc/core";
+  - import type { NormPolygons } from "@legaltech-poc/core";
 ---
 
 Functions:
@@ -1970,7 +1970,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/chunking/char_window_v0.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/chunking/char_window_v0.test.ts
 Imports:
   - import { describe, expect, it } from "vitest";
   - import {
@@ -1983,7 +1983,7 @@ Imports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/chunking/char_window_v0.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/chunking/char_window_v0.ts
 Imports:
 ---
 
@@ -2011,7 +2011,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/citations/snippet.single-source.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/citations/snippet.single-source.test.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -2027,7 +2027,7 @@ Global vars:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/citations/snippet.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/citations/snippet.test.ts
 Imports:
   - import { describe, expect, it } from "vitest";
   - import { hashSnippet, normaliseSnippet } from "./snippet";
@@ -2035,7 +2035,7 @@ Imports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/citations/snippet.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/citations/snippet.ts
 Imports:
   - import { createHash } from "node:crypto";
 ---
@@ -2050,7 +2050,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.test.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -2069,7 +2069,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/exception-matching/matchExceptionsToInstrumentDocs.ts
 Imports:
 ---
 
@@ -2090,7 +2090,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/fixtures/fixtureIds.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/fixtures/fixtureIds.test.ts
 Imports:
   - import { describe, expect, it } from "vitest";
   - import { fixtureDocumentId, parseFixtureDocumentId } from "./fixtureIds";
@@ -2098,7 +2098,7 @@ Imports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/fixtures/fixtureIds.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/fixtures/fixtureIds.ts
 Imports:
 ---
 
@@ -2117,7 +2117,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/anchors.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/anchors.ts
 Imports:
   - import { z } from "zod";
 ---
@@ -2148,7 +2148,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/mapToViewport.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/mapToViewport.ts
 Imports:
   - import type { NormPolygons } from "./anchors";
 ---
@@ -2184,7 +2184,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/mapToViewport.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/mapToViewport.test.ts
 Imports:
   - import { describe, expect, it } from "vitest";
   - import { bboxFromCssPolygons, mapNormPointToPdfPoint, mapNormPolygonsToViewportCss } from "./mapToViewport";
@@ -2192,7 +2192,7 @@ Imports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/missing-docs/detectMissingDocs.fixtures.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/missing-docs/detectMissingDocs.fixtures.test.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -2214,7 +2214,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/missing-docs/detectMissingDocs.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/missing-docs/detectMissingDocs.ts
 Imports:
   - import type { DetectMissingDocsResult, MissingDocCandidate, MissingDocSignal } from "./schemas";
 ---
@@ -2231,7 +2231,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/missing-docs/schemas.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/missing-docs/schemas.ts
 Imports:
   - import { z } from "zod";
 ---
@@ -2256,7 +2256,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/schemas/list_payload_v0.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/schemas/list_payload_v0.test.ts
 Imports:
   - import { describe, expect, test } from "vitest";
   - import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, emptyListPayloadV0 } from "./list_payload_v0";
@@ -2264,7 +2264,7 @@ Imports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/schemas/list_payload_v0.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/schemas/list_payload_v0.ts
 Imports:
   - import { z } from "zod";
 ---
@@ -2299,7 +2299,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/spikes/rh1.schemas.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/spikes/rh1.schemas.ts
 Imports:
   - import { z } from "zod";
 ---
@@ -2328,12 +2328,12 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/spikes/rh3_snippet_hash_harness.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/spikes/rh3_snippet_hash_harness.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
   - import { fileURLToPath } from "node:url";
-  - import { hashSnippet, normaliseSnippet } from "@orbital-poc/core/citations/snippet";
+  - import { hashSnippet, normaliseSnippet } from "@legaltech-poc/core/citations/snippet";
 ---
 
 Type-aliases:
@@ -2349,7 +2349,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/spikes/rh4_verification_harness.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/spikes/rh4_verification_harness.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -2371,7 +2371,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/spikes/rh5_missing_docs_harness.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/spikes/rh5_missing_docs_harness.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -2391,7 +2391,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/spikes/us001_pack01_cert_parties.e2e.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/spikes/us001_pack01_cert_parties.e2e.test.ts
 Imports:
   - import { execFileSync } from "node:child_process";
   - import { readFileSync } from "node:fs";
@@ -2407,7 +2407,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/spikes/us002_pack03_cert_gap_issue.e2e.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/spikes/us002_pack03_cert_gap_issue.e2e.test.ts
 Imports:
   - import { execFileSync } from "node:child_process";
   - import { readFileSync } from "node:fs";
@@ -2423,7 +2423,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/verify/verifier.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/verify/verifier.ts
 Imports:
   - import { performance } from "node:perf_hooks";
   - import { hashSnippet } from "../citations/snippet";
@@ -2446,7 +2446,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/verify/verifier.schemas.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/verify/verifier.schemas.ts
 Imports:
   - import { z } from "zod";
 ---
@@ -2473,7 +2473,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/index.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/index.ts
 Imports:
 ---
 
@@ -2491,7 +2491,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/safe-error.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/safe-error.ts
 Imports:
 ---
 
@@ -2507,7 +2507,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/server.ts
 Imports:
 ---
 
@@ -2517,11 +2517,11 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/viewer/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/viewer/page.tsx
 Imports:
   - import { z } from "zod";
-  - import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-  - import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+  - import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
+  - import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
   - import { headers } from "next/headers";
   - import { assertDevOrDemoProd } from "../../../../lib/devOnly";
   - import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
@@ -2551,7 +2551,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
 Imports:
   - import { useEffect, useMemo, useRef, useState } from "react";
   - import {
@@ -2561,7 +2561,7 @@ Imports:
   type NormPolygons,
   type PdfJsViewportLike,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
   - import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
   - import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
   - import { Select } from "../../../ui/Input";
@@ -2583,7 +2583,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/actions.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/actions.ts
 Imports:
   - import { z } from "zod";
   - import { redirect } from "next/navigation";
@@ -2605,10 +2605,10 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/page.tsx
 Imports:
   - import { z } from "zod";
-  - import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@orbital-poc/core";
+  - import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@legaltech-poc/core";
   - import { assertDevOrDemoProd } from "../../../lib/devOnly";
   - import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
   - import { ExportCsvButton } from "./ExportCsvButton";
@@ -2648,7 +2648,7 @@ Exports:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/[id]/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/[id]/page.tsx
 Imports:
   - import { z } from "zod";
   - import Link from "next/link";
@@ -2688,7 +2688,7 @@ Exports:
 
 </file_map>
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/security_best_practices_report.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/security_best_practices_report.md
 ```md
 # Security Best Practices Report (Orbital PoC)
 
@@ -2716,7 +2716,7 @@ Notes:
 ## Investigation Log
 
 ### 2026-02-10 Phase 0: Workspace Verification
-- Confirmed repo root is loaded and audited: `/Users/marc/Code/personal-projects/orbital-poc`.
+- Confirmed repo root is loaded and audited: `/Users/marc/Code/personal-projects/legaltech-poc`.
 
 ### 2026-02-10 Phase 2: Systematic Exploration (Context Builder)
 - Mapped trust boundaries and entrypoints focusing on Next.js route handlers under `apps/web/app/(api)` plus persistence (`apps/web/lib/db.server.ts`) and the file-backed object store (`apps/web/lib/objectStore.server.ts`).
@@ -2933,7 +2933,7 @@ Recommended fix:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/.dockerignore
+File: /Users/marc/Code/personal-projects/legaltech-poc/.dockerignore
 ```
 .git
 .DS_Store
@@ -2949,7 +2949,7 @@ throwaway
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/.gitignore
+File: /Users/marc/Code/personal-projects/legaltech-poc/.gitignore
 ```
 # Onboarding defaults
 /node_modules/
@@ -2998,13 +2998,13 @@ tmp/object-store/
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docker-compose.yml
+File: /Users/marc/Code/personal-projects/legaltech-poc/docker-compose.yml
 ```yml
 services:
   db:
     # pgvector baked in so we can `CREATE EXTENSION vector;` without custom builds.
     image: pgvector/pgvector:pg16
-    container_name: orbital-poc-db
+    container_name: legaltech-poc-db
     environment:
       POSTGRES_DB: orbital
       POSTGRES_USER: orbital
@@ -3025,7 +3025,7 @@ volumes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docker-compose.demo-prod.yml
+File: /Users/marc/Code/personal-projects/legaltech-poc/docker-compose.demo-prod.yml
 ```yml
 services:
   db:
@@ -3101,15 +3101,15 @@ volumes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/package.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/package.json
 ```json
 {
-  "name": "orbital-poc",
+  "name": "legaltech-poc",
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "pnpm --filter @orbital-poc/web dev",
-    "start": "pnpm --filter @orbital-poc/web start",
+    "dev": "pnpm --filter @legaltech-poc/web dev",
+    "start": "pnpm --filter @legaltech-poc/web start",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
@@ -3136,7 +3136,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/package.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/pnpm-workspace.yaml
+File: /Users/marc/Code/personal-projects/legaltech-poc/pnpm-workspace.yaml
 ```yaml
 packages:
   - "apps/*"
@@ -3145,7 +3145,7 @@ packages:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/AGENTS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/AGENTS.md
 ```md
 # Web app (apps/web)
 Next.js App Router web application.
@@ -3179,7 +3179,7 @@ Next.js App Router web application.
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/Dockerfile
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/Dockerfile
 ```
 FROM node:20-bookworm-slim AS build
 
@@ -3203,7 +3203,7 @@ COPY packages/core packages/core
 COPY docs/08-example-data docs/08-example-data
 COPY scripts scripts
 
-RUN pnpm --filter @orbital-poc/web build
+RUN pnpm --filter @legaltech-poc/web build
 
 # Runtime image
 FROM node:20-bookworm-slim AS runtime
@@ -3235,10 +3235,10 @@ CMD ["pnpm", "start"]
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/package.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/package.json
 ```json
 {
-  "name": "@orbital-poc/web",
+  "name": "@legaltech-poc/web",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -3252,7 +3252,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/package.json
   },
   "dependencies": {
     "@ai-sdk/gateway": "2.0.35",
-    "@orbital-poc/core": "workspace:*",
+    "@legaltech-poc/core": "workspace:*",
     "ai": "5.0.129",
     "docx": "^9.5.1",
     "next": "^15.0.0",
@@ -3278,7 +3278,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/package.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/.env.example
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/.env.example
 ```example
 AI_GATEWAY_API_KEY=
 LLM_MODEL_CHAT=anthropic/claude-haiku-4.5
@@ -3287,10 +3287,10 @@ EMBED_MODEL=
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/package.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/package.json
 ```json
 {
-  "name": "@orbital-poc/core",
+  "name": "@legaltech-poc/core",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -3330,7 +3330,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/package.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/db/init.sql
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/db/init.sql
 ```sql
 -- Local dev bootstrap.
 -- This runs once on first container init (fresh volume).
@@ -3340,7 +3340,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/.agents/skills/05-review/security/security-best-practices/references/javascript-typescript-nextjs-web-server-security.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/.agents/skills/05-review/security/security-best-practices/references/javascript-typescript-nextjs-web-server-security.md
 ```md
 # Next.js (TypeScript/JavaScript) Web Security Spec (Next.js 16.1.x, Node.js 20.9+)
 
@@ -4702,7 +4702,7 @@ context_binding_guide:
 <taskname=Security audit/>
 
 <task>
-Perform a static, repo-grounded application security audit of the orbital-poc monorepo, prioritizing the Next.js 15 App Router TypeScript app in `apps/web/` and shared code in `packages/core/`.
+Perform a static, repo-grounded application security audit of the legaltech-poc monorepo, prioritizing the Next.js 15 App Router TypeScript app in `apps/web/` and shared code in `packages/core/`.
 
 Deliverables:
 - Markdown security audit report with: executive summary; findings grouped Critical/High/Medium/Low; each finding includes ID, 1-sentence impact, concrete evidence (file + line numbers where possible), exploit scenario notes, and actionable remediation.

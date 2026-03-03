@@ -33,9 +33,9 @@
 - Tailwind now consumes the v5 preset. Evidence: `apps/web/tailwind.config.ts:3`.
 - Global CSS now imports tokens. Evidence: `apps/web/app/globals.css:1`.
 - Build + typecheck + tests pass:\n
-  - `pnpm --filter @orbital-poc/web build`\n
-  - `pnpm --filter @orbital-poc/web typecheck` (run after build so `.next/types` are present)\n
-  - `pnpm --filter @orbital-poc/web test`\n
+  - `pnpm --filter @legaltech-poc/web build`\n
+  - `pnpm --filter @legaltech-poc/web typecheck` (run after build so `.next/types` are present)\n
+  - `pnpm --filter @legaltech-poc/web test`\n
 
 **Conclusion:** Confirmed. v5 semantic utilities are available in the app; migration work can now be incremental and low-risk.
 

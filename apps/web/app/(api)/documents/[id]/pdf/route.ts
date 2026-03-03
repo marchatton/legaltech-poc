@@ -4,8 +4,8 @@ import { Readable } from "node:stream";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";

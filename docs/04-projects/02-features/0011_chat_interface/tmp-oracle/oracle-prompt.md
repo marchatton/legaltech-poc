@@ -1,7 +1,7 @@
 Full Oracle bundle preserved at: docs/04-projects/02-features/0011_chat_interface/tmp-oracle/oracle-prompt.full.md
 
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/20_state_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/20_state_model.md
 ```md
 # State model
 
@@ -208,7 +208,7 @@ group by r.id;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/40_rag_and_agents.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/40_rag_and_agents.md
 ```md
 # RAG + agents (Quick Start)
 
@@ -369,7 +369,7 @@ Because WDK can replay/retry, each step must be safely repeatable:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/safe-error.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/safe-error.ts
 ```ts
 export type SafeErrorEnvelope = {
   error: {
@@ -399,7 +399,7 @@ export function safeErrorEnvelope(opts: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/citations/snippet.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/citations/snippet.ts
 ```ts
 import { createHash } from "node:crypto";
 
@@ -417,7 +417,7 @@ export function hashSnippet(snippet: string): string {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/fixtures/fixtureIds.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/fixtures/fixtureIds.ts
 ```ts
 const PACK_ID_RE = /^pack_\d{2}_[a-z0-9_]+$/i;
 const PDF_FILENAME_RE = /^[A-Za-z0-9_-]+\.pdf$/i;
@@ -460,7 +460,7 @@ export function parseFixtureDocumentId(
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/anchors.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/anchors.ts
 ```ts
 import { z } from "zod";
 
@@ -503,7 +503,7 @@ export function anchorBoxToPolygons(anchor: AnchorBox): NormPolygons {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/mapToViewport.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/mapToViewport.ts
 ```ts
 import type { NormPolygons } from "./anchors";
 
@@ -577,7 +577,7 @@ export function bboxFromCssPolygons(polygons: CssPolygons): {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/verify/verifier.schemas.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/verify/verifier.schemas.ts
 ```ts
 import { z } from "zod";
 
@@ -626,7 +626,7 @@ export type VerifyResult = z.infer<typeof VerifyResultSchema>;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/verify/verifier.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/verify/verifier.ts
 ```ts
 import { performance } from "node:perf_hooks";
 
@@ -746,7 +746,7 @@ export async function verifyRow(
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/AGENTS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/AGENTS.md
 ```md
 # Web app (apps/web)
 Next.js App Router web application.
@@ -776,7 +776,7 @@ Next.js App Router web application.
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/db.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/db.server.ts
 ```ts
 import "server-only";
 
@@ -1071,7 +1071,7 @@ export async function ensureSchema(): Promise<void> {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/ids.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/ids.ts
 ```ts
 import { randomUUID } from "node:crypto";
 
@@ -1082,7 +1082,7 @@ export function newId(prefix: string): string {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/objectStore.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/objectStore.server.ts
 ```ts
 import "server-only";
 
@@ -1273,7 +1273,7 @@ export function createObjectReadStream(
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/httpRange.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/httpRange.server.ts
 ```ts
 import "server-only";
 
@@ -1338,7 +1338,7 @@ export function parseSingleRangeHeader(
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/safePdfFilename.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/safePdfFilename.server.ts
 ```ts
 import "server-only";
 
@@ -1356,7 +1356,7 @@ export function safePdfFilename(val: unknown): string {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/folderState.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/folderState.server.ts
 ```ts
 import "server-only";
 
@@ -1445,7 +1445,7 @@ export async function refreshFolderState(folderId: string): Promise<FolderState>
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/trace.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/trace.server.ts
 ```ts
 import { newId } from "./ids";
 
@@ -1461,7 +1461,7 @@ export function createTraceContext(): { traceId: string; headers: Headers } {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/devOnly.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/devOnly.ts
 ```ts
 import { notFound } from "next/navigation";
 
@@ -1472,11 +1472,11 @@ export function assertDevOnly(): void {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/devOnlyApi.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/devOnlyApi.server.ts
 ```ts
 import "server-only";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 export function assertDevOnlyApi(traceId: string, headers: Headers): Response | null {
   if (process.env.NODE_ENV === "development") return null;
@@ -1489,11 +1489,11 @@ export function assertDevOnlyApi(traceId: string, headers: Headers): Response | 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/ingest/ingestQueue.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/ingest/ingestQueue.server.ts
 ```ts
 import "server-only";
 
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
 
 import { ensureSchema, sql } from "../db.server";
 import { refreshFolderState } from "../folderState.server";
@@ -1851,7 +1851,7 @@ async function ingestOne(documentId: string): Promise<void> {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/fixtureSeed.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/fixtureSeed.server.ts
 ```ts
 import "server-only";
 
@@ -1860,7 +1860,7 @@ import path from "node:path";
 
 import { z } from "zod";
 
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 const SeedStatusSchema = z.enum(["needs_review", "reviewed", "missing_input", "citation_failed"]);
 
@@ -1972,7 +1972,7 @@ export function saveSeedSnapshot(packId: string, snapshot: SeedSnapshot): void {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/overlayHighlight.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/overlayHighlight.ts
 ```ts
 import type { SVGProps } from "react";
 
@@ -1985,9 +1985,9 @@ export const overlayHighlightPolygonProps = {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/validateNormPolygons.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/validateNormPolygons.ts
 ```ts
-import type { NormPolygons } from "@orbital-poc/core";
+import type { NormPolygons } from "@legaltech-poc/core";
 
 export function validateNormPolygons(polygons: NormPolygons): string | null {
   if (!polygons.length) return "NO_POLYGONS";
@@ -2004,11 +2004,11 @@ export function validateNormPolygons(polygons: NormPolygons): string | null {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../lib/devOnlyApi.server";
@@ -2105,11 +2105,11 @@ export async function POST(req: Request): Promise<Response> {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/folders/[id]/documents/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/folders/[id]/documents/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -2323,11 +2323,11 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/upload/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/upload/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -2568,11 +2568,11 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/complete/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/complete/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -2692,12 +2692,12 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/render/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/render/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -2877,7 +2877,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/documents/[id]/pdf/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/documents/[id]/pdf/route.ts
 ```ts
 import fs from "node:fs";
 import path from "node:path";
@@ -2885,8 +2885,8 @@ import { Readable } from "node:stream";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -3103,11 +3103,11 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/citations/[id]/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/citations/[id]/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
@@ -3261,7 +3261,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/MattersToolbar.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/MattersToolbar.tsx
 ```tsx
 "use client";
 
@@ -3325,7 +3325,7 @@ export function MattersToolbar(props: Props) {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/actions.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/actions.ts
 ```ts
 "use server";
 
@@ -3413,11 +3413,11 @@ export async function markRowReviewed(formData: FormData): Promise<void> {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/page.tsx
 ```tsx
 import { z } from "zod";
 
-import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@orbital-poc/core";
+import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@legaltech-poc/core";
 
 import { assertDevOnly } from "../../../lib/devOnly";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
@@ -3845,7 +3845,7 @@ export default async function MattersPage(props: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/[id]/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/[id]/page.tsx
 ```tsx
 import { z } from "zod";
 
@@ -4153,12 +4153,12 @@ export default async function MatterPage(props: { params: Promise<Record<string,
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/viewer/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/viewer/page.tsx
 ```tsx
 import { z } from "zod";
 
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { headers } from "next/headers";
 
@@ -4445,7 +4445,7 @@ export default async function MatterViewerPage(props: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/viewer/CitationViewerClient.tsx
 ```tsx
 "use client";
 
@@ -4458,7 +4458,7 @@ import {
   type NormPolygons,
   type PdfJsViewportLike,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
 import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 
@@ -4841,7 +4841,7 @@ export function CitationViewerClient(props: Props) {
 <taskname=Matter chat slice/>
 
 <task>
-Shape a 2–3 dev-day expansion of `orbital-poc` to add per-matter “chat with documents” (retrieval + citations) using Vercel AI SDK with an Anthropic provider, plus a UI that supports multiple Matters under a single Organization (no org switching in the UI for the PoC). Output a shaped packet (brief/PRD/breadboard/risks, in the repo’s wf-shape style) and a coherent implementation approach that fits the existing codebase and architecture docs.
+Shape a 2–3 dev-day expansion of `legaltech-poc` to add per-matter “chat with documents” (retrieval + citations) using Vercel AI SDK with an Anthropic provider, plus a UI that supports multiple Matters under a single Organization (no org switching in the UI for the PoC). Output a shaped packet (brief/PRD/breadboard/risks, in the repo’s wf-shape style) and a coherent implementation approach that fits the existing codebase and architecture docs.
 </task>
 
 <architecture>
@@ -4874,7 +4874,7 @@ Shape a 2–3 dev-day expansion of `orbital-poc` to add per-matter “chat with 
 - Fixture pack structure:
   - `docs/08-example-data/README.md`, `docs/08-example-data/packs_summary.md`, `docs/08-example-data/pack_01_clean/manifest.json`
 - Demo/copy that currently de-emphasizes chat:
-  - `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/walkthrough.md`
+  - `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/walkthrough.md`
   - `docs/98-tmp/handoffs/handoff_2026-02-09_10-07-28_demo-setup-runbook-app.md` (“chat with documents is not implemented…”)
 </selected_context>
 

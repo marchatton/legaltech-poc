@@ -1,6 +1,6 @@
 import "server-only";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 export function isDemoModeEnabled(): boolean {
   // Demo tooling must remain dev-only even if someone mistakenly enables the flag elsewhere.

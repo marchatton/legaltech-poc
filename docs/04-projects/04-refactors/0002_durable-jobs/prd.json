@@ -31,9 +31,9 @@
     "queue": "Postgres-backed jobs table + worker loop (dev inline kick + standalone worker)"
   },
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
-    "pnpm --filter @orbital-poc/web build"
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
+    "pnpm --filter @legaltech-poc/web build"
   ],
   "stories": [
     {
@@ -99,7 +99,7 @@
       "acceptanceCriteria": [
         "In NODE_ENV=development, enqueueing a job kicks an inline worker drainer that processes a bounded number of jobs.",
         "In non-development environments, the inline kick is a no-op.",
-        "A standalone worker can be started via pnpm --filter @orbital-poc/web worker."
+        "A standalone worker can be started via pnpm --filter @legaltech-poc/web worker."
       ]
     },
     {

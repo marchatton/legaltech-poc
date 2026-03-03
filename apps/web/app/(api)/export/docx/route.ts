@@ -7,7 +7,7 @@ import {
   ListPayloadV0Schema,
   safeErrorEnvelope,
   type ListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";

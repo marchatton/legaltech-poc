@@ -4,7 +4,7 @@
   "overview": "Introduce a minimal in-repo WDK runtime and worker (workflow controller + durable steps) and cut over document ingest to WDK behind a short-lived feature flag. Quick Start cutover is tracked separately in refactor 0004.",
   "goals": [
     "WDK runtime exists in-repo with a clear minimal API surface and conventions (use workflow / use step).",
-    "WDK worker loop is runnable via pnpm --filter @orbital-poc/web worker.",
+    "WDK worker loop is runnable via pnpm --filter @legaltech-poc/web worker.",
     "Step claiming is safe for multiple workers (FOR UPDATE SKIP LOCKED).",
     "Document ingest is WDK-owned (no new jobs(type=ingest_document) rows) once the cutover is rolled forward."
   ],
@@ -49,8 +49,8 @@
     }
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm verify"
   ],
   "childPrds": [

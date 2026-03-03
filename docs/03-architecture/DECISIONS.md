@@ -604,7 +604,7 @@ Links
   - `docs/03-architecture/05_tech_stack_and_dev_workflow.md`
 
 ## ADR-0023: Demo-prod runtime mode (ORBITAL_MODE) + Basic Auth middleware
-- Status: proposed
+- Status: accepted
 - Date: 2026-02-10
 
 Context
@@ -634,3 +634,8 @@ Links
 - Related docs:
   - `docs/04-projects/02-features/0007_demo-prod-deploy/prd.md`
   - `docs/04-projects/02-features/0007_demo-prod-deploy/plan.md`
+- Implemented in code:
+  - `apps/web/lib/runtimeMode.ts`
+  - `apps/web/middleware.ts`
+  - `apps/web/lib/devOnly.ts`
+  - `apps/web/lib/devOnlyApi.server.ts`

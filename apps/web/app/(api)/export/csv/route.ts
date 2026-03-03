@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@legaltech-poc/core";
 import { z } from "zod";
 
 import { createTraceContext } from "../../../../lib/trace.server";

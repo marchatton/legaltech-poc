@@ -119,8 +119,8 @@ As a developer, I want citations to be attachable to either report rows or chat 
 - If needed, we can temporarily keep the fixture fallback while DB citations adoption ramps; prod posture remains “no fixture fallback”.
 
 ## Quality Gates
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 - `pnpm verify`
 
 ## Verification Plan

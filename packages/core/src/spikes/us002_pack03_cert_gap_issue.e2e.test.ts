@@ -25,7 +25,7 @@ function loadJson(filePath: string): any {
 describe("US-002 pack_03_mismatch_and_cert_gap structured cert gap issue", () => {
   it("seeds survey_issues payload with CERT_MISSING_LENDER and evidence", () => {
     const repoRoot = repoRootFromCoreCwd();
-    const outRoot = path.join(os.tmpdir(), `orbital-poc-us002-${process.pid}-${Date.now()}`);
+    const outRoot = path.join(os.tmpdir(), `legaltech-poc-us002-${process.pid}-${Date.now()}`);
 
     runNode(repoRoot, [
       "--experimental-strip-types",

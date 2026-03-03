@@ -28,9 +28,9 @@ Next.js App Router web application.
 
 ## Local Dev Notes
 - For artefacts tab UI checks in local dev, enable list rendering + dev signing fallback:
-  `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3101`
+  `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @legaltech-poc/web dev -p 3101`
 - When validating evidence-viewer/render flows locally, start dev with:
-  `ALLOW_DEV_OBJECT_STORE_SECRET=1 FEATURE_CITATIONS_API=1 pnpm --filter @orbital-poc/web dev`
+  `ALLOW_DEV_OBJECT_STORE_SECRET=1 FEATURE_CITATIONS_API=1 pnpm --filter @legaltech-poc/web dev`
 
 ## Frontend skills
 - `generating-tailwind-brand-config` for brand tokens/config

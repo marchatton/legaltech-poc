@@ -48,7 +48,7 @@
   - `0:1.2 codex-aarch64-a 17885` (active)
   - `0:1.3 bun 27683`
 - Active dev server process observed:
-  - `pnpm --filter @orbital-poc/web dev -p 3001`
+  - `pnpm --filter @legaltech-poc/web dev -p 3001`
   - Next dev server PID tree includes `next-server (v15.5.12)`.
 - Copy/paste tmux commands:
   - `tmux attach -t 0`
@@ -57,10 +57,10 @@
 
 ## 5) Tests/checks
 - Commands run (current session context):
-  - `pnpm --filter @orbital-poc/web typecheck` -> PASS (after `.next` types existed)
-  - `pnpm --filter @orbital-poc/web build` -> PASS
-  - `pnpm --filter @orbital-poc/web lint` -> PASS with warnings
-  - `pnpm --filter @orbital-poc/web test:push` -> FAIL (4 tests)
+  - `pnpm --filter @legaltech-poc/web typecheck` -> PASS (after `.next` types existed)
+  - `pnpm --filter @legaltech-poc/web build` -> PASS
+  - `pnpm --filter @legaltech-poc/web lint` -> PASS with warnings
+  - `pnpm --filter @legaltech-poc/web test:push` -> FAIL (4 tests)
   - `cd apps/web && pnpm exec vitest run test/realDataWorkflows.e2e.int.test.ts --reporter=basic` -> FAIL/SKIP due DB connect error (`EPERM 127.0.0.1:5432`)
 - Not yet re-run after runtime cleanup/fixes:
   - targeted flow checks for upload -> process -> citation -> mark reviewed -> chat -> export

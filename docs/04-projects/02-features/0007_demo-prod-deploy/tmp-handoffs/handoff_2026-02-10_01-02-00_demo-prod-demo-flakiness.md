@@ -35,7 +35,7 @@
 - No tmux sessions detected.
 
 ## 5) Tests / checks
-- Ran: `pnpm --filter @orbital-poc/web typecheck` (PASS)
+- Ran: `pnpm --filter @legaltech-poc/web typecheck` (PASS)
 - Ran a simple browser smoke (headless via agent-browser):
   - Open `http://localhost:3000/matters?pack=pack_01_clean` (PASS)
   - Click `cit_TS-01_1` to open viewer (PASS after signing secret fix)
@@ -57,7 +57,7 @@
 - Sprite:
   - Sprite proxy on `127.0.0.1:3000` can cause loopback fetches to reset. Prefer `localhost` or avoid loopback fetch.
 - Production build:
-  - Outside dev, inline job draining is disabled; worker must run separately (`pnpm --filter @orbital-poc/web worker`).
+  - Outside dev, inline job draining is disabled; worker must run separately (`pnpm --filter @legaltech-poc/web worker`).
 - Docs:
   - ADR added: `docs/03-architecture/DECISIONS.md` -> ADR-0023.
 - Design system:

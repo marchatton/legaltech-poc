@@ -8,17 +8,17 @@ Started: Tue Feb 10 10:29:48 PM UTC 2026
 ## [2026-02-10 22:48:42 UTC] - US-003: Remove legacy durable jobs runtime (execute_run + worker loop)
 Thread:
 Run: 20260210-222948-4259 (iteration 1)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260210-222948-4259-iter-1.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260210-222948-4259-iter-1.md
+Run log: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260210-222948-4259-iter-1.log
+Run summary: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260210-222948-4259-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: f18a820 refactor(worker): remove legacy execute_run jobs runtime
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web build -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web build -> PASS
 - Files changed:
   - apps/web/lib/jobs/jobQueue.server.ts
   - apps/web/lib/jobs/jobWorker.server.ts
@@ -39,8 +39,8 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260210-222948-
 ## [2026-02-10 23:41 UTC] - US-003: Evidence-first behavior and safe failures
 Thread:
 Run: 20260210-224307-10605 (iteration 3)
-Run log: /home/sprite/orbital-h/orbital-poc/.ralph/runs/run-20260210-224307-10605-iter-3.log
-Run summary: /home/sprite/orbital-h/orbital-poc/.ralph/runs/run-20260210-224307-10605-iter-3.md
+Run log: /home/sprite/orbital-h/legaltech-poc/.ralph/runs/run-20260210-224307-10605-iter-3.log
+Run summary: /home/sprite/orbital-h/legaltech-poc/.ralph/runs/run-20260210-224307-10605-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 5a7a502 feat(chat): add evidence-first failures and gating
@@ -77,18 +77,18 @@ Run summary: /home/sprite/orbital-h/orbital-poc/.ralph/runs/run-20260210-224307-
 ## [2026-02-11 14:44 UTC] - US-001: Standardize deterministic error envelope adoption
 Thread: 
 Run: 20260211-143054-12725 (iteration 1)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-1.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-1.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-1.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 764d6ae fix(api): standardize deterministic error envelopes
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -> PASS (booted on :3001, then stopped intentionally)
+  - Command: pnpm --filter @legaltech-poc/web dev -> PASS (booted on :3001, then stopped intentionally)
 - Files changed:
   - packages/core/src/safe-error.ts
   - apps/web/app/(api)/export/csv/route.ts
@@ -116,18 +116,18 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
 ## [2026-02-11 15:09:07 +0000] - US-002: Integrate reusable ErrorBanner across surfaces
 Thread: 
 Run: 20260211-143054-12725 (iteration 2)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-2.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-2.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-2.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 4d568ab feat(error-banner): unify cross-surface error banners
 - Post-commit status: `clean`
 - Verification:
-  - Command: `pnpm --filter @orbital-poc/web lint` -> PASS
-  - Command: `pnpm --filter @orbital-poc/web typecheck` -> PASS
-  - Command: `pnpm --filter @orbital-poc/web test` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web lint` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web typecheck` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web test` -> PASS
   - Command: `pnpm build` -> PASS
-  - Command: `CHAT_ENABLED=1 FEATURE_ARTEFACTS_LIST=1 pnpm --filter @orbital-poc/web dev --hostname 0.0.0.0 --port 3000` + dev-browser smoke script -> PASS
+  - Command: `CHAT_ENABLED=1 FEATURE_ARTEFACTS_LIST=1 pnpm --filter @legaltech-poc/web dev --hostname 0.0.0.0 --port 3000` + dev-browser smoke script -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -149,7 +149,7 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
   - Added shared safe-error parsing (`parseSafeErrorEnvelope`, `parseSafeErrorLike`) and tests to standardize envelope field mapping.
   - Replaced bespoke error UIs with `ErrorBanner` across setup (`QuickStartPanel`, document error state), report actions (`/matters` review errors), exports/artefacts (`ExportCsvButton`, `ExportMemoButton`, `ExportTraceButton`, `ArtefactsList`), and chat (`ChatPanel`).
   - Removed raw document `error_json` rendering in matter setup and replaced it with safe deterministic banner output.
-  - Browser-smoke verified cross-surface UI behavior with deterministic code rendering; screenshots saved under `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us002-*.png`.
+  - Browser-smoke verified cross-surface UI behavior with deterministic code rendering; screenshots saved under `/home/sprite/orbital-g/legaltech-poc/.agents/skills/00-utilities/dev-browser/tmp/us002-*.png`.
 - **Learnings for future iterations:**
   - Patterns discovered
     - A shared parser for safe error envelopes prevents repeated per-component `isRecord` logic and keeps field mapping deterministic.
@@ -163,18 +163,18 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
 ## [2026-02-11 15:26:28 +0000] - US-003: Add support escalation action pattern
 Thread: 
 Run: 20260211-143054-12725 (iteration 3)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-3.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-3.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-3.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 4f2e692 feat(error-banner): add support escalation pattern
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -- app/ui/ErrorBanner.test.tsx -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- app/ui/ErrorBanner.test.tsx -> PASS
   - Command: browser check http://localhost:3000/matters?review_error=VALIDATION_ERROR (fallback path) -> PASS
   - Command: NEXT_PUBLIC_SUPPORT_ESCALATION_MAILTO=support@orbital.test pnpm exec next dev --port 3001 + browser check http://localhost:3001/matters?review_error=VALIDATION_ERROR (configured path) -> PASS
 - Files changed:
@@ -199,8 +199,8 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
   - Wired `supportRoute` through current `/matters` and `/matters/[id]` ErrorBanner callsites so escalation context includes route consistently.
   - Added tests for configured mailto payload composition and unset-target fallback rendering.
   - Browser-verified both paths with screenshots at:
-    - `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us003-fallback.png`
-    - `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us003-configured.png`
+    - `/home/sprite/orbital-g/legaltech-poc/.agents/skills/00-utilities/dev-browser/tmp/us003-fallback.png`
+    - `/home/sprite/orbital-g/legaltech-poc/.agents/skills/00-utilities/dev-browser/tmp/us003-configured.png`
 - **Learnings for future iterations:**
   - Patterns discovered
     - Keep support-escalation payload construction in one reusable helper so the safe identifier contract stays deterministic.
@@ -214,18 +214,18 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
 ## [2026-02-11 15:40 UTC] - US-004: Normalize retry semantics across surfaces
 Thread: 8404
 Run: 20260211-143054-12725 (iteration 4)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-4.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-12725-iter-4.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-4.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-143054-12725-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 8b93609 fix(retry): normalize retry visibility rules
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: CHAT_ENABLED=1 FEATURE_ARTEFACTS_LIST=1 FEATURE_TRACE_EXPORT=1 pnpm --filter @orbital-poc/web dev --hostname 0.0.0.0 --port 3000 + dev-browser scripted smoke (tmp/us004-chat-retry-semantics.png) -> PASS
+  - Command: CHAT_ENABLED=1 FEATURE_ARTEFACTS_LIST=1 FEATURE_TRACE_EXPORT=1 pnpm --filter @legaltech-poc/web dev --hostname 0.0.0.0 --port 3000 + dev-browser scripted smoke (tmp/us004-chat-retry-semantics.png) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -251,21 +251,21 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-143054-
     - Rendering retry-enabled `ErrorBanner` in Vitest exercises `Button` JSX path; `Button.tsx` needs React in scope in this test runtime.
     - First navigation to `/matters/[id]` in dev can exceed default Playwright navigation timeout due compilation; use longer timeout for smoke scripts.
   - Useful context
-    - Browser evidence saved at `/home/sprite/orbital-g/orbital-poc/.agents/skills/00-utilities/dev-browser/tmp/us004-chat-retry-semantics.png`.
+    - Browser evidence saved at `/home/sprite/orbital-g/legaltech-poc/.agents/skills/00-utilities/dev-browser/tmp/us004-chat-retry-semantics.png`.
 ---
 ## [2026-02-11 15:15:40 UTC] - US-002: Enable matters list search/filter/create/open
 Thread: 
 Run: 20260211-143026-12311 (iteration 2)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-2.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-2.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-143026-12311-iter-2.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-143026-12311-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 9a0e9e0 feat(matters-list): add q/state/view list controls
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
   - Command: browser smoke via dev-browser (`/matters` filter + create validation + open action) -> PASS
 - Files changed:
@@ -294,16 +294,16 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
 ## [2026-02-11 15:35:23 UTC] - US-003: Deliver setup documents and upload flow
 Thread: 
 Run: 20260211-143026-12311 (iteration 3)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-3.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-3.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-143026-12311-iter-3.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-143026-12311-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: cb18719 feat(setup): add document upload readiness flow
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
   - Command: dev-browser smoke (`/matters/[id]` upload success + unsupported MIME sad path) -> PASS
 - Files changed:
@@ -336,18 +336,18 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
 ## [2026-02-11 15:50:10 UTC] - US-004: Show Quick Start readiness reasons
 Thread: 
 Run: 20260211-143026-12311 (iteration 4)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-4.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-12311-iter-4.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-143026-12311-iter-4.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-143026-12311-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 8e5ad8e feat(quick-start): show readiness reason states
 - Post-commit status: `clean`
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (checked `/matters/fld_us004_blocked`, `/matters/fld_us004_ready`, `/matters/fld_us004_complete`) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (checked `/matters/fld_us004_blocked`, `/matters/fld_us004_ready`, `/matters/fld_us004_complete`) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -375,17 +375,17 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-143026-
 ## [2026-02-11 17:25:18 UTC] - US-001: Ship run selector API contract for export/report
 Thread: 
 Run: 20260211-171748-22180 (iteration 1)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-1.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-1.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-1.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 1806392 feat(api): add completed run selector list
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test -- foldersRunsList.routes.test.ts -> PASS
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- foldersRunsList.routes.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
 - Files changed:
   - apps/web/app/(api)/folders/[id]/runs/route.ts
@@ -402,23 +402,23 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
   - Patterns discovered
   - Reusing the existing runs route file for both POST (start) and GET (selector) keeps run contract logic centralized and reduces drift.
   - Gotchas encountered
-  - In this repo, `pnpm --filter @orbital-poc/web test -- <pattern>` still executes the full Vitest suite, so budget runtime accordingly.
+  - In this repo, `pnpm --filter @legaltech-poc/web test -- <pattern>` still executes the full Vitest suite, so budget runtime accordingly.
   - Useful context
   - Demo-prod middleware must be updated whenever a new API method is added to an existing path, or contracts pass tests but fail in guarded runtime mode.
 ---
 ## [2026-02-11 17:39:51 UTC] - US-002: Add run-scoped export panel and failed-row deep-link
 Thread: 
 Run: 20260211-171748-22180 (iteration 2)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-2.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-2.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-2.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 344df08 feat(exports): add run-scoped export panel
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
   - Command: dev-browser smoke (selector + blocked export deep-link) -> PASS
 - Files changed:
@@ -448,16 +448,16 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
 ## [2026-02-11 18:03:37 UTC] - US-003: Implement artefact filtering and provenance display
 Thread: 
 Run: 20260211-171748-22180 (iteration 3)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-3.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-3.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-3.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: dda5613 feat(artefacts): add filtering and provenance UI
 - Post-commit status: `clean`
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS (rerun after one transient hook-timeout FAIL)
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS (rerun after one transient hook-timeout FAIL)
   - Command: pnpm build -> PASS
   - Command: dev-browser smoke on `http://localhost:3100/matters/fld_ui_us003` (unsafe/type filters + source run persistence) -> PASS
 - Files changed:
@@ -481,21 +481,21 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
   - Gotchas encountered
   - Relative clear links like `.` can resolve unexpectedly in nested Next routes; use explicit query-only clear (`?`) to stay on the current page.
   - Useful context
-  - `pnpm --filter @orbital-poc/web test` can intermittently trip Vitest hook timeout on integration setup; immediate rerun passed without code changes.
+  - `pnpm --filter @legaltech-poc/web test` can intermittently trip Vitest hook timeout on integration setup; immediate rerun passed without code changes.
 ---
 ## [2026-02-11 18:21:36 UTC] - US-004: Add download feedback and unsafe explanation pattern
 Thread: 
 Run: 20260211-171748-22180 (iteration 4)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-4.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-22180-iter-4.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-4.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260211-171748-22180-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 71eeebd feat(artefacts): add download feedback and unsafe tooltip
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
   - Command: dev-browser smoke on http://localhost:3101/matters/fld_ui_us003?tab=artefacts -> PASS
 - Files changed:
@@ -525,19 +525,19 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260211-171748-
 ## [2026-02-11 18:02:00 UTC] - US-002: Use row drawer as primary review decision surface
 Thread: 
 Run: 20260211-171747-21967 (iteration 2)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-2.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-2.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-2.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 167df3d feat(report-triage): add row drawer review workflow
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> FAIL
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/wdkStepQueue.int.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> FAIL
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run test/wdkStepQueue.int.test.ts -> PASS
   - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (drawer success/failure browser checks) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (drawer success/failure browser checks) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -561,25 +561,25 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
   - Patterns discovered
   - Keep row-action UI optimistic but pair it with strict server-state validation and explicit fallback/error restoration.
   - Gotchas encountered
-  - Full `pnpm --filter @orbital-poc/web test` is currently flaky under integration load in this environment (hook/test timeouts + intermittent DB connection pressure); single-suite reruns pass.
+  - Full `pnpm --filter @legaltech-poc/web test` is currently flaky under integration load in this environment (hook/test timeouts + intermittent DB connection pressure); single-suite reruns pass.
   - Useful context
   - Folder `fld_82d7385b-d4fa-4b11-bc07-7a77ed1f0e63` has mixed report statuses and was used for browser evidence.
 ---
 ## [2026-02-11 18:35:39 UTC] - US-003: Ship split-view evidence controls and verification states
 Thread: 
 Run: 20260211-171747-21967 (iteration 3)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-3.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-3.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-3.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: bffcf5d feat(report-viewer): add split-view evidence controls
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (US-003 split-view script) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (US-003 split-view script) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -609,18 +609,18 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
 ## [2026-02-11 19:00:52 UTC] - US-004: Expose trust metadata rail and footer
 Thread: 
 Run: 20260211-171747-21967 (iteration 4)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-4.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-4.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-4.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 00168a4 feat(report-triage): expose trust metadata rail and footer
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (US-004 trust metadata browser script) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (US-004 trust metadata browser script) -> PASS
 - Files changed:
   - .ralph/activity.log
   - apps/web/app/(api)/citations/[id]/route.ts
@@ -651,19 +651,19 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
 ## [2026-02-11 19:11:49 UTC] - US-005: Improve citation failure recovery and feedback acknowledgement
 Thread: 
 Run: 20260211-171747-21967 (iteration 5)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-5.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-21967-iter-5.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-5.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260211-171747-21967-iter-5.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 40dbfd4 feat(viewer): add citation failure recovery UX
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test -- reportEvidenceViewer.sync.test.ts -> PASS
-  - Command: pnpm --filter @orbital-poc/web lint -> PASS
-  - Command: pnpm --filter @orbital-poc/web typecheck -> PASS
-  - Command: pnpm --filter @orbital-poc/web test -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- reportEvidenceViewer.sync.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web lint -> PASS
+  - Command: pnpm --filter @legaltech-poc/web typecheck -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -> PASS
   - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (viewer smoke: WRONG_PAGE + flag acknowledgement flow) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (viewer smoke: WRONG_PAGE + flag acknowledgement flow) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -687,19 +687,19 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260211-171747-
 ## [2026-02-12 15:22:01 +0000] - US-001: Shell Wayfinding Baseline
 Thread: 
 Run: 20260212-150540-748 (iteration 1)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-1.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-1.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-1.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: c351cfd feat(shell-wayfinding): unify shell context labels
 - Post-commit status: `clean`
 - Verification:
-  - Command: `pnpm --filter @orbital-poc/web exec vitest run test/shellWayfinding.sync.test.ts test/shellEnvironment.test.ts` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web exec vitest run test/shellWayfinding.sync.test.ts test/shellEnvironment.test.ts` -> PASS
   - Command: `pnpm lint` -> PASS
   - Command: `pnpm typecheck` -> PASS
   - Command: `pnpm test` -> PASS
   - Command: `pnpm build` -> PASS
-  - Command: `DEMO_MODE=1 pnpm --filter @orbital-poc/web dev -p 3101` + dev-browser smoke (`/matters -> /matters/:id -> /matters`) -> PASS
+  - Command: `DEMO_MODE=1 pnpm --filter @legaltech-poc/web dev -p 3101` + dev-browser smoke (`/matters -> /matters/:id -> /matters`) -> PASS
 - Files changed:
   - .ralph/activity.log
   - docs/05-reviews-audits/e2e-testing/v4-parallel-sets/prds/0001_entry-readiness-loop/prd.json
@@ -725,19 +725,19 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
 ## [2026-02-12 15:37:32 +0000] - US-002: Matter Discovery Filtering
 Thread: 
 Run: 20260212-150540-748 (iteration 2)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-2.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-2.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-2.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: cd814aa test(matters): add deterministic filter coverage
 - Post-commit status: `dirty` (.ralph/progress.md pending progress append commit)
 - Verification:
-  - Command: `pnpm --filter @orbital-poc/web exec vitest run test/mattersListDeterminism.int.test.ts test/mattersListFilters.test.ts test/mattersList.sync.test.ts` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web exec vitest run test/mattersListDeterminism.int.test.ts test/mattersListFilters.test.ts test/mattersList.sync.test.ts` -> PASS
   - Command: `pnpm lint` -> PASS
   - Command: `pnpm typecheck` -> PASS
   - Command: `pnpm test` -> PASS
   - Command: `pnpm build` -> PASS
-  - Command: `pnpm --filter @orbital-poc/web dev -p 3101` + `cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF` (saved-view/query/reset smoke on `/matters`) -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web dev -p 3101` + `cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF` (saved-view/query/reset smoke on `/matters`) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -755,35 +755,35 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Gotchas encountered
   - Cleanup helpers for seeded rows must avoid `LIKE` with underscores; exact ID deletion prevents accidental over-deletes.
   - Useful context
-  - In this repo, `pnpm --filter @orbital-poc/web test -- ...` may still execute the full suite; `pnpm --filter @orbital-poc/web exec vitest run <files...>` is the reliable scoped path.
+  - In this repo, `pnpm --filter @legaltech-poc/web test -- ...` may still execute the full suite; `pnpm --filter @legaltech-poc/web exec vitest run <files...>` is the reliable scoped path.
 ---
 ## [2026-02-12 16:01:51 UTC] - US-003: Matter Create Upload and Readiness Guidance
 Thread: 
 Run: 20260212-150540-748 (iteration 3)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-3.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-3.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-3.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 2473b1e feat(matters): surface readiness guidance after uploads
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web exec vitest run test/setupDocuments.sync.test.ts lib/folders.routes.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web exec vitest run test/setupDocuments.sync.test.ts lib/folders.routes.test.ts -> PASS
 ## [2026-02-12 15:22:09 UTC] - US-005: Run Triage Tab Scope Contract
 Thread: 
 Run: 20260212-150545-1013 (iteration 1)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-1.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-1.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-1.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 2ff059d fix(report-triage): enforce reviewed/flagged tabs (or `none` + reason)
 - Post-commit status: `clean`
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test test/reportTriageFilters.test.ts "app/(app)/matters/runScope.test.ts" test/reportTriage.sync.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test test/reportTriageFilters.test.ts "app/(app)/matters/runScope.test.ts" test/reportTriage.sync.test.ts -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (browser smoke: empty-name validation, inline create, documents upload cues, readiness state scan) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (browser smoke: empty-name validation, inline create, documents upload cues, readiness state scan) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -803,15 +803,15 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
   - Patterns discovered
   - For this workspace, UI readiness state is server-derived; explicit `router.refresh()` after client-side setup mutations keeps header controls truthful without manual reload.
   - Gotchas encountered
-  - `pnpm --filter @orbital-poc/web test -- ...` can still execute the full suite; `pnpm --filter @orbital-poc/web exec vitest run ...` is the reliable scoped path.
+  - `pnpm --filter @legaltech-poc/web test -- ...` can still execute the full suite; `pnpm --filter @legaltech-poc/web exec vitest run ...` is the reliable scoped path.
   - Useful context
-  - Local upload/browser validation requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` when running `pnpm --filter @orbital-poc/web dev`.
+  - Local upload/browser validation requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` when running `pnpm --filter @legaltech-poc/web dev`.
 ---
 ## [2026-02-12 16:30:28 UTC] - US-004: Quick Start Readiness Gate
 Thread: 
 Run: 20260212-150540-748 (iteration 4)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-4.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-748-iter-4.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-4.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260212-150540-748-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: d931141 fix(quick-start): enforce readiness gate on starts
@@ -821,7 +821,7 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Command: `pnpm typecheck` -> PASS
   - Command: `pnpm test` -> PASS
   - Command: `pnpm build` -> PASS
-  - Command: `cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF` (browser smoke: blocked quick start reason, fixture flip to ready, start run, conflict retry) -> PASS
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF` (browser smoke: blocked quick start reason, fixture flip to ready, start run, conflict retry) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -840,7 +840,7 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
   - Gotchas encountered
   - Matter detail rendering requires `ALLOW_DEV_OBJECT_STORE_SECRET=1` in local dev; otherwise object-store signing throws before quick-start checks can be validated.
   - Useful context
-  - `pnpm --filter @orbital-poc/web test -- <file>` still runs full suite in this workspace; use `pnpm --filter @orbital-poc/web exec vitest run <file...>` for scoped runs.
+  - `pnpm --filter @legaltech-poc/web test -- <file>` still runs full suite in this workspace; use `pnpm --filter @legaltech-poc/web exec vitest run <file...>` for scoped runs.
   - Command: npx tsx <<'EOF' [dev-browser triage tab smoke script against http://localhost:3201/matters/matter_us005_demo?tab=report&run_id=run_us005_main] EOF -> PASS
 - Files changed:
   - .ralph/activity.log
@@ -869,19 +869,19 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260212-150540-
 ## [2026-02-12 15:41:34 UTC] - US-006: Drawer Decisions and Mutation Feedback
 Thread: 
 Run: 20260212-150545-1013 (iteration 2)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-2.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-2.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-2.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 3c7db8f feat(report-triage): add drawer copy feedback
 - Post-commit status: `clean`
 - Verification:
-  - Command: `pnpm --filter @orbital-poc/web test -- reportRowDrawer.sync.test.ts reportRows.routes.test.ts reportTriage.sync.test.ts reportTriageFilters.test.ts` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web test -- reportRowDrawer.sync.test.ts reportRows.routes.test.ts reportTriage.sync.test.ts reportTriageFilters.test.ts` -> PASS
   - Command: `pnpm lint` -> PASS
   - Command: `pnpm typecheck` -> PASS
   - Command: `pnpm test` -> PASS
   - Command: `pnpm build` -> PASS
-  - Command: `ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3201` + `curl -s -o /tmp/us006_dev_smoke.html -w "%{http_code}" "http://localhost:3201/matters/matter_us005_demo?tab=report"` -> PASS
+  - Command: `ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @legaltech-poc/web dev -p 3201` + `curl -s -o /tmp/us006_dev_smoke.html -w "%{http_code}" "http://localhost:3201/matters/matter_us005_demo?tab=report"` -> PASS
   - Command: `cd .agents/skills/00-utilities/dev-browser && ./server.sh --headless` + `npx tsx` browser flow for drawer open/copy success+failure/mark-reviewed failure+success/reopen -> PASS
 - Files changed:
   - .ralph/activity.log
@@ -907,20 +907,20 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
 ## [2026-02-12 16:12:50 UTC] - US-007: Valid Citation Trust Viewer Verification
 Thread: 
 Run: 20260212-150545-1013 (iteration 3)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-3.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-3.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-3.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 9ece54e fix(viewer): show explicit trust fallback metadata
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test -- apps/web/test/reportEvidenceViewer.sync.test.ts apps/web/lib/citations.routes.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- apps/web/test/reportEvidenceViewer.sync.test.ts apps/web/lib/citations.routes.test.ts -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> FAIL (transient existing flake in `test/foldersRunsRoute.wdk.int.test.ts`, expected `completed` got `running`)
   - Command: pnpm test -> PASS (re-run succeeded: 49 files, 166 tests)
   - Command: pnpm build -> PASS
-  - Command: ALLOW_DEV_OBJECT_STORE_SECRET=1 FEATURE_CITATIONS_API=1 pnpm --filter @orbital-poc/web dev -p 3301 -> PASS
+  - Command: ALLOW_DEV_OBJECT_STORE_SECRET=1 FEATURE_CITATIONS_API=1 pnpm --filter @legaltech-poc/web dev -p 3301 -> PASS
   - Command: cd .agents/skills/00-utilities/dev-browser && ./server.sh --headless -> PASS
   - Command: cd .agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (US-007 viewer smoke: source-chip open, payload doc/page, overlay polygon render, reset-to-100, missing trust fallback) -> PASS
 - Files changed:
@@ -947,8 +947,8 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
 ## [2026-02-12 16:41 UTC] - US-008: Invalid Citation Fail Closed
 Thread: 
 Run: 20260212-150545-1013 (iteration 4)
-Run log: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-4.log
-Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-1013-iter-4.md
+Run log: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-4.log
+Run summary: /home/sprite/orbital-g/legaltech-poc/.ralph/runs/run-20260212-150545-1013-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 14bf246 fix(report-triage): fail closed invalid citations
@@ -983,19 +983,19 @@ Run summary: /home/sprite/orbital-g/orbital-poc/.ralph/runs/run-20260212-150545-
 ## [2026-02-12 15:15:19 UTC] - US-009: Safe Run Scoped Exports
 Thread: 
 Run: 20260212-150551-1275 (iteration 1)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-1.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-1.md
+Run log: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260212-150551-1275-iter-1.log
+Run summary: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260212-150551-1275-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: ef9a27f test(exports): cover run-scoped safe export checks
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test -- lib/exportCsv.routes.test.ts lib/exportDocx.routes.test.ts -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- lib/exportCsv.routes.test.ts lib/exportDocx.routes.test.ts -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -p 3201 -> PASS
+  - Command: pnpm --filter @legaltech-poc/web dev -p 3201 -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/progress.md
@@ -1017,19 +1017,19 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-
 ## [2026-02-12 15:32 UTC] - US-010: Export Blocking State Contract
 Thread: 
 Run: 20260212-150551-1275 (iteration 2)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-2.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-2.md
+Run log: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260212-150551-1275-iter-2.log
+Run summary: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260212-150551-1275-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 7cb4383 fix(exports): gate controls by selected run state
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test -- "app/(app)/matters/runScope.test.ts" "lib/exportCsv.routes.test.ts" "lib/exportDocx.routes.test.ts" "test/exportBlockingState.sync.test.ts" -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- "app/(app)/matters/runScope.test.ts" "lib/exportCsv.routes.test.ts" "lib/exportDocx.routes.test.ts" "test/exportBlockingState.sync.test.ts" -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -p 3101 -> PASS
+  - Command: pnpm --filter @legaltech-poc/web dev -p 3101 -> PASS
   - Command: npx tsx (dev-browser smoke script for exports tab state toggle) -> PASS
 - Files changed:
   - .ralph/activity.log
@@ -1063,20 +1063,20 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-
 ## [2026-02-12 15:50:09 UTC] - US-011: Artefact Provenance Retrieval and Download Safety
 Thread: 
 Run: 20260212-150551-1275 (iteration 3)
-Run log: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-3.log
-Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-1275-iter-3.md
+Run log: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260212-150551-1275-iter-3.log
+Run summary: /home/sprite/orbital-f/legaltech-poc/.ralph/runs/run-20260212-150551-1275-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: d2afe25 fix(artefacts): surface explicit download failures
 - Post-commit status: clean
 - Verification:
-  - Command: pnpm --filter @orbital-poc/web test -- "app/(app)/matters/ArtefactDownloadButton.test.ts" "app/(app)/matters/artefactsFilters.test.ts" "lib/artefacts.routes.test.ts" "test/artefactDownloadFeedback.sync.test.ts" "test/artefactsList.sync.test.ts" -> PASS
+  - Command: pnpm --filter @legaltech-poc/web test -- "app/(app)/matters/ArtefactDownloadButton.test.ts" "app/(app)/matters/artefactsFilters.test.ts" "lib/artefacts.routes.test.ts" "test/artefactDownloadFeedback.sync.test.ts" "test/artefactsList.sync.test.ts" -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @orbital-poc/web dev -p 3201 -> PASS
-  - Command: cd /home/sprite/orbital-f/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (artefacts filters + expired link UI smoke) -> PASS
+  - Command: FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1 pnpm --filter @legaltech-poc/web dev -p 3201 -> PASS
+  - Command: cd /home/sprite/orbital-f/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (artefacts filters + expired link UI smoke) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1103,8 +1103,8 @@ Run summary: /home/sprite/orbital-f/orbital-poc/.ralph/runs/run-20260212-150551-
 ## [2026-02-13 01:15:34 UTC] - US-001: Canonical readiness contract across list/detail/API
 Thread: 
 Run: 20260213-005806-15124 (iteration 1)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-1.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-1.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-1.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-1.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: b596291 fix(readiness): unify list/detail/run-start contract
@@ -1114,8 +1114,8 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -p 3101 -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (list/detail/run-start parity smoke; screenshots in tmp/us001-matters-list.png, tmp/us001-pack02-detail.png, tmp/us001-pack01-detail.png) -> PASS
+  - Command: pnpm --filter @legaltech-poc/web dev -p 3101 -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (list/detail/run-start parity smoke; screenshots in tmp/us001-matters-list.png, tmp/us001-pack02-detail.png, tmp/us001-pack01-detail.png) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/progress.md
@@ -1145,21 +1145,21 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 01:27:12 UTC] - US-002: Quick Start readiness gate is deterministic
 Thread: 
 Run: 20260213-005806-15124 (iteration 2)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-2.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-2.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-2.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-2.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: d2249fd fix(quick-start): gate enablement on readiness
 - Post-commit status: clean
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/quickStartReadiness.sync.test.ts test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run test/quickStartReadiness.sync.test.ts test/foldersRunsRoute.wdk.int.test.ts -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -p 3101 -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (blocked quick-start browser check; screenshot tmp/us002-blocked.png) -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (post-fix runnable quick-start browser check; screenshot tmp/us002-runnable.png) -> PASS
+  - Command: pnpm --filter @legaltech-poc/web dev -p 3101 -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (blocked quick-start browser check; screenshot tmp/us002-blocked.png) -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... (post-fix runnable quick-start browser check; screenshot tmp/us002-runnable.png) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1184,20 +1184,20 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 01:39:25 UTC] - US-003: Setup and readiness failure UX is explicit
 Thread: 
 Run: 20260213-005806-15124 (iteration 3)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-3.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-3.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-3.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-3.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: a6ccf91 fix(setup-documents): add explicit failure retries
 - Post-commit status: clean
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/setupDocuments.sync.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run test/setupDocuments.sync.test.ts -> PASS
   - Command: pnpm lint -> PASS
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> FAIL (flaky `test/foldersRunsRoute.wdk.int.test.ts` saw `running` vs `completed` once)
   - Command: pnpm test (rerun per guardrail) -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -p 3101 + cd /home/sprite/orbital-i/orbital-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (injected completion/readiness failure browser smoke with retry actions) -> PASS
+  - Command: pnpm --filter @legaltech-poc/web dev -p 3101 + cd /home/sprite/orbital-i/legaltech-poc/.agents/skills/00-utilities/dev-browser && npx tsx <<'EOF' ... EOF (injected completion/readiness failure browser smoke with retry actions) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1222,17 +1222,17 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 01:54 UTC] - US-004: Run lifecycle state machine is deterministic
 Thread: 
 Run: 20260213-005806-15124 (iteration 4)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-4.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-4.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-4.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-4.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 22ea737 fix(run-lifecycle): enforce deterministic transitions
 - Post-commit status: `clean`
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/runLifecycleStateMachine.int.test.ts test/foldersRunsRoute.wdk.int.test.ts -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/ingestDocumentWorkflow.int.test.ts test/ingestDocumentStepIdempotency.int.test.ts test/ingestDocumentTimeout.int.test.ts -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint && pnpm typecheck && pnpm test && pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm dev -p 3101 -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run test/runLifecycleStateMachine.int.test.ts test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run test/ingestDocumentWorkflow.int.test.ts test/ingestDocumentStepIdempotency.int.test.ts test/ingestDocumentTimeout.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm lint && pnpm typecheck && pnpm test && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm dev -p 3101 -> PASS
   - Command: curl -I --max-time 10 http://127.0.0.1:3101 -> PASS
 - Files changed:
   - .ralph/activity.log
@@ -1269,19 +1269,19 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 02:08:04 UTC] - US-005: Report rows are sourced from real step outcomes
 Thread: 
 Run: 20260213-005806-15124 (iteration 5)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-5.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-5.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-5.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-5.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 87ac7b5 fix(report): materialize rows from run step outputs
 - Post-commit status: `clean`
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run test/reportRowsFromStepOutputs.int.test.ts test/wdkStepQueue.int.test.ts -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && timeout 35s pnpm --filter @orbital-poc/web dev -p 3101 -> PASS (server reached ready state before timeout)
+  - Command: cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run test/reportRowsFromStepOutputs.int.test.ts test/wdkStepQueue.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && timeout 35s pnpm --filter @legaltech-poc/web dev -p 3101 -> PASS (server reached ready state before timeout)
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1308,20 +1308,20 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 02:28 UTC] - US-006: Run and report failure envelopes are explicit and safe
 Thread: 
 Run: 20260213-005806-15124 (iteration 6)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-6.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-6.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-6.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-6.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: e0eeb5f fix(report): add typed run failure envelopes
 - Post-commit status: `clean`
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> FAIL (flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts` read `running` instead of `completed`)
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm --filter @orbital-poc/web test test/foldersRunsRoute.wdk.int.test.ts -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm --filter @orbital-poc/web dev -p 3101 + dev-browser scripted smoke for failed-active-run fallback and explicit failed run stale-row suppression -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm test -> FAIL (flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts` read `running` instead of `completed`)
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm --filter @legaltech-poc/web test test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm --filter @legaltech-poc/web dev -p 3101 + dev-browser scripted smoke for failed-active-run fallback and explicit failed run stale-row suppression -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1352,20 +1352,20 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 02:40:38] - US-007: Citation outcomes are explicit success or typed failure
 Thread: 
 Run: 20260213-005806-15124 (iteration 7)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-7.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-7.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-7.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-7.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 3d730c3 fix(citations): enforce explicit fail-closed outcomes
 - Post-commit status: `clean`
 - Verification:
-  - Command: `cd /home/sprite/orbital-i/orbital-poc/apps/web && pnpm exec vitest run lib/citations.routes.test.ts lib/documentsRender.routes.test.ts lib/documentsPdf.routes.test.ts test/reportEvidenceViewer.sync.test.ts` -> PASS
-  - Command: `cd /home/sprite/orbital-i/orbital-poc && pnpm lint` -> PASS
-  - Command: `cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck` -> PASS
-  - Command: `cd /home/sprite/orbital-i/orbital-poc && pnpm test` -> FAIL (known flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts`, attempt 1)
-  - Command: `cd /home/sprite/orbital-i/orbital-poc && pnpm test` -> FAIL (known flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts`, attempt 2)
-  - Command: `cd /home/sprite/orbital-i/orbital-poc && pnpm test` -> PASS (attempt 3)
-  - Command: `cd /home/sprite/orbital-i/orbital-poc && pnpm build` -> PASS
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc/apps/web && pnpm exec vitest run lib/citations.routes.test.ts lib/documentsRender.routes.test.ts lib/documentsPdf.routes.test.ts test/reportEvidenceViewer.sync.test.ts` -> PASS
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc && pnpm lint` -> PASS
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc && pnpm typecheck` -> PASS
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc && pnpm test` -> FAIL (known flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts`, attempt 1)
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc && pnpm test` -> FAIL (known flaky `apps/web/test/foldersRunsRoute.wdk.int.test.ts`, attempt 2)
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc && pnpm test` -> PASS (attempt 3)
+  - Command: `cd /home/sprite/orbital-i/legaltech-poc && pnpm build` -> PASS
   - Command: `dev-browser: /matters/viewer?pack=pack_01_clean&citation=cit_TS-01_1` -> PASS (trust metadata visible)
   - Command: `dev-browser: /matters/fld_us007_browser split-view citation open` -> PASS (`citation_failed` + `SNIPPET_HASH_MISMATCH`, fail-closed viewer)
 - Files changed:
@@ -1396,8 +1396,8 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 02:54 UTC] - US-008: Export fail-closed behavior is strict and observable
 Thread: 019c54e3-98ed-7b32-b8fb-3706edb94263
 Run: 20260213-005806-15124 (iteration 8)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-8.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-8.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-8.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-8.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: b33919a fix(export): fail-close csv precondition checks
@@ -1408,7 +1408,7 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Command: pnpm typecheck -> PASS
   - Command: pnpm test -> PASS
   - Command: pnpm build -> PASS
-  - Command: pnpm --filter @orbital-poc/web dev -p 3101 + curl -I --max-time 10 http://127.0.0.1:3101 -> PASS
+  - Command: pnpm --filter @legaltech-poc/web dev -p 3101 + curl -I --max-time 10 http://127.0.0.1:3101 -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1433,21 +1433,21 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 03:06:06 UTC] - US-009: Demo-prod pack_09 allowlist and PR/nightly smoke
 Thread: 
 Run: 20260213-005806-15124 (iteration 9)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-9.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-9.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-9.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-9.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 5b2ffb2 feat(demo-pack): wire pack_09 smoke tiers
 - Post-commit status: clean
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm smoke:pr -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm smoke:nightly -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> FAIL (first run: one new checklist regression + known flaky `foldersRunsRoute.wdk.int.test.ts` state timing)
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
-  - Command: DEMO_MODE=1 pnpm --filter @orbital-poc/web dev -p 3101 + dev-browser toolbar/load-pack smoke -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm smoke:pr -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm smoke:nightly -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm test -> FAIL (first run: one new checklist regression + known flaky `foldersRunsRoute.wdk.int.test.ts` state timing)
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm build -> PASS
+  - Command: DEMO_MODE=1 pnpm --filter @legaltech-poc/web dev -p 3101 + dev-browser toolbar/load-pack smoke -> PASS
 - Files changed:
   - .github/workflows/real-data-smoke.yml
   - .ralph/activity.log
@@ -1478,14 +1478,14 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 03:17 UTC] - US-010: Overnight loop recovery and checkpoint resume
 Thread: 
 Run: 20260213-005806-15124 (iteration 10)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-10.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-10.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-10.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-10.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 8bce614 feat(overnight-loop): add checkpoint resume halt logic
 - Post-commit status: `clean`
 - Verification:
-  - Command: `pnpm --filter @orbital-poc/web test -- test/overnightLoopCheckpoint.test.ts` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web test -- test/overnightLoopCheckpoint.test.ts` -> PASS
   - Command: `pnpm lint` -> PASS
   - Command: `pnpm typecheck` -> PASS
   - Command: `pnpm test` -> PASS
@@ -1513,18 +1513,18 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
 ## [2026-02-13 03:25 UTC] - US-011: Run-start idempotency and concurrency guardrails
 Thread: 
 Run: 20260213-005806-15124 (iteration 11)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-11.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-11.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-11.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-11.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: f61784c fix(runs-api): serialize run-start for dedupe
 - Post-commit status: `clean`
 - Verification:
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm --filter @orbital-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm lint -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm typecheck -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm test -> PASS
-  - Command: cd /home/sprite/orbital-i/orbital-poc && pnpm build -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm --filter @legaltech-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm lint -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm typecheck -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm test -> PASS
+  - Command: cd /home/sprite/orbital-i/legaltech-poc && pnpm build -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log
@@ -1542,27 +1542,27 @@ Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-
   - Patterns discovered
   - A DB advisory lock around check+insert is a low-friction way to harden API-level idempotency without schema migrations.
   - Gotchas encountered
-  - In this workspace, `pnpm --filter @orbital-poc/web test -- <file>` still executes the full suite, so plan runtime accordingly.
+  - In this workspace, `pnpm --filter @legaltech-poc/web test -- <file>` still executes the full suite, so plan runtime accordingly.
   - Useful context
   - Returning conflict details with canonical `run_id` makes duplicate responses actionable for operator UX and client retries.
 ---
 ## [2026-02-13 03:36 UTC] - US-012: Cross-surface parity drift detection and telemetry taxonomy
 Thread: 
 Run: 20260213-005806-15124 (iteration 12)
-Run log: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-12.log
-Run summary: /home/sprite/orbital-i/orbital-poc/.ralph/runs/run-20260213-005806-15124-iter-12.md
+Run log: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-12.log
+Run summary: /home/sprite/orbital-i/legaltech-poc/.ralph/runs/run-20260213-005806-15124-iter-12.md
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: fed53b5 feat(parity): add cross-surface drift checks
 - Post-commit status: `clean`
 - Verification:
-  - Command: `pnpm --filter @orbital-poc/web exec vitest run lib/crossSurfaceParity.server.test.ts lib/exportCsv.routes.test.ts` -> PASS
-  - Command: `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts --testNamePattern "operator smoke: load-pack bad citation flow stays export-blocked"` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web exec vitest run lib/crossSurfaceParity.server.test.ts lib/exportCsv.routes.test.ts` -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts --testNamePattern "operator smoke: load-pack bad citation flow stays export-blocked"` -> PASS
   - Command: `pnpm lint` -> PASS
   - Command: `pnpm typecheck` -> PASS
   - Command: `pnpm test` -> PASS
   - Command: `pnpm build` -> PASS
-  - Command: `pnpm --filter @orbital-poc/web dev -p 3101` (HTTP probe via `curl -I http://127.0.0.1:3101`) -> PASS
+  - Command: `pnpm --filter @legaltech-poc/web dev -p 3101` (HTTP probe via `curl -I http://127.0.0.1:3101`) -> PASS
 - Files changed:
   - .ralph/activity.log
   - .ralph/errors.log

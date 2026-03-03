@@ -52,8 +52,8 @@
     "When cutover is enabled, do not silently fall back to legacy jobs execution."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm verify"
   ],
   "stories": [
@@ -114,7 +114,7 @@
     ],
     "manualSmoke": [
       "FEATURE_WDK_INGEST=1 pnpm dev",
-      "pnpm --filter @orbital-poc/web worker",
+      "pnpm --filter @legaltech-poc/web worker",
       "Upload a PDF; confirm ingest completes and no ingest job row is created",
       "Kill worker mid-ingest; restart; confirm completion without duplicate durable writes",
       "FEATURE_WDK_INGEST=0 and confirm legacy ingest works without WDK worker"

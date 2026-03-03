@@ -20,7 +20,7 @@ pnpm dev
 
 Open:
 - `http://localhost:3000/matters?pack=pack_01_clean`
-- `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html`
+- `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-runbook.html`
 
 Optional:
 - Trace export demo: `FEATURE_TRACE_EXPORT=1 ALLOW_ADMIN_BYPASS=1`

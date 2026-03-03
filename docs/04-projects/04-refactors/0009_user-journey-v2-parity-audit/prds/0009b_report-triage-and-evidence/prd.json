@@ -83,9 +83,9 @@
     "No silent citation failures; recovery steps must be visible."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web lint",
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm build"
   ],
   "stories": [

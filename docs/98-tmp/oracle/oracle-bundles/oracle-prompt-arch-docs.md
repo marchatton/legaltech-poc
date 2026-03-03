@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── apps
 │   └── web
 │       ├── app
@@ -485,7 +485,7 @@
 (+ denotes code-map available)
 Config: depth cap 3.
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/seed.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/seed.ts
 Imports:
   - import fs from "node:fs";
   - import path from "node:path";
@@ -514,7 +514,7 @@ Functions:
 ---
 
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/spikes/rh2-overlay/Rh2OverlayClient.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/spikes/rh2-overlay/Rh2OverlayClient.tsx
 Imports:
   - import { useEffect, useMemo, useRef, useState } from "react";
   - import {
@@ -525,7 +525,7 @@ Imports:
   type NormPoint,
   type NormPolygons,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
   - import { useRouter } from "next/navigation";
 ---
 
@@ -543,7 +543,7 @@ Exports:
 
 </file_map>
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/DECISIONS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/DECISIONS.md
 ```md
 # Architecture decisions (ADRs)
 
@@ -1067,7 +1067,7 @@ Links
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/06_frameworks_agents_rag_evals.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/06_frameworks_agents_rag_evals.md
 ```md
 # Frameworks, agents, RAG, and evals
 
@@ -1217,7 +1217,7 @@ Must be real early:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/10_system_architecture.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/10_system_architecture.md
 ```md
 # System architecture
 
@@ -1447,7 +1447,7 @@ If/when we move web/API to Vercel:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/50_api_surface.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/50_api_surface.md
 ```md
 # API surface (PoC)
 
@@ -1905,7 +1905,7 @@ Notes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/AGENTS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/AGENTS.md
 ```md
 # Architecture
 
@@ -1933,7 +1933,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/AGENTS
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/30_data_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/30_data_model.md
 ```md
 # Data model (Postgres + pgvector)
 
@@ -2163,7 +2163,7 @@ This rule must be implemented once (e.g. in `packages/core/citations`) and reuse
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/01_onboarding_checklist.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/01_onboarding_checklist.md
 ```md
 # Onboarding checklist
 
@@ -2301,7 +2301,7 @@ What it must prove:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/40_rag_and_agents.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/40_rag_and_agents.md
 ```md
 # RAG + agents (Quick Start)
 
@@ -2436,7 +2436,7 @@ Because WDK can replay/retry, each step must be safely repeatable:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/20_state_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/20_state_model.md
 ```md
 # State model
 
@@ -2624,7 +2624,7 @@ group by r.id;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/05_tech_stack_and_dev_workflow.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/05_tech_stack_and_dev_workflow.md
 ```md
 # Tech stack + dev workflow (PoC)
 
@@ -2928,7 +2928,7 @@ Synthetic packs are first-class fixtures. Expect scripts like:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/00_overview.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/00_overview.md
 ```md
 # Orbital Copilot PoC Architecture
 US CRE Title + Survey Quick Start (evidence-first, artefact-first)
@@ -2998,12 +2998,12 @@ These should become explicit (ideally as ADRs) before we build the relevant slic
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/.gitkeep
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/.gitkeep
 ```
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/60_observability_and_evals.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/60_observability_and_evals.md
 ```md
 # Observability and evals
 
@@ -3174,7 +3174,7 @@ order by created_at desc;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/98-tmp/2026-02-06_infra-investigation/storage.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/98-tmp/2026-02-06_infra-investigation/storage.md
 ```md
 # Object storage options (PDFs + exports)
 
@@ -3239,7 +3239,7 @@ If you want "single VM only"
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/98-tmp/2026-02-06_infra-investigation/llm-gateways.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/98-tmp/2026-02-06_infra-investigation/llm-gateways.md
 ```md
 # LLM gateway options (PoC)
 
@@ -3342,7 +3342,7 @@ If you want minimal vendor coupling:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/98-tmp/2026-02-06_infra-investigation/ocr.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/98-tmp/2026-02-06_infra-investigation/ocr.md
 ```md
 # OCR/layout extraction options
 
@@ -3388,7 +3388,7 @@ Implementation rule (non-negotiable)
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/98-tmp/2026-02-06_infra-investigation/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/98-tmp/2026-02-06_infra-investigation/README.md
 ```md
 # Infra investigation (PoC)
 
@@ -3409,7 +3409,7 @@ Next action
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/98-tmp/2026-02-06_infra-investigation/deployment.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/98-tmp/2026-02-06_infra-investigation/deployment.md
 ```md
 # Deployment posture (Vercel vs Hetzner)
 
@@ -3491,7 +3491,7 @@ Recommended default (PoC)
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prd-overall.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prd-overall.md
 ```md
 # PRD (Overall): 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)
 
@@ -3720,7 +3720,7 @@ No silent failures. Examples:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md
 ```md
 # PRD: 0001d Citation Chips + Click-to-Highlight (Anchors-First, Fail-Closed)
 
@@ -3851,7 +3851,7 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/ExportCsvButton.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/ExportCsvButton.tsx
 ```tsx
 "use client";
 
@@ -3929,7 +3929,7 @@ export function ExportCsvButton(props: Props) {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/MattersToolbar.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/MattersToolbar.tsx
 ```tsx
 "use client";
 
@@ -3991,7 +3991,7 @@ export function MattersToolbar(props: Props) {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(app)/matters/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(app)/matters/page.tsx
 ```tsx
 import { z } from "zod";
 
@@ -4111,11 +4111,11 @@ export default async function MattersPage(props: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/(api)/export/csv/route.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/(api)/export/csv/route.ts
 ```ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
 
@@ -4203,7 +4203,7 @@ export async function POST(req: Request): Promise<Response> {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/layout.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/layout.tsx
 ```tsx
 import type { ReactNode } from "react";
 
@@ -4225,7 +4225,7 @@ export default function RootLayout(props: { children: ReactNode }) {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/page.tsx
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/page.tsx
 ```tsx
 export default function HomePage() {
   return (
@@ -4258,7 +4258,7 @@ export default function HomePage() {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/app/globals.css
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/app/globals.css
 ```css
 @tailwind base;
 @tailwind components;
@@ -4277,7 +4277,7 @@ body {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/devOnly.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/devOnly.ts
 ```ts
 import { notFound } from "next/navigation";
 
@@ -4288,7 +4288,7 @@ export function assertDevOnly(): void {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/lib/fixtureSeed.server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/lib/fixtureSeed.server.ts
 ```ts
 import "server-only";
 
@@ -4374,7 +4374,7 @@ export function loadSeedSnapshot(packId: string): SeedSnapshot | null {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/types/pdfjs-dist.d.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/types/pdfjs-dist.d.ts
 ```ts
 declare module "pdfjs-dist/build/pdf.mjs" {
   // pdfjs-dist doesn't currently ship TS types for the ESM entrypoint path.
@@ -4391,7 +4391,7 @@ declare module "pdfjs-dist/build/pdf.worker.mjs" {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/.eslintrc.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/.eslintrc.json
 ```json
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
@@ -4411,7 +4411,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/.eslintrc.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/AGENTS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/AGENTS.md
 ```md
 # Web app (apps/web)
 Next.js App Router web application.
@@ -4439,7 +4439,7 @@ Next.js App Router web application.
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/next-env.d.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/next-env.d.ts
 ```ts
 /// <reference types="next" />
 /// <reference types="next/image-types/global" />
@@ -4450,7 +4450,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/next-env.d.ts
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/next.config.js
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/next.config.js
 ```js
 /** @type {import('next').NextConfig} */
 const path = require("node:path");
@@ -4460,17 +4460,17 @@ const nextConfig = {
   // Ensure Next's output file tracing is rooted at the monorepo, not an inferred dir.
   // This avoids picking up unrelated lockfiles on the machine.
   outputFileTracingRoot: path.join(__dirname, "../.."),
-  transpilePackages: ["@orbital-poc/core"],
+  transpilePackages: ["@legaltech-poc/core"],
 };
 
 module.exports = nextConfig;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/package.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/package.json
 ```json
 {
-  "name": "@orbital-poc/web",
+  "name": "@legaltech-poc/web",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -4482,7 +4482,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/package.json
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@orbital-poc/core": "workspace:*",
+    "@legaltech-poc/core": "workspace:*",
     "next": "^15.0.0",
     "pdfjs-dist": "^4.0.0",
     "react": "^19.0.0",
@@ -4505,7 +4505,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/package.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/postcss.config.js
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/postcss.config.js
 ```js
 module.exports = {
   plugins: {
@@ -4517,7 +4517,7 @@ module.exports = {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/tailwind.config.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/tailwind.config.ts
 ```ts
 import type { Config } from "tailwindcss";
 
@@ -4532,7 +4532,7 @@ export default {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/tsconfig.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/apps/web/tsconfig.json
 ```json
 {
   "compilerOptions": {
@@ -4573,7 +4573,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/apps/web/tsconfig.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/verify/verifier.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/verify/verifier.ts
 ```ts
 import { performance } from "node:perf_hooks";
 
@@ -4693,7 +4693,7 @@ export async function verifyRow(
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/verify/verifier.schemas.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/verify/verifier.schemas.ts
 ```ts
 import { z } from "zod";
 
@@ -4743,7 +4743,7 @@ export type VerifyResult = z.infer<typeof VerifyResultSchema>;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/missing-docs/schemas.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/missing-docs/schemas.ts
 ```ts
 import { z } from "zod";
 
@@ -4775,7 +4775,7 @@ export type DetectMissingDocsResult = z.infer<typeof DetectMissingDocsResultSche
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/missing-docs/detectMissingDocs.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/missing-docs/detectMissingDocs.ts
 ```ts
 import type { DetectMissingDocsResult, MissingDocCandidate, MissingDocSignal } from "./schemas";
 
@@ -4894,7 +4894,7 @@ export function detectMissingDocs(args: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/citations/snippet.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/citations/snippet.ts
 ```ts
 import { createHash } from "node:crypto";
 
@@ -4912,7 +4912,7 @@ export function hashSnippet(snippet: string): string {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/citations/snippet.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/citations/snippet.test.ts
 ```ts
 import { describe, expect, it } from "vitest";
 
@@ -4942,7 +4942,7 @@ describe("hashSnippet", () => {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/anchors.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/anchors.ts
 ```ts
 import { z } from "zod";
 
@@ -4985,7 +4985,7 @@ export function anchorBoxToPolygons(anchor: AnchorBox): NormPolygons {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/mapToViewport.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/mapToViewport.ts
 ```ts
 import type { NormPolygons } from "./anchors";
 
@@ -5059,7 +5059,7 @@ export function bboxFromCssPolygons(polygons: CssPolygons): {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/geometry/mapToViewport.test.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/geometry/mapToViewport.test.ts
 ```ts
 import { describe, expect, it } from "vitest";
 
@@ -5112,7 +5112,7 @@ describe("mapNormPolygonsToViewportCss", () => {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/safe-error.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/safe-error.ts
 ```ts
 export type SafeErrorEnvelope = {
   error: {
@@ -5142,7 +5142,7 @@ export function safeErrorEnvelope(opts: {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/index.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/index.ts
 ```ts
 export * from "./geometry/anchors";
 export * from "./geometry/mapToViewport";
@@ -5154,7 +5154,7 @@ export * from "./verify/verifier.schemas";
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/src/server.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/src/server.ts
 ```ts
 export * from "./citations/snippet";
 export * from "./verify/verifier";
@@ -5162,10 +5162,10 @@ export * from "./verify/verifier";
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/package.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/packages/core/package.json
 ```json
 {
-  "name": "@orbital-poc/core",
+  "name": "@legaltech-poc/core",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -5204,7 +5204,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/packages/core/package.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/lib/snapshot.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/lib/snapshot.ts
 ```ts
 import type { NormPolygons } from "./geometry.ts";
 
@@ -5266,7 +5266,7 @@ export function assertIsSnapshot(val: unknown): SpikeSnapshot {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/lib/args.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/lib/args.ts
 ```ts
 export type ParsedArgs = {
   _: string[];
@@ -5348,7 +5348,7 @@ export function requireStringArg(args: ParsedArgs, key: string): string {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/lib/geometry.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/lib/geometry.ts
 ```ts
 export type BBox = readonly [xMin: number, yMin: number, xMax: number, yMax: number];
 export type NormPoint = readonly [x: number, y: number];
@@ -5390,7 +5390,7 @@ export function polygonsToBBox(polygons: NormPolygons): BBox | null {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/lib/csv.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/lib/csv.ts
 ```ts
 export type CsvTable = {
   headers: string[];
@@ -5496,7 +5496,7 @@ export function parseCsv(text: string): CsvTable {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/lib/fs.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/lib/fs.ts
 ```ts
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -5538,7 +5538,7 @@ export async function walkFiles(
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/assert_row_invariants.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/assert_row_invariants.ts
 ```ts
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -5748,7 +5748,7 @@ main().catch((err) => {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/README.md
 ```md
 # Fixtures Tooling (Spikes)
 
@@ -5817,7 +5817,7 @@ Comparator behavior is specified in:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/fixtures/verify_pack_names.ts
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/fixtures/verify_pack_names.ts
 ```ts
 import { readFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
@@ -5899,7 +5899,7 @@ main().catch((err) => {
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/verify.sh
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/verify.sh
 ```sh
 #!/usr/bin/env bash
 set -euo pipefail
@@ -5915,7 +5915,7 @@ echo "Verify OK."
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/test.sh
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/test.sh
 ```sh
 #!/usr/bin/env bash
 set -euo pipefail
@@ -5958,7 +5958,7 @@ exit 1
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/typecheck.sh
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/typecheck.sh
 ```sh
 #!/usr/bin/env bash
 set -euo pipefail
@@ -5995,7 +5995,7 @@ exit 1
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/build.sh
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/build.sh
 ```sh
 #!/usr/bin/env bash
 set -euo pipefail
@@ -6044,7 +6044,7 @@ exit 1
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/scripts/lint.sh
+File: /Users/marc/Code/personal-projects/legaltech-poc/scripts/lint.sh
 ```sh
 #!/usr/bin/env bash
 set -euo pipefail
@@ -6087,13 +6087,13 @@ exit 1
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docker-compose.yml
+File: /Users/marc/Code/personal-projects/legaltech-poc/docker-compose.yml
 ```yml
 services:
   db:
     # pgvector baked in so we can `CREATE EXTENSION vector;` without custom builds.
     image: pgvector/pgvector:pg16
-    container_name: orbital-poc-db
+    container_name: legaltech-poc-db
     environment:
       POSTGRES_DB: orbital
       POSTGRES_USER: orbital
@@ -6114,15 +6114,15 @@ volumes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/package.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/package.json
 ```json
 {
-  "name": "orbital-poc",
+  "name": "legaltech-poc",
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "pnpm --filter @orbital-poc/web dev",
-    "start": "pnpm --filter @orbital-poc/web start",
+    "dev": "pnpm --filter @legaltech-poc/web dev",
+    "start": "pnpm --filter @legaltech-poc/web start",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
@@ -6137,7 +6137,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/package.json
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/pnpm-workspace.yaml
+File: /Users/marc/Code/personal-projects/legaltech-poc/pnpm-workspace.yaml
 ```yaml
 packages:
   - "apps/*"
@@ -6146,7 +6146,7 @@ packages:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/08-example-data/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/08-example-data/README.md
 ```md
 # Fixture packs (schema v1)
 
@@ -6199,7 +6199,7 @@ Coordinate system:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/08-example-data/pack_01_clean/manifest.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/08-example-data/pack_01_clean/manifest.json
 ```json
 {
   "pack_id": "pack_01_clean",
@@ -6275,7 +6275,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/08-example-data/pack_0
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/08-example-data/pack_01_clean/truth/golden_questions.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/08-example-data/pack_01_clean/truth/golden_questions.json
 ```json
 [
   {

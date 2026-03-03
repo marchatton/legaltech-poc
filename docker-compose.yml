@@ -3,7 +3,7 @@ services:
     # Local dev only. Demo-prod uses docker-compose.demo-prod.yml.
     # pgvector baked in so we can `CREATE EXTENSION vector;` without custom builds.
     image: pgvector/pgvector:pg17
-    container_name: orbital-poc-db
+    container_name: legaltech-poc-db
     environment:
       POSTGRES_DB: orbital
       POSTGRES_USER: orbital

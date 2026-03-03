@@ -44,8 +44,8 @@
 ## 5) Tests/checks
 - In this session: no new typecheck/test command was run.
 - Most recent known related result (from prior handoff context):
-  - `pnpm --filter @orbital-poc/web typecheck` passed.
-  - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts` failed in sandbox due DB socket access (`connect EPERM 127.0.0.1:5432`).
+  - `pnpm --filter @legaltech-poc/web typecheck` passed.
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts` failed in sandbox due DB socket access (`connect EPERM 127.0.0.1:5432`).
 
 ## 6) Next steps
 1. Start with P0 suite implementation using the 2D matrix in:
@@ -55,7 +55,7 @@
 3. Parameterize by packs:
    - PR smoke: `pack_01_clean`, `pack_02_missing_rea`, `pack_09_bad_citation`.
 4. Ensure local Postgres + worker availability and re-run:
-   - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+   - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
 5. Decide whether to update current runtime docs with this new suite strategy and any changed reality around citations/chat.
 
 ## 7) Risks/gotchas

@@ -62,8 +62,8 @@
     "Step inputs/outputs are JSON-serialisable and Zod-validated at the boundary."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
     "pnpm verify"
   ],
   "stories": [
@@ -122,7 +122,7 @@
     ],
     "manualSmoke": [
       "pnpm dev",
-      "pnpm --filter @orbital-poc/web worker",
+      "pnpm --filter @legaltech-poc/web worker",
       "Start wdk_smoke via dev-only trigger",
       "Kill worker mid-flight; restart worker; confirm completion without duplicate side effects"
     ]

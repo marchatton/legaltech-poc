@@ -46,9 +46,9 @@
 
 ## 5) Tests/Checks
 - Ran and passed:
-  - `pnpm --filter @orbital-poc/web test lib/chat.routes.test.ts`
-  - `pnpm --filter @orbital-poc/web lint` (existing unrelated warnings remain)
-  - `pnpm --filter @orbital-poc/web build`
+  - `pnpm --filter @legaltech-poc/web test lib/chat.routes.test.ts`
+  - `pnpm --filter @legaltech-poc/web lint` (existing unrelated warnings remain)
+  - `pnpm --filter @legaltech-poc/web build`
 - Manual repro/verification done:
   - `POST /demo/load-pack` with `pack_01_clean` -> folder `fld_045b1e37-7a08-4b73-9f66-99a2ef870b40`
   - Ran analysis -> run `run_ea74cd5d-a9d7-47ad-9b3b-d892a9bca73a`

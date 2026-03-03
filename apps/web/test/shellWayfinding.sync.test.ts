@@ -4,7 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 function repoRootFromWebPackage(): string {
-  // Vitest runs with cwd = `apps/web` (via `pnpm --filter @orbital-poc/web test`).
+  // Vitest runs with cwd = `apps/web` (via `pnpm --filter @legaltech-poc/web test`).
   return path.resolve(process.cwd(), "../..");
 }
 

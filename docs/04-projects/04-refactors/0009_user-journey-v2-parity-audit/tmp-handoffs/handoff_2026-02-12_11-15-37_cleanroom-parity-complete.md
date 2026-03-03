@@ -54,13 +54,13 @@ None. No dev servers or background tasks running.
 
 1. **Open PR** against `main` — summary is ready in the ledger
 2. **Browser smoke test** — start dev server and walk through the matters flow visually
-3. **Run Vitest** — `pnpm --filter @orbital-poc/web test` to check for regressions
+3. **Run Vitest** — `pnpm --filter @legaltech-poc/web test` to check for regressions
 4. **Optional: code review** — use `wf-review` skill for light-plus review pass
 5. **Merge** when satisfied
 
 ## 7. Risks / gotchas
 
-- **No visual regression tests exist** — browser smoke is the main validation path. Start with `pnpm --filter @orbital-poc/web dev -p 3101` and walk /matters → /matters/[id] → each tab.
+- **No visual regression tests exist** — browser smoke is the main validation path. Start with `pnpm --filter @legaltech-poc/web dev -p 3101` and walk /matters → /matters/[id] → each tab.
 - **Artefacts tab** requires feature flags: `FEATURE_ARTEFACTS_LIST=1 ALLOW_DEV_OBJECT_STORE_SECRET=1`
 - **Evidence viewer** requires: `ALLOW_DEV_OBJECT_STORE_SECRET=1 FEATURE_CITATIONS_API=1`
 - **Demo toolbar** only renders when `DEMO_MODE=1`

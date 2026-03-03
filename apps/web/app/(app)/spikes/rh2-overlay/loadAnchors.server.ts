@@ -3,7 +3,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 
-import { AnchorFileSchema } from "@orbital-poc/core";
+import { AnchorFileSchema } from "@legaltech-poc/core";
 
 export type LoadedAnchors = {
   anchorIds: string[];

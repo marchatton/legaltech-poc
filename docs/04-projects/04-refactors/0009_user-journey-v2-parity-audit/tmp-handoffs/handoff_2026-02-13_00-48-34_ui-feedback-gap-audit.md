@@ -58,7 +58,7 @@
 ## 6) Next steps
 1. Implement the 4 concrete UI gaps above in `apps/web/app/(app)/matters*` files.
 2. Decide and execute a scoped Phase 2 primitive/token pass for listed shared UI files.
-3. Run targeted sync tests first, then `pnpm --filter @orbital-poc/web typecheck`, then broader web tests if UI primitives change.
+3. Run targeted sync tests first, then `pnpm --filter @legaltech-poc/web typecheck`, then broader web tests if UI primitives change.
 4. Capture before/after screenshots for list, documents, and detail header to verify parity with the plan.
 
 ## 7) Risks/gotchas

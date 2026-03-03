@@ -21,9 +21,10 @@ describe("US-002 progress stepper and checklist presence", () => {
     const checklistSource = readUtf8(checklistPath);
 
     expect(pageSource).toContain("Progress");
+    expect(pageSource).toContain("deriveOperatorChecklistSteps");
     expect(pageSource).toContain("operatorChecklistSteps");
-    expect(pageSource).toContain("operatorChecklistSummary");
-    expect(pageSource).toContain("Load Pack Again");
+    expect(pageSource).toContain("showOperatorChecklist");
+    expect(pageSource).toContain("<QuickStartActionButton");
 
     expect(checklistSource).toContain("deriveOperatorChecklistSteps");
     expect(checklistSource).toContain("summarizeOperatorChecklist");

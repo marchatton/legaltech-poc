@@ -12,10 +12,11 @@ Current PoC is:
 - Local filesystem “object store” under `tmp/object-store` (`apps/web/lib/objectStore.server.ts`)
 - WDK durable workflows/steps for document ingest and Quick Start runs (`runs` + `run_steps`) with a worker loop (`apps/web/lib/wdk/wdkWorker.server.ts`)
   - In dev (`pnpm dev`): ingest enqueue kicks an inline WDK worker drainer (same process)
-  - Outside dev: run the worker process (`pnpm --filter @orbital-poc/web worker`)
+  - Outside dev: run the worker process (`pnpm --filter @legaltech-poc/web worker`)
 - Legacy durable jobs runtime (the `execute_run` worker loop) has been removed; Quick Start must not enqueue jobs and is WDK-only.
 - PDF extraction via `pdfjs-dist` text extraction (not OCR; no geometry) (`apps/web/lib/ingest/ingestProcessor.server.ts`)
-- Fixture-backed “evidence” for demos (seed snapshots under `tmp/fixture-seed`) used by citations, trace export, and spike export flows (`apps/web/lib/fixtureSeed.server.ts`, `scripts/fixtures/seed.ts`)
+- DB-backed citation reads for viewer trust overlays (`GET /citations/:id` resolves locked `citations` rows).
+- Fixture seed snapshots under `tmp/fixture-seed` still back trace export + spike export demo flows (`apps/web/lib/fixtureSeed.server.ts`, `scripts/fixtures/seed.ts`).
 
 ## Current component map
 
@@ -25,7 +26,7 @@ flowchart LR
     UI["Matter list + detail pages
 upload + run + exports"]
     PDFV["pdf.js viewer
-highlight overlay (fixture citations)"]
+highlight overlay (locked citations)"]
   end
 
   subgraph WEB["Next.js server (apps/web)"]
@@ -91,33 +92,43 @@ Code:
 - `apps/web/test/foldersRunsRoute.wdk.int.test.ts` (WDK scheduling + idempotency + “no execute_run jobs”)
 
 ## Evidence and citations (current state)
-Evidence-first UX exists for fixture packs only:
-- `GET /citations/:id` resolves citations from seed snapshots (`tmp/fixture-seed`) and returns polygons/snippets for viewer overlay.
-- Trace export (`GET /runs/:id/trace`) is synthesized from seed snapshots; it does not read persisted `runs/run_steps/...` execution artifacts.
+Evidence-first citation reads are DB-backed:
+- `GET /citations/:id` resolves locked citations from Postgres (`citations` + `report_rows` provenance) and returns polygons/snippets for viewer overlay.
+- Quick Start row steps persist citations for uploaded docs; when geometry is unavailable (`has_geometry=false`), they lock deterministic page-level fallback polygons.
+
+Fixture seed snapshots still back selected demo/debug surfaces:
+- Trace export (`GET /runs/:id/trace`) is synthesized from seed snapshots; it does not yet read persisted `runs/run_steps/...` execution artifacts.
 - CSV export under `/spikes/export/csv` uses seed snapshots and deterministic integrity checks; it is not the target production export pipeline.
 
 Code:
-- `apps/web/lib/fixtureSeed.server.ts`
+- `apps/web/steps/quickStartWriteRowV0.step.server.ts`
 - `apps/web/app/(api)/citations/[id]/route.ts`
 - `apps/web/app/(api)/runs/[id]/trace/route.ts`
 - `apps/web/app/(api)/spikes/export/csv/route.ts`
+- `apps/web/lib/fixtureSeed.server.ts`
 - `scripts/fixtures/seed.ts`
 
 ## Environment and gating (current)
 - Object store signing:
   - Set `OBJECT_STORE_SIGNING_SECRET` for stable signed URLs.
   - Dev-only escape hatch: set `ALLOW_DEV_OBJECT_STORE_SECRET=1` to use a per-process fallback secret.
-- Many API routes are dev-only today via `assertDevOnlyApi()` (returning `404` outside dev):
-  - `apps/web/lib/devOnlyApi.server.ts`
+- Runtime mode posture:
+  - `ORBITAL_MODE=dev|demo-prod` enables core demo journey surfaces.
+  - `ORBITAL_MODE=prod` (or unset outside dev) fails closed.
+- Demo-prod posture:
+  - Next middleware enforces Basic Auth (`BASIC_AUTH_USER` + `BASIC_AUTH_PASS`) and route allowlisting.
+- Route-level gates:
+  - `assertDevOrDemoProdApi()` gates core demo journey APIs in `dev|demo-prod`.
+  - `assertDevOnlyApi()` keeps tooling/spikes and unsafe paths dev-only.
 - Spike routes are additionally gated by `SPIKES_ENABLED=1`:
   - `apps/web/lib/spikes.server.ts`
-- Trace export is gated by `FEATURE_TRACE_EXPORT=1` and an admin token (`ORBITAL_ADMIN_TOKEN`) with an explicit dev-only bypass.
+- Trace export remains dev-only and is additionally gated by `FEATURE_TRACE_EXPORT=1` and an admin token (`ORBITAL_ADMIN_TOKEN`) with an explicit dev-only bypass.
 
 ## Known drift vs target architecture
 The largest gaps relative to target docs:
 - No OCR/layout provider and no geometry-backed citations.
-- No retrieval/draft/lock pipeline; current runs write placeholder rows.
-- “Evidence-first” is implemented for fixture/demo mode, not for real uploaded documents.
+- Quick Start retrieve/draft/lock currently runs inside a single row step; target docs split this into clearer per-stage step boundaries.
+- Trace export still reads fixture seed snapshots instead of persisted run/step artifacts.
 
 If you are implementing features, prefer grounding changes in code reality first (this doc), then updating the target docs as the target evolves.
 
@@ -127,6 +138,6 @@ This doc stays “implemented today”. For the intended sequence of upcoming re
 - `docs/04-projects/02-features/0011_chat_interface/plan.program-sequencing.md`
 
 Key planned closures (not implemented yet, at time of writing):
-- Make citations DB-backed for real uploaded documents (with fixture fallback only where explicitly gated).
-  - Ship behind `FEATURE_CITATIONS_API` (default off until RH3 evidence is recorded).
-- Implement hybrid retrieval (lexical + semantic) as the retrieval substrate enabling grounded chat and evidence-first features beyond fixtures.
+- Replace fixture-backed trace export with DB-backed trace assembly from persisted run artifacts.
+- Add OCR/layout geometry for real uploaded docs so citation polygons move beyond page-level fallback anchors.
+- Split Quick Start row execution into explicit retrieve/draft/lock/verify/write stages with richer per-stage observability.

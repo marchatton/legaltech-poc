@@ -23,7 +23,7 @@ pnpm dev
 ```
 
 - [ ] Open `http://localhost:3000/matters?pack=pack_01_clean`
-- [ ] Open `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/demo-runbook.html`
+- [ ] Open `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/demo-runbook.html`
 - [ ] Confirm shell context appears correctly (environment badge, breadcrumb, stable IDs)
 - [ ] Confirm report triage tabs + row drawer actions work (`mark reviewed`, `flag issue`, copy answer)
 - [ ] Confirm citation click opens viewer and highlight verification at 100% zoom
@@ -42,7 +42,7 @@ Optional flags:
 - Outside dev, run a worker separately:
 
 ```bash
-pnpm --filter @orbital-poc/web worker
+pnpm --filter @legaltech-poc/web worker
 ```
 
 ## If something breaks (quick fixes)

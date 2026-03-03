@@ -226,9 +226,9 @@ Reason-code precedence (deterministic):
 ### Commands
 
 ```bash
-pnpm --filter @orbital-poc/web test -- test/reportRowsFromStepOutputs.int.test.ts
-pnpm --filter @orbital-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts
-pnpm --filter @orbital-poc/web test -- test/realDataWorkflows.e2e.int.test.ts
+pnpm --filter @legaltech-poc/web test -- test/reportRowsFromStepOutputs.int.test.ts
+pnpm --filter @legaltech-poc/web test -- test/foldersRunsRoute.wdk.int.test.ts
+pnpm --filter @legaltech-poc/web test -- test/realDataWorkflows.e2e.int.test.ts
 pnpm verify
 ```
 

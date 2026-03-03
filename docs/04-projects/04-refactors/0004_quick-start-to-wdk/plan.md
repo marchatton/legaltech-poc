@@ -89,12 +89,12 @@ Remaining:
 
 ## Verification
 Automated (each PR):
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 
 Manual smoke:
 1. Start web: `pnpm dev`
-2. Start worker: `pnpm --filter @orbital-poc/web worker`
+2. Start worker: `pnpm --filter @legaltech-poc/web worker`
 3. Trigger a run from the UI or via POST `/folders/:id/runs`.
 4. Confirm:
    - run reaches `completed` or `partial`

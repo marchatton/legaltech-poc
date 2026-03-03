@@ -25,7 +25,7 @@ function loadJson(filePath: string): any {
 describe("US-001 pack_01_clean survey certification parties", () => {
   it("seeds certification parties payload with locked citations", () => {
     const repoRoot = repoRootFromCoreCwd();
-    const outRoot = path.join(os.tmpdir(), `orbital-poc-us001-${process.pid}-${Date.now()}`);
+    const outRoot = path.join(os.tmpdir(), `legaltech-poc-us001-${process.pid}-${Date.now()}`);
 
     runNode(repoRoot, [
       "--experimental-strip-types",

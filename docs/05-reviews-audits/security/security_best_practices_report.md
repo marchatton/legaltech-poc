@@ -27,7 +27,7 @@ Notes:
 ## Investigation Log
 
 ### 2026-02-10 Phase 0: Workspace Verification
-- Confirmed repo root is loaded and audited: `/Users/marc/Code/personal-projects/orbital-poc`.
+- Confirmed repo root is loaded and audited: `/Users/marc/Code/personal-projects/legaltech-poc`.
 
 ### 2026-02-10 Phase 2: Systematic Exploration (Context Builder)
 - Mapped trust boundaries and entrypoints focusing on Next.js route handlers under `apps/web/app/(api)` plus persistence (`apps/web/lib/db.server.ts`) and the file-backed object store (`apps/web/lib/objectStore.server.ts`).

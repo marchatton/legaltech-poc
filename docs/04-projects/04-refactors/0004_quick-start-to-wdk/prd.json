@@ -48,9 +48,9 @@
     "If the WDK worker is not running, the run may remain running with no progress; this is acceptable for PoC but must be observable via GET /runs/:id and logs."
   ],
   "qualityGates": [
-    "pnpm --filter @orbital-poc/web typecheck",
-    "pnpm --filter @orbital-poc/web test",
-    "pnpm --filter @orbital-poc/web lint"
+    "pnpm --filter @legaltech-poc/web typecheck",
+    "pnpm --filter @legaltech-poc/web test",
+    "pnpm --filter @legaltech-poc/web lint"
   ],
   "verificationPacks": {
     "packs": [

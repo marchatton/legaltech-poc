@@ -55,7 +55,7 @@
   - `0:1.2 bun 27683` (active)
   - `0:1.3 codex-aarch64-a 17885`
 - Active dev server observed:
-  - `pnpm --filter @orbital-poc/web dev -p 3001`
+  - `pnpm --filter @legaltech-poc/web dev -p 3001`
   - `next dev -p 3001` child process running.
 - Copy/paste tmux commands:
   - `tmux attach -t 0`
@@ -64,19 +64,19 @@
 
 ## 5) Tests/checks
 - Passed:
-  - `pnpm --filter @orbital-poc/web lint`
-  - `pnpm --filter @orbital-poc/web typecheck`
-  - `pnpm --filter @orbital-poc/web test lib/chat.routes.test.ts`
+  - `pnpm --filter @legaltech-poc/web lint`
+  - `pnpm --filter @legaltech-poc/web typecheck`
+  - `pnpm --filter @legaltech-poc/web test lib/chat.routes.test.ts`
 - Blocked in this environment:
-  - `pnpm --filter @orbital-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
-  - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
   - Result: suite hook timeout; direct probe showed `connect EPERM 127.0.0.1:5432`.
 
 ## 6) Next steps
 1. Ensure local Postgres is running and reachable from host shell; export correct `DATABASE_URL`.
 2. Re-run targeted DB-backed suites:
-   - `pnpm --filter @orbital-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
-   - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+   - `pnpm --filter @legaltech-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
+   - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
 3. Clean-restart dev runtime and smoke core routes (`/matters`, `/api/folders`, `/api/folders/:id/documents`, `/api/folders/:id/report`).
 4. Perform two manual golden-path runs on fresh matters and verify export downloads.
 5. Append final PASS/NO-GO evidence to `docs/98-tmp/demo-readiness-recovery-plan_2026-02-13.md`.

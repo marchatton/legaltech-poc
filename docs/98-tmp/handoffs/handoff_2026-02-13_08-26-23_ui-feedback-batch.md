@@ -6,7 +6,7 @@ Saved handoff: docs/98-tmp/handoffs/handoff_2026-02-13_08-26-23_ui-feedback-batc
 
 ## Status: Complete (not committed)
 
-All changes build cleanly (`pnpm --filter @orbital-poc/web build` passes). 12 files changed, ~273 insertions, ~300 deletions. No new test failures introduced.
+All changes build cleanly (`pnpm --filter @legaltech-poc/web build` passes). 12 files changed, ~273 insertions, ~300 deletions. No new test failures introduced.
 
 ## Changes by area
 

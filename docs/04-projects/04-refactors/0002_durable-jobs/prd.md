@@ -77,7 +77,7 @@ As a user, I want document ingest to complete even if the Next.js server restart
 - AC-009: On handler failures, the job is retried up to 3 attempts with exponential backoff; otherwise marked `failed`.
 
 #### Verification
-- Automated: `pnpm --filter @orbital-poc/web typecheck && pnpm --filter @orbital-poc/web test`
+- Automated: `pnpm --filter @legaltech-poc/web typecheck && pnpm --filter @legaltech-poc/web test`
 - Manual: run `pnpm dev`, upload a PDF, and confirm ingest completes without running a separate worker process.
 
 ### US-004: Quick Start runs via durable jobs
@@ -89,7 +89,7 @@ As a user, I want a run to complete even if the Next.js server restarts after I 
 - AC-012: The worker respects idempotency of row writes (retries do not duplicate `report_rows`).
 
 #### Verification
-- Automated: `pnpm --filter @orbital-poc/web typecheck && pnpm --filter @orbital-poc/web test`
+- Automated: `pnpm --filter @legaltech-poc/web typecheck && pnpm --filter @legaltech-poc/web test`
 - Manual: start a run; refresh/restart the server and confirm the run can still finish (worker continues on next claim).
 
 ### US-005: Dev inline worker kick preserves `pnpm dev` UX
@@ -98,7 +98,7 @@ As a developer, I want jobs to run automatically during local development withou
 #### Acceptance Criteria
 - AC-013: In `NODE_ENV=development`, enqueueing a job kicks an inline worker drainer that processes a bounded number of jobs.
 - AC-014: In non-development environments, the inline kick is a no-op.
-- AC-015: A standalone worker can be started via `pnpm --filter @orbital-poc/web worker`.
+- AC-015: A standalone worker can be started via `pnpm --filter @legaltech-poc/web worker`.
 
 #### Verification
 - Manual: confirm job execution with and without a running worker process in development vs production-mode runs.

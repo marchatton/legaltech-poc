@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── docs
 │   ├── 00-strategy
 │   │   ├── initiatives
@@ -533,7 +533,7 @@
 Config: depth cap 3.
 </file_map>
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 6) Reconciliation Issues List Honesty Policy (pack_03_mismatch_and_cert_gap + pack_07_scans_rotated_low_quality)
 
@@ -624,7 +624,7 @@ As a user, when an issue is “unknown”, I see what evidence is missing and wh
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.7_decision.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/SP-2.7_decision.md
 ```md
 # SP-2.7 Payload Representation Decision
 
@@ -648,7 +648,7 @@ Why:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/00-strategy/initiatives/002-quick-start-engine.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/00-strategy/initiatives/002-quick-start-engine.md
 ```md
 # Initiative 2: Quick Start engine (Title + Survey → 3 artefacts)
 
@@ -827,7 +827,7 @@ Implement the Quick Start run worker that executes the pipeline deterministicall
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/DECISIONS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/DECISIONS.md
 ```md
 # Architecture decisions (ADRs)
 
@@ -1422,7 +1422,7 @@ Links
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/brief.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/brief.md
 ```md
 # Project Brief (1-2 pager)
 
@@ -1559,7 +1559,7 @@ Explicit cuts / deferrals recorded:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 3) Commitment Parsing Baseline (pack_01_clean)
 
@@ -1668,7 +1668,7 @@ As a user, I can see a B-II exceptions table derived from the commitment and bac
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/README.md
 ```md
 # 0002 Quick Start Engine: Specs (Pinned Contracts)
 
@@ -1686,7 +1686,7 @@ This folder contains pinned, shared spec artefacts referenced across the 0002 sp
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 1) Run Skeleton + Version Pinning + Incremental Progress
 
@@ -1796,7 +1796,7 @@ As a user, I can see rows appear in the report table as they finish, and every r
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/60_observability_and_evals.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/60_observability_and_evals.md
 ```md
 # Observability and evals
 
@@ -2018,7 +2018,7 @@ order by created_at desc;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/README.md
 ```md
 # 0002 Quick Start Engine: Slice PRDs
 
@@ -2042,7 +2042,7 @@ These are thin slice PRDs derived from the breadboard parts list (`../breadboard
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/plan.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/plan.md
 ```md
 # Plan: 0002 Quick Start Engine (Consolidated PRD Execution Plan)
 
@@ -2225,7 +2225,7 @@ Implementation checklist:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_verification_policy_v1.md
 ```md
 # List Verification Policy v1 (Initiative 0002)
 
@@ -2272,7 +2272,7 @@ When verification runs, provenance must include (safe):
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 4) Exception → Instrument Matching (pack_01_clean + pack_02_missing_rea)
 
@@ -2370,7 +2370,7 @@ As a user, I see missing instrument docs called out explicitly with a checklist 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/list_payload_v0.schema.md
 ```md
 # List Payload v0 (Initiative 0002)
 
@@ -2512,7 +2512,7 @@ These are illustrative only; truth comparators for packs define the concrete exp
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/question_set_v1.json
 ```json
 {
   "question_set_id": "qs_0002_v1",
@@ -2591,7 +2591,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/50_api_surface.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/50_api_surface.md
 ```md
 # API surface (PoC)
 
@@ -3103,7 +3103,7 @@ Notes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/06_frameworks_agents_rag_evals.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/06_frameworks_agents_rag_evals.md
 ```md
 # Frameworks, agents, RAG, and evals
 
@@ -3254,7 +3254,7 @@ Must be real early:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 5) Survey Extraction Baseline + Cert Gap (pack_01_clean + pack_03_mismatch_and_cert_gap)
 
@@ -3347,7 +3347,7 @@ As a user, I see a structured cert gap issue (missing lender) backed by evidence
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/comparator_spec_v0.md
 ```md
 # Comparator Spec v0 (Initiative 0002)
 
@@ -3431,7 +3431,7 @@ The comparator must emit:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/risk-register.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/risk-register.md
 ```md
 # Risk register (rabbit holes)
 
@@ -3468,7 +3468,7 @@ Notes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prd-overall.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prd-overall.md
 ```md
 # PRD (Overall): 0002 Quick Start Engine (Slices in `prds/`)
 
@@ -3548,7 +3548,7 @@ Primary near-term anchors for implementation slices:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prd.md
 ```md
 # PRD (Consolidated): 0002 Quick Start Engine (Quick Start: Title + Survey)
 
@@ -3763,7 +3763,7 @@ Generate reconciliation issues with strict evidence rules and an explicit honest
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/20_state_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/20_state_model.md
 ```md
 # State model
 
@@ -3964,7 +3964,7 @@ group by r.id;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/30_data_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/30_data_model.md
 ```md
 # Data model (Postgres + pgvector)
 
@@ -4209,7 +4209,7 @@ This rule must be implemented once (e.g. in `packages/core/citations`) and reuse
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.md
 ```md
 # PRD: Initiative 0002 (Slice 2) Row Payload Contract + Artefact Table Rendering
 
@@ -4321,7 +4321,7 @@ As a user, I can view B-I/B-II/issues as tables, open a row drawer, and click ci
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/00-strategy/initiatives/001-003_dependency_plan.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/00-strategy/initiatives/001-003_dependency_plan.md
 ```md
 # Dependency graph and ordering recommendation
 
@@ -4386,7 +4386,7 @@ Note: Do not PRD-slice this demo until the breadboards for 1.1–1.3 are complet
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prd.json
 ```json
 {
   "version": 1,
@@ -4701,7 +4701,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/README.md
 ```md
 # Spike Proofs (Initiative 0002)
 
@@ -4720,7 +4720,7 @@ Suggested naming:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/RH-2.16_cut_note.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-proofs/RH-2.16_cut_note.md
 ```md
 # RH-2.16 Cut Note (Human-in-the-Loop Disambiguation)
 
@@ -4744,7 +4744,7 @@ Refs:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/breadboard-pack.md
 ```md
 # Breadboard Pack - Quick Start Engine (Initiative 002)
 
@@ -5092,7 +5092,7 @@ Cuts / out of bounds:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prd-overall.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prd-overall.json
 ```json
 {
   "version": 1,
@@ -5296,7 +5296,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002d_exception-matching-pack-01-02/prd.json
 ```json
 {
   "version": 1,
@@ -5433,7 +5433,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002c_commitment-parsing-pack-01-clean/prd.json
 ```json
 {
   "version": 1,
@@ -5557,7 +5557,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002a_run-skeleton/prd.json
 ```json
 {
   "version": 1,
@@ -5684,7 +5684,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002e_survey-extraction-pack-01-03/prd.json
 ```json
 {
   "version": 1,
@@ -5818,7 +5818,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/spike-investigation.md
 ```md
 # Spike investigation - Quick Start Engine (Initiative 002)
 
@@ -6482,7 +6482,7 @@ If/when a user resolves an ambiguous match, how do we re-run verification withou
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002b_row-payload-contract/prd.json
 ```json
 {
   "version": 1,
@@ -6593,7 +6593,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/prds/0002f_reconciliation-honesty-pack-03-07/prd.json
 ```json
 {
   "version": 1,
@@ -6727,7 +6727,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/40_rag_and_agents.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/40_rag_and_agents.md
 ```md
 # RAG + agents (Quick Start)
 
@@ -6872,7 +6872,7 @@ Because WDK can replay/retry, each step must be safely repeatable:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/failure_ux_copy_v0.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0002_quick-start-engine/specs/failure_ux_copy_v0.md
 ```md
 # Failure UX Copy v0 (Initiative 0002)
 
@@ -6911,7 +6911,7 @@ Constraints:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/00_overview.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/00_overview.md
 ```md
 # Orbital Copilot PoC Architecture
 US CRE Title + Survey Quick Start (evidence-first, artefact-first)

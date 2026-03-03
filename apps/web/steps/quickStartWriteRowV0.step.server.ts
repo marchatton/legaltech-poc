@@ -8,9 +8,9 @@ import {
   ListPayloadV0KindSchema,
   ListPayloadV0Schema,
   emptyListPayloadV0,
-} from "@orbital-poc/core";
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-import { anchorBoxToPolygons } from "@orbital-poc/core/geometry/anchors";
+} from "@legaltech-poc/core";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
+import { anchorBoxToPolygons } from "@legaltech-poc/core/geometry/anchors";
 
 import { chatModel } from "../lib/ai/gateway.server";
 import { MISSING_EVIDENCE_TEXT } from "../lib/chat/protocol";

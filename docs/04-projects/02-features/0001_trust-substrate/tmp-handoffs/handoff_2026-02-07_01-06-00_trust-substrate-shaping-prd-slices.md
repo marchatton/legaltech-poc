@@ -13,7 +13,7 @@
 - Pending: decide next workflow step: `wf-plan` (preferred if multiple slices) vs `wf-develop` (if only doing the smallest slice first).
 
 ## 2) Working tree
-- Repo: `/Users/marc/Code/personal-projects/orbital-poc`
+- Repo: `/Users/marc/Code/personal-projects/legaltech-poc`
 - `git status -sb`: `## main...origin/main [ahead 1]`
 - Dirty working tree (unrelated dossiers):
 - Dirty: modified: `docs/04-projects/02-features/0002_quick-start-engine/tmp-handoffs/handoff_2026-02-07_01-05-12_quick-start-prd-slices.md`

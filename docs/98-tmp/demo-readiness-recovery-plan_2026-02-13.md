@@ -138,8 +138,8 @@ Evidence:
 Status: open and actionable.
 
 Observed:
-1. `pnpm --filter @orbital-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
-2. `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+1. `pnpm --filter @legaltech-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
+2. `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
 3. Both timed out in hooks due DB connectivity restriction in this environment (`connect EPERM 127.0.0.1:5432`).
 
 Decision:
@@ -150,8 +150,8 @@ Execution plan:
 1. Start local DB: `docker compose up -d db`.
 2. Confirm readiness: `pg_isready -h 127.0.0.1 -p 5432 -U orbital -d orbital`.
 3. Re-run targeted integration suites in order:
-   - `pnpm --filter @orbital-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
-   - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+   - `pnpm --filter @legaltech-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
+   - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
 4. Record PASS/NO-GO evidence in this file after rerun.
 
 If still blocked:
@@ -167,8 +167,8 @@ Environment used:
 3. Web app reachable at `http://127.0.0.1:3001`.
 
 DB-backed integration suites (exact commands requested):
-1. `pnpm --filter @orbital-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts` -> PASS (`3 passed`).
-2. `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts` -> PASS (`2 passed`).
+1. `pnpm --filter @legaltech-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts` -> PASS (`3 passed`).
+2. `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts` -> PASS (`2 passed`).
 
 Manual golden path run 1 (fresh matter):
 1. Matter created via demo control: `fld_1db2072d-33b5-41c0-a45d-acf24d0f0b9e`.

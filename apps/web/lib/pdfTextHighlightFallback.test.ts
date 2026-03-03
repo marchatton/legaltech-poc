@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { NormPolygons, PdfJsViewportLike } from "@orbital-poc/core";
+import type { NormPolygons, PdfJsViewportLike } from "@legaltech-poc/core";
 
 import { deriveTextOverlayFromSnippet, isFullPageFallbackPolygons } from "./overlayHighlight";
 

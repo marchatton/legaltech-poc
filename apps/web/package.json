@@ -1,5 +1,5 @@
 {
-  "name": "@orbital-poc/web",
+  "name": "@legaltech-poc/web",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@ai-sdk/gateway": "2.0.35",
-    "@orbital-poc/core": "workspace:*",
+    "@legaltech-poc/core": "workspace:*",
     "ai": "5.0.129",
     "docx": "^9.5.1",
     "next": "^15.0.0",

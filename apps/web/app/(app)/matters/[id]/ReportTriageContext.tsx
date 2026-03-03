@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import type { NormPolygons } from "@orbital-poc/core";
+import type { NormPolygons } from "@legaltech-poc/core";
 import { parseSafeErrorEnvelope, type SafeErrorDisplay } from "../../../../lib/safeErrorDisplay";
 
 import type { BadgeVariant } from "../../../ui/Badge";

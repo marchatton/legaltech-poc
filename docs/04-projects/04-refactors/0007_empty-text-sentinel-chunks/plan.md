@@ -20,7 +20,7 @@ If we change the chunker to return zero chunks for empty text, we must still sat
 
 ## Decisions (Defaults)
 
-- Chunker semantics in `@orbital-poc/core` should be "pure":
+- Chunker semantics in `@legaltech-poc/core` should be "pure":
   - Empty text => zero chunks.
   - Param validation should run even when text is empty.
 - Ingest owns progress semantics:

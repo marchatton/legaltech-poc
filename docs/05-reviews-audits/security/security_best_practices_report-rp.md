@@ -1,4 +1,4 @@
-# Security Audit Report: orbital-poc
+# Security Audit Report: legaltech-poc
 
 Date: 2026-02-10
 

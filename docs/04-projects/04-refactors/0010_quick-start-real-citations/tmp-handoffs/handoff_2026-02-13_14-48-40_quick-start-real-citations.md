@@ -27,9 +27,9 @@
 
 ## 5) Tests/checks
 - Ran and passed:
-  - `pnpm --filter @orbital-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
-  - `pnpm --filter @orbital-poc/web exec vitest run test/foldersRunsRoute.wdk.int.test.ts`
-  - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/reportRowsFromStepOutputs.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/foldersRunsRoute.wdk.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
 - Push check: `git push` succeeded (`8bfa999..9e6efda main -> main`).
 - Not run in this pass: full workspace test suite, lint, or typecheck across all packages.
 

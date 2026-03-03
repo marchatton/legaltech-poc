@@ -2,8 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { verifyRow } from "@orbital-poc/core/server";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { verifyRow } from "@legaltech-poc/core/server";
 
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";

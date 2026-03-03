@@ -323,7 +323,7 @@ Files:
 - Optional: reverse proxy service (Caddy/Nginx) for TLS termination.
 
 Critical details:
-- Worker must be a separate service using `pnpm --filter @orbital-poc/web worker`.
+- Worker must be a separate service using `pnpm --filter @legaltech-poc/web worker`.
 - Provide volumes for:
   - `tmp/object-store` (artefacts + stored PDFs)
   - `tmp/fixture-seed` (review state)
@@ -430,7 +430,7 @@ export function assertDevOnly(): void {
 ```ts
 import "server-only";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 export function assertDevOnlyApi(traceId: string, headers: Headers): Response | null {
   if (process.env.NODE_ENV === "development") return null;
@@ -445,7 +445,7 @@ export function assertDevOnlyApi(traceId: string, headers: Headers): Response | 
 ```ts
 import "server-only";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 export function isDemoModeEnabled(): boolean {
   // Demo tooling must remain dev-only even if someone mistakenly enables the flag elsewhere.
@@ -809,7 +809,7 @@ services:
   db:
     # pgvector baked in so we can `CREATE EXTENSION vector;` without custom builds.
     image: pgvector/pgvector:pg16
-    container_name: orbital-poc-db
+    container_name: legaltech-poc-db
     environment:
       POSTGRES_DB: orbital
       POSTGRES_USER: orbital
@@ -845,7 +845,7 @@ Current PoC is:
 - Local filesystem “object store” under `tmp/object-store` (`apps/web/lib/objectStore.server.ts`)
 - Postgres-backed durable jobs for ingest and quick-start runs (`apps/web/lib/jobs/jobQueue.server.ts`) with a worker loop (`apps/web/lib/jobs/jobWorker.server.ts`)
   - In dev (`pnpm dev`): enqueue kicks an inline worker drainer (same process)
-  - Outside dev: run a separate worker process (`pnpm --filter @orbital-poc/web worker`)
+  - Outside dev: run a separate worker process (`pnpm --filter @legaltech-poc/web worker`)
 - PDF extraction via `pdfjs-dist` text extraction (not OCR; no geometry) (`apps/web/lib/ingest/ingestProcessor.server.ts`)
 - Fixture-backed “evidence” for demos (seed snapshots under `tmp/fixture-seed`) used by citations, trace export, and spike export flows (`apps/web/lib/fixtureSeed.server.ts`, `scripts/fixtures/seed.ts`)
 

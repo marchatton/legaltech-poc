@@ -101,8 +101,8 @@ As a contributor, I want the legacy ingest jobs path to be explicitly removable 
 - Important: rollback must not require DB schema rollback (schema changes should be additive/compatible).
 
 ## Quality Gates
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 - `pnpm verify`
 
 ## Verification Plan
@@ -111,7 +111,7 @@ Automated:
 
 Manual smoke:
 1. `FEATURE_WDK_INGEST=1 pnpm dev`
-2. `pnpm --filter @orbital-poc/web worker`
+2. `pnpm --filter @legaltech-poc/web worker`
 3. Upload a PDF; confirm ingest completes and no ingest job row is created
 4. Kill worker mid-ingest; restart; confirm completion without duplicate durable writes
 5. `FEATURE_WDK_INGEST=0` and confirm legacy ingest path still works without WDK worker

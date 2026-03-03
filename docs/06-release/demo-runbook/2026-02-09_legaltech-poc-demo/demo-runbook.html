@@ -435,19 +435,14 @@
 		      <h2 class="stitle">Architecture</h2>
 
           <div class="card full">
-            <h3>Current runtime vs target architecture</h3>
+            <h3>Current runtime architecture</h3>
             <p>
               <strong style="color:var(--fg);">Implemented now:</strong> WDK-backed ingest and Quick Start row steps,
-              Next.js route handlers, Postgres state, local object store, and fixture-backed citation trust overlays.
-            </p>
-            <p style="margin-top:8px;">
-              <strong style="color:var(--fg);">Target trajectory:</strong> OCR/layout-first ingest defaults, broader retrieval/citation
-              coverage on uploaded docs, and expanded observability/evals hardening.
+              Next.js route handlers, Postgres state, local object store, and DB-backed citation trust overlays.
             </p>
             <div class="hr"></div>
             <ul>
               <li>Current runtime source: <code>docs/03-architecture/07_current_poc_runtime.md</code></li>
-              <li>Target architecture source: <code>docs/03-architecture/00_overview.md</code> and <code>docs/03-architecture/10_system_architecture.md</code></li>
               <li>User journey source: <code>docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/user-journeys/orbital-user-journeys-v3.md</code></li>
             </ul>
           </div>
@@ -516,64 +511,6 @@
 	          </div>
 	        </div>
 
-	        <div class="card full">
-	          <h3>Target ingestion trajectory</h3>
-	          <div class="diagram">
-	            <pre class="mermaid mermaid-source">
-	flowchart LR
-	  A["Upload"] --> B["OCR +\nlayout"]
-	  B --> C["Chunk +\nembed"]
-	  C --> D["Index"]
-	  D --> E["Ready"]
-	            </pre>
-<!--bm:svg:start-->
-<div class="mermaid-svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 778.95 116" width="778.95" height="116" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
-<style>
-  text { font-family: 'Inter', system-ui, sans-serif; }
-  svg {
-    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
-    --_text:          var(--fg);
-    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
-    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
-    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
-    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
-    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
-    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
-    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
-    --_group-fill:    var(--bg);
-    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
-    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
-    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
-  }
-</style>
-<defs>
-  <marker id="bm2-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
-    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
-  </marker>
-  <marker id="bm2-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
-    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
-  </marker>
-</defs>
-<polyline points="129.2,58 169.2,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="308.45,58 348.45,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="494.84999999999997,58 534.85,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<polyline points="616.9,58 656.9000000000001,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm2-arrowhead)" />
-<rect x="39.99999999999999" y="40" width="89.2" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="169.2" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="348.45" y="40" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="534.85" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="656.9000000000001" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<text x="84.6" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Upload&quot;</text>
-<text x="238.825" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;OCR +\nlayout&quot;</text>
-<text x="421.65" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Chunk +\nembed&quot;</text>
-<text x="575.875" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Index&quot;</text>
-<text x="697.9250000000001" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Ready&quot;</text>
-</svg>
-</div>
-<!--bm:svg:end-->
-	          </div>
-	        </div>
 
 	        <div class="card full">
 	          <h3>Current runtime run execution</h3>
@@ -794,101 +731,8 @@
 <!--bm:svg:end-->
 	          </div>
 	        </div>
-
 	        <div class="card full">
-	          <h3>Target deployment trajectory</h3>
-	          <div class="diagram">
-	            <pre class="mermaid mermaid-source">
-	flowchart TB
-	  subgraph Vercel["Web tier (Vercel)"]
-	    W["Next.js App Router"]
-	    W --> S["Streaming UI"]
-	    W --> H["Route handlers"]
-	  end
-	  subgraph Hetzner["Worker tier (Hetzner)"]
-	    WDK["Workflow DevKit"]
-	    WDK --> OCR["OCR steps"]
-	    WDK --> LLM["LLM steps"]
-	    WDK --> EMB["Embedding steps"]
-	  end
-	  subgraph Data["Data plane"]
-	    PG["Postgres + pgvector"]
-	    OBJ["Object storage"]
-	  end
-	  Vercel --> Data
-	  Hetzner --> Data
-	            </pre>
-<!--bm:svg:start-->
-<div class="mermaid-svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 994.9125000000001 504" width="994.9125000000001" height="504" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
-<style>
-  text { font-family: 'Inter', system-ui, sans-serif; }
-  svg {
-    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
-    --_text:          var(--fg);
-    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
-    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
-    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
-    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
-    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
-    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
-    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
-    --_group-fill:    var(--bg);
-    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
-    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
-    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
-  }
-</style>
-<defs>
-  <marker id="bm6-arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
-    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
-  </marker>
-  <marker id="bm6-arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
-    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
-  </marker>
-</defs>
-<rect x="40" y="40" width="364.375" height="268" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
-<rect x="40" y="40" width="364.375" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="52" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Web tier (Vercel)&quot;</text>
-<rect x="424.37499999999994" y="40" width="466.85" height="268" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
-<rect x="424.37499999999994" y="40" width="466.85" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="436.37499999999994" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Worker tier (Hetzner)&quot;</text>
-<rect x="225.4875" y="352" width="729.4250000000001" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
-<rect x="225.4875" y="352" width="729.4250000000001" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="237.4875" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Data plane&quot;</text>
-<polyline points="220.40000000000003,132 220.40000000000003,152 138.77499999999998,152 138.77499999999998,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="220.40000000000003,132 220.40000000000003,152 302.02500000000003,152 302.02500000000003,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="657.8000000000001,132 657.8000000000001,152 501.70000000000005,152 501.70000000000005,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="657.8000000000001,132 657.8000000000001,152 636.35,152 636.35,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="657.8000000000001,132 657.8000000000001,152 792.45,152 792.45,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="302.02500000000003,288 302.02500000000003,426 459.7375,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<polyline points="792.45,288 792.45,426 641.8875,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#bm6-arrowhead)" />
-<rect x="132.90000000000003" y="96" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="72.72499999999997" y="252" width="132.10000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="228.82500000000005" y="252" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="581.0250000000001" y="96" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="446.37500000000006" y="252" width="110.65" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="581.025" y="252" width="110.65" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="715.6750000000001" y="252" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="459.7375" y="408" width="182.15" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<rect x="786.5125" y="408" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
-<text x="220.40000000000003" y="114" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Next.js App Router&quot;</text>
-<text x="138.77499999999998" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Streaming UI&quot;</text>
-<text x="302.02500000000003" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Route handlers&quot;</text>
-<text x="657.8000000000001" y="114" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Workflow DevKit&quot;</text>
-<text x="501.70000000000005" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;OCR steps&quot;</text>
-<text x="636.35" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;LLM steps&quot;</text>
-<text x="792.45" y="270" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Embedding steps&quot;</text>
-<text x="550.8125" y="426" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Postgres + pgvector&quot;</text>
-<text x="859.7125000000001" y="426" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Object storage&quot;</text>
-</svg>
-</div>
-<!--bm:svg:end-->
-	          </div>
-	        </div>
-
-        <div class="card full">
-          <h3>Key decisions</h3>
+	          <h3>Key decisions</h3>
           <div class="adr-list">
             <div class="adr-row">
               <span class="adr-id">ADR-01</span>
@@ -1103,7 +947,7 @@ stateDiagram-v2
             <div class="codeblock">docker compose up -d db</div>
             <div class="codeblock">pnpm fixture:seed pack_01_clean pack_02_missing_rea pack_07_scans_rotated_low_quality pack_09_bad_citation --overwrite</div>
             <div class="codeblock">pnpm dev</div>
-            <div class="codeblock">pnpm --filter @orbital-poc/web worker # outside dev mode</div>
+            <div class="codeblock">pnpm --filter @legaltech-poc/web worker # outside dev mode</div>
           </details>
         </div>
         <div class="card">

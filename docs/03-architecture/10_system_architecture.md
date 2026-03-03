@@ -19,7 +19,7 @@ Non-goals (for now)
 ## Glossary
 - Folder: DB/API name for a workspace container. UI calls it a Matter.
 - Run: one execution of a Quick Start workflow for a folder.
-- Step: a single side-effect boundary. Target execution is durable via Workflow DevKit (WDK); current PoC execution is in-process and documented in `docs/03-architecture/07_current_poc_runtime.md`.
+- Step: a single side-effect boundary. Current PoC already runs ingest + Quick Start in durable WDK `run_steps` (worker inline in dev, standalone otherwise); target posture further refines step granularity and provider coverage.
 - Index version: identifies the retrieval substrate built for a folder (chunks + indices).
 - Agent bundle version: pins prompts + schemas + logic used by a run (git SHA is fine for PoC).
 - Question set version: pins the question set used by a run (see `docs/03-architecture/20_state_model.md` and `docs/03-architecture/30_data_model.md`).
@@ -89,7 +89,7 @@ draft only (no verify model v1)"]
 
 Notes:
 - Target: WDK owns durability, retries, resumability, and step-level progress events (ADR-0005).
-- Current: ingest and quick-start execution is in-process (non-durable) and does not yet implement the retrieve/draft/lock pipeline. See `docs/03-architecture/07_current_poc_runtime.md`.
+- Current: ingest + Quick Start are WDK-backed and Quick Start performs row-level retrieve/draft/lock; remaining gaps are OCR/layout geometry, richer per-stage step split, and DB-backed trace export from persisted run artifacts. See `docs/03-architecture/07_current_poc_runtime.md`.
 - Domain logic should live outside the WDK integration layer (eg `packages/core`) and be called from steps.
 - This repo started docs-first; keep the same conceptual boundaries even if directories differ.
 

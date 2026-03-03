@@ -133,7 +133,7 @@ Option 1 (simplest): `git clone` on the VM
 - SSH to the VM, then:
 ```bash
 git clone <your-repo-url>
-cd orbital-poc
+cd legaltech-poc
 ```
 
 Option 2: rsync/copy the folder from your machine to the VM

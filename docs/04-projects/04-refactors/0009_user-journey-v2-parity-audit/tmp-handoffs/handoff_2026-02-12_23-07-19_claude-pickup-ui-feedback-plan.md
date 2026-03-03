@@ -42,7 +42,7 @@ Saved handoff: docs/04-projects/04-refactors/0009_user-journey-v2-parity-audit/t
 - No test suite run yet in this handoff.
 - Still needs to run during implementation:
   - Targeted sync tests listed in the plan doc.
-  - `pnpm --filter @orbital-poc/web typecheck`
+  - `pnpm --filter @legaltech-poc/web typecheck`
   - Manual multi-tab smoke checks.
 
 ## 6) Next Steps

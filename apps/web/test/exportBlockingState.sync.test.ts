@@ -23,7 +23,7 @@ describe("US-010 export blocking state contract", () => {
     const csvSource = readUtf8(csvPath);
 
     expect(pageSource).not.toContain("AND state = 'completed'");
-    expect(panelSource).toContain("Exports are available once the selected run completes.");
+    expect(panelSource).toContain("Run must complete before exports are available.");
     expect(panelSource).toContain("runState={selectedRun?.status ?? null}");
     expect(csvSource).toContain("exportDisabledReason({ runId: props.runId, runStatus: props.runState })");
     expect(csvSource).toContain("}, [props.runId, props.runState]);");

@@ -1,5 +1,5 @@
 <file_map>
-/Users/marc/Code/personal-projects/orbital-poc
+/Users/marc/Code/personal-projects/legaltech-poc
 ├── docs
 │   ├── 03-architecture
 │   │   ├── 20_state_model.md *
@@ -511,7 +511,7 @@
 Config: depth cap 3.
 </file_map>
 <file_contents>
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/brief.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/brief.md
 ```md
 # Brief: 0001 Trust Substrate (Initiative 1)
 
@@ -613,7 +613,7 @@ Oracle pass status:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.json
 ```json
 {
   "version": 1,
@@ -789,7 +789,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/spike-investigation.md
 ```md
 # Spike investigation — Trust substrate
 
@@ -1142,7 +1142,7 @@ Keep oracle bundles/notes in `tmp-oracle/` so they are git-tracked and easy to r
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/spike-proofs/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/spike-proofs/README.md
 ```md
 # Spike Proofs (Initiative 0001)
 
@@ -1166,7 +1166,7 @@ Suggested naming:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/README.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/README.md
 ```md
 # 0001 Trust Substrate: Slice PRDs
 
@@ -1186,7 +1186,7 @@ Implementation order is expected to follow dependencies and spike closures (see 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.json
 ```json
 {
   "version": 1,
@@ -1407,7 +1407,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/fixtures/rh4_verification_cases.json
 ```json
 [
   {
@@ -1869,7 +1869,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.json
 ```json
 {
   "version": 1,
@@ -2055,7 +2055,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.json
 ```json
 {
   "version": 1,
@@ -2247,7 +2247,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prd-overall.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prd-overall.json
 ```json
 {
   "version": 1,
@@ -2630,7 +2630,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/breadboard-pack.md
 ```md
 # Breadboard Pack — 0001 Trust Substrate
 
@@ -2835,7 +2835,7 @@ Notes:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/risk-register.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/risk-register.md
 ```md
 # Risk register (rabbit holes)
 
@@ -2859,7 +2859,7 @@ Treatments must be one of: `Cut` / `Patch` / `Spike` / `Out-of-bounds`.
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.json
 ```json
 {
   "version": 1,
@@ -3023,7 +3023,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.json
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.json
 ```json
 {
   "version": 1,
@@ -3224,7 +3224,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001b_pdf-viewer/prd.md
 (lines 1-69: 0001b PRD narrative up to (but excluding) Functional Requirements: viewer goals, scope, user stories with perf acceptance criteria and verification.)
 ```md
 # PRD: 0001b PDF Viewer (Page Nav + Zoom + Render URL Contract)
@@ -3317,7 +3317,7 @@ As a reviewer, I want to page-jump and zoom on scanned PDFs so that I can inspec
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001d_citation-chip-highlight/prd.md
 (lines 1-77: 0001d PRD narrative up to (but excluding) Functional Requirements: click-to-highlight UX, mapping expectations, fail-closed AC, verification plan.)
 ```md
 # PRD: 0001d Citation Chips + Click-to-Highlight (Anchors-First, Fail-Closed)
@@ -3418,7 +3418,7 @@ As a reviewer, I want the highlight to stay glued to the clause across zoom and 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001c_citations-api-locking/prd.md
 (lines 1-69: 0001c PRD narrative up to (but excluding) Functional Requirements: locked citation contract + hashing story acceptance criteria + verification.)
 ```md
 # PRD: 0001c Citations API + Locking Contract (snippet + hash + geometry)
@@ -3511,7 +3511,7 @@ As a developer, I want one canonical hashing implementation so that citation int
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001f_provenance-trace-export/prd.md
 (lines 1-57: 0001f PRD narrative up to (but excluding) Functional Requirements: provenance/trace export goals + user story acceptance criteria start.)
 ```md
 # PRD: 0001f Provenance + Run Trace Export (Developer-Facing)
@@ -3590,7 +3590,7 @@ As a developer, I want to download a run trace so that I can debug failures dete
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001a_matter-documents/prd.md
 (lines 1-74: 0001a PRD narrative up to (but excluding) Functional Requirements: problem/goal/scope + user stories with acceptance criteria + verification.)
 ```md
 # PRD: 0001a Matter + Documents (Folder CRUD + Upload + Ingest Status)
@@ -3689,7 +3689,7 @@ As a reviewer, I want to upload PDFs into a Matter so that the system can ingest
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prds/0001e_row-status-export-failures/prd.md
 (lines 1-89: 0001e PRD narrative up to (but excluding) Functional Requirements: row statuses, export gate, failure journeys AC + verification.)
 ```md
 # PRD: 0001e Row Statuses + Export Gate + Failure Journeys (Fail-Closed)
@@ -3803,7 +3803,7 @@ As a reviewer, I want to mark a row as reviewed so that the table reflects what 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle_response_0001.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle_response_0001.md
 (lines 1-220: Oracle guidance for RH2: pdf.js coordinate spaces + correct mapping (viewBox -> convertToViewportPoint) and minimal Next.js viewer architecture, emphasizing fail-closed highlights.)
 ```md
 ## RH2: pdf.js coordinate spaces and the mapping you actually want
@@ -4186,7 +4186,7 @@ If you implement the mapping exactly as above (normalised top-left → PDF point
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/prd-overall.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/prd-overall.md
 (lines 1-131: Overall PRD narrative through user stories and acceptance criteria (pre-Functional Requirements). prd-overall.json is also included for executable detail.)
 ```md
 # PRD (Overall): 0001 Trust Substrate (Evidence Viewer + Click-to-Highlight)
@@ -4370,7 +4370,7 @@ As a reviewer, I want missing-doc and quality failures to be actionable, and as 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/20_state_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/20_state_model.md
 (lines 134-196: Canonical report_rows status machine + invariants (missing_input exact string + no citations; export gating and unsafe override semantics).)
 ```md
 ## Report row state (`report_rows.status`)
@@ -4439,7 +4439,7 @@ group by r.id;
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/50_api_surface.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/50_api_surface.md
 (lines 30-90: API conventions needed for PRD executability: auth/admin token notes, trace_id, required standard error envelope + error codes/status mapping.)
 ```md
 - All download/render URLs must be signed with a short TTL.
@@ -4628,7 +4628,7 @@ Export a run to a Word artefact (.docx).
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/30_data_model.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/30_data_model.md
 (lines 120-237: Canonical citations data model: immutability, polygons coordinate system + viewer mapping math, and canonical snippet_hash normalization rule.)
 ```md
 - FK `report_rows.folder_id -> folders.id`.
@@ -4752,7 +4752,7 @@ This rule must be implemented once (e.g. in `packages/core/citations`) and reuse
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/03-architecture/DECISIONS.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/03-architecture/DECISIONS.md
 (lines 30-90: Core trust ADRs: ADR-0001 (evidence-first citation locking), ADR-0002 (fail-closed), ADR-0003 (OCR/layout default).)
 ```md
 ## ADR-0001: Evidence-first outputs with citation IDs and locking
@@ -4861,7 +4861,7 @@ Links
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-06_17-34-25_trust-substrate-shaping.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-06_17-34-25_trust-substrate-shaping.md
 (lines 1-40: Mid shaping handoff excerpt (header + main decisions). Full file omitted for budget.)
 ```md
 # Handoff: 0001 Trust Substrate shaping
@@ -4907,7 +4907,7 @@ Commits ahead of origin:
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_00-50-53_trust-substrate-shaping.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_00-50-53_trust-substrate-shaping.md
 (lines 1-27: Later shaping handoff excerpt (header + main decisions). Full file omitted for budget.)
 ```md
 Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_00-50-53_trust-substrate-shaping.md
@@ -4940,7 +4940,7 @@ Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/ha
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_00-06-57_trust-substrate-shaping.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_00-06-57_trust-substrate-shaping.md
 (lines 1-27: Later shaping handoff excerpt (header + main decisions). Full file omitted for budget.)
 ```md
 Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_00-06-57_trust-substrate-shaping.md
@@ -4973,7 +4973,7 @@ Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/ha
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-05_21-59-05_trust-substrate-shaping.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-05_21-59-05_trust-substrate-shaping.md
 (lines 1-12: Early shaping handoff excerpt (header + key intent). Full file omitted for budget.)
 ```md
 Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-05_21-59-05_trust-substrate-shaping.md
@@ -4991,7 +4991,7 @@ Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/ha
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-05_21-59-15_trust-substrate-shaping.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-05_21-59-15_trust-substrate-shaping.md
 (lines 1-12: Early shaping handoff excerpt (header + key intent). Full file omitted for budget.)
 ```md
 Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-05_21-59-15_trust-substrate-shaping.md
@@ -5009,7 +5009,7 @@ Saved handoff: docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/ha
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_01-06-00_trust-substrate-shaping-prd-slices.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-handoffs/handoff_2026-02-07_01-06-00_trust-substrate-shaping-prd-slices.md
 (lines 1-49: Latest shaping handoff excerpt focusing on PRD slicing intent; full file omitted for budget.)
 ```md
 # Handoff: 0001 Trust Substrate shaping (PRD slices)
@@ -5027,7 +5027,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 - Pending: decide next workflow step: `wf-plan` (preferred if multiple slices) vs `wf-develop` (if only doing the smallest slice first).
 
 ## 2) Working tree
-- Repo: `/Users/marc/Code/personal-projects/orbital-poc`
+- Repo: `/Users/marc/Code/personal-projects/legaltech-poc`
 - `git status -sb`: `## main...origin/main [ahead 1]`
 - Dirty working tree (unrelated dossiers):
 - Dirty: modified: `docs/04-projects/02-features/0002_quick-start-engine/tmp-handoffs/handoff_2026-02-07_01-05-12_quick-start-prd-slices.md`
@@ -5064,7 +5064,7 @@ File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-feature
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle-bundle_0001_trust-substrate_RH1-RH5_spike-closure_RESPONSE.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle-bundle_0001_trust-substrate_RH1-RH5_spike-closure_RESPONSE.md
 (lines 1-25: Large oracle response for RH1-RH5 spike-closure; included as a small excerpt due to token budget (full file exists in repo).)
 ```md
 ## RH1 — pdf.js performance on scanned/rotated PDFs (page jumps, zoom)
@@ -5095,7 +5095,7 @@ Keep this spike as a **dev-only harness**. No integration with Matters/Folders, 
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle-bundle_0001_trust-substrate_RH1-RH5_spike-closure.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle-bundle_0001_trust-substrate_RH1-RH5_spike-closure.md
 (lines 1-25: Large oracle bundle (prompt + constraints) for closing RH1-RH5 spikes; included as a small excerpt due to token budget.)
 ```md
 # Oracle Bundle (manual paste)
@@ -5126,7 +5126,7 @@ What I need from you
 
 ```
 
-File: /Users/marc/Code/personal-projects/orbital-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md
+File: /Users/marc/Code/personal-projects/legaltech-poc/docs/04-projects/02-features/0001_trust-substrate/tmp-oracle/oracle-bundle_0001_trust-substrate_RH2_highlight-overlay.md
 (lines 1-25: Large oracle bundle focused on RH2 highlight overlay; included as a small excerpt due to token budget (main RH2 guidance captured in oracle_response_0001.md slices).)
 ```md
 # Oracle Bundle (manual paste)

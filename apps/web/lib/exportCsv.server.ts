@@ -1,7 +1,7 @@
 import "server-only";
 
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@orbital-poc/core";
-import type { ListPayloadV0 } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@legaltech-poc/core";
+import type { ListPayloadV0 } from "@legaltech-poc/core";
 import { z } from "zod";
 
 import { csvEscape } from "./csvEscape.server";

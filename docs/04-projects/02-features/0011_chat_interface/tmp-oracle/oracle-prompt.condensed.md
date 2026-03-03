@@ -17,7 +17,7 @@ Deliverables (as Markdown sections, each labeled with the target path):
 - Optional: `docs/04-projects/02-features/0011_chat_interface/plan.md` (coherent implementation approach + sequencing)
 
 ## Task
-Shape a 2-3 dev-day expansion of `orbital-poc` to add per-matter "chat with documents" (retrieval + citations) using Vercel AI SDK with an Anthropic provider, plus a UI that supports multiple Matters under a single Organization (no org switching in the UI for the PoC).
+Shape a 2-3 dev-day expansion of `legaltech-poc` to add per-matter "chat with documents" (retrieval + citations) using Vercel AI SDK with an Anthropic provider, plus a UI that supports multiple Matters under a single Organization (no org switching in the UI for the PoC).
 
 ## Current Architecture (Facts + Pointers)
 - Domain naming: DB/API uses `folders` as the workspace container; UI calls it a "Matter". See `docs/03-architecture/10_system_architecture.md` + `docs/03-architecture/20_state_model.md`.
@@ -95,7 +95,7 @@ Ingest specifics (from `apps/web/lib/ingest/ingestProcessor.server.ts`):
 ## Fixture + Demo Context
 - Fixture packs: `docs/08-example-data/README.md`, `docs/08-example-data/packs_summary.md`, `docs/08-example-data/pack_01_clean/manifest.json`
 - Demo/copy currently de-emphasizes chat:
-  - `docs/06-release/demo-runbook/2026-02-09_orbital-poc-demo/walkthrough.md`
+  - `docs/06-release/demo-runbook/2026-02-09_legaltech-poc-demo/walkthrough.md`
   - `docs/98-tmp/handoffs/handoff_2026-02-09_10-07-28_demo-setup-runbook-app.md` ("chat with documents is not implemented...")
 
 ## Guardrails

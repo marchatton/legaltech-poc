@@ -37,19 +37,19 @@
 
 ## 5) Tests/checks
 - Ran:
-  - `pnpm --filter @orbital-poc/web typecheck`
+  - `pnpm --filter @legaltech-poc/web typecheck`
     - Result: PASS
-  - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
     - Result: FAIL (environmental)
     - Error: `connect EPERM 127.0.0.1:5432 - Local (0.0.0.0:0)`
 - Earlier accidental command:
-  - `pnpm --filter @orbital-poc/web test -- test/realDataWorkflows.e2e.int.test.ts`
+  - `pnpm --filter @legaltech-poc/web test -- test/realDataWorkflows.e2e.int.test.ts`
   - This ran the broader suite and surfaced unrelated failures/skips; not used as acceptance signal for this task.
 
 ## 6) Next steps
 1. Ensure local Postgres is reachable at `127.0.0.1:5432` (or provide `DATABASE_URL`).
 2. Re-run:
-   - `pnpm --filter @orbital-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
+   - `pnpm --filter @legaltech-poc/web exec vitest run test/realDataWorkflows.e2e.int.test.ts`
 3. If passing, optionally add a second real-data E2E case for `pack_02_missing_rea`.
 4. Decide whether to keep manual citation seeding in this test or split citation/render/export assertions into a separate test once DB-first citation locking from real runs lands.
 

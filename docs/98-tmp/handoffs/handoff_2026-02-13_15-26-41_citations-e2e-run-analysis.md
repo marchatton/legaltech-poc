@@ -53,13 +53,13 @@
   - Capture active pane: `tmux capture-pane -p -J -t 0:1.1 -S -200`
   - List panes: `tmux list-panes -a -F '#S:#I.#P #{pane_current_command} #{pane_active} #{pane_dead} #{pane_current_path}'`
 - Other notable running processes:
-  - Multiple Next dev servers (`pnpm dev` + `pnpm --filter @orbital-poc/web dev -p 3001`) are running.
+  - Multiple Next dev servers (`pnpm dev` + `pnpm --filter @legaltech-poc/web dev -p 3001`) are running.
   - `agent-browser` daemons are running.
 
 ## 5) Tests/checks run
-- `pnpm --filter @orbital-poc/web exec vitest run test/citationsFromUpload.e2e.int.test.ts`
+- `pnpm --filter @legaltech-poc/web exec vitest run test/citationsFromUpload.e2e.int.test.ts`
   - Result: PASS (`1 passed`).
-- `pnpm --filter @orbital-poc/web exec vitest run test/quickStartReadiness.sync.test.ts test/demoChecklist.sync.test.ts test/fixtureContextBanner.test.ts test/foldersRunsRoute.wdk.int.test.ts test/reportRowsFromStepOutputs.int.test.ts`
+- `pnpm --filter @legaltech-poc/web exec vitest run test/quickStartReadiness.sync.test.ts test/demoChecklist.sync.test.ts test/fixtureContextBanner.test.ts test/foldersRunsRoute.wdk.int.test.ts test/reportRowsFromStepOutputs.int.test.ts`
   - Result: PASS (`5 files, 12 tests`).
 - Not run:
   - Full web test suite
@@ -70,7 +70,7 @@
 2. If keeping rename set, stage changed UI/tests/docs files and commit with a clear scope.
 3. If desired, merge chat+export assertions into one canonical E2E (currently split between `citationsFromUpload.e2e.int.test.ts` and `realDataWorkflows.e2e.int.test.ts`).
 4. Optionally run a broader gate before merge:
-   - `pnpm --filter @orbital-poc/web exec vitest run`
+   - `pnpm --filter @legaltech-poc/web exec vitest run`
    - project lint/typecheck command(s).
 
 ## 7) Risks/gotchas

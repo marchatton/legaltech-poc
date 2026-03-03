@@ -2,7 +2,7 @@
 You are Oracle, a focused one-shot problem solver. Emphasize direct answers and cite any files referenced.
 
 [USER]
-Ruthless code simplicity review (YAGNI) for orbital-poc. Focus on apps/web (Next.js App Router) and packages/core. Identify unnecessary abstractions, duplicate logic, dead/spike code that can be deleted or moved, and propose specific refactors with file references + estimated LOC reduction. Keep behaviour; prefer deleting code over adding deps. Output: Core purpose; Unnecessary complexity; Code to remove; Recommendations; YAGNI violations.
+Ruthless code simplicity review (YAGNI) for legaltech-poc. Focus on apps/web (Next.js App Router) and packages/core. Identify unnecessary abstractions, duplicate logic, dead/spike code that can be deleted or moved, and propose specific refactors with file references + estimated LOC reduction. Keep behaviour; prefer deleting code over adding deps. Output: Core purpose; Unnecessary complexity; Code to remove; Recommendations; YAGNI violations.
 
 ### File: AGENTS.md
 `````md
@@ -121,7 +121,7 @@ import { Readable } from "node:stream";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -291,7 +291,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
@@ -452,7 +452,7 @@ import path from "node:path";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDemoModeEnabledApi } from "../../../../lib/demoMode.server";
@@ -662,7 +662,7 @@ export async function POST(req: Request): Promise<Response> {
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -790,8 +790,8 @@ import { Readable } from "node:stream";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -1013,8 +1013,8 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { parseFixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { parseFixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -1200,7 +1200,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -1445,7 +1445,7 @@ export async function PUT(req: Request, ctx: { params: Promise<Record<string, st
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import {
@@ -1582,7 +1582,7 @@ export async function GET(req: Request): Promise<Response> {
 `````ts
 import { timingSafeEqual } from "node:crypto";
 
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@legaltech-poc/core";
 import { z } from "zod";
 
 import { loadSeedSnapshot } from "../../../../lib/fixtureSeed.server";
@@ -2063,7 +2063,7 @@ import {
   ListPayloadV0Schema,
   safeErrorEnvelope,
   type ListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
@@ -2494,7 +2494,7 @@ export async function POST(req: Request): Promise<Response> {
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -2597,7 +2597,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
@@ -2815,7 +2815,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 `````ts
 import { z } from "zod";
 
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema, safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -3040,7 +3040,7 @@ export async function GET(req: Request, ctx: { params: Promise<Record<string, st
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../../lib/devOnlyApi.server";
@@ -3134,7 +3134,7 @@ export async function GET(_req: Request, ctx: { params: Promise<Record<string, s
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../../lib/devOnlyApi.server";
@@ -3434,7 +3434,7 @@ export async function POST(req: Request, ctx: { params: Promise<Record<string, s
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../lib/db.server";
 import { assertDevOnlyApi } from "../../../lib/devOnlyApi.server";
@@ -3535,7 +3535,7 @@ export async function POST(req: Request): Promise<Response> {
 `````ts
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDevOrDemoProdApi } from "../../../../lib/devOnlyApi.server";
@@ -3631,8 +3631,8 @@ import { timingSafeEqual } from "node:crypto";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { verifyRow } from "@orbital-poc/core/server";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { verifyRow } from "@legaltech-poc/core/server";
 
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
@@ -3927,8 +3927,8 @@ import { timingSafeEqual } from "node:crypto";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
-import { verifyRow } from "@orbital-poc/core/server";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
+import { verifyRow } from "@legaltech-poc/core/server";
 
 import { ensureSchema, sql } from "../../../../../lib/db.server";
 import { loadSeedSnapshot } from "../../../../../lib/fixtureSeed.server";
@@ -4264,7 +4264,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Readable } from "node:stream";
 
-import { LocalPdfQuerySchema, safeErrorEnvelope } from "@orbital-poc/core";
+import { LocalPdfQuerySchema, safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { parseSingleRangeHeader } from "../../../../lib/httpRange.server";
 import { safePdfFilename } from "../../../../lib/safePdfFilename.server";
@@ -4350,8 +4350,8 @@ export async function GET(req: Request): Promise<Response> {
 
 ### File: apps/web/app/(api)/spikes/rh4-verify/route.ts
 `````ts
-import { safeErrorEnvelope, VerifyInputSchema } from "@orbital-poc/core";
-import { verifyRow } from "@orbital-poc/core/server";
+import { safeErrorEnvelope, VerifyInputSchema } from "@legaltech-poc/core";
+import { verifyRow } from "@legaltech-poc/core/server";
 
 import { assertSpikesEnabled } from "../../../../lib/spikes.server";
 import { createTraceContext } from "../../../../lib/trace.server";
@@ -5603,7 +5603,7 @@ export function MattersToolbar(props: Props) {
 `````tsx
 import { z } from "zod";
 
-import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@orbital-poc/core";
+import { ListPayloadV0Schema, MissingDocCandidateSchema } from "@legaltech-poc/core";
 
 import { assertDevOrDemoProd } from "../../../lib/devOnly";
 import { listSeededPackIds, loadSeedSnapshot } from "../../../lib/fixtureSeed.server";
@@ -6045,7 +6045,7 @@ import {
   type NormPolygons,
   type PdfJsViewportLike,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
 import { validateNormPolygons } from "../../../../lib/validateNormPolygons";
 
@@ -6427,8 +6427,8 @@ export function CitationViewerClient(props: Props) {
 `````tsx
 import { z } from "zod";
 
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { headers } from "next/headers";
 
@@ -6766,9 +6766,9 @@ export default function Rh1PdfPerfPage() {
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { PdfPerfRun } from "@orbital-poc/core";
-import { PdfPerfRunSchema } from "@orbital-poc/core";
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import type { PdfPerfRun } from "@legaltech-poc/core";
+import { PdfPerfRunSchema } from "@legaltech-poc/core";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 import { Button } from "../../../ui/Button";
 import { Input, Select } from "../../../ui/Input";
@@ -7696,7 +7696,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 
-import { AnchorFileSchema } from "@orbital-poc/core";
+import { AnchorFileSchema } from "@legaltech-poc/core";
 
 export type LoadedAnchors = {
   anchorIds: string[];
@@ -7797,7 +7797,7 @@ import {
   type CssPolygons,
   type NormPoint,
   type ViewBox,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 import { useRouter } from "next/navigation";
 
 import { overlayHighlightPolygonProps } from "../../../../lib/overlayHighlight";
@@ -10136,7 +10136,7 @@ export async function ensureRetrievalSchema(sql: Sql): Promise<void> {
 `````ts
 import "server-only";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 export function isDemoModeEnabled(): boolean {
   // Demo tooling must remain dev-only even if someone mistakenly enables the flag elsewhere.
@@ -10177,7 +10177,7 @@ export function assertDevOrDemoProd(): void {
 `````ts
 import "server-only";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { isDevOrDemoProd } from "./runtimeMode";
 
@@ -10203,8 +10203,8 @@ export function assertDevOrDemoProdApi(traceId: string, headers: Headers): Respo
 `````ts
 import "server-only";
 
-import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@orbital-poc/core";
-import type { ListPayloadV0 } from "@orbital-poc/core";
+import { LIST_PAYLOAD_V0_SCHEMA_VERSION, ListPayloadV0Schema } from "@legaltech-poc/core";
+import type { ListPayloadV0 } from "@legaltech-poc/core";
 import { z } from "zod";
 
 export const ExportCsvKindSchema = z.enum(["requirements_tracker", "exceptions_table", "survey_issues"]);
@@ -10512,7 +10512,7 @@ import path from "node:path";
 
 import { z } from "zod";
 
-import { fixtureDocumentId } from "@orbital-poc/core/fixtures/fixtureIds";
+import { fixtureDocumentId } from "@legaltech-poc/core/fixtures/fixtureIds";
 
 const SeedStatusSchema = z.enum(["needs_review", "reviewed", "missing_input", "citation_failed"]);
 
@@ -10793,8 +10793,8 @@ export function newId(prefix: string): string {
 `````ts
 import "server-only";
 
-import { chunkPageCharWindowV0 } from "@orbital-poc/core";
-import { hashSnippet } from "@orbital-poc/core/citations/snippet";
+import { chunkPageCharWindowV0 } from "@legaltech-poc/core";
+import { hashSnippet } from "@legaltech-poc/core/citations/snippet";
 
 import { ensureSchema, sql } from "../db.server";
 import { refreshFolderState } from "../folderState.server";
@@ -11564,7 +11564,7 @@ import {
   Paragraph,
 } from "docx";
 
-import { type ListPayloadV0 } from "@orbital-poc/core";
+import { type ListPayloadV0 } from "@legaltech-poc/core";
 
 type RunMeta = {
   id: string;
@@ -12094,7 +12094,7 @@ import {
   ListPayloadV0KindSchema,
   ListPayloadV0Schema,
   emptyListPayloadV0,
-} from "@orbital-poc/core";
+} from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "./db.server";
 import { newId } from "./ids";
@@ -12756,7 +12756,7 @@ export function safePdfFilename(val: unknown): string {
 
 ### File: apps/web/lib/spikes.server.ts
 `````ts
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 export function assertSpikesEnabled(traceId: string, headers: Headers): Response | null {
   if (process.env.SPIKES_ENABLED === "1") return null;
@@ -12784,7 +12784,7 @@ export function createTraceContext(): { traceId: string; headers: Headers } {
 
 ### File: apps/web/lib/validateNormPolygons.ts
 `````ts
-import type { NormPolygons } from "@orbital-poc/core";
+import type { NormPolygons } from "@legaltech-poc/core";
 
 export function validateNormPolygons(polygons: NormPolygons): string | null {
   if (!polygons.length) return "NO_POLYGONS";
@@ -12891,7 +12891,7 @@ const nextConfig = {
   // Ensure Next's output file tracing is rooted at the monorepo, not an inferred dir.
   // This avoids picking up unrelated lockfiles on the machine.
   outputFileTracingRoot: path.join(__dirname, "../.."),
-  transpilePackages: ["@orbital-poc/core"],
+  transpilePackages: ["@legaltech-poc/core"],
 };
 
 module.exports = nextConfig;
@@ -12901,7 +12901,7 @@ module.exports = nextConfig;
 ### File: apps/web/package.json
 `````json
 {
-  "name": "@orbital-poc/web",
+  "name": "@legaltech-poc/web",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -12915,7 +12915,7 @@ module.exports = nextConfig;
   },
   "dependencies": {
     "@ai-sdk/gateway": "2.0.35",
-    "@orbital-poc/core": "workspace:*",
+    "@legaltech-poc/core": "workspace:*",
     "ai": "5.0.129",
     "docx": "^9.5.1",
     "next": "^15.0.0",
@@ -13195,12 +13195,12 @@ export default defineConfig({
 ### File: package.json
 `````json
 {
-  "name": "orbital-poc",
+  "name": "legaltech-poc",
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "pnpm --filter @orbital-poc/web dev",
-    "start": "pnpm --filter @orbital-poc/web start",
+    "dev": "pnpm --filter @legaltech-poc/web dev",
+    "start": "pnpm --filter @legaltech-poc/web start",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
@@ -13230,7 +13230,7 @@ export default defineConfig({
 ### File: packages/core/package.json
 `````json
 {
-  "name": "@orbital-poc/core",
+  "name": "@legaltech-poc/core",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13966,7 +13966,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { hashSnippet, normaliseSnippet } from "@orbital-poc/core/citations/snippet";
+import { hashSnippet, normaliseSnippet } from "@legaltech-poc/core/citations/snippet";
 
 type ExtractedSnippet = {
   doc: string;
@@ -14604,7 +14604,7 @@ packages:
 
 ### File: README.md
 `````md
-# orbital-poc
+# legaltech-poc
 This is a personal project created for educational purposes as part of a job application to Orbital. It is not affiliated with, endorsed by, or connected to Orbital in any way. This is purely a demonstration of technical skills and understanding of the problem domain.
 
 ## Start here

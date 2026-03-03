@@ -1,4 +1,4 @@
-import type { NormPolygons } from "@orbital-poc/core";
+import type { NormPolygons } from "@legaltech-poc/core";
 
 export function validateNormPolygons(polygons: NormPolygons): string | null {
   if (!polygons.length) return "NO_POLYGONS";

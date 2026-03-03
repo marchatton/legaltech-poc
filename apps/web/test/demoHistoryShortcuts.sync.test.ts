@@ -24,7 +24,8 @@ describe("US-003 repeat-load and demo-history shortcuts", () => {
     expect(toolbarSource).toContain("Demo Controls");
     expect(toolbarSource).toContain("Allowlisted packs");
     expect(toolbarSource).toMatch(/Load (?:Demo Pack|pack again)/i);
-    expect(mattersPageSource).toContain('value: "demo_packs"');
+    expect(mattersPageSource).toContain("SAVED_VIEW_OPTIONS");
+    expect(mattersPageSource).toContain('{ label: "Needs Attention", value: "needs_attention" }');
   });
 
   it("does not hardcode wireframe sample history rows", () => {

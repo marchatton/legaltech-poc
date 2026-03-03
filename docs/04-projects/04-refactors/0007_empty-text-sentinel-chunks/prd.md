@@ -21,7 +21,7 @@ If we instead make empty text produce zero chunks, folder state can get stuck in
 
 - Documents with no extracted text should still allow the folder to reach `indexed` (runnable), not remain permanently `ingesting`.
 - Avoid writing per-page empty chunks for empty-text documents or post-cap pages.
-- Keep chunking semantics in `@orbital-poc/core` clean and reusable (no app-specific progress hacks).
+- Keep chunking semantics in `@legaltech-poc/core` clean and reusable (no app-specific progress hacks).
 - Preserve idempotent re-ingest behavior for chunks.
 
 ## Non-goals

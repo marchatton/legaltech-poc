@@ -77,7 +77,7 @@
   - `tmux capture-pane -p -J -t 0:1.1 -S -200`
 
 - notable active processes observed:
-  - Next dev server instances via `pnpm --filter @orbital-poc/web dev` (`next dev -p 3101` also visible)
+  - Next dev server instances via `pnpm --filter @legaltech-poc/web dev` (`next dev -p 3101` also visible)
   - Additional `pnpm dev` / `next dev` process chain on `ttys002`
 
 ## 5) Tests/Checks

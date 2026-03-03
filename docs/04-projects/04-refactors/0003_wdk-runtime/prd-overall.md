@@ -30,7 +30,7 @@ Important boundary:
 
 ## Goals
 - WDK runtime exists in-repo with a clear, minimal API.
-- WDK worker loop exists and is runnable via `pnpm --filter @orbital-poc/web worker`.
+- WDK worker loop exists and is runnable via `pnpm --filter @legaltech-poc/web worker`.
 - Step claiming is safe for multiple workers (`FOR UPDATE SKIP LOCKED`).
 - Step retry/backoff and stale lock requeue behavior is explicit and testable.
 - Ingest is moved to WDK behind a short-lived feature flag.
@@ -61,8 +61,8 @@ Important boundary:
   - Mitigation: timebox the flag and include “delete legacy path” as explicit acceptance criteria.
 
 ## Quality Gates
-- `pnpm --filter @orbital-poc/web typecheck`
-- `pnpm --filter @orbital-poc/web test`
+- `pnpm --filter @legaltech-poc/web typecheck`
+- `pnpm --filter @legaltech-poc/web test`
 - `pnpm verify`
 
 ## Open Questions

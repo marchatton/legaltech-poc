@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { assertDevOnlyApi } from "../../../../../lib/devOnlyApi.server";
 import {

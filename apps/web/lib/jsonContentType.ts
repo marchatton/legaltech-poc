@@ -1,4 +1,4 @@
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 function baseContentType(raw: string | null): string | null {
   if (!raw) return null;

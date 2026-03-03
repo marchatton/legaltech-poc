@@ -1,14 +1,14 @@
 {
   "version": 1,
   "project": "Empty-Text Sentinel Chunks (Indexed Progress Without Per-Page Empties)",
-  "overview": "Ensure documents with no extracted text can still reach folder state `indexed` without generating per-page empty chunks. Make `@orbital-poc/core` chunking semantically clean (empty text => zero chunks), and have ingest write a single doc-level sentinel chunk when needed to satisfy the `indexed` invariant.",
+  "overview": "Ensure documents with no extracted text can still reach folder state `indexed` without generating per-page empty chunks. Make `@legaltech-poc/core` chunking semantically clean (empty text => zero chunks), and have ingest write a single doc-level sentinel chunk when needed to satisfy the `indexed` invariant.",
   "date": "2026-02-10",
   "owner": "marc",
   "status": "draft",
   "goals": [
     "Folders with scanned/no-text documents can reach `indexed` (runnable) rather than staying permanently `ingesting`.",
     "Avoid writing per-page empty chunks for empty-text documents or post-cap pages.",
-    "Keep chunking semantics in `@orbital-poc/core` reusable (no app-specific progress hacks).",
+    "Keep chunking semantics in `@legaltech-poc/core` reusable (no app-specific progress hacks).",
     "Preserve deterministic/idempotent re-ingest behavior for chunks."
   ],
   "nonGoals": [

@@ -160,7 +160,7 @@ function main(): void {
 
   const outPath = "docs/98-tmp/oracle/oracle-bundle_code-simplicity_2026-02-10.md";
   const prompt =
-    "Ruthless code simplicity review (YAGNI) for orbital-poc. Focus on apps/web (Next.js App Router) and packages/core. Identify unnecessary abstractions, duplicate logic, dead/spike code that can be deleted or moved, and propose specific refactors with file references + estimated LOC reduction. Keep behaviour; prefer deleting code over adding deps. Output: Core purpose; Unnecessary complexity; Code to remove; Recommendations; YAGNI violations.";
+    "Ruthless code simplicity review (YAGNI) for legaltech-poc. Focus on apps/web (Next.js App Router) and packages/core. Identify unnecessary abstractions, duplicate logic, dead/spike code that can be deleted or moved, and propose specific refactors with file references + estimated LOC reduction. Keep behaviour; prefer deleting code over adding deps. Output: Core purpose; Unnecessary complexity; Code to remove; Recommendations; YAGNI violations.";
 
   const files = collectDefaultFiles(repoRoot);
   const rendered = renderBundle(repoRoot, { prompt, outPath }, files);

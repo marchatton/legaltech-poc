@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { z } from "zod";
 
-import { safeErrorEnvelope } from "@orbital-poc/core";
+import { safeErrorEnvelope } from "@legaltech-poc/core";
 
 import { ensureSchema, sql } from "../../../../lib/db.server";
 import { assertDemoModeEnabledApi } from "../../../../lib/demoMode.server";
