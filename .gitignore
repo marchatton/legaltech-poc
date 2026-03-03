@@ -5,6 +5,7 @@
 # Build outputs
 .next/
 **/.next/
+**/.next-dev.lock
 dist/
 **/dist/
 coverage/
